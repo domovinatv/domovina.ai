@@ -64,7 +64,11 @@ class MeiliClient {
   }) async {
     final body = <String, dynamic>{
       'q': q,
-      'limit': limit,
+      // `page`/`hitsPerPage` umjesto `limit`: tada Meili vraća točan
+      // `totalHits` po epizodi (`distinctAttribute`), a ne procjenu po
+      // sekciji — „pobačaj" je 298 epizoda, ne 974 sekcije.
+      'page': 1,
+      'hitsPerPage': limit,
       // Ne dohvaćaj puni article_text (velik) — samo croppani _formatted snippet.
       'attributesToRetrieve': [
         'youtube_id',
@@ -107,6 +111,9 @@ class MeiliClient {
           body: jsonEncode({
             'q': '',
             'facets': ['channel'],
+            // Dokument je sekcija; `lead` nosi jedna po epizodi, pa facet
+            // broji epizode (Meili facete ne broji po `distinct`).
+            'filter': 'lead = true',
             'limit': 0,
           }),
         )
@@ -162,7 +169,9 @@ class MeiliResponse {
       hits: (json['hits'] as List<dynamic>? ?? [])
           .map((e) => MeiliHit.fromJson(e as Map<String, dynamic>))
           .toList(),
-      estimatedTotalHits: (json['estimatedTotalHits'] as num?)?.toInt() ?? 0,
+      estimatedTotalHits:
+          ((json['totalHits'] ?? json['estimatedTotalHits']) as num?)?.toInt() ??
+              0,
       processingTimeMs: (json['processingTimeMs'] as num?)?.toInt() ?? 0,
       channelFacets:
           dist?.map((k, v) => MapEntry(k, (v as num).toInt())) ?? const {},

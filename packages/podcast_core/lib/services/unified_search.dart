@@ -273,8 +273,10 @@ List<EpisodeHit> mergeSearchResults({
     a.channelName ??= displayChannel(h.channel);
     a.date ??= h.uploadDate.isEmpty ? null : h.uploadDate;
     if (a.snippet == null) {
+      // Isječak sekcije samo ako nosi pogodak; inače je to prvih 32 riječi
+      // sekcije koju je Meili izabrao po naslovu ili govorniku.
       final snip = parseEmTags(h.formattedArticleSnippet);
-      a.snippet = snip.text.trim().isNotEmpty
+      a.snippet = snip.ranges.isNotEmpty
           ? snip
           : _matchedSections(h.formattedSectionTitles);
     }

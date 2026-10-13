@@ -153,10 +153,34 @@ Latencija `/api/search`: 0,7–2 s pojedinačno, 7–12 s uz tri paralelna upita
 (embedder je usko grlo). Meili 70–300 ms. Cloudflare pred oba servisa vraća
 403 na `Python-urllib` User-Agent — skripte šalju browserski UA.
 
-Sljedeće, u `domovina-rag` (nije napravljeno): Meili dokument po **sekciji**
-uz `distinct: youtube_id`; `speakers`/`topics`/ime kanala kao pretraživa
-polja; hrvatski `stopWords` u indeksu; dugoročno Meili hybrid s bge-m3
-vektorima umjesto ručnog spajanja tri izvora.
+### 5.1 Meili indeks po sekciji (LIVE 14. 10. 2026., `domovina-rag` 0b7d48c)
+
+`episodes` dokument je sada jedna sekcija sažetka (68 990 dokumenata,
+`distinctAttribute: youtube_id`), s poljima `speakers` (imena iz transkripta),
+`channel_name`, `lead` i hrvatskim `stopWords`; `article_text` je u
+`displayedAttributes`, pa isječak dolazi iz pogođene sekcije („Na pitanje
+zašto **mladi napuštaju Crkvu** nakon krizme…"). Index se gradi u
+`episodes__build` i zamjenjuje atomski (`/swap-indexes`); search ključ je vezan
+uz ime, pa ga zamjena ne dira.
+
+Zamke na koje klijent pazi:
+
+- Meili 1.11 **facete i `estimatedTotalHits` broji po dokumentu**, ne po
+  `distinct` grupi („40 dana za život" 1811 sekcija umjesto 80 epizoda).
+  Facet upit filtrira `lead = true`; broj pogodaka je `totalHits` uz
+  `page`/`hitsPerPage` (298 epizoda za „pobačaj", ne 974).
+- Crop `article_text` stiže i kad je pogodak bio u naslovu — tada je to početak
+  sekcije, ne isječak pogotka. Isječak se uzima samo ako nosi `<em>`.
+- `matchingStrategy: 'all'` je sada unutar JEDNE sekcije: pitanje od pet
+  sadržajnih riječi ne vraća ništa i odgovara samo semantika. To je namjera.
+
+Na istim fixturama redoslijed je uglavnom isti kao nakon fuzije (ona je
+napravila glavni posao); novi indeks donosi isječke, točne brojke i čišći
+tekstni sloj („tuga…": ispao „Principi boljih odnosa"; „abortus": Bundalo
+„Tri vrste abortusa" ušao u prvih pet).
+
+Otvoreno: Meili hybrid s bge-m3 vektorima umjesto ručnog spajanja tri izvora;
+`topics` iz listinga kao pretraživo polje.
 
 ## Otvoreno
 

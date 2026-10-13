@@ -456,6 +456,10 @@ class _SearchOverlayState extends State<_SearchOverlay> {
     _remerge();
   }
 
+  /// Upit za isticanje: bez funkcijskih riječi, inače svako „je" i „se" u
+  /// isječku svijetli kao pogodak.
+  String get _highlightQuery => contentQuery(_query);
+
   void _remerge() {
     _visibleEpisodes = mergeSearchResults(
       query: _query,
@@ -547,7 +551,7 @@ class _SearchOverlayState extends State<_SearchOverlay> {
           channelName: hit.channelName,
           video: hit.video,
           titleMatch: head,
-          snippet: _localMatchContext(hit.video, _query),
+          snippet: _localMatchContext(hit.video, _highlightQuery),
         ),
     ];
   }
@@ -892,7 +896,7 @@ class _SearchOverlayState extends State<_SearchOverlay> {
                   children: [
                     QueryHighlightText(
                       p.name,
-                      query: _query,
+                      query: _highlightQuery,
                       style: theme.textTheme.titleSmall,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -945,7 +949,7 @@ class _SearchOverlayState extends State<_SearchOverlay> {
                 children: [
                   QueryHighlightText(
                     ch.name,
-                    query: _query,
+                    query: _highlightQuery,
                     style: theme.textTheme.titleSmall,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -997,7 +1001,7 @@ class _SearchOverlayState extends State<_SearchOverlay> {
                 children: [
                   QueryHighlightText(
                     hit.title.text,
-                    query: _query,
+                    query: _highlightQuery,
                     ranges: hit.title.ranges,
                     style: theme.textTheme.titleSmall,
                     maxLines: 3,
@@ -1029,7 +1033,7 @@ class _SearchOverlayState extends State<_SearchOverlay> {
                           ? snippetAround(hit.snippet!.text, _query,
                               before: 60, window: 220)
                           : hit.snippet!.text,
-                      query: _query,
+                      query: _highlightQuery,
                       ranges: hit.snippet!.ranges,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,

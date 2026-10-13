@@ -263,6 +263,27 @@ void main() {
     ]);
   });
 
+  // Od 14.10.2026. Meili dokument je sekcija i `article_text` je u
+  // displayedAttributes, pa crop stiže uvijek — i kad je pogodak bio u
+  // naslovu. Takav crop (prve riječi sekcije) nije isječak pogotka.
+  test('Meilijev crop bez pogotka ne postaje isječak', () {
+    final h = MeiliHit(
+      youtubeId: 'x',
+      title: 'Damir Sabol',
+      channel: 'kanal',
+      uploadDate: '',
+      sectionTitles: const [],
+      deepLink: '',
+      formattedTitle: '<em>Damir</em> <em>Sabol</em>',
+      formattedArticleSnippet: 'Emisija je ušla u svoju 27. sezonu…',
+      formattedSectionTitles: const ['Uvod'],
+    );
+    final hit = mergeSearchResults(
+            query: 'damir sabol', meili: [h], channelName: names)
+        .single;
+    expect(hit.snippet, isNull);
+  });
+
   test('parseEmTags', () {
     final m = parseEmTags('a <em>bc</em> d <em>e</em>');
     expect(m.text, 'a bc d e');
