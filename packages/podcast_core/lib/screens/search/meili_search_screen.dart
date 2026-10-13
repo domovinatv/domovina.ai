@@ -67,6 +67,15 @@ class _MeiliSearchScreenState extends State<MeiliSearchScreen> {
       final facets = await MeiliClient.channelFacets();
       if (mounted) setState(() => _allChannels = facets);
     } catch (_) {/* facet fetch nije kritičan */}
+    // Facet nosi slug, ime kanala je u indeksu. Na hladnom `/search` indeks
+    // još nije učitan, pa je chip padao na slug („nanovoroeni" →
+    // „Nanovoroeni" umjesto „Nanovo rođeni" — slug nema dijakritike).
+    if (channelCache.index == null) {
+      try {
+        await channelCache.loadIndex();
+        if (mounted) setState(() {});
+      } catch (_) {/* ostaje fallback na slug */}
+    }
   }
 
   @override
