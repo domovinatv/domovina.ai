@@ -25,6 +25,7 @@ library;
 import 'package:flutter/foundation.dart';
 
 import '../src/log.dart' show log;
+import 'analytics/analytics.dart';
 import '../models/sponsored_moment.dart';
 
 enum SponsoredMomentEvent {
@@ -43,15 +44,26 @@ abstract class SponsoredMomentSink {
   void record(SponsoredMomentEvent event, SponsoredMoment moment);
 }
 
-/// Ugovor v1 NEMA tablicu za mjerenje, pa događaji zasad idu samo u log.
-/// Kad backend doda insert-only zapis, ovdje dolazi pravi sink — logika
-/// detekcije se ne mijenja.
+/// Ugovor v1 NEMA tablicu za mjerenje u Supabaseu; događaji idu u log i u
+/// vlastitu analitiku (`sponsored_impression`, `sponsored_play_through`,
+/// `sponsored_click`). Logika detekcije ne ovisi o tome kamo idu.
 class LogSponsoredMomentSink implements SponsoredMomentSink {
   const LogSponsoredMomentSink();
 
   @override
-  void record(SponsoredMomentEvent event, SponsoredMoment moment) =>
-      log('SponsoredMoment: ${event.wire} ${moment.slotKey}');
+  void record(SponsoredMomentEvent event, SponsoredMoment moment) {
+    log('SponsoredMoment: ${event.wire} ${moment.slotKey}');
+    Analytics.instance.track(
+      'sponsored_${event.wire}',
+      videoId: moment.youtubeId,
+      props: {
+        'slot_key': moment.slotKey,
+        'brand': moment.brand,
+        'start': moment.start,
+        'end': moment.end,
+      },
+    );
+  }
 }
 
 class SponsoredMomentsController {

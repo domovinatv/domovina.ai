@@ -30,6 +30,7 @@ const BrandConfig domovinaBrand = BrandConfig(
     certilia: 'https://certilia.domovina.ai',
     wallet: 'https://wallet.domovina.ai',
     paymentIntents: 'https://mpt.domovina.ai',
+    events: 'https://domovina.ai/api/state',
   ),
   flags: FeatureFlags(
     voting: true,

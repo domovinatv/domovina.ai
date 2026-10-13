@@ -114,6 +114,7 @@ class Endpoints {
     this.certilia = '',
     this.wallet = '',
     this.paymentIntents = '',
+    this.events = '',
   });
 
   /// Javna web stranica — baza za share linkove i OG.
@@ -137,6 +138,12 @@ class Endpoints {
   /// Pinka wallet SDK host i intent-status API; prazno kad je pinka ugašena.
   final String wallet;
   final String paymentIntents;
+
+  /// Ingest vlastite analitike (`domovina-analytics`), puni URL. Prazno =
+  /// brend nema analitiku. Mora biti na ISTOM originu kao [site]: zahtjev na
+  /// tuđu domenu (ili s riječima poput `analytics`/`track` u putanji)
+  /// adblockeri blokiraju.
+  final String events;
 }
 
 /// Značajke koje brend uključuje. Zadano je sve UGAŠENO osim onoga što je

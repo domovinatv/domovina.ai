@@ -1,4 +1,5 @@
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart'
+    show TargetPlatform, defaultTargetPlatform, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart' show SemanticsBinding;
 import 'package:flutter/services.dart' show BrowserContextMenu;
@@ -8,6 +9,7 @@ import 'package:media_kit/media_kit.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../l10n/app_localizations.dart';
 import '../router/app_router.dart';
+import '../services/analytics/analytics.dart';
 import '../services/auth_service.dart';
 import '../services/background_audio.dart';
 import '../services/background_playback.dart';
@@ -153,6 +155,25 @@ Future<void> runPodcastApp(
   // pa ovo ondje samo ubrza prvi pristup.
   await PreferredEpisodeLanguage.instance.init();
 
+  // Analitika (domovina-analytics). Korisnik i jezik se postave PRIJE
+  // init-a, da `session_start` već nosi identitet umjesto da se odmah šalje
+  // gostujući batch pa `identify`.
+  final analytics = Analytics.instance;
+  void syncAnalyticsUser() =>
+      analytics.setUser(AuthService.instance.currentUser?.id);
+  void syncAnalyticsLocale() =>
+      analytics.setLocale(LocaleController.instance.locale.languageCode);
+  syncAnalyticsUser();
+  syncAnalyticsLocale();
+  await analytics.init(
+    endpoint: brand.endpoints.events,
+    app: Uri.parse(brand.endpoints.site).host,
+    platform: _analyticsPlatform(),
+    appVersion: appVersion,
+  );
+  AuthService.instance.addListener(syncAnalyticsUser);
+  LocaleController.instance.addListener(syncAnalyticsLocale);
+
   // Uhvati Flutter greske i ispisi u console (vidljivo i u minified buildu)
   FlutterError.onError = (details) {
     log('FLUTTER ERROR: ${details.exception}');
@@ -165,6 +186,18 @@ Future<void> runPodcastApp(
 
   log('runApp');
   runApp(const PodcastApp());
+}
+
+String _analyticsPlatform() {
+  if (kIsWeb) return 'web';
+  if (TvMode.isTv) return 'tv';
+  return switch (defaultTargetPlatform) {
+    TargetPlatform.iOS => 'ios',
+    TargetPlatform.android => 'android',
+    TargetPlatform.macOS => 'macos',
+    TargetPlatform.windows => 'windows',
+    _ => 'linux',
+  };
 }
 
 class PodcastApp extends StatefulWidget {
@@ -187,7 +220,16 @@ class _PodcastAppState extends State<PodcastApp> {
   void initState() {
     super.initState();
     listenForAppUpdate(_showUpdateSnackBar);
+    // `screen_view` za svaku promjenu lokacije. Sluša se provider, ne
+    // `routerDelegate`: delegate na `push` ne javlja listenerima (izmjereno —
+    // otvorena epizoda ostala je zapisana kao `/`), a provider javlja svaki
+    // go/push/pop i browserov Back.
+    _router.routeInformationProvider.addListener(_reportScreen);
+    _reportScreen();
   }
+
+  void _reportScreen() =>
+      Analytics.instance.screen(_router.routeInformationProvider.value.uri);
 
   void _showUpdateSnackBar() {
     final ctx = _messengerKey.currentContext;

@@ -977,6 +977,28 @@ gase je `dispose` i terminalni stage (`settled`/`rejected`).
 posjetiteljev IP odalo vlasniku tog hosta. Preview u obrascu ide preko edge
 funkcije `pinka-link-preview`, ne dohvatom iz preglednika.
 
+### Vlastita analitika — `Analytics` (od 14.10.2026., nedeployano)
+
+Klijent servisa `../domovina-analytics` (Worker na `domovina.ai/api/state` →
+ClickHouse na Coolifyju; ugovor `docs/ugovor.md` u tom repou). Batch svakih
+30 s u prednjem planu je ujedno heartbeat za „tko je sada u aplikaciji”;
+`screen_view` dolazi iz `routeInformationProvider` u `app.dart`. Brend bez
+`Endpoints.events` nema analitiku; debug build šalje samo uz
+`--dart-define=ANALYTICS_IN_DEBUG=true`, a `ANALYTICS_ENDPOINT` ga usmjeri na
+`wrangler dev`.
+
+**Rule (isti origin, neutralna putanja)**: ingest NE ide na poddomenu ni na
+putanju s `analytics`/`track`/`collect`/`event`/`beacon` — to adblockeri
+(Brave Shields) blokiraju po popisima. Putanja živi na tri mjesta (dva u
+`wrangler.jsonc` tog repoa, `Endpoints.events` ovdje).
+
+**Rule (`screen_view` iz providera, ne iz delegatea)**:
+`routerDelegate` na `push` ne javlja listenerima — otvorena epizoda je
+izmjereno ostala zapisana kao `/`.
+
+**Rule (novi događaj)**: `Analytics.instance.track('snake_case', props: …)`,
+props ≤ 4 KB, i redak u `domovina-analytics/docs/ugovor.md`. Shema se ne mijenja.
+
 ## Logging
 
 `lib/src/log.dart` exports a `log()` function that prefixes messages with `[DOMOVINA v{version}]` (and the `appVersion` constant that `scripts/deploy.sh` bumps). Use it throughout the app for console debugging:
