@@ -1475,25 +1475,13 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get homeSearchNoTitleMatches => 'No matches\nin titles';
-
-  @override
   String get homeSearchSearching => 'Searching…';
-
-  @override
-  String get homeSearchNoContentMatches => 'No matches\nin content';
 
   @override
   String get homeSearchSectionChannels => 'Channels';
 
   @override
   String get homeSearchSectionEpisodes => 'Episodes';
-
-  @override
-  String get homeSearchSectionContent => 'In content';
-
-  @override
-  String get homeSearchSemanticLoading => 'Searching the conversation content…';
 
   @override
   String get homeSearchEmptyTitle => 'Start typing to search';
@@ -1503,8 +1491,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Searches channels, episodes and the conversations themselves';
 
   @override
-  String get homeSearchKeyboardHint =>
-      '↑ ↓ to move · ← → switch columns · ↵ to open';
+  String get homeSearchKeyboardHint => '↑ ↓ to move · ↵ to open';
 
   @override
   String homeSearchChannelMeta(int count, String duration) {
@@ -1518,12 +1505,15 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String homeSearchRelevanceTooltip(String score) {
-    return 'Relevance (semantic similarity): $score';
-  }
+  String get homeSearchOpenById => 'Open by YouTube ID';
 
   @override
-  String get homeSearchOpenById => 'Open by YouTube ID';
+  String get homeSearchShowAll => 'Show all results';
+
+  @override
+  String homeSearchJumpTo(String time) {
+    return 'Play from $time';
+  }
 
   @override
   String get homeSearchIdHint => 'e.g. H-p2Hl6x7I0';

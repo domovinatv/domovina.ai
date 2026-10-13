@@ -2498,23 +2498,11 @@ abstract class AppLocalizations {
   /// **'Nema rezultata za „{query}”'**
   String homeSearchNoResults(String query);
 
-  /// Empty state for the title-search column (newline is a layout break).
-  ///
-  /// In hr, this message translates to:
-  /// **'Nema podudaranja\nu naslovima'**
-  String get homeSearchNoTitleMatches;
-
   /// Loading state shown in the content-search column.
   ///
   /// In hr, this message translates to:
   /// **'Pretražujem…'**
   String get homeSearchSearching;
-
-  /// Empty state for the content-search column (newline is a layout break).
-  ///
-  /// In hr, this message translates to:
-  /// **'Nema podudaranja\nu sadržaju'**
-  String get homeSearchNoContentMatches;
 
   /// Search results section header (uppercased in UI): channels.
   ///
@@ -2527,18 +2515,6 @@ abstract class AppLocalizations {
   /// In hr, this message translates to:
   /// **'Epizode'**
   String get homeSearchSectionEpisodes;
-
-  /// Search results section header (uppercased in UI): semantic content matches.
-  ///
-  /// In hr, this message translates to:
-  /// **'U sadržaju'**
-  String get homeSearchSectionContent;
-
-  /// Loading row in the semantic search column.
-  ///
-  /// In hr, this message translates to:
-  /// **'Pretražujem sadržaj razgovora…'**
-  String get homeSearchSemanticLoading;
 
   /// Search overlay empty-state title.
   ///
@@ -2555,7 +2531,7 @@ abstract class AppLocalizations {
   /// Keyboard navigation hint in the search overlay empty state.
   ///
   /// In hr, this message translates to:
-  /// **'↑ ↓ kroz popis · ← → između stupaca · ↵ za odabir'**
+  /// **'↑ ↓ kroz popis · ↵ za odabir'**
   String get homeSearchKeyboardHint;
 
   /// Channel result row meta: episode count and total duration.
@@ -2564,17 +2540,23 @@ abstract class AppLocalizations {
   /// **'{count, plural, one{{count} epizoda · {duration}} few{{count} epizode · {duration}} other{{count} epizoda · {duration}}}'**
   String homeSearchChannelMeta(int count, String duration);
 
-  /// Tooltip on the semantic relevance meter; {score} is a 0–1 value.
-  ///
-  /// In hr, this message translates to:
-  /// **'Relevantnost (semantička sličnost): {score}'**
-  String homeSearchRelevanceTooltip(String score);
-
   /// Expander label to open an episode by entering its YouTube ID.
   ///
   /// In hr, this message translates to:
   /// **'Otvori po YouTube ID-u'**
   String get homeSearchOpenById;
+
+  /// Link at the bottom of the search overlay to the full results screen (/search).
+  ///
+  /// In hr, this message translates to:
+  /// **'Prikaži sve rezultate'**
+  String get homeSearchShowAll;
+
+  /// Tooltip on a moment chip under a search result; jumps to that second of the episode.
+  ///
+  /// In hr, this message translates to:
+  /// **'Pusti od {time}'**
+  String homeSearchJumpTo(String time);
 
   /// Hint text in the YouTube ID input field.
   ///

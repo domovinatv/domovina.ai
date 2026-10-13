@@ -1486,25 +1486,13 @@ class AppLocalizationsHr extends AppLocalizations {
   }
 
   @override
-  String get homeSearchNoTitleMatches => 'Nema podudaranja\nu naslovima';
-
-  @override
   String get homeSearchSearching => 'Pretražujem…';
-
-  @override
-  String get homeSearchNoContentMatches => 'Nema podudaranja\nu sadržaju';
 
   @override
   String get homeSearchSectionChannels => 'Kanali';
 
   @override
   String get homeSearchSectionEpisodes => 'Epizode';
-
-  @override
-  String get homeSearchSectionContent => 'U sadržaju';
-
-  @override
-  String get homeSearchSemanticLoading => 'Pretražujem sadržaj razgovora…';
 
   @override
   String get homeSearchEmptyTitle => 'Počni tipkati za pretragu';
@@ -1514,8 +1502,7 @@ class AppLocalizationsHr extends AppLocalizations {
       'Pretražuje kanale, epizode i sam sadržaj razgovora';
 
   @override
-  String get homeSearchKeyboardHint =>
-      '↑ ↓ kroz popis · ← → između stupaca · ↵ za odabir';
+  String get homeSearchKeyboardHint => '↑ ↓ kroz popis · ↵ za odabir';
 
   @override
   String homeSearchChannelMeta(int count, String duration) {
@@ -1530,12 +1517,15 @@ class AppLocalizationsHr extends AppLocalizations {
   }
 
   @override
-  String homeSearchRelevanceTooltip(String score) {
-    return 'Relevantnost (semantička sličnost): $score';
-  }
+  String get homeSearchOpenById => 'Otvori po YouTube ID-u';
 
   @override
-  String get homeSearchOpenById => 'Otvori po YouTube ID-u';
+  String get homeSearchShowAll => 'Prikaži sve rezultate';
+
+  @override
+  String homeSearchJumpTo(String time) {
+    return 'Pusti od $time';
+  }
 
   @override
   String get homeSearchIdHint => 'npr. H-p2Hl6x7I0';

@@ -1909,17 +1909,9 @@
       }
     }
   },
-  "homeSearchNoTitleMatches": "Nema podudaranja\nu naslovima",
-  "@homeSearchNoTitleMatches": {
-    "description": "Empty state for the title-search column (newline is a layout break)."
-  },
   "homeSearchSearching": "Pretražujem…",
   "@homeSearchSearching": {
     "description": "Loading state shown in the content-search column."
-  },
-  "homeSearchNoContentMatches": "Nema podudaranja\nu sadržaju",
-  "@homeSearchNoContentMatches": {
-    "description": "Empty state for the content-search column (newline is a layout break)."
   },
   "homeSearchSectionChannels": "Kanali",
   "@homeSearchSectionChannels": {
@@ -1929,14 +1921,6 @@
   "@homeSearchSectionEpisodes": {
     "description": "Search results section header (uppercased in UI): episodes."
   },
-  "homeSearchSectionContent": "U sadržaju",
-  "@homeSearchSectionContent": {
-    "description": "Search results section header (uppercased in UI): semantic content matches."
-  },
-  "homeSearchSemanticLoading": "Pretražujem sadržaj razgovora…",
-  "@homeSearchSemanticLoading": {
-    "description": "Loading row in the semantic search column."
-  },
   "homeSearchEmptyTitle": "Počni tipkati za pretragu",
   "@homeSearchEmptyTitle": {
     "description": "Search overlay empty-state title."
@@ -1945,7 +1929,7 @@
   "@homeSearchEmptySubtitle": {
     "description": "Search overlay empty-state subtitle."
   },
-  "homeSearchKeyboardHint": "↑ ↓ kroz popis · ← → između stupaca · ↵ za odabir",
+  "homeSearchKeyboardHint": "↑ ↓ kroz popis · ↵ za odabir",
   "@homeSearchKeyboardHint": {
     "description": "Keyboard navigation hint in the search overlay empty state."
   },
@@ -1961,18 +1945,23 @@
       }
     }
   },
-  "homeSearchRelevanceTooltip": "Relevantnost (semantička sličnost): {score}",
-  "@homeSearchRelevanceTooltip": {
-    "description": "Tooltip on the semantic relevance meter; {score} is a 0–1 value.",
-    "placeholders": {
-      "score": {
-        "type": "String"
-      }
-    }
-  },
   "homeSearchOpenById": "Otvori po YouTube ID-u",
   "@homeSearchOpenById": {
     "description": "Expander label to open an episode by entering its YouTube ID."
+  },
+  "homeSearchShowAll": "Prikaži sve rezultate",
+  "@homeSearchShowAll": {
+    "description": "Link at the bottom of the search overlay to the full results screen (/search)."
+  },
+  "homeSearchJumpTo": "Pusti od {time}",
+  "@homeSearchJumpTo": {
+    "description": "Tooltip on a moment chip under a search result; jumps to that second of the episode.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "12:34"
+      }
+    }
   },
   "homeSearchIdHint": "npr. H-p2Hl6x7I0",
   "@homeSearchIdHint": {

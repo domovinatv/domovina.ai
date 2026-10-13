@@ -13,7 +13,10 @@ import '../../services/channel_cache.dart';
 import '../../services/entitlement_service.dart';
 import '../../services/person_channel_flag.dart';
 import '../../services/person_index_cache.dart';
+import '../../services/meili_client.dart';
 import '../../services/search_service.dart';
+import '../../services/unified_search.dart';
+import '../../src/log.dart' show log;
 import '../../utils/text_search.dart';
 import '../../widgets/episode_age.dart';
 import '../../widgets/highlight_text.dart';
@@ -97,18 +100,25 @@ class _SearchOverlay extends StatefulWidget {
 typedef _VideoHit = ({String channelId, String channelName, ChannelVideo video});
 
 // Epizoda s unaprijed foldanim tekstom za pretragu.
-typedef _IndexedVideo = ({_VideoHit hit, String title, String all});
+typedef _IndexedVideo = ({
+  _VideoHit hit,
+  String title,
+  String speakers,
+  String all,
+});
 
 class _SearchOverlayState extends State<_SearchOverlay> {
   final _searchController = TextEditingController();
   final _idController = TextEditingController();
   late final FocusNode _searchFocus;
   Timer? _debounce;
+  Timer? _meiliDebounce;
   Timer? _semanticDebounce;
   Timer? _dataDebounce;
   String _query = '';
-  // Upit za koji je poslan (ili se šalje) semantički zahtjev — normaliziran,
-  // pa „fra" → „fra " ne okida novi zahtjev.
+  // Upiti za koje su poslani (ili se šalju) mrežni zahtjevi — normalizirani,
+  // pa „fra" → „fra " ne okida novi zahtjev; odgovor za stari upit se baca.
+  String _meiliQuery = '';
   String _semanticQuery = '';
 
   // Foldani tekst epizoda, računa se JEDNOM po stanju `channelCache`-a, ne pri
@@ -119,25 +129,26 @@ class _SearchOverlayState extends State<_SearchOverlay> {
   List<_IndexedVideo>? _videoIndex;
   bool _showIdInput = false;
 
-  // Tier 1 semantic state.
-  List<SemanticResult> _semanticResults = [];
+  // Tri izvora (vidi `services/unified_search.dart`).
+  List<LocalEpisodeMatch> _localResults = const [];
+  List<MeiliHit> _meiliResults = const [];
+  List<SemanticResult> _semanticResults = const [];
+  bool _meiliLoading = false;
   bool _semanticLoading = false;
+  bool get _loading => _meiliLoading || _semanticLoading;
 
-  // Keyboard navigacija — dva stupca (panes):
-  //   pane 0 (lijevo)  = PO NASLOVU: kanali + epizode (lokalno)
-  //   pane 1 (desno)   = U SADRŽAJU: semantički rezultati
-  // ↑/↓ kroz aktivni stupac, ←/→ mijenja aktivni stupac. Svaki stupac ima
-  // vlastiti indeks i scroll. _selectedKey se veže na aktivni-selektirani red
-  // za ensureVisible.
-  int _activePane = 0;
-  int _leftSel = 0;
-  int _rightSel = 0;
-  final _leftScroll = ScrollController();
-  final _rightScroll = ScrollController();
-  final _selectedKey = GlobalKey();
+  // Vidljivi redovi, jednim redom: osobe → kanali → epizode. Isti redoslijed
+  // dijele build i tipkovnica.
   List<PersonSummary> _visiblePersons = const [];
   List<ChannelSummary> _visibleChannels = const [];
-  List<_VideoHit> _visibleVideos = const [];
+  List<EpisodeHit> _visibleEpisodes = const [];
+
+  // Odabrani red za ↑/↓/Enter. Pamti se i ID epizode, da odabir ostane na
+  // istoj epizodi kad Meili ili semantika stignu i presalože listu.
+  int _sel = 0;
+  String? _selEpisodeId;
+  final _scroll = ScrollController();
+  final _selectedKey = GlobalKey();
 
   /// Osobe (virtualni kanali) iza `PersonChannelFlag`-a. Lokalni match nad
   /// `PersonIndexCache`-om — `/api/search` se NE dira (odluka O6 u
@@ -145,16 +156,14 @@ class _SearchOverlayState extends State<_SearchOverlay> {
   /// lokalni match je brži, jeftiniji i radi offline.
   bool _flagOn = false;
 
-  int get _leftCount =>
-      _visiblePersons.length + _visibleChannels.length + _visibleVideos.length;
-  int get _rightCount => _semanticResults.length;
-  int get _activeCount => _activePane == 0 ? _leftCount : _rightCount;
+  int get _count =>
+      _visiblePersons.length + _visibleChannels.length + _visibleEpisodes.length;
 
   @override
   void initState() {
     super.initState();
     // onKeyEvent na samom FocusNode-u fokusiranog polja → dobiva event PRIJE
-    // text-editing shortcutova, pa možemo presresti i ←/→ (inače pomiču kursor).
+    // text-editing shortcutova (↑/↓ inače pomiču kursor).
     _searchFocus = FocusNode(onKeyEvent: _handleKey);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _searchFocus.requestFocus();
@@ -209,9 +218,9 @@ class _SearchOverlayState extends State<_SearchOverlay> {
     channelCache.removeListener(_onChannelCacheChanged);
     _debounce?.cancel();
     _dataDebounce?.cancel();
+    _meiliDebounce?.cancel();
     _semanticDebounce?.cancel();
-    _leftScroll.dispose();
-    _rightScroll.dispose();
+    _scroll.dispose();
     _searchController.dispose();
     _idController.dispose();
     _searchFocus.dispose();
@@ -229,31 +238,41 @@ class _SearchOverlayState extends State<_SearchOverlay> {
         if (!mounted) return;
         setState(() {
           _query = q;
-          // novi upit → highlight prvi rezultat lijevog stupca
-          _leftSel = 0;
-          _rightSel = 0;
-          _activePane = 0;
+          _sel = 0;
+          _selEpisodeId = null;
+          // Rezultati mreže za stari upit više ne vrijede.
+          if (_meiliQuery != q) _meiliResults = const [];
+          if (_semanticQuery != q) _semanticResults = const [];
           _recomputeLocal();
         });
       });
     }
 
-    // Tier 1 — semantic, duži debounce + min duljina (štedi mrežu/embeddinge).
-    if (q == _semanticQuery) return;
-    _semanticDebounce?.cancel();
-    if (q.length < 3) {
-      _semanticQuery = '';
-      if (_semanticResults.isNotEmpty || _semanticLoading) {
-        setState(() {
-          _semanticResults = [];
-          _semanticLoading = false;
+    // Meili — full-text, brz (desetak ms na serveru), pa kraći debounce.
+    if (q != _meiliQuery) {
+      _meiliDebounce?.cancel();
+      if (q.length < 2) {
+        _meiliQuery = '';
+        _meiliLoading = false;
+      } else {
+        _meiliDebounce = Timer(const Duration(milliseconds: 200), () {
+          _runMeili(q);
         });
       }
-      return;
     }
-    _semanticDebounce = Timer(const Duration(milliseconds: 420), () {
-      _runSemantic(q);
-    });
+
+    // Semantika — duži debounce + min duljina (štedi mrežu/embeddinge).
+    if (q != _semanticQuery) {
+      _semanticDebounce?.cancel();
+      if (q.length < 3) {
+        _semanticQuery = '';
+        _semanticLoading = false;
+      } else {
+        _semanticDebounce = Timer(const Duration(milliseconds: 420), () {
+          _runSemantic(q);
+        });
+      }
+    }
   }
 
   void _clearQuery() {
@@ -262,18 +281,36 @@ class _SearchOverlayState extends State<_SearchOverlay> {
     _searchFocus.requestFocus();
   }
 
+  Future<void> _runMeili(String q) async {
+    _meiliQuery = q;
+    setState(() => _meiliLoading = true);
+    List<MeiliHit> hits;
+    try {
+      hits = (await MeiliClient.search(q, limit: 12)).hits;
+    } catch (e) {
+      // Meili nedostupan → ostaju lokalni i semantički rezultati.
+      log('SearchOverlay: Meili greška za "$q": $e');
+      hits = const [];
+    }
+    if (!mounted || _meiliQuery != q) return;
+    setState(() {
+      _meiliResults = hits;
+      _meiliLoading = false;
+      _remerge();
+    });
+  }
+
   Future<void> _runSemantic(String q) async {
     _semanticQuery = q;
     setState(() => _semanticLoading = true);
     // DOMOVINA Plus dobiva veći set rezultata (free ostaje pun i koristan).
     final limit = EntitlementService.instance.isPlus.value ? 30 : 12;
     final results = await SearchService.search(q, limit: limit);
-    if (!mounted) return;
-    // Odbaci stale odgovor (upit se promijenio u međuvremenu).
-    if (_semanticQuery != q) return;
+    if (!mounted || _semanticQuery != q) return;
     setState(() {
       _semanticResults = results;
       _semanticLoading = false;
+      _remerge();
     });
   }
 
@@ -284,39 +321,33 @@ class _SearchOverlayState extends State<_SearchOverlay> {
     widget.onSelectVideo(id);
   }
 
-  // ── Keyboard navigacija (dva stupca) ──────────────────────────
+  /// Puni prikaz (Meili, filtar po kanalu) za isti upit.
+  void _openFullResults() {
+    final router = GoRouter.of(context);
+    final q = normalizeQuery(_searchController.text);
+    Navigator.of(context).pop();
+    drillDownOn(router,
+        q.isEmpty ? '/search' : '/search?q=${Uri.encodeQueryComponent(q)}');
+  }
+
+  // ── Keyboard navigacija ─────────────────────────────────────────
   KeyEventResult _handleKey(FocusNode node, KeyEvent event) {
     if (event is KeyUpEvent) return KeyEventResult.ignored;
     final key = event.logicalKey;
     if (key == LogicalKeyboardKey.arrowDown) {
-      _moveInPane(1);
+      _move(1);
       return KeyEventResult.handled;
     }
     if (key == LogicalKeyboardKey.arrowUp) {
-      _moveInPane(-1);
+      _move(-1);
       return KeyEventResult.handled;
-    }
-    // ←/→ mijenja stupac samo kad ima smisla; inače pusti (kursor u polju).
-    if (key == LogicalKeyboardKey.arrowRight) {
-      if (_activePane == 0 && _rightCount > 0) {
-        _setActivePane(1);
-        return KeyEventResult.handled;
-      }
-      return KeyEventResult.ignored;
-    }
-    if (key == LogicalKeyboardKey.arrowLeft) {
-      if (_activePane == 1 && _leftCount > 0) {
-        _setActivePane(0);
-        return KeyEventResult.handled;
-      }
-      return KeyEventResult.ignored;
     }
     if (key == LogicalKeyboardKey.enter ||
         key == LogicalKeyboardKey.numpadEnter) {
       // Na mobitelu Enter (Gboard ga na webu šalje i kao keydown) ide kroz
       // `onSubmitted`, koji samo spušta tipkovnicu.
       if (_isCompact(MediaQuery.sizeOf(context))) return KeyEventResult.ignored;
-      if (_activeCount > 0) {
+      if (_count > 0) {
         _activateSelected();
         return KeyEventResult.handled;
       }
@@ -324,33 +355,9 @@ class _SearchOverlayState extends State<_SearchOverlay> {
     return KeyEventResult.ignored;
   }
 
-  void _moveInPane(int delta) {
-    final n = _activeCount;
-    if (n == 0) return;
-    setState(() {
-      if (_activePane == 0) {
-        _leftSel = (_leftSel + delta).clamp(0, n - 1);
-      } else {
-        _rightSel = (_rightSel + delta).clamp(0, n - 1);
-      }
-    });
-    _scrollSelectedIntoView();
-  }
-
-  void _setActivePane(int pane) {
-    setState(() {
-      _activePane = pane;
-      final n = pane == 0 ? _leftCount : _rightCount;
-      if (pane == 0) {
-        _leftSel = _leftSel.clamp(0, n == 0 ? 0 : n - 1);
-      } else {
-        _rightSel = _rightSel.clamp(0, n == 0 ? 0 : n - 1);
-      }
-    });
-    _scrollSelectedIntoView();
-  }
-
-  void _scrollSelectedIntoView() {
+  void _move(int delta) {
+    if (_count == 0) return;
+    setState(() => _select((_sel + delta).clamp(0, _count - 1)));
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final ctx = _selectedKey.currentContext;
       if (ctx != null) {
@@ -364,53 +371,98 @@ class _SearchOverlayState extends State<_SearchOverlay> {
     });
   }
 
+  void _select(int i) {
+    _sel = i;
+    final e = i - _visiblePersons.length - _visibleChannels.length;
+    _selEpisodeId =
+        e >= 0 && e < _visibleEpisodes.length ? _visibleEpisodes[e].youtubeId : null;
+  }
+
   bool _activated = false; // guard protiv dvostruke aktivacije (onSubmitted + key)
 
   void _activateSelected() {
-    if (_activated) return;
-    if (_activeCount == 0) return;
+    if (_activated || _count == 0) return;
     _activated = true;
-    // Router se uzima PRIJE pop-a — nakon njega ovaj context više nije u stablu.
-    final router = GoRouter.of(context);
-    Navigator.of(context).pop();
-    if (_activePane == 0) {
-      final p = _visiblePersons.length;
-      final c = _visibleChannels.length;
-      final i = _leftSel.clamp(0, _leftCount - 1);
-      if (i < p) {
-        drillDownOn(router, _visiblePersons[i].routePath);
-      } else if (i < p + c) {
-        widget.onSelectChannel(_visibleChannels[i - p]);
-      } else {
-        widget.onSelectVideo(_visibleVideos[i - p - c].video.id);
-      }
+    final p = _visiblePersons.length;
+    final c = _visibleChannels.length;
+    final i = _sel.clamp(0, _count - 1);
+    if (i < p) {
+      _openPerson(_visiblePersons[i]);
+    } else if (i < p + c) {
+      _openChannel(_visibleChannels[i - p]);
     } else {
-      final r = _semanticResults[_rightSel.clamp(0, _rightCount - 1)];
-      if (r.isSummary) {
-        widget.onSelectVideo(r.youtubeId);
-      } else {
-        widget.onSelectVideoAt(r.youtubeId, r.startSeconds);
-      }
+      _openEpisode(_visibleEpisodes[i - p - c]);
     }
   }
 
-  // ── Tier 0 scoring ────────────────────────────────────────────
-  /// Osobe koje smiju izgledati kao kanal, dijakritik-neosjetljivo po imenu
-  /// („sarolic" i „šarolić" daju isti pogodak). Prazno kad je flag ugašen ili
-  /// backend još nema `/api/persons`.
-  /// Izračunaj vidljive lokalne rezultate za [_query]. Zove se kad se
-  /// promijeni upit ili podaci — NIKAD iz `build()`.
+  void _openPerson(PersonSummary person) {
+    // Router se uzima PRIJE pop-a — nakon njega ovaj context više nije u stablu.
+    final router = GoRouter.of(context);
+    Navigator.of(context).pop();
+    drillDownOn(router, person.routePath);
+  }
+
+  void _openChannel(ChannelSummary ch) {
+    Navigator.of(context).pop();
+    widget.onSelectChannel(ch);
+  }
+
+  void _openEpisode(EpisodeHit hit, {int? at}) {
+    Navigator.of(context).pop();
+    final seconds = at ?? hit.openAt;
+    if (seconds != null) {
+      widget.onSelectVideoAt(hit.youtubeId, seconds);
+    } else {
+      widget.onSelectVideo(hit.youtubeId);
+    }
+  }
+
+  // ── Lokalni sloj + spajanje ─────────────────────────────────────
+  /// Izračunaj lokalne rezultate za [_query] i spoji ih s mrežnima. Zove se
+  /// kad se promijeni upit ili podaci — NIKAD iz `build()`.
   void _recomputeLocal() {
     if (_query.isEmpty) {
       _visiblePersons = const [];
       _visibleChannels = const [];
-      _visibleVideos = const [];
+      _localResults = const [];
+      _meiliResults = const [];
+      _semanticResults = const [];
+      _visibleEpisodes = const [];
       return;
     }
     final tokens = queryTokens(_query);
     _visiblePersons = _localPersons(tokens);
     _visibleChannels = _localChannels(tokens);
-    _visibleVideos = _localVideos(tokens);
+    _localResults = _localVideos(tokens);
+    _remerge();
+  }
+
+  void _remerge() {
+    _visibleEpisodes = mergeSearchResults(
+      query: _query,
+      local: _localResults,
+      meili: _meiliResults,
+      semantic: _semanticResults,
+      channelName: _channelNameForSlug,
+    ).take(20).toList();
+    // Odabir prati epizodu, ne poziciju.
+    final id = _selEpisodeId;
+    if (id != null) {
+      final e = _visibleEpisodes.indexWhere((h) => h.youtubeId == id);
+      if (e >= 0) {
+        _sel = _visiblePersons.length + _visibleChannels.length + e;
+        return;
+      }
+    }
+    if (_sel >= _count) _sel = _count == 0 ? 0 : _count - 1;
+  }
+
+  String? _channelNameForSlug(String slug) {
+    for (final c in widget.channels) {
+      if (c.id == slug) return c.name;
+    }
+    final name = channelCache.get(slug)?.name;
+    return name;
   }
 
   List<PersonSummary> _localPersons(List<String> tokens) {
@@ -438,7 +490,10 @@ class _SearchOverlayState extends State<_SearchOverlay> {
         for (final hit in channelCache.allVideos)
           (
             hit: hit,
+            // Naslov i govornici: pogodak ovdje je „po naslovu / osobi" i
+            // rangira se iznad spominjanja u tekstu; naslov iznad govornika.
             title: foldText(hit.video.displayTitle),
+            speakers: foldText(hit.video.speakers.join('  ')),
             // Kombinirani haystack → multi-token upit radi i preko više polja
             // (npr. "šterc demografija": ime u speakers, tema u topics).
             all: foldText([
@@ -452,17 +507,30 @@ class _SearchOverlayState extends State<_SearchOverlay> {
           ),
       ];
 
-  List<_VideoHit> _localVideos(List<String> tokens) {
-    final scored = <(double, _VideoHit)>[];
+  List<LocalEpisodeMatch> _localVideos(List<String> tokens) {
+    final scored = <(double, _VideoHit, bool)>[];
     for (final e in _index) {
       final base = localMatchScoreFolded(tokens, e.all);
       if (base <= 0) continue;
-      final titleBoost =
-          localMatchScoreFolded(tokens, e.title) > 0 ? 3.0 : 0.0;
-      scored.add((base + titleBoost, e.hit));
+      final inTitle = localMatchScoreFolded(tokens, e.title) > 0;
+      final inSpeakers = localMatchScoreFolded(tokens, e.speakers) > 0;
+      scored.add((
+        base + (inTitle ? 6.0 : 0.0) + (inSpeakers ? 3.0 : 0.0),
+        e.hit,
+        inTitle || inSpeakers,
+      ));
     }
     scored.sort((a, b) => b.$1.compareTo(a.$1));
-    return scored.take(12).map((e) => e.$2).toList();
+    return [
+      for (final (_, hit, head) in scored.take(12))
+        (
+          channelId: hit.channelId,
+          channelName: hit.channelName,
+          video: hit.video,
+          titleMatch: head,
+          snippet: _localMatchContext(hit.video, _query),
+        ),
+    ];
   }
 
   @override
@@ -485,7 +553,7 @@ class _SearchOverlayState extends State<_SearchOverlay> {
               children: [
                 _searchHeader(theme, compact: true),
                 const Divider(height: 1),
-                Expanded(child: _resultsBody(theme, false)),
+                Expanded(child: _resultsBody(theme)),
                 // Dok je tipkovnica gore, svaki redak ide rezultatima: u
                 // landscapeu je „Otvori po YouTube ID-u" pojeo jedini
                 // preostali redak. Vrati se čim se tipkovnica spusti.
@@ -500,9 +568,8 @@ class _SearchOverlayState extends State<_SearchOverlay> {
       );
     }
 
-    // Desktop (širok ekran) → dvostupčani layout (PO NASLOVU | U SADRŽAJU).
-    final twoCol = size.width >= 760;
-    final maxWidth = twoCol ? (size.width - 48).clamp(640.0, 960.0) : 640.0;
+    // Desktop → paleta s jednom spojenom listom (vidi `unified_search.dart`).
+    final maxWidth = (size.width - 48).clamp(560.0, 720.0);
     // Visina se mjeri NAD tipkovnicom (tablet s on-screen tipkovnicom).
     final maxHeight = (size.height - mq.viewInsets.bottom) * 0.8;
 
@@ -531,7 +598,7 @@ class _SearchOverlayState extends State<_SearchOverlay> {
                 children: [
                   _searchHeader(theme, compact: false),
                   const Divider(height: 1),
-                  Flexible(child: _resultsBody(theme, twoCol)),
+                  Flexible(child: _resultsBody(theme)),
                   const Divider(height: 1),
                   _idInputSection(theme),
                 ],
@@ -628,167 +695,66 @@ class _SearchOverlayState extends State<_SearchOverlay> {
     );
   }
 
-  Widget _resultsBody(ThemeData theme, bool twoCol) {
+  Widget _resultsBody(ThemeData theme) {
     if (_query.isEmpty) return _emptyState(theme);
+    final l = AppLocalizations.of(context);
 
-    final hasLocal = _leftCount > 0;
-    final hasSemantic = _rightCount > 0;
-
-    if (!hasLocal && !hasSemantic && !_semanticLoading) {
+    if (_count == 0) {
       return Padding(
         padding: const EdgeInsets.all(32),
         child: Center(
-          child: Text(
-            AppLocalizations.of(context).homeSearchNoResults(_query),
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-          ),
+          child: _loading
+              ? _loadingRow(theme)
+              : Text(
+                  l.homeSearchNoResults(_query),
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
         ),
       );
     }
 
-    // Auto-fokus na neprazni stupac + clamp indeksa.
-    if (_activePane == 0 && _leftCount == 0 && _rightCount > 0) _activePane = 1;
-    if (_activePane == 1 && _rightCount == 0 && _leftCount > 0) _activePane = 0;
-    if (_leftSel >= _leftCount) _leftSel = _leftCount == 0 ? 0 : _leftCount - 1;
-    if (_rightSel >= _rightCount) {
-      _rightSel = _rightCount == 0 ? 0 : _rightCount - 1;
-    }
-
-    if (twoCol) {
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(
-            child: _pane(theme,
-                pane: 0, scroll: _leftScroll, children: _leftChildren(theme)),
-          ),
-          const VerticalDivider(width: 1),
-          Expanded(
-            child: _pane(theme,
-                pane: 1, scroll: _rightScroll, children: _rightChildren(theme)),
-          ),
-        ],
-      );
-    }
-
-    // Uski — oba stupca složena u jedan scroll. Povlačenje rezultata spušta
-    // tipkovnicu (da se vidi što je ispod nje).
+    final p = _visiblePersons.length;
+    final c = _visibleChannels.length;
+    final e = _visibleEpisodes.length;
+    // Povlačenje rezultata spušta tipkovnicu (da se vidi što je ispod nje).
     return ListView(
-      controller: _leftScroll,
+      controller: _scroll,
       shrinkWrap: true,
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       padding: const EdgeInsets.symmetric(vertical: 8),
-      children: [..._leftChildren(theme), ..._rightChildren(theme)],
+      children: [
+        // Osobe idu PRVE (odluka O6): tko traži ime, traži osobu.
+        if (p > 0) ...[
+          _sectionLabel(theme, l.searchSectionPeople),
+          for (var i = 0; i < p; i++)
+            _selectableRow(i, _personRow(theme, _visiblePersons[i])),
+        ],
+        if (c > 0) ...[
+          _sectionLabel(theme, l.homeSearchSectionChannels),
+          for (var i = 0; i < c; i++)
+            _selectableRow(p + i, _channelRow(theme, _visibleChannels[i])),
+        ],
+        if (e > 0) ...[
+          _sectionLabel(theme, l.homeSearchSectionEpisodes),
+          for (var i = 0; i < e; i++)
+            _selectableRow(
+                p + c + i, _episodeRow(theme, _visibleEpisodes[i])),
+        ],
+        // Mreža još dopunjuje listu — tiha oznaka na dnu, lista ne skače.
+        if (_loading) _loadingRow(theme),
+      ],
     );
   }
 
-  // Lijevi stupac — osobe + kanali + epizode (PO NASLOVU). [] ako nema
-  // lokalnih. Osobe idu PRVE (odluka O6): tko traži ime, traži osobu.
-  List<Widget> _leftChildren(ThemeData theme) {
-    final l = AppLocalizations.of(context);
-    final p = _visiblePersons.length;
-    final c = _visibleChannels.length;
-    final v = _visibleVideos.length;
-    if (p == 0 && c == 0 && v == 0) return const [];
-    return [
-      if (p > 0) ...[
-        _sectionLabel(theme, l.searchSectionPeople),
-        for (var i = 0; i < p; i++)
-          _selectableRow(
-              pane: 0, index: i, child: _personRow(theme, _visiblePersons[i])),
-      ],
-      if (c > 0) ...[
-        _sectionLabel(theme, l.homeSearchSectionChannels),
-        for (var i = 0; i < c; i++)
-          _selectableRow(
-              pane: 0,
-              index: p + i,
-              child: _channelRow(theme, _visibleChannels[i])),
-      ],
-      if (v > 0) ...[
-        _sectionLabel(theme, l.homeSearchSectionEpisodes),
-        for (var i = 0; i < v; i++)
-          _selectableRow(
-              pane: 0,
-              index: p + c + i,
-              child: _videoRow(theme, _visibleVideos[i])),
-      ],
-    ];
-  }
-
-  // Desni stupac — semantička pretraga (U SADRŽAJU). [] ako prazno i ne loada.
-  List<Widget> _rightChildren(ThemeData theme) {
-    final hasSemantic = _rightCount > 0;
-    if (!hasSemantic && !_semanticLoading) return const [];
-    return [
-      _semanticSectionLabel(theme),
-      if (hasSemantic)
-        for (var i = 0; i < _semanticResults.length; i++)
-          _selectableRow(
-              pane: 1, index: i, child: _semanticRow(theme, _semanticResults[i]))
-      else
-        _semanticLoadingRow(theme),
-    ];
-  }
-
-  // Stupac s blagom pozadinom kad je aktivan (signal fokusa za keyboard nav).
-  Widget _pane(ThemeData theme,
-      {required int pane,
-      required ScrollController scroll,
-      required List<Widget> children}) {
-    final active = pane == _activePane;
-    final body = children.isEmpty
-        ? _paneEmpty(theme, pane)
-        : ListView(
-            controller: scroll,
-            shrinkWrap: true,
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            children: children,
-          );
+  Widget _selectableRow(int index, Widget child) {
+    final isSel = index == _sel;
     return Container(
-      color: active
-          ? theme.colorScheme.primary.withValues(alpha: 0.025)
-          : null,
-      child: body,
-    );
-  }
-
-  Widget _paneEmpty(ThemeData theme, int pane) {
-    final l = AppLocalizations.of(context);
-    final msg = pane == 0
-        ? l.homeSearchNoTitleMatches
-        : (_semanticLoading
-            ? l.homeSearchSearching
-            : l.homeSearchNoContentMatches);
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Center(
-        child: Text(
-          msg,
-          textAlign: TextAlign.center,
-          style: theme.textTheme.labelMedium?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.55),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // Pozadina + key za selektirani red. Aktivni stupac = jači highlight,
-  // neaktivni = blaži (da se vidi gdje će se fokus vratiti).
-  Widget _selectableRow(
-      {required int pane, required int index, required Widget child}) {
-    final sel = pane == 0 ? _leftSel : _rightSel;
-    final isSel = index == sel;
-    final isActive = pane == _activePane;
-    final theme = Theme.of(context);
-    return Container(
-      key: (isSel && isActive) ? _selectedKey : null,
+      key: isSel ? _selectedKey : null,
       color: isSel
-          ? theme.colorScheme.primary
-              .withValues(alpha: isActive ? 0.14 : 0.05)
+          ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.12)
           : null,
       child: child,
     );
@@ -853,24 +819,7 @@ class _SearchOverlayState extends State<_SearchOverlay> {
     );
   }
 
-  Widget _semanticSectionLabel(ThemeData theme) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 14, 16, 6),
-      child: Row(
-        children: [
-          Icon(Icons.auto_awesome,
-              size: 13, color: theme.colorScheme.primary),
-          const SizedBox(width: 6),
-          Text(
-            AppLocalizations.of(context).homeSearchSectionContent.toUpperCase(),
-            style: AppTypography.eyebrowStyle(theme.colorScheme),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _semanticLoadingRow(ThemeData theme) {
+  Widget _loadingRow(ThemeData theme) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
       child: Row(
@@ -885,7 +834,7 @@ class _SearchOverlayState extends State<_SearchOverlay> {
           ),
           const SizedBox(width: 12),
           Text(
-            AppLocalizations.of(context).homeSearchSemanticLoading,
+            AppLocalizations.of(context).homeSearchSearching,
             style: theme.textTheme.labelMedium?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
@@ -1000,13 +949,13 @@ class _SearchOverlayState extends State<_SearchOverlay> {
     );
   }
 
-  Widget _videoRow(ThemeData theme, _VideoHit vr) {
-    final matchCtx = _localMatchContext(vr.video, _query);
+  /// Redak epizode iz bilo kojeg izvora. Ispod naslova: kanal (ako ga smijemo
+  /// pokazati) + datum, isječak s isticanjem, i semantički trenuci kao chipovi
+  /// za skok na točnu sekundu.
+  Widget _episodeRow(ThemeData theme, EpisodeHit hit) {
+    final l = AppLocalizations.of(context);
     return InkWell(
-      onTap: () {
-        Navigator.of(context).pop();
-        widget.onSelectVideo(vr.video.id);
-      },
+      onTap: () => _openEpisode(hit),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         child: Row(
@@ -1015,7 +964,7 @@ class _SearchOverlayState extends State<_SearchOverlay> {
             ClipRRect(
               borderRadius: BorderRadius.circular(6),
               child: CachedThumbnail(
-                url: CdnConfig.thumbnailUrl(vr.video.id),
+                url: CdnConfig.thumbnailUrl(hit.youtubeId),
                 width: 72,
                 height: 40,
                 fit: BoxFit.cover,
@@ -1027,10 +976,10 @@ class _SearchOverlayState extends State<_SearchOverlay> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Naslov se prelama u više redaka (nije skraćen elipsom).
                   QueryHighlightText(
-                    vr.video.displayTitle,
+                    hit.title.text,
                     query: _query,
+                    ranges: hit.title.ranges,
                     style: theme.textTheme.titleSmall,
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
@@ -1038,26 +987,31 @@ class _SearchOverlayState extends State<_SearchOverlay> {
                   const SizedBox(height: 2),
                   Row(
                     children: [
-                      Flexible(
-                        child: Text(
-                          vr.channelName,
-                          style: theme.textTheme.labelSmall?.copyWith(
-                            color: theme.colorScheme.primary,
+                      if (hit.channelName != null) ...[
+                        Flexible(
+                          child: Text(
+                            hit.channelName!,
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              color: theme.colorScheme.primary,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      EpisodeAgeChip(vr.video.date),
+                        const SizedBox(width: 8),
+                      ],
+                      EpisodeAgeChip(hit.date),
                     ],
                   ),
-                  // Isječak iz polja gdje je query nađen (abstract/teme/govornici).
-                  if (matchCtx != null) ...[
+                  if (hit.snippet != null) ...[
                     const SizedBox(height: 3),
                     QueryHighlightText(
-                      matchCtx,
+                      hit.snippet!.ranges.isEmpty
+                          ? snippetAround(hit.snippet!.text, _query,
+                              before: 60, window: 220)
+                          : hit.snippet!.text,
                       query: _query,
+                      ranges: hit.snippet!.ranges,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                         height: 1.3,
@@ -1066,17 +1020,33 @@ class _SearchOverlayState extends State<_SearchOverlay> {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ],
+                  if (hit.moments.isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: [
+                        for (final m in hit.moments)
+                          ActionChip(
+                              avatar: Icon(Icons.play_arrow,
+                                  size: 14, color: theme.colorScheme.primary),
+                              label: Text(_fmtTs(m.seconds)),
+                              labelStyle: theme.textTheme.labelSmall?.copyWith(
+                                color: theme.colorScheme.primary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              tooltip: l.homeSearchJumpTo(_fmtTs(m.seconds)),
+                              visualDensity: VisualDensity.compact,
+                              materialTapTargetSize:
+                                  MaterialTapTargetSize.shrinkWrap,
+                              onPressed: () => _openEpisode(hit, at: m.seconds),
+                            ),
+                      ],
+                    ),
+                  ],
                 ],
               ),
             ),
-            const SizedBox(width: 8),
-            if (vr.video.durationDisplay != null)
-              Text(
-                vr.video.durationDisplay!,
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-              ),
           ],
         ),
       ),
@@ -1105,175 +1075,6 @@ class _SearchOverlayState extends State<_SearchOverlay> {
     return snippetAround(best, q, before: 60, window: 220);
   }
 
-  Widget _semanticRow(ThemeData theme, SemanticResult r) {
-    return InkWell(
-      onTap: () {
-        Navigator.of(context).pop();
-        if (r.isSummary) {
-          widget.onSelectVideo(r.youtubeId);
-        } else {
-          widget.onSelectVideoAt(r.youtubeId, r.startSeconds);
-        }
-      },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(6),
-              child: CachedThumbnail(
-                url: CdnConfig.thumbnailUrl(r.youtubeId),
-                width: 72,
-                height: 40,
-                fit: BoxFit.cover,
-                errorFallbackBuilder: (_) => _thumbPlaceholder(theme, 72, 40),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (r.episodeTitle != null)
-                    QueryHighlightText(
-                      r.episodeTitle!,
-                      query: _query,
-                      style: theme.textTheme.titleSmall,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  const SizedBox(height: 3),
-                  QueryHighlightText(
-                    snippetAround(r.snippet, _query),
-                    query: _query,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                      height: 1.35,
-                    ),
-                    maxLines: 4,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      if (!r.isSummary) ...[
-                        Icon(Icons.play_circle_outline,
-                            size: 12, color: theme.colorScheme.primary),
-                        const SizedBox(width: 3),
-                        Text(
-                          _fmtTs(r.startSeconds),
-                          style: theme.textTheme.labelSmall?.copyWith(
-                            color: theme.colorScheme.primary,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                      ],
-                      // Govornici u rezultatu SU govornici (ne samo spomenuti)
-                      // pa sigurno vode na profil (/p/:slug). Nested tap: ovaj
-                      // GestureDetector hvata tap na imenu, ostatak retka i
-                      // dalje otvara epizodu.
-                      Flexible(
-                        child: r.speakers.isNotEmpty
-                            ? GestureDetector(
-                                behavior: HitTestBehavior.opaque,
-                                onTap: () {
-                                  final router = GoRouter.of(context);
-                                  Navigator.of(context).pop();
-                                  drillDownOn(router,
-                                      '/p/${personSlug(r.speakers.first)}');
-                                },
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(Icons.person,
-                                        size: 11,
-                                        color: theme.colorScheme.primary
-                                            .withValues(alpha: 0.8)),
-                                    const SizedBox(width: 3),
-                                    Flexible(
-                                      child: Text(
-                                        r.speakers.join(', '),
-                                        style: theme.textTheme.labelSmall
-                                            ?.copyWith(
-                                          color: theme.colorScheme.primary
-                                              .withValues(alpha: 0.9),
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              )
-                            : Text(
-                                r.channel,
-                                style: theme.textTheme.labelSmall?.copyWith(
-                                  color: theme.colorScheme.onSurfaceVariant
-                                      .withValues(alpha: 0.7),
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                      ),
-                      const SizedBox(width: 8),
-                      EpisodeAgeChip(r.uploadDate),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 10),
-            _relevanceMeter(theme, r.score),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// Kvantitativna metrika relevantnosti uz semantički rezultat: tanki bar
-  /// (fill ~ score, normaliziran na 0.30–0.70 raspon gdje su realni pogoci) +
-  /// sirovi score. Tooltip objašnjava značenje.
-  Widget _relevanceMeter(ThemeData theme, double score) {
-    final norm = ((score - 0.30) / 0.40).clamp(0.0, 1.0);
-    final color = norm >= 0.66
-        ? const Color(0xFF2E7D32) // zelena — jak pogodak
-        : norm >= 0.33
-            ? const Color(0xFFF9A825) // jantar — srednji
-            : theme.colorScheme.outline; // slab
-    return Tooltip(
-      message: AppLocalizations.of(context)
-          .homeSearchRelevanceTooltip(score.toStringAsFixed(2)),
-      child: SizedBox(
-        width: 36,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(3),
-              child: LinearProgressIndicator(
-                value: norm,
-                minHeight: 5,
-                backgroundColor: theme.colorScheme.surfaceContainerHighest,
-                valueColor: AlwaysStoppedAnimation<Color>(color),
-              ),
-            ),
-            const SizedBox(height: 3),
-            Text(
-              score.toStringAsFixed(2),
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-                fontSize: 10,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _idInputSection(ThemeData theme) {
     final l = AppLocalizations.of(context);
     return AnimatedSize(
@@ -1281,6 +1082,34 @@ class _SearchOverlayState extends State<_SearchOverlay> {
       curve: Curves.easeOutCubic,
       child: Column(
         children: [
+          // Overlay je brzi skok; puni prikaz (filtar po kanalu, svi pogoci)
+          // je `/search` s istim upitom.
+          if (_query.isNotEmpty)
+            InkWell(
+              onTap: _openFullResults,
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(
+                  children: [
+                    Icon(Icons.manage_search,
+                        size: 18, color: theme.colorScheme.primary),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        l.homeSearchShowAll,
+                        style: theme.textTheme.labelMedium?.copyWith(
+                          color: theme.colorScheme.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    Icon(Icons.arrow_forward,
+                        size: 16, color: theme.colorScheme.primary),
+                  ],
+                ),
+              ),
+            ),
           InkWell(
             onTap: () => setState(() => _showIdInput = !_showIdInput),
             child: Padding(

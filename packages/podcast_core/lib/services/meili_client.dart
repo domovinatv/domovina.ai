@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
+import '../brand/app_brand.dart';
 import '../src/log.dart' show log;
 
 /// Klijent za Meilisearch keyword (egzaktna riječ + typo-tolerant) pretragu
@@ -36,15 +36,14 @@ class MeiliClient {
 
   static final http.Client _http = http.Client();
 
-  /// Prod: MEILI_URL dart-define. Dev bez override-a: localhost (web/iOS/desktop),
-  /// 10.0.2.2 (Android emulator vidi host preko tog aliasa).
-  static String get baseUrl {
-    if (_urlOverride.isNotEmpty) return _urlOverride;
-    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
-      return 'http://10.0.2.2:7700';
-    }
-    return 'http://localhost:7700';
-  }
+  /// `--dart-define=MEILI_URL` (lokalni dev: `http://localhost:7700`, na
+  /// Android emulatoru `http://10.0.2.2:7700`), inače Meili aktivnog brenda.
+  ///
+  /// Do 13.10.2026. je bez define-a gađao localhost. Web deploy ga postavlja
+  /// iz `.env`, ali svaki build bez njega (nightly za storeove, `flutter run`)
+  /// tiho je imao mrtvu full-text pretragu.
+  static String get baseUrl =>
+      _urlOverride.isNotEmpty ? _urlOverride : AppBrand.config.endpoints.meili;
 
   static Map<String, String> get _headers => {
         'Authorization': 'Bearer $_searchKey',
@@ -175,6 +174,10 @@ class MeiliHit {
   // `_formatted` polja s <em> highlight tagovima (i croppani article_text).
   final String formattedTitle;
   final String formattedArticleSnippet;
+  // Naslovi sekcija s <em> tagovima. `article_text` NIJE u displayedAttributes
+  // indeksa, pa je `formattedArticleSnippet` u praksi prazan — pogođeni
+  // naslovi sekcija su jedini pokazatelj GDJE u epizodi je pogodak.
+  final List<String> formattedSectionTitles;
 
   const MeiliHit({
     required this.youtubeId,
@@ -185,6 +188,7 @@ class MeiliHit {
     required this.deepLink,
     required this.formattedTitle,
     required this.formattedArticleSnippet,
+    this.formattedSectionTitles = const [],
   });
 
   factory MeiliHit.fromJson(Map<String, dynamic> json) {
@@ -200,6 +204,9 @@ class MeiliHit {
       deepLink: json['deep_link'] as String? ?? '',
       formattedTitle: fmt['title'] as String? ?? json['title'] as String? ?? '',
       formattedArticleSnippet: fmt['article_text'] as String? ?? '',
+      formattedSectionTitles: (fmt['section_titles'] as List<dynamic>? ?? [])
+          .map((e) => e.toString())
+          .toList(),
     );
   }
 }
