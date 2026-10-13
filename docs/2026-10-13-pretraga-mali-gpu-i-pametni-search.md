@@ -153,6 +153,23 @@ Latencija `/api/search`: 0,7–2 s pojedinačno, 7–12 s uz tri paralelna upita
 (embedder je usko grlo). Meili 70–300 ms. Cloudflare pred oba servisa vraća
 403 na `Python-urllib` User-Agent — skripte šalju browserski UA.
 
+**Reprodukcija** (`scripts/search-eval/`, upiti u `queries.txt`):
+
+```bash
+mkdir -p /tmp/search-eval && cd /tmp/search-eval
+~/git/domovinatv/domovina.ai/scripts/search-eval/fetch-corpus.sh   # katalog s CDN-a
+python3 ~/git/domovinatv/domovina.ai/scripts/search-eval/run.py    # tri izvora, sirovo
+python3 ~/git/domovinatv/domovina.ai/scripts/search-eval/capture.py # → fixtures.json
+cd ~/git/domovinatv/domovina.ai/packages/podcast_core
+FIX=/tmp/search-eval/fixtures.json VARIANT=new OUT=/tmp/search-eval/res.json \
+  flutter test test/search_eval_test.dart   # pravi mergeSearchResults → top 10
+```
+
+Lokalni sloj u `run.py` je Python replika `_localVideos` iz
+`search_overlay.dart` (ne pravi kod) — mijenjaš li lokalno rangiranje,
+mijenjaj i repliku. Usporedba „staro/novo" ide `git stash` nad
+`lib/services/unified_search.dart` i ponovnim pokretanjem testa.
+
 ### 5.1 Meili indeks po sekciji (LIVE 14. 10. 2026., `domovina-rag` 0b7d48c)
 
 `episodes` dokument je sada jedna sekcija sažetka (68 990 dokumenata,
