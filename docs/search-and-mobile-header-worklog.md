@@ -84,3 +84,8 @@ deploy → CDN purge → verify. Auto-bumpa verziju.
 ---
 
 **Vidi i memoriju:** `search_architecture.md` (~/.claude/.../memory/).
+
+
+## Nastavak
+
+- 13. 10. 2026.: Mali GPU kvar crtanja, mobilni ekran pretrage i pametni search (lokalno + Meili + semantika) — `docs/2026-10-13-pretraga-mali-gpu-i-pametni-search.md`

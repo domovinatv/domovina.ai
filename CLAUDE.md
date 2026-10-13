@@ -253,6 +253,18 @@ kreće tek kad je kod aplikacije preuzet. Mijenjaš li boje teme, mijenjaj i
 (`defaultBibleVerses` + Mt 10,26-27) — mijenja se samo uz fact-check na
 biblija.ks.hr, čuva `test/boot_splash_verses_test.dart`.
 
+### Pretraga naslovnice — tri izvora + tekst ne pod scale transformom (od 13.10.2026.)
+
+Paleta (`search_overlay.dart`) spaja lokalni sloj, Meili `episodes` i
+semantiku po YouTube ID-u (`services/unified_search.dart`) — Meili je jedini
+full-text izvor za ad-hoc epizode (`_unlisted`) kojih nema u listinzima.
+Mjerenja, zamke i otvoreno: `docs/2026-10-13-pretraga-mali-gpu-i-pametni-search.md`.
+
+**Rule (tekst ne ostaje pod scale transformom)**: skwasm na Mali GPU-u (moto
+g86) pod `ScaleTransition` krivo crta glifove — razmak nestane („fra stje" →
+„frastje"), „d" izađe kao „đ". Korisnik to prijavi kao „ne mogu upisati riječ".
+Dijalozi se otvaraju fadeom; čuva `test/search_overlay_test.dart`.
+
 ### SharedPreferences crashes on web release builds
 
 `SharedPreferences` throws `MissingPluginException(No implementation found for method getAll on channel plugins.flutter.io/shared_preferences)` in dart2js release mode. The method channel plugin registration is stripped during minification.
