@@ -249,3 +249,21 @@ obriše svoj DerivedData prije builda.
   radnja (`scripts/play-promote.sh` + ASC koraci iz `mobile-release-pipeline.md`).
 - **`last-built-sha` se zapisuje samo na uspjeh** — pao build se sljedeću noć
   pokušava ponovno umjesto da bude preskočen kao „već obrađen".
+
+## Smoke na uređajima farme (korak 8b, od 13.10.2026.)
+
+Nakon uploada i verifikacije storeova nightly zove
+`scripts/nightly-smoke.sh <build>` nad 2 Androida i 2 iPhonea spojena na
+ovaj Mac. Upload ne blokira; ishod ide u istu Telegram poruku i u
+`.nightly/smoke/builds/<build>.txt`, koji čitaju vrata promocije
+(`scripts/smoke-gate.sh` iz `asc-submit.rb` / `play-promote.sh`). Za iOS
+`build-mobile-release.sh` uz `EXPORT_DEV_IPA=1` iz istog archivea izveze i
+development IPA (`build/ios/ipa-dev/`), jer se App Store IPA ne da
+instalirati na uređaj. `NIGHTLY_SMOKE=0` preskače korak.
+
+Nije još provjereno pod launchd-om: iOS ui smoke treba mDNS prema iPhoneu
+(macOS „Local Network” dozvola), a vožen je samo iz iTerma. Ako prva noć
+javi iOS ui „nije provjereno”, to je prvi osumnjičenik.
+
+Vezani dokumenti: `docs/plans/2026-10-13-smoke-testovi-na-uredajima.md`
+(skripte, mjerenja, zamke uređaja).
