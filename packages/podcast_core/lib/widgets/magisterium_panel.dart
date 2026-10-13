@@ -394,12 +394,16 @@ class _MagisteriumFullContentState extends State<_MagisteriumFullContent> {
               children: [
                 Icon(Icons.church, size: 14, color: color),
                 const SizedBox(width: 6),
-                Text(
-                  data.scoreInterpretation,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: color,
+                // Flexible: na uskom stupcu (mobitel u landscapeu) tumačenje
+                // se prelama umjesto da probije rub bedža.
+                Flexible(
+                  child: Text(
+                    data.scoreInterpretation,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: color,
+                    ),
                   ),
                 ),
               ],

@@ -13,7 +13,8 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart'
+    show TargetPlatform, defaultTargetPlatform, kIsWeb;
 import 'package:floating/floating.dart';
 import 'package:intl/intl.dart' show NumberFormat;
 
@@ -324,13 +325,20 @@ class BackgroundPlaybackButton extends StatelessWidget {
 // Picture-in-Picture
 // ---------------------------------------------------------------------------
 
+/// `floating` ima samo Android implementaciju. Na iOS-u i macOS-u svaki
+/// poziv baca `MissingPluginException` — do v2.0.182 je to bila nehvaćena
+/// iznimka pri svakom otvaranju epizode na iPhoneu (uhvatio smoke test
+/// 13.10.2026., `integration_test/smoke_test.dart`).
+bool get pipPluginSupported =>
+    !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+
 class PictureInPictureButton extends StatelessWidget {
   const PictureInPictureButton({super.key, this.onVideo = false});
 
   final bool onVideo;
 
   void _toggle(BuildContext context) async {
-    if (kIsWeb) return;
+    if (!pipPluginSupported) return;
     final floating = Floating();
     if (await floating.isPipAvailable) {
       floating.enable(const ImmediatePiP(aspectRatio: Rational.landscape()));
@@ -352,7 +360,7 @@ class PictureInPictureButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (kIsWeb) return const SizedBox.shrink();
+    if (!pipPluginSupported) return const SizedBox.shrink();
 
     final color = _controlColor(context, onVideo);
 

@@ -77,6 +77,12 @@ void main() {
   for (final (label, isMobile, width) in [
     ('desktop', false, 1200.0),
     ('mobile', true, 390.0),
+    // Split hero na mobitelu u landscapeu (isMobile = širina >= 600). S
+    // fiksnom slikom od 460 px ovdje su eyebrow i CTA probijali rub —
+    // overflow sam obara widget test. Smoke 13.10.2026. na iPhoneima.
+    ('split 600 (najuži split)', false, 600.0),
+    ('landscape iPhone SE', false, 667.0),
+    ('landscape iPhone 12 mini', false, 812.0),
   ]) {
     group('hero slot — $label', () {
       testWidgets('skeleton i karusel s VIŠE kandidata su jednako visoki',

@@ -125,7 +125,7 @@ class _EpisodeVideoState extends State<EpisodeVideo> {
   }
 
   void _setupAutoPip() async {
-    if (kIsWeb) return;
+    if (!pipPluginSupported) return;
     final floating = Floating();
     if (await floating.isPipAvailable) {
       floating.enable(const OnLeavePiP(aspectRatio: Rational.landscape()));
@@ -141,7 +141,7 @@ class _EpisodeVideoState extends State<EpisodeVideo> {
       _lockedOrientation = false;
       unlockOrientation();
     }
-    if (!kIsWeb) {
+    if (pipPluginSupported) {
       Floating().cancelOnLeavePiP().catchError((_) {});
     }
     super.dispose();
@@ -541,7 +541,9 @@ class _EpisodeVideoState extends State<EpisodeVideo> {
           onEnterFullscreen: _onEnterFullscreen,
           onExitFullscreen: _onExitFullscreen,
           controls: (state) => StreamBuilder<PiPStatus>(
-            stream: kIsWeb ? const Stream.empty() : Floating().pipStatusStream,
+            stream: pipPluginSupported
+                ? Floating().pipStatusStream
+                : const Stream.empty(),
             initialData: PiPStatus.disabled,
             builder: (context, pipSnapshot) {
               if (pipSnapshot.data == PiPStatus.enabled) {

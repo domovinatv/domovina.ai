@@ -579,7 +579,14 @@ class _ArticleSectionCardState extends State<ArticleSectionCard> {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(children: controls),
+                    // Wrap, ne Row: u landscapeu na mobitelu stupac članka
+                    // uz Magisterium i panel playera zna biti uži od svih
+                    // kontrola (Android, smoke test 13.10.2026.: 2–12 px).
+                    Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      runSpacing: 4,
+                      children: controls,
+                    ),
                     const SizedBox(height: 6),
                     title,
                   ],

@@ -486,7 +486,11 @@ class _LoadingScreen extends StatelessWidget {
       backgroundColor: theme.colorScheme.surfaceContainerLow,
       body: SafeArea(
         child: Center(
-          child: ConstrainedBox(
+          // Scroll: popis datoteka je viši od mobitela u landscapeu (375 pt)
+          // — bez njega stupac je probijao dno za 241 px (smoke test
+          // 13.10.2026. na iPhone 12 mini).
+          child: SingleChildScrollView(
+            child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 360),
             child: Padding(
               padding: const EdgeInsets.all(32),
@@ -564,6 +568,7 @@ class _LoadingScreen extends StatelessWidget {
                 ],
               ),
             ),
+          ),
           ),
         ),
       ),

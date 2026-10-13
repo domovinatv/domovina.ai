@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
+
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
+
 import '../models/speaker_timeline.dart';
 import '../models/sponsored_moment.dart';
 import '../models/sponsors_in_video.dart';
@@ -33,6 +35,11 @@ class VideoChapterMark {
 
 /// Fiksni video panel — prikazuje player s kontrolama i chapter markerima.
 /// Player i VideoController su vanjski (owned by _EpisodeContentState).
+/// Ispod ove visine panel scrolla u cjelini (vidi `build`). Fiksni dio
+/// (slika + kontrole + sponzori) je ~390 px; iznad praga poglavljima ostaje
+/// bar ~130 px vlastitog scrolla.
+const double _kCompactPanelHeight = 520;
+
 class VideoPanel extends StatefulWidget {
   final Player player;
   final VideoController controller;
@@ -224,259 +231,283 @@ class _VideoPanelState extends State<VideoPanel> {
             ? Border(left: BorderSide(color: theme.colorScheme.outlineVariant))
             : null,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Video display (16:9) — native player ili YouTube embed mode
-          AspectRatio(
-            aspectRatio: 16 / 9,
-            child: Stack(
-              children: [
-                Container(
-                  color: Colors.black,
-                  child: widget.audioOnly
-                      ? AudioPoster(artUrl: widget.posterUrl)
-                      : _ytMode && widget.youtubeId != null
-                      ? YouTubeEmbed(
-                          videoId: widget.youtubeId!,
-                          startSeconds: _position.inSeconds,
-                        )
-                      : EpisodeVideo(
-                          player: widget.player,
-                          controller: widget.controller,
-                          speakerTimeline: widget.speakerTimeline,
-                          speakers: widget.speakers,
-                          seekUndo: widget.seekUndo,
-                          sponsoredMoments: widget.sponsoredMoments,
-                          onYouTubeMode:
-                              youTubeEmbedSupported && widget.youtubeId != null
-                              ? _enterYtMode
-                              : null,
-                        ),
-                ),
-                // Unmute CTA za muted autoplay (browser politika) — SAMO na
-                // audio-only putanji: kod videa isti overlay već crta
-                // `EpisodeVideo` kroz `controls:` builder (i u fullscreenu),
-                // pa bi se ovdje udvostručio. Stanje ide kroz `PlayerMute`
-                // singleton, ne kroz parametre — prošla izvedba ga je
-                // provlačila propovima i ispustila baš na mobilnim pozivima.
-                // Paused overlay je uklonjen — klik na video sad toggle-a
-                // play/pause (playAndPauseOnTap u EpisodeVideo).
-                if (widget.audioOnly)
-                  Positioned.fill(
-                    child: UnmuteOverlay(
-                      onUnmuted: () {
-                        if (!_playing) widget.player.play();
-                      },
-                    ),
-                  ),
-              ],
-            ),
-          ),
-
-          if (_ytMode) YouTubeModeBar(onExit: _exitYtMode),
-
-          // Mobitel u portraitu: titl ispod slike umjesto preko nje (overlay
-          // se tada sam skloni, osim u fullscreenu — vidi `EpisodeVideo`).
-          if (!_ytMode &&
-              !widget.audioOnly &&
-              widget.speakerTimeline != null &&
-              subtitlesBelowPlayer(context))
-            SubtitleStrip(
-              player: widget.player,
-              timeline: widget.speakerTimeline!,
-            ),
-
-          // Controls
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+      // Nizak panel (mobitel u landscapeu: 360 × 354) ne stane ni bez
+      // poglavlja — slika, kontrole i sponzori su viši od visine, pa je
+      // stupac probijao dno (smoke test 13.10.2026.). Tada scrolla CIJELI
+      // panel, a poglavlja nisu `Expanded`. Put do `EpisodeVideo` je u oba
+      // načina isti (LayoutBuilder → scroll → SizedBox → Column), da se
+      // video pri rotaciji ne remontira — na webu bi re-parent `<video>`
+      // elementa pauzirao reprodukciju.
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final compact = constraints.maxHeight < _kCompactPanelHeight;
+          final chapters = Padding(
+            padding: const EdgeInsets.only(bottom: 8),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Speaker timeline bar
-                if (widget.speakerTimeline != null)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 2),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(3),
-                      child: LayoutBuilder(
-                        builder: (context, constraints) {
-                          return SizedBox(
-                            height: 6,
-                            width: constraints.maxWidth,
-                            child: CustomPaint(
-                              painter: _SpeakerBarPainter(
-                                segments: widget.speakerTimeline!.segments,
-                                totalMs: totalMs,
-                                colors: colors,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-
-                // Undo skoka — samo na audio-only putanji. Kod videa istu
-                // pilulu već crta EpisodeVideo preko slike (i u fullscreenu),
-                // pa bi je ovdje dobili dvaput.
-                if (widget.seekUndo != null && widget.audioOnly)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 4),
-                    child: Center(
-                      child: SeekUndoPill(
-                        undo: widget.seekUndo!,
-                        onUndo: widget.player.seek,
-                      ),
-                    ),
-                  ),
-
-                // Seek bar s chapter markerima
-                _SeekBar(
-                  value: _sliderValue,
-                  chapters: widget.chapters,
-                  sponsorRanges: widget.sponsorRanges,
-                  paidRanges:
-                      widget.sponsoredMoments?.moments.ranges ?? const [],
-                  totalMs: totalMs,
-                  onChangeStart: (_) => setState(() => _seeking = true),
-                  onChanged: (v) => setState(() => _sliderValue = v),
-                  onChangeEnd: (v) async {
-                    final ms = (v * totalMs).round();
-                    final dur = Duration(milliseconds: ms);
-                    await widget.player.seek(dur);
-                    widget.onSeek?.call(dur);
-                    if (mounted) setState(() => _seeking = false);
-                  },
-                ),
-
-                // Vrijeme
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      _fmt(_position),
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        fontFamily: 'monospace',
-                        color: theme.colorScheme.primary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      _fmt(_duration),
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        fontFamily: 'monospace',
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
-
-                // Play/Pause + skip + brzina + zvuk + „u pozadini".
-                // media_kitov control bar preko slike se sam sakriva (i ne
-                // postoji na audio-only putanji), pa je ovo uvijek vidljivi
-                // ulaz u iste postavke — uključujući jedini unmute na
-                // audio-only epizodama.
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    const SpeedCycleButton(),
-                    const MuteToggleButton(),
-                    IconButton(
-                      icon: const Icon(Icons.replay_10),
-                      onPressed: () => widget.player.seek(
-                        _position - const Duration(seconds: 10),
-                      ),
-                      tooltip: '-10s',
-                    ),
-                    IconButton(
-                      iconSize: 40,
-                      icon: Icon(
-                        _playing
-                            ? Icons.pause_circle_filled
-                            : Icons.play_circle_filled,
-                      ),
-                      color: theme.colorScheme.primary,
-                      tooltip: _playing ? l.mediaPause : l.mediaPlay,
-                      onPressed: () => _playing
-                          ? widget.player.pause()
-                          : widget.player.play(),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.forward_10),
-                      onPressed: () => widget.player.seek(
-                        _position + const Duration(seconds: 10),
-                      ),
-                      tooltip: '+10s',
-                    ),
-                    const BackgroundPlaybackButton(),
-                  ],
-                ),
-
-                // Trenutni govornik
-                if (speaker != null)
-                  _CurrentSpeakerRow(
-                    speaker: speaker,
-                    color: colors[speaker.id] ?? theme.colorScheme.outline,
+                for (final ch in widget.chapters)
+                  _ChapterListItem(
+                    key: _chapterKeys[ch.timestamp],
+                    chapter: ch,
+                    isPlaying: ch.timestamp == widget.activeTimestamp,
+                    isScrolled:
+                        ch.timestamp == widget.scrollTimestamp &&
+                        ch.timestamp != widget.activeTimestamp,
+                    onTap: () => widget.onChapterTap(ch.timestamp),
                   ),
               ],
             ),
-          ),
-
-          // Sponzori u snimci — ovdje jer je panel playera (na mobitelu
-          // ladica) površina koju korisnik stvarno gleda.
-          if (widget.sponsorsInVideo?.hasNamed ?? false) ...[
-            Divider(height: 1, color: theme.colorScheme.outlineVariant),
-            SponsorsInVideoPlayerStrip(
-              data: widget.sponsorsInVideo,
-              onListen: widget.onSponsorListen,
-            ),
-          ],
-
-          // Plaćeni trenuci — odmah ispod autorovih sponzora, ali kao
-          // zaseban blok s „Sponzorirano · {brand}".
-          if (widget.sponsoredMoments?.moments.isNotEmpty ?? false) ...[
-            Divider(height: 1, color: theme.colorScheme.outlineVariant),
-            SponsoredMomentsPlayerStrip(
-              controller: widget.sponsoredMoments,
-              onListen: widget.onSponsoredListen,
-            ),
-          ],
-
-          Divider(height: 1, color: theme.colorScheme.outlineVariant),
-
-          // Chapter lista — scrollable
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
-            child: Text(
-              l.mediaChapters,
-              style: theme.textTheme.labelSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: theme.colorScheme.onSurfaceVariant,
-                letterSpacing: 0.5,
-              ),
-            ),
-          ),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.only(bottom: 8),
+          );
+          return SingleChildScrollView(
+            physics: compact ? null : const NeverScrollableScrollPhysics(),
+            child: SizedBox(
+              height: compact ? null : constraints.maxHeight,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  for (final ch in widget.chapters)
-                    _ChapterListItem(
-                      key: _chapterKeys[ch.timestamp],
-                      chapter: ch,
-                      isPlaying: ch.timestamp == widget.activeTimestamp,
-                      isScrolled:
-                          ch.timestamp == widget.scrollTimestamp &&
-                          ch.timestamp != widget.activeTimestamp,
-                      onTap: () => widget.onChapterTap(ch.timestamp),
+                  // Video display (16:9) — native player ili YouTube embed mode
+                  AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: Stack(
+                      children: [
+                        Container(
+                          color: Colors.black,
+                          child: widget.audioOnly
+                              ? AudioPoster(artUrl: widget.posterUrl)
+                              : _ytMode && widget.youtubeId != null
+                              ? YouTubeEmbed(
+                                  videoId: widget.youtubeId!,
+                                  startSeconds: _position.inSeconds,
+                                )
+                              : EpisodeVideo(
+                                  player: widget.player,
+                                  controller: widget.controller,
+                                  speakerTimeline: widget.speakerTimeline,
+                                  speakers: widget.speakers,
+                                  seekUndo: widget.seekUndo,
+                                  sponsoredMoments: widget.sponsoredMoments,
+                                  onYouTubeMode:
+                                      youTubeEmbedSupported &&
+                                          widget.youtubeId != null
+                                      ? _enterYtMode
+                                      : null,
+                                ),
+                        ),
+                        // Unmute CTA za muted autoplay (browser politika) — SAMO na
+                        // audio-only putanji: kod videa isti overlay već crta
+                        // `EpisodeVideo` kroz `controls:` builder (i u fullscreenu),
+                        // pa bi se ovdje udvostručio. Stanje ide kroz `PlayerMute`
+                        // singleton, ne kroz parametre — prošla izvedba ga je
+                        // provlačila propovima i ispustila baš na mobilnim pozivima.
+                        // Paused overlay je uklonjen — klik na video sad toggle-a
+                        // play/pause (playAndPauseOnTap u EpisodeVideo).
+                        if (widget.audioOnly)
+                          Positioned.fill(
+                            child: UnmuteOverlay(
+                              onUnmuted: () {
+                                if (!_playing) widget.player.play();
+                              },
+                            ),
+                          ),
+                      ],
                     ),
+                  ),
+
+                  if (_ytMode) YouTubeModeBar(onExit: _exitYtMode),
+
+                  // Mobitel u portraitu: titl ispod slike umjesto preko nje (overlay
+                  // se tada sam skloni, osim u fullscreenu — vidi `EpisodeVideo`).
+                  if (!_ytMode &&
+                      !widget.audioOnly &&
+                      widget.speakerTimeline != null &&
+                      subtitlesBelowPlayer(context))
+                    SubtitleStrip(
+                      player: widget.player,
+                      timeline: widget.speakerTimeline!,
+                    ),
+
+                  // Controls
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+                    child: Column(
+                      children: [
+                        // Speaker timeline bar
+                        if (widget.speakerTimeline != null)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 2),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(3),
+                              child: LayoutBuilder(
+                                builder: (context, constraints) {
+                                  return SizedBox(
+                                    height: 6,
+                                    width: constraints.maxWidth,
+                                    child: CustomPaint(
+                                      painter: _SpeakerBarPainter(
+                                        segments:
+                                            widget.speakerTimeline!.segments,
+                                        totalMs: totalMs,
+                                        colors: colors,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+
+                        // Undo skoka — samo na audio-only putanji. Kod videa istu
+                        // pilulu već crta EpisodeVideo preko slike (i u fullscreenu),
+                        // pa bi je ovdje dobili dvaput.
+                        if (widget.seekUndo != null && widget.audioOnly)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 4),
+                            child: Center(
+                              child: SeekUndoPill(
+                                undo: widget.seekUndo!,
+                                onUndo: widget.player.seek,
+                              ),
+                            ),
+                          ),
+
+                        // Seek bar s chapter markerima
+                        _SeekBar(
+                          value: _sliderValue,
+                          chapters: widget.chapters,
+                          sponsorRanges: widget.sponsorRanges,
+                          paidRanges:
+                              widget.sponsoredMoments?.moments.ranges ??
+                              const [],
+                          totalMs: totalMs,
+                          onChangeStart: (_) => setState(() => _seeking = true),
+                          onChanged: (v) => setState(() => _sliderValue = v),
+                          onChangeEnd: (v) async {
+                            final ms = (v * totalMs).round();
+                            final dur = Duration(milliseconds: ms);
+                            await widget.player.seek(dur);
+                            widget.onSeek?.call(dur);
+                            if (mounted) setState(() => _seeking = false);
+                          },
+                        ),
+
+                        // Vrijeme
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              _fmt(_position),
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                fontFamily: 'monospace',
+                                color: theme.colorScheme.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              _fmt(_duration),
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                fontFamily: 'monospace',
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        // Play/Pause + skip + brzina + zvuk + „u pozadini".
+                        // media_kitov control bar preko slike se sam sakriva (i ne
+                        // postoji na audio-only putanji), pa je ovo uvijek vidljivi
+                        // ulaz u iste postavke — uključujući jedini unmute na
+                        // audio-only epizodama.
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            const SpeedCycleButton(),
+                            const MuteToggleButton(),
+                            IconButton(
+                              icon: const Icon(Icons.replay_10),
+                              onPressed: () => widget.player.seek(
+                                _position - const Duration(seconds: 10),
+                              ),
+                              tooltip: '-10s',
+                            ),
+                            IconButton(
+                              iconSize: 40,
+                              icon: Icon(
+                                _playing
+                                    ? Icons.pause_circle_filled
+                                    : Icons.play_circle_filled,
+                              ),
+                              color: theme.colorScheme.primary,
+                              tooltip: _playing ? l.mediaPause : l.mediaPlay,
+                              onPressed: () => _playing
+                                  ? widget.player.pause()
+                                  : widget.player.play(),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.forward_10),
+                              onPressed: () => widget.player.seek(
+                                _position + const Duration(seconds: 10),
+                              ),
+                              tooltip: '+10s',
+                            ),
+                            const BackgroundPlaybackButton(),
+                          ],
+                        ),
+
+                        // Trenutni govornik
+                        if (speaker != null)
+                          _CurrentSpeakerRow(
+                            speaker: speaker,
+                            color:
+                                colors[speaker.id] ?? theme.colorScheme.outline,
+                          ),
+                      ],
+                    ),
+                  ),
+
+                  // Sponzori u snimci — ovdje jer je panel playera (na mobitelu
+                  // ladica) površina koju korisnik stvarno gleda.
+                  if (widget.sponsorsInVideo?.hasNamed ?? false) ...[
+                    Divider(height: 1, color: theme.colorScheme.outlineVariant),
+                    SponsorsInVideoPlayerStrip(
+                      data: widget.sponsorsInVideo,
+                      onListen: widget.onSponsorListen,
+                    ),
+                  ],
+
+                  // Plaćeni trenuci — odmah ispod autorovih sponzora, ali kao
+                  // zaseban blok s „Sponzorirano · {brand}".
+                  if (widget.sponsoredMoments?.moments.isNotEmpty ?? false) ...[
+                    Divider(height: 1, color: theme.colorScheme.outlineVariant),
+                    SponsoredMomentsPlayerStrip(
+                      controller: widget.sponsoredMoments,
+                      onListen: widget.onSponsoredListen,
+                    ),
+                  ],
+
+                  Divider(height: 1, color: theme.colorScheme.outlineVariant),
+
+                  // Chapter lista — scrollable
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+                    child: Text(
+                      l.mediaChapters,
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.onSurfaceVariant,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
+                  if (compact)
+                    chapters
+                  else
+                    Expanded(child: SingleChildScrollView(child: chapters)),
                 ],
               ),
             ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }

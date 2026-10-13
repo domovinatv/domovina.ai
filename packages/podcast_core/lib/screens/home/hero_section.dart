@@ -12,6 +12,21 @@ import 'home_feed.dart';
 import '../../router/nav.dart';
 import '../../widgets/prefetch_on_intent.dart';
 
+/// Split hero (slika lijevo, tekst desno) bira se za `isMobile == false`,
+/// tj. od 600 px širine — a to uključuje i mobitel u landscapeu (iPhone SE
+/// 667 pt, 12 mini 812 pt). S fiksnom slikom od 460 px tekstu je ondje
+/// ostajalo 120–260 px i eyebrow/CTA retci su probijali rub (smoke test
+/// 13.10.2026., `integration_test/smoke_test.dart`). Slika zato uzima
+/// najviše 40 % širine; na desktopu (≥ 1150 px) ostaje 460 px kao prije.
+/// [HeroSkeleton] koristi istu funkciju — visine moraju ostati jednake.
+double heroSplitImageWidth(double maxWidth) =>
+    (maxWidth * 0.4).clamp(0.0, 460.0);
+
+/// Unutarnji razmak teksta u split heroju; uži split štedi 16 px.
+EdgeInsets heroSplitTextPadding(double maxWidth) => maxWidth >= 1000
+    ? const EdgeInsets.fromLTRB(28, 24, 28, 24)
+    : const EdgeInsets.fromLTRB(20, 20, 20, 20);
+
 /// Editorial hero sekcija — split layout (slika lijevo, tekst desno) na desktop,
 /// stack na mobile. Compact dimenzije — slika je 16:9 ograničena na 480px wide
 /// pa hero nikad nije visok preko ~290px.
@@ -69,8 +84,9 @@ class HeroSection extends StatelessWidget {
             episodeId: featured.video.video.id,
             child: InkWell(
               onTap: onPlay,
-              child:
-                  isMobile ? _mobileLayout(theme, l) : _desktopLayout(theme, l),
+              child: isMobile
+                  ? _mobileLayout(theme, l)
+                  : _desktopLayout(theme, l),
             ),
           ),
         ),
@@ -78,39 +94,42 @@ class HeroSection extends StatelessWidget {
     );
   }
 
-  /// Desktop split — slika lijevo (constrained 480px), tekst desno.
+  /// Desktop split — slika lijevo ([heroSplitImageWidth]), tekst desno.
   Widget _desktopLayout(ThemeData theme, AppLocalizations l) {
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Slika lijevo — fixed 460px wide, 16:9
-          SizedBox(
-            width: 460,
-            child: AspectRatio(
-              aspectRatio: 16 / 9,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  _coverImage(),
-                  if (featured.video.video.magisteriumScore != null)
-                    Positioned(
-                      top: 12,
-                      right: 12,
-                      child: _magisteriumPill(theme, light: true),
-                    ),
-                ],
+    // LayoutBuilder IZVAN IntrinsicHeight — LayoutBuilder ne daje
+    // intrinzične dimenzije.
+    return LayoutBuilder(
+      builder: (context, constraints) => IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizedBox(
+              width: heroSplitImageWidth(constraints.maxWidth),
+              child: AspectRatio(
+                aspectRatio: 16 / 9,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    _coverImage(),
+                    if (featured.video.video.magisteriumScore != null)
+                      Positioned(
+                        top: 12,
+                        right: 12,
+                        child: _magisteriumPill(theme, light: true),
+                      ),
+                  ],
+                ),
               ),
             ),
-          ),
-          // Tekst desno
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(28, 24, 28, 24),
-              child: _content(theme, l, light: false),
+            // Tekst desno
+            Expanded(
+              child: Padding(
+                padding: heroSplitTextPadding(constraints.maxWidth),
+                child: _content(theme, l, light: false),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -169,8 +188,7 @@ class HeroSection extends StatelessWidget {
     );
   }
 
-  Widget _content(ThemeData theme, AppLocalizations l,
-      {required bool light}) {
+  Widget _content(ThemeData theme, AppLocalizations l, {required bool light}) {
     final video = featured.video.video;
     final channelName = featured.video.channelName;
     final textColor = light ? Colors.white : theme.colorScheme.onSurface;
@@ -187,10 +205,14 @@ class HeroSection extends StatelessWidget {
           children: [
             Container(width: 24, height: 2, color: theme.colorScheme.tertiary),
             const SizedBox(width: 10),
-            Text(
-              l.homeHeroEyebrow.toUpperCase(),
-              style: AppTypography.eyebrowStyle(theme.colorScheme)
-                  .copyWith(color: subColor),
+            Flexible(
+              child: Text(
+                l.homeHeroEyebrow.toUpperCase(),
+                style: AppTypography.eyebrowStyle(theme.colorScheme)
+                    .copyWith(color: subColor),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
             const SizedBox(width: 8),
             _WhyButton(pick: featured, color: subColor),
@@ -224,50 +246,62 @@ class HeroSection extends StatelessWidget {
               ),
             ),
             if (video.date != null)
-              Text('·  ${_formatDate(video.date!, l)}',
-                  style: theme.textTheme.bodyMedium?.copyWith(color: subColor)),
+              Text(
+                '·  ${_formatDate(video.date!, l)}',
+                style: theme.textTheme.bodyMedium?.copyWith(color: subColor),
+              ),
             if (video.durationDisplay != null)
-              Text('·  ${video.durationDisplay}',
-                  style: theme.textTheme.bodyMedium?.copyWith(color: subColor)),
+              Text(
+                '·  ${video.durationDisplay}',
+                style: theme.textTheme.bodyMedium?.copyWith(color: subColor),
+              ),
           ],
         ),
         const SizedBox(height: 16),
 
-        // CTA buttons
-        Row(
-          children: [
-            FilledButton.icon(
-              onPressed: onPlay,
-              icon: const Icon(Icons.play_arrow, size: 20),
-              label: Text(l.homeHeroListen),
-              style: FilledButton.styleFrom(
-                backgroundColor: AppTheme.brandPrimary,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 18, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  side: AppTheme.brandRim(theme.brightness),
+        // CTA buttons — scaleDown je osigurač za uske širine: gumbi se
+        // smanje umjesto da probiju rub (visina ostaje ista dok stanu).
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              FilledButton.icon(
+                onPressed: onPlay,
+                icon: const Icon(Icons.play_arrow, size: 20),
+                label: Text(l.homeHeroListen),
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppTheme.brandPrimary,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 18,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    side: AppTheme.brandRim(theme.brightness),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(width: 10),
-            _SaveButton(
-              video: featured.video,
-              textColor: textColor,
-              style: OutlinedButton.styleFrom(
-                foregroundColor: textColor,
-                side: BorderSide(
-                  color: textColor.withValues(alpha: 0.4),
-                ),
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 18, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+              const SizedBox(width: 10),
+              _SaveButton(
+                video: featured.video,
+                textColor: textColor,
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: textColor,
+                  side: BorderSide(color: textColor.withValues(alpha: 0.4)),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 18,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ],
     );
@@ -280,9 +314,7 @@ class HeroSection extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.black.withValues(alpha: 0.55),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.3),
-        ),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -464,13 +496,15 @@ class _WhyDialog extends StatelessWidget {
       (
         l.homeWhyFactAiProcessing,
         (pick.video.video.pipeline?.hasMagisterium ?? false)
-            ? (AppBrand.config.flags.domainScore ? l.homeWhyFactAiYes : l.homeWhyFactAiYesGeneric)
-            : l.homeWhyFactAiNo
+            ? (AppBrand.config.flags.domainScore
+                  ? l.homeWhyFactAiYes
+                  : l.homeWhyFactAiYesGeneric)
+            : l.homeWhyFactAiNo,
       ),
       if (pick.combinedScore != null)
         (
           l.homeWhyFactWeight,
-          l.homeWhyFactWeightValue(pick.combinedScore!.toStringAsFixed(1))
+          l.homeWhyFactWeightValue(pick.combinedScore!.toStringAsFixed(1)),
         ),
       (l.homeWhyFactPool, l.homeWhyFactPoolValue(pick.candidatePool)),
     ];
@@ -509,28 +543,15 @@ class _WhyDialog extends StatelessWidget {
   }
 
   Widget _algorithmTiers(
-      ThemeData theme, AppLocalizations l, FeaturedReason activeTier) {
+    ThemeData theme,
+    AppLocalizations l,
+    FeaturedReason activeTier,
+  ) {
     final tiers = [
-      (
-        FeaturedReason.hiQualityRecent,
-        l.homeTier1Title,
-        l.homeTier1Desc,
-      ),
-      (
-        FeaturedReason.hiQuality,
-        l.homeTier2Title,
-        l.homeTier2Desc,
-      ),
-      (
-        FeaturedReason.anyMagisterium,
-        l.homeTier3Title,
-        l.homeTier3Desc,
-      ),
-      (
-        FeaturedReason.newest,
-        l.homeTier4Title,
-        l.homeTier4Desc,
-      ),
+      (FeaturedReason.hiQualityRecent, l.homeTier1Title, l.homeTier1Desc),
+      (FeaturedReason.hiQuality, l.homeTier2Title, l.homeTier2Desc),
+      (FeaturedReason.anyMagisterium, l.homeTier3Title, l.homeTier3Desc),
+      (FeaturedReason.newest, l.homeTier4Title, l.homeTier4Desc),
     ];
 
     return Column(
@@ -548,7 +569,7 @@ class _WhyDialog extends StatelessWidget {
                   height: 8,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                     color: t.$1 == activeTier
+                    color: t.$1 == activeTier
                         ? theme.colorScheme.tertiary
                         : theme.colorScheme.outlineVariant,
                   ),

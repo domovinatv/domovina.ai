@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'hero_carousel.dart' show kHeroControlBarHeight;
+import 'hero_section.dart' show heroSplitImageWidth, heroSplitTextPadding;
 
 /// Animated shimmer box — koristi se kao loading placeholder.
 ///
@@ -11,12 +12,7 @@ class ShimmerBox extends StatefulWidget {
   final double? height;
   final BorderRadius? borderRadius;
 
-  const ShimmerBox({
-    super.key,
-    this.width,
-    this.height,
-    this.borderRadius,
-  });
+  const ShimmerBox({super.key, this.width, this.height, this.borderRadius});
 
   @override
   State<ShimmerBox> createState() => _ShimmerBoxState();
@@ -59,11 +55,7 @@ class _ShimmerBoxState extends State<ShimmerBox>
             gradient: LinearGradient(
               begin: Alignment(-1.0 + 2 * t, -0.3),
               end: Alignment(1.0 + 2 * t, 0.3),
-              colors: [
-                baseColor,
-                highlightColor,
-                baseColor,
-              ],
+              colors: [baseColor, highlightColor, baseColor],
               stops: const [0.0, 0.5, 1.0],
             ),
           ),
@@ -162,8 +154,9 @@ class ChannelGridSkeleton extends StatelessWidget {
       builder: (context, constraints) {
         final width = constraints.maxWidth - 32;
         final columns = isMobile ? 1 : (width / 360).floor().clamp(2, 99);
-        final cardWidth =
-            columns == 1 ? width : (width - (columns - 1) * 16) / columns;
+        final cardWidth = columns == 1
+            ? width
+            : (width - (columns - 1) * 16) / columns;
         final coverH = cardWidth * 9 / 16;
 
         return Padding(
@@ -247,24 +240,27 @@ class HeroSkeleton extends StatelessWidget {
   }
 
   Widget _desktop() {
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          SizedBox(
-            width: 460,
-            child: AspectRatio(
-              aspectRatio: 16 / 9,
-              child: const ShimmerBox(borderRadius: BorderRadius.zero),
+    // Isto pravilo širine kao HeroSection._desktopLayout.
+    return LayoutBuilder(
+      builder: (context, constraints) => IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizedBox(
+              width: heroSplitImageWidth(constraints.maxWidth),
+              child: AspectRatio(
+                aspectRatio: 16 / 9,
+                child: const ShimmerBox(borderRadius: BorderRadius.zero),
+              ),
             ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(28, 24, 28, 24),
-              child: _textLines(),
+            Expanded(
+              child: Padding(
+                padding: heroSplitTextPadding(constraints.maxWidth),
+                child: _textLines(),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -326,20 +322,26 @@ class HeroSkeleton extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         // CTA gumbi ("Slušaj" / "Spremi") — 48 px zbog padded tap targeta.
-        Row(
-          children: [
-            ShimmerBox(
-              height: 48,
-              width: 118,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            const SizedBox(width: 10),
-            ShimmerBox(
-              height: 48,
-              width: 118,
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ],
+        // scaleDown kao u HeroSection: na uskom splitu se smanje, ne probiju.
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ShimmerBox(
+                height: 48,
+                width: 118,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              const SizedBox(width: 10),
+              ShimmerBox(
+                height: 48,
+                width: 118,
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ],
+          ),
         ),
       ],
     );
