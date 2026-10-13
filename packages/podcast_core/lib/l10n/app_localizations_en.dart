@@ -1467,6 +1467,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeSearchHint => 'Search channels, episodes and content…';
 
   @override
+  String get homeSearchClear => 'Clear search';
+
+  @override
   String homeSearchNoResults(String query) {
     return 'No results for “$query”';
   }

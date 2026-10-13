@@ -1478,6 +1478,9 @@ class AppLocalizationsHr extends AppLocalizations {
   String get homeSearchHint => 'Pretraži kanale, epizode i sadržaj…';
 
   @override
+  String get homeSearchClear => 'Obriši upit';
+
+  @override
   String homeSearchNoResults(String query) {
     return 'Nema rezultata za „$query”';
   }

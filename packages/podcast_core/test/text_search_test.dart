@@ -17,6 +17,34 @@ void main() {
     });
   });
 
+  group('foldText — ASCII brzi put', () {
+    test('isto kao lowercase za ASCII, dijakritici foldani', () {
+      expect(foldText('Fra Stjepan BRČINA 2026!'), 'fra stjepan brcina 2026!');
+      const s = 'Dobrodošlica i predstavljanje Đ';
+      expect(foldText(s).length, s.length);
+    });
+  });
+
+  group('normalizeQuery / queryTokens', () {
+    test('razmak na kraju ne mijenja upit', () {
+      expect(normalizeQuery('fra '), 'fra');
+      expect(normalizeQuery('  fra   stjepan '), 'fra stjepan');
+    });
+
+    test('tokeni su foldani', () {
+      expect(queryTokens('Fra  Šterc'), ['fra', 'sterc']);
+      expect(queryTokens('   '), isEmpty);
+    });
+
+    test('localMatchScoreFolded == localMatchScore', () {
+      const hay = 'POPcast | Fra Stjepan Brčina - duhovni reset';
+      for (final q in ['fra', 'fra stjepan', 'brcina', 'xyz']) {
+        expect(localMatchScoreFolded(queryTokens(q), foldText(hay)),
+            localMatchScore(q, hay));
+      }
+    });
+  });
+
   group('highlightRanges — sklonjeni oblici', () {
     test('upit "demografska obnova" hvata "demografsku obnovu"', () {
       final m = hl('predlaže modele za demografsku obnovu danas', 'demografska obnova');

@@ -27,12 +27,33 @@ const Map<String, String> _foldMap = {
 /// lowercase je 1:1; ako neki znak lowercasea u više znakova, čuvamo original.
 String foldText(String input) {
   final buf = StringBuffer();
-  for (final ch in input.split('')) {
+  for (var i = 0; i < input.length; i++) {
+    final cu = input.codeUnitAt(i);
+    // ASCII brzi put: pretraga folda cijeli korpus (~2,7 MB), a `split('')`
+    // alocira string po znaku.
+    if (cu < 0x80) {
+      buf.writeCharCode(cu >= 0x41 && cu <= 0x5A ? cu + 0x20 : cu);
+      continue;
+    }
+    final ch = input[i];
     final lc = ch.toLowerCase();
     final c = lc.length == 1 ? lc : ch;
     buf.write(_foldMap[c] ?? c);
   }
   return buf.toString();
+}
+
+/// Upit kakav ga vidi korisnik: bez rubnih razmaka, uzastopni razmaci
+/// stopljeni. „fra" i „fra " su isti upit — ne smiju okinuti novi mrežni
+/// zahtjev ni prerangirati rezultate.
+String normalizeQuery(String query) =>
+    query.trim().replaceAll(RegExp(r'\s+'), ' ');
+
+/// Foldani tokeni upita — računaj JEDNOM po upitu, ne po epizodi.
+List<String> queryTokens(String query) {
+  final q = foldText(query).trim();
+  if (q.isEmpty) return const [];
+  return q.split(RegExp(r'\s+'));
 }
 
 /// Rasponi `[start, end)` u [text] koji odgovaraju bilo kojem tokenu iz
@@ -128,19 +149,20 @@ String snippetAround(String text, String query,
 ///
 /// Token-AND semantika je predvidljivija od fuzzy-ja za kratke upite i ne
 /// vraća slučajne false-positive rezultate.
-double localMatchScore(String query, String haystack) {
-  final q = foldText(query).trim();
-  if (q.isEmpty) return 0;
-  final hay = foldText(haystack);
-  if (hay.isEmpty) return 0;
+double localMatchScore(String query, String haystack) =>
+    localMatchScoreFolded(queryTokens(query), foldText(haystack));
 
-  final tokens = q.split(RegExp(r'\s+')).where((t) => t.isNotEmpty).toList();
+/// [localMatchScore] nad već foldanim tokenima ([queryTokens]) i već foldanim
+/// tekstom ([foldText]). Za pretragu nad cijelim katalogom: haystack se folda
+/// jednom po korpusu, a ne pri svakom tipku.
+double localMatchScoreFolded(List<String> tokens, String hay) {
+  if (tokens.isEmpty || hay.isEmpty) return 0;
   double total = 0;
   for (final token in tokens) {
     final idx = hay.indexOf(token);
     if (idx < 0) return 0; // svaki token mora biti prisutan (AND)
     // Bonus: match na granici riječi (početak ili nakon razmaka) vrijedi više.
-    final atWordStart = idx == 0 || hay[idx - 1] == ' ';
+    final atWordStart = idx == 0 || hay.codeUnitAt(idx - 1) == 0x20;
     total += atWordStart ? 2.0 : 1.0;
     // Bonus za duže tokene (specifičniji upit).
     total += token.length / 20.0;

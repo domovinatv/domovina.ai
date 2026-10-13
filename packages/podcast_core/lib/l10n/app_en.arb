@@ -398,6 +398,7 @@
   "homeLoadingChannels": "Loading {loaded}/{total} channels…",
   "homeSearchBarrierLabel": "Close search",
   "homeSearchHint": "Search channels, episodes and content…",
+  "homeSearchClear": "Clear search",
   "homeSearchNoResults": "No results for “{query}”",
   "homeSearchNoTitleMatches": "No matches\nin titles",
   "homeSearchSearching": "Searching…",

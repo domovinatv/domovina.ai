@@ -2486,6 +2486,12 @@ abstract class AppLocalizations {
   /// **'Pretraži kanale, epizode i sadržaj…'**
   String get homeSearchHint;
 
+  /// Tooltip for the clear (×) button inside the full-screen mobile search field.
+  ///
+  /// In hr, this message translates to:
+  /// **'Obriši upit'**
+  String get homeSearchClear;
+
   /// Shown when a search returns nothing.
   ///
   /// In hr, this message translates to:

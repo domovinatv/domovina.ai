@@ -1896,6 +1896,10 @@
   "@homeSearchHint": {
     "description": "Hint text in the search overlay input."
   },
+  "homeSearchClear": "Obriši upit",
+  "@homeSearchClear": {
+    "description": "Tooltip for the clear (×) button inside the full-screen mobile search field."
+  },
   "homeSearchNoResults": "Nema rezultata za „{query}”",
   "@homeSearchNoResults": {
     "description": "Shown when a search returns nothing.",

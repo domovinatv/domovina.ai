@@ -59,20 +59,22 @@ Future<void> showSearchOverlay(
       onSelectVideo: onSelectVideo,
       onSelectVideoAt: onSelectVideoAt,
     ),
-    transitionBuilder: (context, anim, _, child) {
-      return FadeTransition(
-        opacity: anim,
-        child: ScaleTransition(
-          scale: Tween<double>(begin: 0.96, end: 1.0).animate(
-            CurvedAnimation(parent: anim, curve: Curves.easeOutCubic),
-          ),
-          child: child,
-        ),
-      );
-    },
+    // SAMO fade, bez `ScaleTransition`. Scale tween (0.96 → 1.0) ostavljao je
+    // paletu trajno pod transformom, a skwasm na Mali GPU-u (moto g86,
+    // Mali-G615, Chrome) pod njom krivo crta glifove: razmak dobije negativnu
+    // širinu („fra stje" se vidi kao „frastje"), „d" izađe kao „đ". Unos je
+    // bio ispravan, korisnik je samo vidio da razmak „ne radi". Izmjereno
+    // 13.10.2026.; ista ruta bez transforma (`/search`) crta ispravno.
+    // FadeTransition pri opacity 1 ne ostavlja nikakav sloj.
+    transitionBuilder: (context, anim, _, child) =>
+        FadeTransition(opacity: anim, child: child),
   );
   unsubscribe();
 }
+
+/// Uređaj kojem je KRAĆA stranica ispod ovoga (mobitel, i u landscapeu)
+/// dobiva pretragu kao ekran, a ne plutajuću paletu.
+const double _kCompactWidth = 600;
 
 class _SearchOverlay extends StatefulWidget {
   final List<ChannelSummary> channels;
@@ -94,13 +96,27 @@ class _SearchOverlay extends StatefulWidget {
 // Lokalni rezultat epizode s izračunatim scoreom.
 typedef _VideoHit = ({String channelId, String channelName, ChannelVideo video});
 
+// Epizoda s unaprijed foldanim tekstom za pretragu.
+typedef _IndexedVideo = ({_VideoHit hit, String title, String all});
+
 class _SearchOverlayState extends State<_SearchOverlay> {
   final _searchController = TextEditingController();
   final _idController = TextEditingController();
   late final FocusNode _searchFocus;
   Timer? _debounce;
   Timer? _semanticDebounce;
+  Timer? _dataDebounce;
   String _query = '';
+  // Upit za koji je poslan (ili se šalje) semantički zahtjev — normaliziran,
+  // pa „fra" → „fra " ne okida novi zahtjev.
+  String _semanticQuery = '';
+
+  // Foldani tekst epizoda, računa se JEDNOM po stanju `channelCache`-a, ne pri
+  // svakom buildu. Korpus je ~3300 epizoda / 2,7 MB teksta; prije je cijeli
+  // prolazio kroz `foldText` u svakom `build()` (spinner, stigli rezultati,
+  // svaka notifikacija cachea), ~75 ms na M-čipu i višestruko više na
+  // mobitelu — tipkanje je štucalo.
+  List<_IndexedVideo>? _videoIndex;
   bool _showIdInput = false;
 
   // Tier 1 semantic state.
@@ -148,9 +164,9 @@ class _SearchOverlayState extends State<_SearchOverlay> {
     // `notifyListeners()` sinkrono — iz build()-a bi to srušilo frame.
     PersonChannelFlag.instance.addListener(_onFlagChanged);
     personIndexCache.addListener(_onPersonIndexChanged);
-    // Lokalni rezultati se računaju u buildu — rebuild kad stignu listinzi
-    // ili tekst za pretragu.
-    channelCache.addListener(_onPersonIndexChanged);
+    // Kad stignu listinzi ili tekst za pretragu, indeks se gradi iznova.
+    // Prefetch naslovnice javlja po kanalu, pa se notifikacije skupljaju.
+    channelCache.addListener(_onChannelCacheChanged);
     unawaited(Future.microtask(_initPersons));
     // Sažetak/teme/govornici za lokalnu pretragu — skraćeni listing (v2) ih
     // ne nosi. Kad stignu, cache notificira i rezultati se osvježe.
@@ -166,20 +182,33 @@ class _SearchOverlayState extends State<_SearchOverlay> {
   void _onFlagChanged() {
     final on = PersonChannelFlag.instance.isOn;
     if (!mounted || on == _flagOn) return;
-    setState(() => _flagOn = on);
+    setState(() {
+      _flagOn = on;
+      _recomputeLocal();
+    });
   }
 
-  /// Rebuild kad se promijeni indeks osoba ili `channelCache`.
+  /// Rebuild kad se promijeni indeks osoba.
   void _onPersonIndexChanged() {
-    if (mounted) setState(() {});
+    if (!mounted) return;
+    setState(_recomputeLocal);
+  }
+
+  void _onChannelCacheChanged() {
+    _videoIndex = null;
+    _dataDebounce?.cancel();
+    _dataDebounce = Timer(const Duration(milliseconds: 250), () {
+      if (mounted && _query.isNotEmpty) setState(_recomputeLocal);
+    });
   }
 
   @override
   void dispose() {
     PersonChannelFlag.instance.removeListener(_onFlagChanged);
     personIndexCache.removeListener(_onPersonIndexChanged);
-    channelCache.removeListener(_onPersonIndexChanged);
+    channelCache.removeListener(_onChannelCacheChanged);
     _debounce?.cancel();
+    _dataDebounce?.cancel();
     _semanticDebounce?.cancel();
     _leftScroll.dispose();
     _rightScroll.dispose();
@@ -190,24 +219,30 @@ class _SearchOverlayState extends State<_SearchOverlay> {
   }
 
   void _onSearchChanged(String value) {
-    // Tier 0 — instant lokalni rezultati (kratki debounce za smoothness).
+    final q = normalizeQuery(value);
+
+    // Tier 0 — lokalni rezultati (kratki debounce). Razmak na kraju ne mijenja
+    // upit, pa ni rezultate ni odabrani red.
     _debounce?.cancel();
-    _debounce = Timer(const Duration(milliseconds: 180), () {
-      if (mounted) {
+    if (q != _query) {
+      _debounce = Timer(const Duration(milliseconds: 150), () {
+        if (!mounted) return;
         setState(() {
-          _query = value;
+          _query = q;
           // novi upit → highlight prvi rezultat lijevog stupca
           _leftSel = 0;
           _rightSel = 0;
           _activePane = 0;
+          _recomputeLocal();
         });
-      }
-    });
+      });
+    }
 
     // Tier 1 — semantic, duži debounce + min duljina (štedi mrežu/embeddinge).
+    if (q == _semanticQuery) return;
     _semanticDebounce?.cancel();
-    final q = value.trim();
     if (q.length < 3) {
+      _semanticQuery = '';
       if (_semanticResults.isNotEmpty || _semanticLoading) {
         setState(() {
           _semanticResults = [];
@@ -221,14 +256,21 @@ class _SearchOverlayState extends State<_SearchOverlay> {
     });
   }
 
+  void _clearQuery() {
+    _searchController.clear();
+    _onSearchChanged('');
+    _searchFocus.requestFocus();
+  }
+
   Future<void> _runSemantic(String q) async {
+    _semanticQuery = q;
     setState(() => _semanticLoading = true);
     // DOMOVINA Plus dobiva veći set rezultata (free ostaje pun i koristan).
     final limit = EntitlementService.instance.isPlus.value ? 30 : 12;
     final results = await SearchService.search(q, limit: limit);
     if (!mounted) return;
     // Odbaci stale odgovor (upit se promijenio u međuvremenu).
-    if (_searchController.text.trim() != q) return;
+    if (_semanticQuery != q) return;
     setState(() {
       _semanticResults = results;
       _semanticLoading = false;
@@ -271,6 +313,9 @@ class _SearchOverlayState extends State<_SearchOverlay> {
     }
     if (key == LogicalKeyboardKey.enter ||
         key == LogicalKeyboardKey.numpadEnter) {
+      // Na mobitelu Enter (Gboard ga na webu šalje i kao keydown) ide kroz
+      // `onSubmitted`, koji samo spušta tipkovnicu.
+      if (_isCompact(MediaQuery.sizeOf(context))) return KeyEventResult.ignored;
       if (_activeCount > 0) {
         _activateSelected();
         return KeyEventResult.handled;
@@ -353,45 +398,68 @@ class _SearchOverlayState extends State<_SearchOverlay> {
   /// Osobe koje smiju izgledati kao kanal, dijakritik-neosjetljivo po imenu
   /// („sarolic" i „šarolić" daju isti pogodak). Prazno kad je flag ugašen ili
   /// backend još nema `/api/persons`.
-  List<PersonSummary> _localPersons(String q) {
+  /// Izračunaj vidljive lokalne rezultate za [_query]. Zove se kad se
+  /// promijeni upit ili podaci — NIKAD iz `build()`.
+  void _recomputeLocal() {
+    if (_query.isEmpty) {
+      _visiblePersons = const [];
+      _visibleChannels = const [];
+      _visibleVideos = const [];
+      return;
+    }
+    final tokens = queryTokens(_query);
+    _visiblePersons = _localPersons(tokens);
+    _visibleChannels = _localChannels(tokens);
+    _visibleVideos = _localVideos(tokens);
+  }
+
+  List<PersonSummary> _localPersons(List<String> tokens) {
     if (!_flagOn) return const [];
     final scored = <(double, PersonSummary)>[];
     for (final p in personIndexCache.virtualChannels) {
-      final s = localMatchScore(q, p.name);
+      final s = localMatchScoreFolded(tokens, foldText(p.name));
       if (s > 0) scored.add((s, p));
     }
     scored.sort((a, b) => b.$1.compareTo(a.$1));
     return scored.take(5).map((e) => e.$2).toList();
   }
 
-  List<ChannelSummary> _localChannels(String q) {
+  List<ChannelSummary> _localChannels(List<String> tokens) {
     final scored = <(double, ChannelSummary)>[];
     for (final ch in widget.channels) {
-      final s = localMatchScore(q, ch.name);
+      final s = localMatchScoreFolded(tokens, foldText(ch.name));
       if (s > 0) scored.add((s, ch));
     }
     scored.sort((a, b) => b.$1.compareTo(a.$1));
     return scored.take(6).map((e) => e.$2).toList();
   }
 
-  List<_VideoHit> _localVideos(String q) {
+  List<_IndexedVideo> get _index => _videoIndex ??= [
+        for (final hit in channelCache.allVideos)
+          (
+            hit: hit,
+            title: foldText(hit.video.displayTitle),
+            // Kombinirani haystack → multi-token upit radi i preko više polja
+            // (npr. "šterc demografija": ime u speakers, tema u topics).
+            all: foldText([
+              hit.video.displayTitle,
+              hit.video.title,
+              hit.video.speakers.join(' '),
+              hit.video.topics.join(' '),
+              hit.video.abstract_ ?? '',
+              hit.channelName,
+            ].join('  ')),
+          ),
+      ];
+
+  List<_VideoHit> _localVideos(List<String> tokens) {
     final scored = <(double, _VideoHit)>[];
-    for (final hit in channelCache.allVideos) {
-      final v = hit.video;
-      // Kombinirani haystack → multi-token upit radi i preko više polja
-      // (npr. "šterc demografija": ime u speakers, tema u topics).
-      final combined = [
-        v.displayTitle,
-        v.title,
-        v.speakers.join(' '),
-        v.topics.join(' '),
-        v.abstract_ ?? '',
-        hit.channelName,
-      ].join('  ');
-      final base = localMatchScore(q, combined);
+    for (final e in _index) {
+      final base = localMatchScoreFolded(tokens, e.all);
       if (base <= 0) continue;
-      final titleBoost = localMatchScore(q, v.displayTitle) > 0 ? 3.0 : 0.0;
-      scored.add((base + titleBoost, hit));
+      final titleBoost =
+          localMatchScoreFolded(tokens, e.title) > 0 ? 3.0 : 0.0;
+      scored.add((base + titleBoost, e.hit));
     }
     scored.sort((a, b) => b.$1.compareTo(a.$1));
     return scored.take(12).map((e) => e.$2).toList();
@@ -400,40 +468,74 @@ class _SearchOverlayState extends State<_SearchOverlay> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final size = MediaQuery.of(context).size;
-    // Desktop (širok ekran) → dvostupčani layout (PO NASLOVU | U SADRŽAJU).
-    final twoCol = size.width >= 760;
-    final maxWidth = twoCol
-        ? (size.width - 48).clamp(640.0, 960.0)
-        : (size.width < 700 ? size.width - 24 : 640.0);
-    final maxHeight = size.height * 0.8;
+    final mq = MediaQuery.of(context);
+    final size = mq.size;
 
-    return Center(
-      child: Material(
-        color: Colors.transparent,
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: maxWidth, maxHeight: maxHeight),
-          child: Container(
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surface,
-              borderRadius: BorderRadius.circular(14),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.2),
-                  blurRadius: 40,
-                  offset: const Offset(0, 12),
-                ),
+    // Mobitel → pretraga preko cijelog ekrana (kao YouTube/Google na
+    // mobitelu). Centrirana paleta s maxHeight 80 % ekrana ne zna za
+    // tipkovnicu: u landscapeu ju je tipkovnica prekrila cijelu, a rezultati
+    // se nisu vidjeli ni u portraitu ispod polja.
+    if (_isCompact(size)) {
+      return Material(
+        color: theme.colorScheme.surface,
+        child: SafeArea(
+          child: Padding(
+            padding: EdgeInsets.only(bottom: mq.viewInsets.bottom),
+            child: Column(
+              children: [
+                _searchHeader(theme, compact: true),
+                const Divider(height: 1),
+                Expanded(child: _resultsBody(theme, false)),
+                // Dok je tipkovnica gore, svaki redak ide rezultatima: u
+                // landscapeu je „Otvori po YouTube ID-u" pojeo jedini
+                // preostali redak. Vrati se čim se tipkovnica spusti.
+                if (mq.viewInsets.bottom == 0) ...[
+                  const Divider(height: 1),
+                  _idInputSection(theme),
+                ],
               ],
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _searchHeader(theme),
-                const Divider(height: 1),
-                Flexible(child: _resultsBody(theme, twoCol)),
-                const Divider(height: 1),
-                _idInputSection(theme),
-              ],
+          ),
+        ),
+      );
+    }
+
+    // Desktop (širok ekran) → dvostupčani layout (PO NASLOVU | U SADRŽAJU).
+    final twoCol = size.width >= 760;
+    final maxWidth = twoCol ? (size.width - 48).clamp(640.0, 960.0) : 640.0;
+    // Visina se mjeri NAD tipkovnicom (tablet s on-screen tipkovnicom).
+    final maxHeight = (size.height - mq.viewInsets.bottom) * 0.8;
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: mq.viewInsets.bottom),
+      child: Center(
+        child: Material(
+          color: Colors.transparent,
+          child: ConstrainedBox(
+            constraints:
+                BoxConstraints(maxWidth: maxWidth, maxHeight: maxHeight),
+            child: Container(
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surface,
+                borderRadius: BorderRadius.circular(14),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.2),
+                    blurRadius: 40,
+                    offset: const Offset(0, 12),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _searchHeader(theme, compact: false),
+                  const Divider(height: 1),
+                  Flexible(child: _resultsBody(theme, twoCol)),
+                  const Divider(height: 1),
+                  _idInputSection(theme),
+                ],
+              ),
             ),
           ),
         ),
@@ -441,17 +543,30 @@ class _SearchOverlayState extends State<_SearchOverlay> {
     );
   }
 
-  Widget _searchHeader(ThemeData theme) {
+  Widget _searchHeader(ThemeData theme, {required bool compact}) {
     final l = AppLocalizations.of(context);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 14, 8, 14),
+      padding: compact
+          ? const EdgeInsets.fromLTRB(4, 6, 4, 6)
+          : const EdgeInsets.fromLTRB(16, 14, 8, 14),
       child: Row(
         children: [
-          Icon(Icons.search,
-              size: 22, color: theme.colorScheme.onSurfaceVariant),
-          const SizedBox(width: 12),
+          // Na mobitelu je strelica „natrag" jedini izlaz (nema barijere oko
+          // palete); × u polju briše upit.
+          if (compact)
+            IconButton(
+              icon: const Icon(Icons.arrow_back),
+              tooltip: l.commonClose,
+              onPressed: () => Navigator.of(context).pop(),
+            )
+          else ...[
+            Icon(Icons.search,
+                size: 22, color: theme.colorScheme.onSurfaceVariant),
+            const SizedBox(width: 12),
+          ],
           Expanded(
             child: TextField(
+              key: const ValueKey('search-overlay-field'),
               controller: _searchController,
               focusNode: _searchFocus,
               // autofocus tijekom prvog builda dijaloga (pokrenutog tapom) →
@@ -460,8 +575,16 @@ class _SearchOverlayState extends State<_SearchOverlay> {
               autofocus: true,
               keyboardType: TextInputType.text,
               textInputAction: TextInputAction.search,
+              // Imena i naslovi nisu rječnik: autocorrect „fra" pretvara u
+              // nešto drugo, a prijedlozi tipkovnice ostaju (brže tipkanje).
+              autocorrect: false,
               onChanged: _onSearchChanged,
-              onSubmitted: (_) => _activateSelected(),
+              // Desktop: Enter otvara odabrani red (command paleta). Mobitel:
+              // tipka „traži" spušta tipkovnicu i otkriva rezultate — prvi
+              // rezultat naslijepo nije ono što je korisnik tražio.
+              onSubmitted: (_) => compact
+                  ? _searchFocus.unfocus()
+                  : _activateSelected(),
               style: theme.textTheme.titleMedium,
               decoration: InputDecoration(
                 border: InputBorder.none,
@@ -480,17 +603,25 @@ class _SearchOverlayState extends State<_SearchOverlay> {
           ),
           if (_semanticLoading)
             const Padding(
-              padding: EdgeInsets.only(right: 8),
+              padding: EdgeInsets.symmetric(horizontal: 8),
               child: SizedBox(
                 width: 16,
                 height: 16,
                 child: CircularProgressIndicator(strokeWidth: 2),
               ),
             ),
-          IconButton(
-            icon: const Icon(Icons.close, size: 20),
-            tooltip: l.commonClose,
-            onPressed: () => Navigator.of(context).pop(),
+          ValueListenableBuilder<TextEditingValue>(
+            valueListenable: _searchController,
+            builder: (context, value, _) {
+              if (compact && value.text.isEmpty) return const SizedBox.shrink();
+              return IconButton(
+                icon: const Icon(Icons.close, size: 20),
+                tooltip: compact ? l.homeSearchClear : l.commonClose,
+                onPressed: compact
+                    ? _clearQuery
+                    : () => Navigator.of(context).pop(),
+              );
+            },
           ),
         ],
       ),
@@ -498,19 +629,7 @@ class _SearchOverlayState extends State<_SearchOverlay> {
   }
 
   Widget _resultsBody(ThemeData theme, bool twoCol) {
-    if (_query.isEmpty) {
-      _visiblePersons = const [];
-      _visibleChannels = const [];
-      _visibleVideos = const [];
-      return _emptyState(theme);
-    }
-
-    // Izračunaj i spremi vidljive lokalne rezultate (dijele redoslijed s key
-    // handlerom).
-    _visiblePersons = _localPersons(_query);
-    _visibleChannels = _localChannels(_query);
-    _visibleVideos =
-        channelCache.allVideos.isNotEmpty ? _localVideos(_query) : const [];
+    if (_query.isEmpty) return _emptyState(theme);
 
     final hasLocal = _leftCount > 0;
     final hasSemantic = _rightCount > 0;
@@ -554,10 +673,12 @@ class _SearchOverlayState extends State<_SearchOverlay> {
       );
     }
 
-    // Mobilni — oba stupca složena u jedan scroll.
+    // Uski — oba stupca složena u jedan scroll. Povlačenje rezultata spušta
+    // tipkovnicu (da se vidi što je ispod nje).
     return ListView(
       controller: _leftScroll,
       shrinkWrap: true,
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       padding: const EdgeInsets.symmetric(vertical: 8),
       children: [..._leftChildren(theme), ..._rightChildren(theme)],
     );
@@ -673,8 +794,12 @@ class _SearchOverlayState extends State<_SearchOverlay> {
     );
   }
 
+  static bool _isCompact(Size size) => size.shortestSide < _kCompactWidth;
+
   Widget _emptyState(ThemeData theme) {
     final l = AppLocalizations.of(context);
+    // Legenda strelica/Entera ima smisla samo uz fizičku tipkovnicu.
+    final showKeyHint = !_isCompact(MediaQuery.sizeOf(context));
     return Padding(
       padding: const EdgeInsets.all(36),
       child: Center(
@@ -701,14 +826,17 @@ class _SearchOverlayState extends State<_SearchOverlay> {
                 color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
               ),
             ),
-            const SizedBox(height: 10),
-            Text(
-              l.homeSearchKeyboardHint,
-              textAlign: TextAlign.center,
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.45),
+            if (showKeyHint) ...[
+              const SizedBox(height: 10),
+              Text(
+                l.homeSearchKeyboardHint,
+                textAlign: TextAlign.center,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color:
+                      theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.45),
+                ),
               ),
-            ),
+            ],
           ],
         ),
       ),
