@@ -19,7 +19,9 @@ import 'search_service.dart';
 
 enum SearchSource { local, meili, semantic }
 
-/// Razred pogotka; niži indeks = više u listi.
+/// Razred pogotka. [title] je uvijek na vrhu liste; [text] i [semantic] se
+/// isprepliću po fuziji rangova i razlikuju se samo po tome kamo tap vodi
+/// ([EpisodeHit.openAt]).
 enum MatchTier {
   /// Upit je u naslovu ili imenu govornika.
   title,
@@ -117,11 +119,34 @@ bool coversAllTokens(MarkedText m, List<String> tokens) {
     for (final r in m.ranges) foldText(m.text.substring(r[0], r[1]))
   ];
   return tokens.every((t) => marked.any((w) {
-        // Meili ističe cijelu riječ i prašta tipfelere/nastavke: dovoljan je
-        // zajednički prefiks (najviše 4 znaka, kao `highlightRanges`).
-        final n = [t.length, w.length, 4].reduce((a, b) => a < b ? a : b);
-        return n > 0 && w.substring(0, n) == t.substring(0, n);
+        // Meili ističe cijelu riječ i prašta nastavke: dovoljan je zajednički
+        // prefiks (4 znaka, kao `highlightRanges`). Istaknuta riječ mora biti
+        // barem toliko duga — inače bi istaknuto „o" pokrilo „ovisnost".
+        final n = t.length < 4 ? t.length : 4;
+        if (n > 0 && w.length >= n && w.substring(0, n) == t.substring(0, n)) {
+          return true;
+        }
+        // …i tipfelere, po Meilijevim pragovima: 1 od 5 znakova, 2 od 9
+        // („megugorje" → „Međugorje").
+        final typos = t.length >= 9 ? 2 : (t.length >= 5 ? 1 : 0);
+        return typos > 0 && _editDistanceAtMost(t, w, typos);
       }));
+}
+
+/// Je li Levenshteinova udaljenost [a]–[b] najviše [max]?
+bool _editDistanceAtMost(String a, String b, int max) {
+  if ((a.length - b.length).abs() > max) return false;
+  var prev = List<int>.generate(b.length + 1, (j) => j);
+  for (var i = 1; i <= a.length; i++) {
+    final cur = List<int>.filled(b.length + 1, 0)..[0] = i;
+    for (var j = 1; j <= b.length; j++) {
+      final sub = prev[j - 1] + (a.codeUnitAt(i - 1) == b.codeUnitAt(j - 1) ? 0 : 1);
+      final del = prev[j] + 1, ins = cur[j - 1] + 1;
+      cur[j] = sub < del ? (sub < ins ? sub : ins) : (del < ins ? del : ins);
+    }
+    prev = cur;
+  }
+  return prev[b.length] <= max;
 }
 
 /// Pogođeni naslovi sekcija („…<em>Sabol</em>…") spojeni u jedan redak.
@@ -159,6 +184,7 @@ class _Acc {
   // Položaj u svakom izvoru (manje = bolje) — za redoslijed unutar razreda.
   int? localRank;
   int? meiliRank;
+  int? semanticRank;
   double semanticScore = 0;
 
   _Acc(this.id);
@@ -175,7 +201,28 @@ class _Acc {
     final m = meiliRank == null ? double.infinity : meiliRank! * 2.0 + 1;
     return l < m ? l : m;
   }
+
+  /// Fuzija rangova (RRF): svaki izvor koji je našao epizodu doprinosi
+  /// `težina / (k + rang)`. Epizoda koju nađu dva izvora skuplja oba
+  /// doprinosa, pa slaganje izvora vrijedi više od prvog mjesta u jednom.
+  double fused(double semanticWeight) {
+    double part(int? rank, double w) =>
+        rank == null ? 0 : w / (_kRrf + rank);
+    return part(localRank, 1) +
+        part(meiliRank, 1) +
+        part(semanticRank, semanticWeight);
+  }
 }
+
+/// RRF konstanta. Klasičnih 60 je za liste od stotina pogodaka; naše su
+/// duge 12, pa bi uz 60 prvo i dvanaesto mjesto vrijedili gotovo jednako.
+const double _kRrf = 10;
+
+/// Težina semantike za pitanja i opise (≥ 3 sadržajne riječi), gdje
+/// podudaranje riječi u cijelom sažetku epizode malo govori: „kako se nositi
+/// s tugom nakon smrti djeteta" Meili je pogađao u epizodama o odnosima i
+/// križnom putu, dok je semantika na vrhu imala epizode o tugovanju.
+const double _kSemanticWeightLongQuery = 2;
 
 /// Spoji tri izvora u rangiranu listu epizoda.
 ///
@@ -190,7 +237,11 @@ List<EpisodeHit> mergeSearchResults({
   required String? Function(String slug) channelName,
   int maxMoments = 3,
 }) {
-  final tokens = queryTokens(query);
+  // Funkcijske riječi („o", „je", „što") ne moraju biti istaknute da bi
+  // pogodak bio „po naslovu".
+  final tokens = queryTokens(contentQuery(query));
+  final semanticWeight =
+      contentWordCount(query) >= 3 ? _kSemanticWeightLongQuery : 1.0;
   final byId = <String, _Acc>{};
   _Acc acc(String id) => byId.putIfAbsent(id, () => _Acc(id));
 
@@ -230,9 +281,12 @@ List<EpisodeHit> mergeSearchResults({
     a.lift(coversAllTokens(title, tokens) ? MatchTier.title : MatchTier.text);
   }
 
+  var semanticEpisodes = 0;
   for (final r in semantic) {
     if (r.youtubeId.isEmpty) continue;
     final a = acc(r.youtubeId)..sources.add(SearchSource.semantic);
+    // Rang epizode, ne chunka: pet chunkova jedne epizode je jedan glas.
+    a.semanticRank ??= semanticEpisodes++;
     a.semantic.add(r);
     if (r.score > a.semanticScore) a.semanticScore = r.score;
     a.title ??= (text: r.episodeTitle ?? r.youtubeId, ranges: const []);
@@ -276,15 +330,22 @@ List<EpisodeHit> mergeSearchResults({
     ));
   }
 
+  // Pogodak po naslovu/osobi ostaje na vrhu: tko upiše ime ili naslov, traži
+  // baš to. Sve ispod je jedna lista po fuziji rangova — razred „tekst" je do
+  // 14.10.2026. stajao iznad razreda „semantika", pa je dvanaest Meilijevih
+  // pogodaka na „je"/„o" guralo točan semantički pogodak ispod desetog reda.
   hits.sort((x, y) {
-    final t = x.$1.tier.index.compareTo(y.$1.tier.index);
-    if (t != 0) return t;
-    if (x.$1.tier == MatchTier.semantic) {
+    final tx = x.$1.tier == MatchTier.title;
+    final ty = y.$1.tier == MatchTier.title;
+    if (tx != ty) return tx ? -1 : 1;
+    if (tx) {
+      final r = x.$2.textRank.compareTo(y.$2.textRank);
+      if (r != 0) return r;
+      // Isti položaj u full-text izvorima → semantika presuđuje.
       return y.$2.semanticScore.compareTo(x.$2.semanticScore);
     }
-    final r = x.$2.textRank.compareTo(y.$2.textRank);
-    if (r != 0) return r;
-    // Isti položaj u full-text izvorima → semantika presuđuje.
+    final f = y.$2.fused(semanticWeight).compareTo(x.$2.fused(semanticWeight));
+    if (f != 0) return f;
     return y.$2.semanticScore.compareTo(x.$2.semanticScore);
   });
   return [for (final h in hits) h.$1];

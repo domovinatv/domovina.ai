@@ -110,6 +110,54 @@ Provjereno na produkciji v2.0.184: „damir sabol" → Sabol 1. s trenucima
 Nije font. Na hladnom `/search` indeks kanala nije bio učitan, pa je chip
 nastajao iz sluga (`nanovoroeni`). Ekran sad pričeka `channelCache.loadIndex()`.
 
+## 5. Kvaliteta rezultata — evaluacija i fuzija rangova (14. 10. 2026.)
+
+Pustili smo 24 upita kroz sva tri izvora na produkciji i spajanje kroz pravi
+`mergeSearchResults` (Python snimi odgovore u fixture, Dart test nad njima
+izvrti staru i novu verziju koda). Imena, naslovi i jednorječne teme radili
+su dobro. **Pitanja nisu**: za „što je rekao papa o ratu u ukrajini"
+semantika je na 1. mjestu imala „Papa Franjo i patrijarh Kiril o ratu u
+Ukrajini" (0,686), a u spojenoj listi nije bio ni u prvih deset.
+
+Uzroci:
+
+- Razred „tekst" je stajao iznad razreda „semantika", a Meili s
+  `matchingStrategy: last` za pitanje od šest riječi vraća 1000 dokumenata
+  (pogođenih na „je", „o", „što"). Dvanaest takvih je guralo semantiku dolje.
+- Meili dokument je cijeli sažetak epizode, pa se uobičajene riječi u njemu
+  uvijek nađu zajedno; ni `all` sam to ne spašava.
+- `coversAllTokens` je istaknuto „o" brojao kao pokriće za „ovisnost"
+  (prefiks duljine 1), a „megugorje" nije priznavao kao „Međugorje".
+
+Promjene (klijent, bez reindeksiranja):
+
+- Ispod razreda „naslov" redoslijed je **fuzija rangova** (RRF, k = 10):
+  svaki izvor doprinosi `w / (k + rang)`, semantika s `w = 2` kad upit ima
+  ≥ 3 sadržajne riječi. Epizoda koju nađu dva izvora skuplja oba doprinosa.
+- `contentQuery` miče funkcijske riječi; Meili dobiva upit bez njih uz
+  `matchingStrategy: 'all'` (samo paleta; `/search` je nepromijenjen).
+- Lokalni sloj: „dj" nalazi „đ" („medjugorje").
+- `coversAllTokens`: istaknuta riječ mora imati barem 4 znaka zajedničkog
+  prefiksa, ili biti unutar Meilijevih pragova tipfelera (1 od 5, 2 od 9).
+- Zastarjeli semantički zahtjev se prekida (`AbortableRequest`).
+
+Ishod na istim fixturama: pitanja („papa…", „tuga nakon smrti djeteta",
+„zašto mladi napuštaju crkvu", „život nakon smrti") sada imaju relevantne
+epizode na mjestima 1–6; imena i naslovi su nepromijenjeni.
+
+Odbačeno: **prag na semantički score**. Dobri pogoci za imena i mjesta
+(Bleiburg 0,46–0,49, Vukovar 0,46–0,48) imaju niži score od šuma za
+„cuspajz" (0,44–0,47), pa nijedan apsolutni ni relativni prag ne razdvaja.
+
+Latencija `/api/search`: 0,7–2 s pojedinačno, 7–12 s uz tri paralelna upita
+(embedder je usko grlo). Meili 70–300 ms. Cloudflare pred oba servisa vraća
+403 na `Python-urllib` User-Agent — skripte šalju browserski UA.
+
+Sljedeće, u `domovina-rag` (nije napravljeno): Meili dokument po **sekciji**
+uz `distinct: youtube_id`; `speakers`/`topics`/ime kanala kao pretraživa
+polja; hrvatski `stopWords` u indeksu; dugoročno Meili hybrid s bge-m3
+vektorima umjesto ručnog spajanja tri izvora.
+
 ## Otvoreno
 
 - [ ] Pametni search i mobilni ekran nisu isprobani na pravim **iPhoneima**

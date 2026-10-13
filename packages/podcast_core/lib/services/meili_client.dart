@@ -51,9 +51,14 @@ class MeiliClient {
       };
 
   /// Keyword pretraga. [channel] filtrira po slugu kanala (npr. 'ad_deum_podcast').
+  ///
+  /// [matchingStrategy] `'all'` traži da dokument sadrži SVE riječi upita.
+  /// Meilijev default (`'last'`) odbacuje riječi s kraja dok ne nađe pogotke,
+  /// pa pitanje od šest riječi vrati 1000 dokumenata.
   static Future<MeiliResponse> search(
     String q, {
     String? channel,
+    String? matchingStrategy,
     int limit = 20,
     Duration timeout = const Duration(seconds: 5),
   }) async {
@@ -75,6 +80,7 @@ class MeiliClient {
       'highlightPreTag': _pre,
       'highlightPostTag': _post,
       if (channel != null) 'filter': "channel = '$channel'",
+      'matchingStrategy': ?matchingStrategy,
     };
 
     final resp = await _http

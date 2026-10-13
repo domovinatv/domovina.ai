@@ -84,6 +84,30 @@ void main() {
       expect(localMatchScore('zizek', 'Slavoj Žižek o ideologiji') > 0, isTrue);
       expect(localMatchScore('nepostojeci', 'Slavoj Žižek'), 0);
     });
+
+    test('„dj" bez kvačica nalazi „đ"', () {
+      expect(localMatchScore('medjugorje', 'Marija i Međugorje') > 0, isTrue);
+      expect(localMatchScore('djeca', 'Djeca nisu kriva') > 0, isTrue);
+    });
+  });
+
+  group('contentQuery', () {
+    test('miče funkcijske riječi, čuva dijakritike', () {
+      expect(contentQuery('što je rekao papa o ratu u ukrajini'),
+          'rekao papa ratu ukrajini');
+      expect(contentQuery('Zašto mladi napuštaju Crkvu'),
+          'mladi napuštaju Crkvu');
+      expect(contentQuery('život nakon smrti'), 'život nakon smrti');
+    });
+
+    test('upit samo od funkcijskih riječi ostaje kakav jest', () {
+      expect(contentQuery('što je to'), 'što je to');
+    });
+
+    test('broj sadržajnih riječi', () {
+      expect(contentWordCount('damir sabol'), 2);
+      expect(contentWordCount('kako se nositi s tugom nakon smrti djeteta'), 5);
+    });
   });
 
   group('episode age', () {

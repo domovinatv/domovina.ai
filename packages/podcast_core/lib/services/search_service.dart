@@ -92,12 +92,17 @@ class SearchService {
   /// pozivatelj može fallbackati na lokalne rezultate.
   ///
   /// [includeSummaries] false → samo dijaloški chunkovi (s timestampom).
+  ///
+  /// Kad se [abortTrigger] završi, zahtjev se prekida (korisnik je u
+  /// međuvremenu promijenio upit) i vraća se prazna lista. Inače bi svaki
+  /// zastarjeli upit i dalje držao vezu dok embedder ne odgovori.
   static Future<List<SemanticResult>> search(
     String query, {
     int limit = 12,
     String? channel,
     bool includeSummaries = true,
     Duration timeout = const Duration(seconds: 8),
+    Future<void>? abortTrigger,
   }) async {
     final q = query.trim();
     if (q.length < 2) return [];
@@ -111,7 +116,11 @@ class SearchService {
     final uri = Uri.parse(_endpoint).replace(queryParameters: params);
 
     try {
-      final resp = await _client.get(uri).timeout(timeout);
+      final req = http.AbortableRequest('GET', uri, abortTrigger: abortTrigger);
+      final resp = await _client
+          .send(req)
+          .then(http.Response.fromStream)
+          .timeout(timeout);
       if (resp.statusCode != 200) {
         log('SearchService: HTTP ${resp.statusCode} za "$q"');
         return [];
@@ -125,6 +134,8 @@ class SearchService {
       results.sort((a, b) => b.score.compareTo(a.score));
       log('SearchService: ${results.length} rezultata za "$q"');
       return results;
+    } on http.RequestAbortedException {
+      return [];
     } on TimeoutException {
       log('SearchService: timeout za "$q"');
       return [];

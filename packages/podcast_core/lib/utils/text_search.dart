@@ -56,6 +56,36 @@ List<String> queryTokens(String query) {
   return q.split(RegExp(r'\s+'));
 }
 
+/// Funkcijske riječi koje u upitu ne nose sadržaj (foldane). Upit „što je
+/// rekao papa o ratu u ukrajini" je Meili s njima pogađao na „je", „o" i
+/// „što" u naslovima koji nemaju veze s papom (izmjereno 14.10.2026.).
+/// Prilozi poput „nakon"/„prije" NISU ovdje — u „život nakon smrti" nose
+/// značenje.
+const Set<String> _stopWords = {
+  'a', 'ali', 'bi', 'bio', 'bila', 'biti', 'da', 'do', 'gdje', 'i', 'ili',
+  'iz', 'je', 'jesu', 'k', 'ka', 'kad', 'kada', 'kako', 'koja', 'koje',
+  'kojeg', 'koji', 'li', 'mi', 'na', 'ne', 'ni', 'o', 'od', 'po', 'pri', 's',
+  'sa', 'sam', 'se', 'si', 'smo', 'ste', 'sta', 'sto', 'su', 'ta', 'te', 'ti',
+  'tko', 'to', 'u', 'uz', 'vi', 'za', 'zasto',
+};
+
+/// [query] bez funkcijskih riječi, s izvornim pisanjem (dijakritike ostaju,
+/// jer upit ide i Meiliju). Kad bi ostao prazan („što je to"), vraća izvorni
+/// upit — bolje nešto naći nego ništa.
+String contentQuery(String query) {
+  final words = normalizeQuery(query).split(' ');
+  final kept = [
+    for (final w in words)
+      if (!_stopWords.contains(foldText(w))) w,
+  ];
+  return kept.isEmpty ? normalizeQuery(query) : kept.join(' ');
+}
+
+/// Broj sadržajnih riječi upita. Tri i više znače pitanje ili opis, a ne
+/// naslov ili ime — tu semantika zna više od podudaranja riječi.
+int contentWordCount(String query) =>
+    contentQuery(query).split(' ').where((w) => w.isNotEmpty).length;
+
 /// Rasponi `[start, end)` u [text] koji odgovaraju bilo kojem tokenu iz
 /// [query] (dijakritik-neosjetljivo). Rezultat je sortiran i spojen (bez
 /// preklapanja) — spreman za izgradnju highlight TextSpan-ova.
@@ -159,7 +189,11 @@ double localMatchScoreFolded(List<String> tokens, String hay) {
   if (tokens.isEmpty || hay.isEmpty) return 0;
   double total = 0;
   for (final token in tokens) {
-    final idx = hay.indexOf(token);
+    var idx = hay.indexOf(token);
+    // „medjugorje" je „Međugorje" pisan bez kvačica; fold daje „medugorje".
+    if (idx < 0 && token.contains('dj')) {
+      idx = hay.indexOf(token.replaceAll('dj', 'd'));
+    }
     if (idx < 0) return 0; // svaki token mora biti prisutan (AND)
     // Bonus: match na granici riječi (početak ili nakon razmaka) vrijedi više.
     final atWordStart = idx == 0 || hay.codeUnitAt(idx - 1) == 0x20;

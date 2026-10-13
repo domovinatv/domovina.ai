@@ -111,17 +111,77 @@ void main() {
     expect(hits.single.moments.map((m) => m.seconds), [100, 400]);
   });
 
-  test('rang: naslov ispred teksta ispred same semantike', () {
+  test('rang: naslov na vrhu, ispod njega tekst i semantika isprepleteni', () {
     final hits = mergeSearchResults(
       query: 'sabol',
       local: [local('tekst', 'Nešto drugo', titleMatch: false)],
       meili: [meili('naslov', '<em>Sabol</em> u studiju', channel: 'kanal')],
-      semantic: [sem('samo-sem', 30, 0.99)],
+      semantic: [sem('samo-sem', 30, 0.99), sem('naslov', 60, 0.2)],
       channelName: names,
     );
-    expect(hits.map((h) => h.youtubeId), ['naslov', 'tekst', 'samo-sem']);
-    expect(hits.map((h) => h.tier),
-        [MatchTier.title, MatchTier.text, MatchTier.semantic]);
+    expect(hits.first.youtubeId, 'naslov');
+    expect(hits.first.tier, MatchTier.title);
+    expect(hits.skip(1).map((h) => h.youtubeId).toSet(), {'tekst', 'samo-sem'},
+        reason: 'prvo mjesto u dva izvora vrijedi jednako; nema razreda '
+            '„tekst iznad semantike"');
+  });
+
+  // 14.10.2026.: „što je rekao papa o ratu u ukrajini" — semantika je na
+  // 1. mjestu imala „Papa Franjo i patrijarh Kiril o ratu u Ukrajini", a u
+  // listi ga nije bilo ni u prvih deset, jer je svih 12 Meilijevih pogodaka
+  // (na „je", „o", „što") bilo u razredu „tekst" iznad semantike.
+  test('pitanje: točan semantički pogodak ne tone ispod Meilijevih', () {
+    final hits = mergeSearchResults(
+      query: 'što je rekao papa o ratu u ukrajini',
+      meili: [
+        for (var i = 0; i < 12; i++)
+          meili('m$i', 'Podcast #$i: <em>Je</em> li <em>o</em> tome',
+              channel: 'kanal'),
+      ],
+      semantic: [sem('papa', 0, 0.69), sem('b', 120, 0.58)],
+      channelName: names,
+    );
+    expect(hits.first.youtubeId, 'papa');
+    expect(hits.map((h) => h.youtubeId).take(4), contains('b'));
+  });
+
+  test('kratki upit: semantika ima istu težinu kao full-text', () {
+    final hits = mergeSearchResults(
+      query: 'abortus',
+      meili: [
+        meili('m0', 'Svjedočanstvo', channel: 'kanal'),
+        meili('m1', 'Drugo', channel: 'kanal'),
+      ],
+      semantic: [sem('s0', 0, 0.59), sem('s1', 60, 0.58)],
+      channelName: names,
+    );
+    expect(hits.take(2).map((h) => h.youtubeId).toSet(), {'m0', 's0'});
+  });
+
+  test('epizoda koju nađu dva izvora ide iznad prvog mjesta jednog izvora',
+      () {
+    final hits = mergeSearchResults(
+      query: 'tuga',
+      meili: [
+        meili('samo-meili', 'Prvo', channel: 'kanal'),
+        meili('oba', 'Drugo', channel: 'kanal'),
+      ],
+      semantic: [sem('samo-sem', 0, 0.7), sem('oba', 30, 0.6)],
+      channelName: names,
+    );
+    expect(hits.first.youtubeId, 'oba');
+  });
+
+  test('funkcijske riječi ne moraju biti istaknute za pogodak po naslovu', () {
+    final hit = mergeSearchResults(
+      query: 'marija i međugorje',
+      meili: [
+        meili('x', 'John Pridmore - <em>Marija</em> i <em>Međugorje</em>',
+            channel: 'kanal'),
+      ],
+      channelName: names,
+    ).single;
+    expect(hit.tier, MatchTier.title);
   });
 
   test('epizoda samo iz semantike otvara se na najboljem trenutku', () {
@@ -167,6 +227,17 @@ void main() {
     expect(coversAllTokens(m, ['fra', 'stjepan']), isTrue);
     expect(coversAllTokens(m, ['fra', 'brcina']), isFalse);
     expect(coversAllTokens(parseEmTags('<em>Nesbø</em>'), ['nesbo']), isTrue);
+  });
+
+  test('coversAllTokens: kratka istaknuta riječ ne pokriva dugi token', () {
+    final m = parseEmTags('Učiteljstvo <em>o</em> <em>pornografiji</em>');
+    expect(coversAllTokens(m, ['ovisnost', 'pornografiji']), isFalse);
+  });
+
+  test('coversAllTokens prašta tipfeler kao Meili', () {
+    final m = parseEmTags('Marija i <em>Međugorje</em>');
+    expect(coversAllTokens(m, ['megugorje']), isTrue);
+    expect(coversAllTokens(parseEmTags('<em>Sato</em>'), ['sabol']), isFalse);
   });
 
   test('Meili bez isječka članka → pogođeni naslovi sekcija kao isječak', () {

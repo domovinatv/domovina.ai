@@ -114,6 +114,8 @@ class _SearchOverlayState extends State<_SearchOverlay> {
   Timer? _debounce;
   Timer? _meiliDebounce;
   Timer? _semanticDebounce;
+  // Završava se kad upit zastari — prekida semantički zahtjev u letu.
+  Completer<void>? _semanticAbort;
   Timer? _dataDebounce;
   String _query = '';
   // Upiti za koje su poslani (ili se šalju) mrežni zahtjevi — normalizirani,
@@ -220,6 +222,7 @@ class _SearchOverlayState extends State<_SearchOverlay> {
     _dataDebounce?.cancel();
     _meiliDebounce?.cancel();
     _semanticDebounce?.cancel();
+    _abortSemantic();
     _scroll.dispose();
     _searchController.dispose();
     _idController.dispose();
@@ -264,6 +267,7 @@ class _SearchOverlayState extends State<_SearchOverlay> {
     // Semantika — duži debounce + min duljina (štedi mrežu/embeddinge).
     if (q != _semanticQuery) {
       _semanticDebounce?.cancel();
+      _abortSemantic();
       if (q.length < 3) {
         _semanticQuery = '';
         _semanticLoading = false;
@@ -286,7 +290,11 @@ class _SearchOverlayState extends State<_SearchOverlay> {
     setState(() => _meiliLoading = true);
     List<MeiliHit> hits;
     try {
-      hits = (await MeiliClient.search(q, limit: 12)).hits;
+      // Bez funkcijskih riječi i sa SVIM preostalima: inače „što je rekao
+      // papa…" vrati svaki naslov s „je" ili „o" (vidi `contentQuery`).
+      hits = (await MeiliClient.search(contentQuery(q),
+              matchingStrategy: 'all', limit: 12))
+          .hits;
     } catch (e) {
       // Meili nedostupan → ostaju lokalni i semantički rezultati.
       log('SearchOverlay: Meili greška za "$q": $e');
@@ -305,13 +313,22 @@ class _SearchOverlayState extends State<_SearchOverlay> {
     setState(() => _semanticLoading = true);
     // DOMOVINA Plus dobiva veći set rezultata (free ostaje pun i koristan).
     final limit = EntitlementService.instance.isPlus.value ? 30 : 12;
-    final results = await SearchService.search(q, limit: limit);
+    final abort = _semanticAbort = Completer<void>();
+    final results = await SearchService.search(q,
+        limit: limit, abortTrigger: abort.future);
+    if (identical(_semanticAbort, abort)) _semanticAbort = null;
     if (!mounted || _semanticQuery != q) return;
     setState(() {
       _semanticResults = results;
       _semanticLoading = false;
       _remerge();
     });
+  }
+
+  void _abortSemantic() {
+    final a = _semanticAbort;
+    _semanticAbort = null;
+    if (a != null && !a.isCompleted) a.complete();
   }
 
   void _openVideoId() {
@@ -430,7 +447,9 @@ class _SearchOverlayState extends State<_SearchOverlay> {
       _visibleEpisodes = const [];
       return;
     }
-    final tokens = queryTokens(_query);
+    // Funkcijske riječi bi uz AND semantiku tražile „je" i „o" u svakoj
+    // epizodi; za ime osobe ili kanala ionako ne nose ništa.
+    final tokens = queryTokens(contentQuery(_query));
     _visiblePersons = _localPersons(tokens);
     _visibleChannels = _localChannels(tokens);
     _localResults = _localVideos(tokens);
