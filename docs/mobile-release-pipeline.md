@@ -105,6 +105,34 @@ flowchart LR
 Store **API-ji ne izlažu** policy/compliance izjave (i Apple i Google ih drže
 ručnima jer su pravne). Preporučeni odgovori su u [`release-mobile.md`](release-mobile.md).
 
+## Interni testeri (dodano 13. 10. 2026.)
+
+Oba storea imaju po jednu internu grupu koja se zove isto, **„DOMOVINA dev”**.
+Dodavanje testera je polu-programsko, i to na različitim mjestima:
+
+- **iOS (TestFlight interna grupa)**: interni tester MORA biti korisnik ASC tima.
+  `POST /v1/betaTesters` u internu grupu (`81ae85bd-9194-4606-8fec-51ecfe377a4f`,
+  `hasAccessToAllBuilds=true`) za e-mail koji još nije u timu Apple odbija s
+  „Tester(s) cannot be assigned”. Redoslijed je zato:
+  1. `POST /v1/userInvitations`: uloga `DEVELOPER`, `allAppsVisible:false`,
+     `visibleApps=[6781716801]`, `provisioningAllowed:false` (najmanja ovlast).
+     Pozivnica vrijedi 3 dana.
+  2. Osoba prihvati e-mail od Applea.
+  3. Tek tada ide `POST /v1/betaTesters` s relacijom `betaGroups` na internu grupu.
+
+  Vanjski tester (bez pristupa timu) je druga putanja: vanjska grupa, za koju
+  svaki build mora proći beta review.
+  Napomena: u `curl` URL s `filter[...]` treba `-g`, inače curl uglate zagrade
+  čita kao glob i vrati prazan odgovor.
+- **Android (Play internal testing)**: `edits.testers` za internal track vodi
+  SAMO `googleGroups`, a e-mail liste iz Consolea API ne vidi (`GET` vraća `{}`).
+  Pojedinačni e-mail ide ručno: Play Console (developer račun **iTalk Ltd.**,
+  `7441230488937961517`) → DOMOVINA.ai → Testing → Internal testing → Testers →
+  lista „DOMOVINA dev” → dodaj e-mail → Save changes. Lista vrijedi za cijeli
+  developer račun, ne samo za ovu aplikaciju. Tester se zatim mora prijaviti
+  preko opt-in linka `https://play.google.com/apps/internaltest/4701741332883961120`.
+  Za potpuno programski tok trebala bi Google Grupa vezana uz track (`googleGroups`).
+
 ## Screenshotovi
 
 - **Izvor**: debug build na iOS Simulatoru (iPhone 16 Pro Max 6.9" = 1320×2868,
