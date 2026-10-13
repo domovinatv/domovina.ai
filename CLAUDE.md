@@ -161,6 +161,35 @@ TestFlight i Play internal. Ishod ide u Telegram grupu preko
   26.9.2026. (I/O ~6 MB/s). Cache i emulatori se ne sele: obriši i napravi
   iznova.
 
+## Farma uređaja + smoke vrata (od 13.10.2026.)
+
+Na Mac mini su trajno spojena 2 Androida (moto g86 / Android 16, edge 30
+ultra / Android 15) i 2 iPhonea (SE 2nd, 12 mini). Nightly nakon uploada
+vrti `scripts/nightly-smoke.sh <build>`: na svakom uređaju **release smoke**
+(isti AAB / development export istog iOS archivea, deep linkovi, crash,
+ANR, `FLUTTER ERROR` iz release loga) i **ui smoke**
+(`integration_test/smoke_test.dart`, portrait + landscape, reprodukcija
+mora napredovati, overflow obara test). Ishod u Telegram i u
+`.nightly/smoke/builds/<build>.txt`. Plan, mjerenja i zamke:
+`docs/plans/2026-10-13-smoke-testovi-na-uredajima.md`.
+
+**Rule (vrata su na promociji, ne na uploadu)**: `asc-submit.rb` i
+`play-promote.sh … production` odbijaju build bez `result=pass`
+(`scripts/smoke-gate.sh`). Play production ide kao staged rollout 20 %
+(`scripts/play-rollout.sh` podiže/zaustavlja), App Store kao phased
+release 7 dana. Iznimke su izričite: `--skip-smoke-gate`, `SKIP_SMOKE_GATE=1`,
+`ROLLOUT=1`, `--no-phased`.
+
+**Rule (uređaj se zaključava)**: tko koristi uređaj farme drži
+`~/.device-farm/locks/<id>` (mkdir). 13.10. je druga aplikacija
+(„DOMOVINA Kamera”) usred smokea preuzela prednji plan i test je visio
+20 min. Uređaji: zaključavanje zaslona „Ništa” (iza keyguarda Android
+aplikaciji ne pušta mrežu), Auto-Lock „Nikad”, Cloudflare WARP ugašen
+(blokira mDNS prema iPhoneu).
+
+**Rule (iOS deep link u testu)**: `ai.domovina:///v/<id>` — tri kose crte.
+S dvije je `v` host i ruter dobije samo `/<id>`.
+
 ## Tripwire: registar podcasta ↔ glasački bazen (launchd, 08:30)
 
 `domovina_ai.vote_candidates` je **snimka** `fetch.domovina.tv/data/podcasts_registry.json`,

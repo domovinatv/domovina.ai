@@ -1,6 +1,20 @@
 # Smoke testovi na pravim uređajima nakon nightly builda — plan
 
-Status: **PLAN**, ništa nije implementirano (13. 10. 2026.).
+Status (13. 10. 2026. navečer): **faze 0–4 implementirane**, prva noćna
+vožnja u nightlyju tek predstoji. Što postoji:
+
+| skripta | što radi |
+|---|---|
+| `integration_test/smoke_test.dart` | debug UI smoke: 7 ruta × portrait/landscape, reprodukcija mora napredovati, svaka Flutter greška/overflow obara test |
+| `scripts/smoke-device.sh <id>` | gornji test na jednom uređaju: brava, mreža, keyguard, nadzor zastoja (8 min), nativni crash (logcat / `.ips`) |
+| `scripts/smoke-farm.sh` | `smoke-device.sh` na svim spojenim mobitelima |
+| `scripts/release-smoke.sh <id> --aab/--ipa` | ISTI binarni paket kao u storeu: deep linkovi, proces živ i u prvom planu, crash, ANR, `FLUTTER ERROR` iz release loga |
+| `scripts/nightly-smoke.sh <build>` | oba testa na svim uređajima → `.nightly/smoke/builds/<build>.txt` |
+| `scripts/smoke-gate.sh <build>` | vrata: `asc-submit.rb` i `play-promote.sh` (production) odbijaju build bez `result=pass` |
+| `scripts/play-rollout.sh` | staged rollout: status (+ crash/ANR rate kad je Reporting API uključen), udio, halt, resume, complete |
+
+Promocija od sada: Play production zadano 20 % (`ROLLOUT=1` za odmah sve),
+App Store phased release 7 dana (`--no-phased` gasi).
 
 <!-- doc-refs:ignore-start -->
 <!-- .nightly/smoke/ su izlazne putanje koje skripta tek treba stvoriti. -->
@@ -131,12 +145,12 @@ Smoke 2.0.183 (206)
 
 | faza | sadržaj | gotovo kad |
 |---|---|---|
-| 0 | uređaji: iPhone na kabel + Developer Mode + Auto-Lock „Nikad”; Android `svc power stayon usb`, isključeni lock screen i automatska ažuriranja; provjera deep link rute | `adb devices` i `devicectl` vide sve uređaje, ruta otvara epizodu |
-| 1 | `device-smoke.sh` razina 1, Android | ručni run nad buildom 205 prođe; namjerno slomljen build padne |
-| 2 | iOS: dev export istog archivea + razina 1 | isto, na iPhoneu |
-| 3 | spajanje u nightly + Telegram + `.nightly/smoke/*.json` | jedna noć s porukom za oba uređaja |
-| 4 | promocija na uvjet: `asc-submit`/`play-promote` traže `result: pass` za taj build; Play kao staged rollout | promocija bez smoke rezultata se odbije |
-| 5 | razina 2 (Maestro ili `integration_test`) | tokovi reprodukcije i jezika na oba OS-a |
+| ✅ 0 | uređaji: iPhone na kabel + Developer Mode + Auto-Lock „Nikad”; Android `svc power stayon usb`, isključeni lock screen i automatska ažuriranja; provjera deep link rute | `adb devices` i `devicectl` vide sve uređaje, ruta otvara epizodu |
+| ✅ 1 | `release-smoke.sh`, Android | ručni run nad buildom 205 prođe; namjerno slomljen build padne |
+| ✅ 2 | iOS: dev export istog archivea + razina 1 | isto, na iPhoneu |
+| ✅ 3 | spajanje u nightly + Telegram + `.nightly/smoke/*.json` | jedna noć s porukom za oba uređaja |
+| ✅ 4 | promocija na uvjet: `asc-submit`/`play-promote` traže `result: pass` za taj build; Play kao staged rollout | promocija bez smoke rezultata se odbije |
+| ✅ 5 | razina 2 — `integration_test` (Maestro nije trebao) | tokovi reprodukcije i jezika na oba OS-a |
 | 6 | crash reporting s pravih korisnika (Sentry), Play Vitals kao uvjet za podizanje rollouta | — |
 
 Faza 1 mora uključiti **negativni test**: build koji se namjerno sruši
@@ -157,6 +171,18 @@ crvenu poruku. Smoke koji nikad nije vidio pad nije dokazao ništa.
 - **Nakon pada runner visi**: `flutter test` je nakon pada visio 10 min u
   `tearDownAll`. Skripta ga zato vrti pod `gtimeout 15m`, a „Some tests
   failed” u logu ima prednost pred timeoutom (pad ostaje exit 1).
+- **iOS debug build vs release archive**: dijele Xcode module cache, pa
+  debug build nakon archivea zna pasti s „Module 'Flutter' is defined in
+  both …ModuleCache.noindex” (13.10.2026.). `smoke-device.sh` tada obriše
+  cache i pokuša još jednom; neuspio build/pokretanje je exit 2, ne 1.
+- **Swift Package Manager**: debug run na iPhoneu migrira
+  `ios/Runner.xcodeproj` na SPM i prlja radni direktorij glavnog repoa.
+  NE gasiti preko `pubspec.yaml`: store build u nightly worktreeu prolazi
+  istu migraciju i `share_plus` linka kroz SPM — gašenje bi promijenilo
+  release build. Nakon ručnog runa vrati datoteke `git checkout`-om.
+- **iOS deep link**: `ai.domovina:///v/<id>` (tri kose crte). S dvije je
+  `v` host i ruter dobije `/<id>` — release smoke je zato i provjerava
+  „Video: opening” u logu umjesto da vjeruje živom procesu.
 - **Zaključan iPhone**: `devicectl` ne pokreće aplikaciju na zaključanom
   uređaju. Auto-Lock „Nikad” + uređaj stalno na punjaču. Ako je ipak
   zaključan, to je exit `2`.

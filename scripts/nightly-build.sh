@@ -37,7 +37,7 @@ export LANG="${LANG:-en_US.UTF-8}" LC_ALL="${LC_ALL:-en_US.UTF-8}"
 export FAST_CLEAN=1
 
 # launchd daje minimalan PATH — sve alate razriješi eksplicitno.
-export PATH="$HOME/fvm/default/bin:$HOME/google-cloud-sdk/bin:/opt/homebrew/bin:/opt/homebrew/opt/ruby/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH"
+export PATH="$HOME/fvm/default/bin:$HOME/google-cloud-sdk/bin:/opt/homebrew/bin:/Library/Frameworks/Python.framework/Versions/3.13/bin:/opt/homebrew/opt/ruby/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH"
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 STATE="$ROOT/.nightly"
@@ -350,6 +350,9 @@ echo "==> verzija ${BUILD_NAME} · build ${BN} (store max ${STORE_MAX}, pubspec 
 export BUILD_NUMBER="$BN"
 
 # ── 6. build ─────────────────────────────────────────────────────────────────
+# Uz App Store IPA i development export istog archivea — za release smoke
+# na iPhoneima farme (korak 8b). Mora prije `rm -rf build/ios/archive`.
+export EXPORT_DEV_IPA=1
 step "iOS build (IPA)"     60 ./scripts/build-mobile-release.sh ios     || finish_fail "iOS build" $?
 # IPA je izvezen (dSYM-ovi su otišli s uploadSymbols) — arhiva je samo balast.
 rm -rf build/ios/archive
@@ -403,9 +406,29 @@ PLAY_OK="$("$ROOT/scripts/store-status.rb" --json 2>/dev/null \
 [[ "$PLAY_OK" == "da" ]] && REPORT+=("🤖 Play internal: versionCode ${BN} potvrđen") \
                          || REPORT+=("🤖⚠️ Play internal: versionCode ${BN} NIJE potvrđen čitanjem")
 
+# ── 8b. smoke na uređajima farme ─────────────────────────────────────────────
+# Isti binarni paket koji je upravo uploadan, na 2 Androida + 2 iPhonea
+# spojena na ovaj Mac (docs/plans/2026-10-13-smoke-testovi-na-uredajima.md).
+# NE blokira upload — build je već interni; vrata su na promociji
+# (smoke-gate.sh u asc-submit.rb / play-promote.sh). NIGHTLY_SMOKE=0 gasi.
+SMOKE_RC=0
+if [[ "${NIGHTLY_SMOKE:-1}" == "1" ]]; then
+  echo; echo "############ KORAK: smoke na uređajima (timeout 120 min) ############"
+  SMOKE_T0=$SECONDS
+  SMOKE_OUT=$("${TIMEOUT_BIN:-command}" ${TIMEOUT_BIN:+-k 30 120m} ./scripts/nightly-smoke.sh "$BN" 2>&1) || SMOKE_RC=$?
+  echo "$SMOKE_OUT"
+  case $SMOKE_RC in
+    0) REPORT+=("🧪 Smoke ${BN}: prošao na svim uređajima — $(dur $((SECONDS - SMOKE_T0)))") ;;
+    1) REPORT+=("🧪❌ Smoke ${BN}: PAO — ovaj build NE promovirati") ;;
+    *) REPORT+=("🧪⚠️ Smoke ${BN}: nije potpuno provjeren (uređaj zauzet/odspojen?)") ;;
+  esac
+  while IFS= read -r l; do [[ -n "$l" ]] && REPORT+=("   $l"); done \
+    < <(grep -E '^(.+: release |   ↳ |nijedan uređaj)' <<<"$SMOKE_OUT")
+fi
+
 # ── 9. gotovo ────────────────────────────────────────────────────────────────
 echo "$SHA" > "$LAST_SHA_FILE"
-ICON="🌙✅"; [[ "$IOS_STATE" == "VALID" && "$PLAY_OK" == "da" ]] || ICON="🌙⚠️"
+ICON="🌙✅"; [[ "$IOS_STATE" == "VALID" && "$PLAY_OK" == "da" && $SMOKE_RC -eq 0 ]] || ICON="🌙⚠️"
 notify "${ICON} <b>Nightly ${BUILD_NAME} (${BN})</b>
 <code>$SHA_SHORT</code> · ${SUBJECT_ESC}
 $(report_lines)

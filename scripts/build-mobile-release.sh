@@ -103,6 +103,22 @@ if [[ "$TARGET" == "all" || "$TARGET" == "ios" ]]; then
     -authenticationKeyID "$ASC_KEY_ID" \
     -authenticationKeyIssuerID "$ASC_ISSUER_ID"
   echo "IPA: build/ios/ipa/*.ipa  (upload: ./scripts/testflight-upload.sh)"
+
+  # Release smoke na uređajima farme treba isti archive s development
+  # potpisom (App Store IPA se ne da instalirati). Nightly ga traži prije
+  # nego obriše archive; ručni build ga radi samo uz EXPORT_DEV_IPA=1.
+  if [[ "${EXPORT_DEV_IPA:-0}" == "1" ]]; then
+    echo "==> iOS: exportArchive → development IPA (release smoke)…"
+    xcodebuild -exportArchive \
+      -archivePath build/ios/archive/Runner.xcarchive \
+      -exportPath build/ios/ipa-dev \
+      -exportOptionsPlist ios/ExportOptions-dev.plist \
+      -allowProvisioningUpdates \
+      -authenticationKeyPath "$ASC_KEY_PATH" \
+      -authenticationKeyID "$ASC_KEY_ID" \
+      -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+      || echo "UPOZORENJE: development export nije uspio — release smoke na iOS-u preskočen"
+  fi
 fi
 
 if [[ "$TARGET" == "all" || "$TARGET" == "android" ]]; then

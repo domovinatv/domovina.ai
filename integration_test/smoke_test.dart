@@ -18,6 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:media_kit_video/media_kit_video.dart';
 
 import 'package:domovina_ai/main.dart' as app;
 
@@ -134,6 +135,40 @@ void main() {
         expectations?.call();
       }
 
+      // Ekran epizode koji se nacrta, a ne svira, za korisnika je pokvaren —
+      // a ostale provjere bi ga pustile (crni player nije ErrorWidget).
+      // Pozicija mora rasti: `playing` sam po sebi ne znači da stižu frameovi.
+      Future<void> expectPlayback(
+        String name, {
+        required int minSeconds,
+      }) async {
+        Duration? first;
+        final end = DateTime.now().add(const Duration(seconds: 25));
+        while (DateTime.now().isBefore(end)) {
+          await tester.pump(const Duration(milliseconds: 250));
+          final videos = find.byType(Video);
+          if (videos.evaluate().isEmpty) continue;
+          final pos = tester
+              .widget<Video>(videos.first)
+              .controller
+              .player
+              .state
+              .position;
+          if (pos.inSeconds < minSeconds) continue;
+          first ??= pos;
+          if (pos - first >= const Duration(seconds: 2)) {
+            // ignore: avoid_print
+            print('SMOKE playback ok: $name @${pos.inSeconds}s');
+            return;
+          }
+        }
+        fail(
+          '$name: reprodukcija ne napreduje (Video '
+          '${find.byType(Video).evaluate().isEmpty ? 'ne postoji' : 'stoji'}'
+          ', prva pozicija ${first?.inSeconds})',
+        );
+      }
+
       // Obje orijentacije, namjerno: inače rezultat ovisi o tome kako
       // telefon leži na stolu. Landscape na mobitelu je drugi layout (split
       // hero od 600 px širine, nizak panel playera) i 13.10.2026. je na
@@ -155,8 +190,9 @@ void main() {
         await step(
           '$o epizoda-seek',
           '/v/$kEpisodeId/t/120',
-          const Duration(seconds: 10),
+          const Duration(seconds: 3),
         );
+        await expectPlayback('$o epizoda-seek', minSeconds: 115);
         await step(
           '$o epizoda-en',
           '/v/$kEpisodeId/en',

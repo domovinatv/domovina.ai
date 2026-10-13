@@ -11,6 +11,9 @@
 #   ./scripts/asc-submit.rb <build> --notes-hr "…" [--notes-en "…"]            # plan, ništa ne piše
 #   ./scripts/asc-submit.rb <build> --notes-hr "…" [--notes-en "…"] --submit   # stvarno pošalji
 #
+# Od 13.10.2026. zadano: phased release (7 dana, --no-phased gasi) i smoke
+# vrata (scripts/smoke-gate.sh; --skip-smoke-gate za svjesnu iznimku).
+#
 # Bez --submit skripta samo čita i ispiše što BI napravila. Lokalizacije bez
 # vlastitog teksta dobiju --notes-en ako je zadan (en-*), inače --notes-hr.
 # Build mora biti processingState=VALID; verzija App Storea = CFBundleShortVersionString
@@ -32,6 +35,8 @@ opt      = ->(k) { i = ARGV.index(k); i && ARGV[i + 1] }
 notes_hr = opt.('--notes-hr') or abort '--notes-hr obavezan (whatsNew je obavezan za update)'
 notes_en = opt.('--notes-en')
 SUBMIT   = ARGV.include?('--submit')
+PHASED   = !ARGV.include?('--no-phased')
+SMOKE_GATE = !ARGV.include?('--skip-smoke-gate')
 
 def token
   @token ||= begin
@@ -77,6 +82,16 @@ version = (b['included'] || []).find { |x| x['type'] == 'preReleaseVersions' }&.
   or abort 'ne mogu pročitati verziju builda (preReleaseVersion)'
 puts "==> build #{build_no} · verzija #{version} · VALID"
 
+# ── smoke vrata ──────────────────────────────────────────────────────────────
+# Nightly zapisuje ishod smokea po buildu (scripts/smoke-gate.sh). Build koji
+# nije prošao smoke na uređajima farme ne ide u review bez --skip-smoke-gate.
+if SMOKE_GATE
+  gate = File.join(__dir__, 'smoke-gate.sh')
+  out, st = Open3.capture2e(gate, build_no)
+  puts out.lines.map { |l| "    #{l}" }.join
+  abort "smoke vrata zatvorena za build #{build_no} (--skip-smoke-gate za iznimku)" unless st.success?
+end
+
 # ── appStoreVersion ──────────────────────────────────────────────────────────
 vers = asc(:get, "/v1/apps/#{app_id}/appStoreVersions?filter%5Bplatform%5D=IOS&limit=10")['data']
 live = vers.find { |v| v.dig('attributes', 'appStoreState') == 'READY_FOR_SALE' }
@@ -120,6 +135,21 @@ puts "  (plan) whatsNew za lokalizacije: #{locs.map { |l| l.dig('attributes', 'l
 # ── build → verzija ──────────────────────────────────────────────────────────
 write("attach build #{build_no}", :patch, "/v1/appStoreVersions/#{ver_id || 'NOVA'}/relationships/build",
       { data: { type: 'builds', id: build['id'] } })
+
+# ── phased release ───────────────────────────────────────────────────────────
+# 7-dnevna postupna objava (1 → 2 → 5 → 10 → 20 → 50 → 100 % korisnika s
+# automatskim ažuriranjem), pauzabilna u App Store Connectu. Ako nakon
+# odobrenja iskrsne crash, pauza zaustavi širenje dok fix ne prođe review.
+if PHASED
+  existing = ver_id && asc(:get, "/v1/appStoreVersions/#{ver_id}/appStoreVersionPhasedRelease")['data']
+  if existing
+    puts "    phased release već postoji (#{existing.dig('attributes', 'phasedReleaseState')})"
+  else
+    write('POST appStoreVersionPhasedRelease (ACTIVE, 7 dana)', :post, '/v1/appStoreVersionPhasedReleases',
+          { data: { type: 'appStoreVersionPhasedReleases', attributes: { phasedReleaseState: 'ACTIVE' },
+                    relationships: { appStoreVersion: { data: { type: 'appStoreVersions', id: ver_id || 'NOVA' } } } } })
+  end
+end
 
 # ── review submission ────────────────────────────────────────────────────────
 open_sub = asc(:get, "/v1/reviewSubmissions?filter%5Bapp%5D=#{app_id}&filter%5Bplatform%5D=IOS" \

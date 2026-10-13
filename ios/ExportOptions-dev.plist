@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Development export ISTOG archivea koji ide na TestFlight — za release
+	     smoke na uređajima farme (scripts/release-smoke.sh). App Store IPA
+	     se na uređaj ne može instalirati; kod je isti, razlikuje se potpis.
+	     Xcode 15+ zove ovu metodu "debugging" ("development" je alias). -->
+	<key>method</key>
+	<string>debugging</string>
+	<key>teamID</key>
+	<string>6SCK58757K</string>
+	<key>signingStyle</key>
+	<string>automatic</string>
+	<key>destination</key>
+	<string>export</string>
+	<key>manageAppVersionAndBuildNumber</key>
+	<false/>
+</dict>
+</plist>

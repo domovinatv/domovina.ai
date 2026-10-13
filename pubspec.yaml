@@ -54,6 +54,10 @@ dev_dependencies:
     sdk: flutter
   integration_test:
     sdk: flutter
+  # Smoke test čita stanje playera (integration_test/smoke_test.dart);
+  # iste verzije kao u paketu, workspace rješava jednu.
+  media_kit: ^1.2.6
+  media_kit_video: ^2.0.1
   flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.14.3
 
