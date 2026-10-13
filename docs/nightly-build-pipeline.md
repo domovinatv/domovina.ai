@@ -252,6 +252,9 @@ obriše svoj DerivedData prije builda.
 
 ## Smoke na uređajima farme (korak 8b, od 13.10.2026.)
 
+<!-- doc-refs:ignore-start -->
+<!-- .nightly/smoke/builds/ je izlaz nightlyja, ne datoteka u repou. -->
+
 Nakon uploada i verifikacije storeova nightly zove
 `scripts/nightly-smoke.sh <build>` nad 2 Androida i 2 iPhonea spojena na
 ovaj Mac. Upload ne blokira; ishod ide u istu Telegram poruku i u
@@ -260,6 +263,7 @@ ovaj Mac. Upload ne blokira; ishod ide u istu Telegram poruku i u
 `build-mobile-release.sh` uz `EXPORT_DEV_IPA=1` iz istog archivea izveze i
 development IPA (`build/ios/ipa-dev/`), jer se App Store IPA ne da
 instalirati na uređaj. `NIGHTLY_SMOKE=0` preskače korak.
+<!-- doc-refs:ignore-end -->
 
 Nije još provjereno pod launchd-om: iOS ui smoke treba mDNS prema iPhoneu
 (macOS „Local Network” dozvola), a vožen je samo iz iTerma. Ako prva noć
