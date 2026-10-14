@@ -1,5 +1,7 @@
 # Politika privatnosti — DOMOVINA.ai
 
+> Analitika korištenja dodana 14. 10. 2026. (§1e, §2, §3).
+>
 > **NACRT za pravni pregled** — vidi [`README.md`](README.md). Ne objavljivati
 > bez odobrenja pravnika/DPO-a. `‹…›` popuniti.
 
@@ -28,6 +30,15 @@ e-Osobnom, uz tvoju privolu na Certilia ekranu, primamo i pohranjujemo
 
 **d) Sadržaj.** Napredak gledanja, favoriti.
 
+**e) Analitika korištenja.** Bilježimo kako se aplikacija koristi: pokretanje,
+stranice i epizode koje otvaraš, trajanje sesije te prikaze i klikove na
+sponzorske poruke. Uz to spremamo nasumični identifikator uređaja (aplikacija
+ga stvara pri prvom pokretanju i čuva na uređaju ili u pregledniku),
+identifikator sesije, vrstu uređaja i preglednika, verziju aplikacije, jezik,
+veličinu zaslona i približnu lokaciju (država, regija, grad). Ako si prijavljen,
+događaje povezujemo s tvojim računom. **IP adresu ne spremamo** i ne koristimo
+alate trećih strana za praćenje.
+
 ## 2. Zašto i na kojoj osnovi (čl. 6 GDPR)
 
 | Svrha | Pravna osnova |
@@ -36,6 +47,7 @@ e-Osobnom, uz tvoju privolu na Certilia ekranu, primamo i pohranjujemo
 | Anonimni nastavak korištenja | legitimni interes (čl. 6(1)(f)) |
 | Verifikacija identiteta e-Osobnom | tvoja **privola** (čl. 6(1)(a)) + nužnost za uslugu |
 | Prijava e-mailom | izvršenje ugovora |
+| Analitika korištenja | legitimni interes (čl. 6(1)(f)): mjerenje i poboljšanje usluge, bilježenje sponzorskih poruka |
 
 Verificirani identitet koristimo da potvrdimo da si stvarna osoba i kao pripremu
 za buduće regulirane funkcije (npr. novčanik). Privolu možeš povući (vidi §6).
@@ -47,11 +59,15 @@ uključujući KYC podatke iz e-Osobne — osim ako nas zakon obvezuje da nešto
 zadržimo. ‹Ako uvedemo novčanik pod AML propisima, neke podatke ćemo morati
 čuvati zakonski određeno razdoblje — ažurirat ćemo ovu politiku.›
 
+Događaje analitike čuvamo **25 mjeseci**, pa se automatski brišu. Brisanje
+računa ih ne briše samo po sebi; za brisanje događaja povezanih s tvojim
+računom piši na `privacy@domovina.ai`.
+
 ## 4. Tko ima pristup / s kim dijelimo
 
-Podatke obrađujemo na vlastitoj (self-hosted) infrastrukturi. Koristimo i
-provjerene izvršitelje obrade: **Certilia/NIAS** (izvor eID identiteta),
-**Resend** (slanje e-maila), **Google** (prijava), **Cloudflare** (hosting/CDN).
+Podatke obrađujemo na vlastitoj (self-hosted) infrastrukturi na poslužitelju u
+EU (Oracle Cloud, Frankfurt). Koristimo i provjerene izvršitelje obrade: **Certilia/NIAS** (izvor eID identiteta),
+**Resend** (slanje e-maila), **Google** (prijava), **Cloudflare** (hosting/CDN i prijenos događaja analitike), **Oracle Cloud** (poslužitelj).
 Ne prodajemo tvoje podatke.
 
 ## 5. Sigurnost

@@ -1548,6 +1548,14 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get legalPrivacyAnalyticsTitle => 'Usage analytics';
+
+  @override
+  String legalPrivacyAnalyticsBody(String email) {
+    return 'To understand how the application is used and to improve it, we record usage events: opening the app, the pages and episodes you open, session length, and views of and clicks on sponsor messages. With each event we store a random device identifier (created by the app on first launch and kept in your browser\'s or device\'s storage), a session identifier, device and browser type, app version, language, screen size, and approximate location (country, region and city) as determined by Cloudflare. If you are signed in, we also link events to your account identifier. We do not store your IP address.\n\nWe process this data on the basis of legitimate interest (Article 6(1)(f) GDPR): to measure and improve the service and to record the display of sponsor messages. We do not use third-party tracking tools (such as Google Analytics). The data is stored on our own server in the European Union (Frankfurt), with Cloudflare transmitting it as a data processor. We do not sell it or share it with third parties for advertising. We keep it for 25 months. You can remove the device identifier by clearing the app\'s data or your browser storage. To have events linked to your account deleted, contact $email.';
+  }
+
+  @override
   String legalPrivacyContactBody(String email) {
     return 'The application is operated by ITalk d.o.o. za informacijske tehnologije, IX. Južna obala 20, 10000 Zagreb, Croatia, VAT: 54872935051. For privacy-related enquiries, please contact Matija Stepanić at $email.';
   }

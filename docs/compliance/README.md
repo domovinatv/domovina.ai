@@ -34,4 +34,4 @@ Ažuriraj ove dokumente pri **svakoj** promjeni: koje podatke skupljamo, gdje ih
 spremamo, koji sub-procesori, rokovi čuvanja, nove obrade (npr. self-custody
 wallet / AML). Vidi tehnički vodič: [`../authentication-setup-guide.md`](../authentication-setup-guide.md).
 
-_Zadnje ažurirano: 2026-05-29._
+_Zadnje ažurirano: 2026-10-14 (analitika korištenja, regija poslužitelja)._

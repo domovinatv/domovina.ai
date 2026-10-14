@@ -18,7 +18,7 @@ class PrivacyScreen extends StatelessWidget {
       title: l.legalPrivacyTitle,
       children: [
         Text(
-          l.legalLastUpdated('26. svibnja 2026.'),
+          l.legalLastUpdated('14. listopada 2026.'),
           style: theme.textTheme.bodySmall?.copyWith(
             color: theme.colorScheme.onSurfaceVariant,
           ),
@@ -33,8 +33,12 @@ class PrivacyScreen extends StatelessWidget {
         const SizedBox(height: 24),
         Text(l.legalPrivacyDataTitle, style: theme.textTheme.titleMedium),
         const SizedBox(height: 8),
+        Text(l.legalPrivacyDataBody(AppBrand.config.contactEmail), style: body),
+        const SizedBox(height: 24),
+        Text(l.legalPrivacyAnalyticsTitle, style: theme.textTheme.titleMedium),
+        const SizedBox(height: 8),
         Text(
-          l.legalPrivacyDataBody(AppBrand.config.contactEmail),
+          l.legalPrivacyAnalyticsBody(AppBrand.config.contactEmail),
           style: body,
         ),
         const SizedBox(height: 24),

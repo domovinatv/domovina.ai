@@ -2606,6 +2606,18 @@ abstract class AppLocalizations {
   /// **'ITalk d.o.o. za informacijske tehnologije, kao voditelj obrade, prikuplja i obrađuje vaše podatke u skladu s Općom uredbom o zaštiti podataka (GDPR).\n\nKada se prijavite (putem Certilia IDP sustava, Googlea, Applea ili e-pošte), prikupljamo osnovne identifikacijske podatke (e-mail adresu, ime i prezime, te OIB ukoliko se prijavljujete putem e-Građani/Certilia sustava) isključivo u svrhu pružanja usluge. Vaš napredak slušanja, omiljene oznake i glasovanja pohranjuju se kako bi se sinkronizirali među uređajima.\n\nZa obradu \"Plus\" pretplata koristimo vanjske izvršitelje (Apple, Google, RevenueCat) te ne pohranjujemo niti imamo pristup podacima vaših bankovnih kartica. Primjenjujemo najviše tehničke i organizacijske mjere sigurnosti (enkripcija u prijenosu i pohrani).\n\nKao korisnik, imate pravo na pristup, ispravak, ograničenje obrade, prijenos i brisanje svojih podataka (svoj račun možete trajno obrisati u aplikaciji u svakom trenutku). Za sva pitanja o privatnosti ili ostvarivanje prava obratite se na {email}. U slučaju sumnje na povredu podataka, imate pravo podnijeti pritužbu Agenciji za zaštitu osobnih podataka (AZOP).'**
   String legalPrivacyDataBody(String email);
 
+  /// No description provided for @legalPrivacyAnalyticsTitle.
+  ///
+  /// In hr, this message translates to:
+  /// **'Analitika korištenja'**
+  String get legalPrivacyAnalyticsTitle;
+
+  /// Privacy policy section on first-party usage analytics: what is recorded, legal basis, storage location, 25-month retention.
+  ///
+  /// In hr, this message translates to:
+  /// **'Kako bismo razumjeli kako se aplikacija koristi i mogli je poboljšavati, bilježimo događaje korištenja: pokretanje aplikacije, stranice i epizode koje otvarate, trajanje sesije te prikaze i klikove na sponzorske poruke. Uz svaki događaj spremamo nasumični identifikator uređaja (aplikacija ga stvara pri prvom pokretanju i čuva u pohrani preglednika ili uređaja), identifikator sesije, vrstu uređaja i preglednika, verziju aplikacije, jezik, veličinu zaslona te približnu lokaciju (država, regija i grad), koju određuje Cloudflare. Ako ste prijavljeni, događaje povezujemo i s identifikatorom Vašeg računa. IP adresu ne spremamo.\n\nPodatke obrađujemo na temelju legitimnog interesa (čl. 6. st. 1. t. f) GDPR-a): mjerimo i poboljšavamo uslugu i bilježimo prikazivanje sponzorskih poruka. Ne koristimo alate trećih strana za praćenje (poput Google Analyticsa). Podatke pohranjujemo na vlastitom poslužitelju u Europskoj uniji (Frankfurt), a Cloudflare ih kao izvršitelj obrade prenosi do njega. Ne prodajemo ih i ne dijelimo s trećim stranama radi oglašavanja. Čuvamo ih 25 mjeseci. Identifikator uređaja možete ukloniti brisanjem podataka aplikacije ili pohrane preglednika. Za brisanje događaja povezanih s Vašim računom obratite se na {email}.'**
+  String legalPrivacyAnalyticsBody(String email);
+
   /// Contact paragraph on the privacy policy screen with the support email address.
   ///
   /// In hr, this message translates to:

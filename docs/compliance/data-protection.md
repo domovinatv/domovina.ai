@@ -59,6 +59,30 @@ smjernice AZOP-a i EDPB-a.
 - **Kategorije:** e-mail adresa.
 - **Primatelj / izvršitelj obrade:** Resend (SMTP).
 
+### Obrada E — Analitika korištenja (od 14. 10. 2026.)
+- **Svrha:** mjerenje i poboljšanje usluge (koliko se koristi, koje stranice i
+  epizode, trajanje sesije, „tko je sada u aplikaciji”), bilježenje prikaza
+  i klikova na plaćene sponzorske poruke.
+- **Pravna osnova:** čl. 6(1)(f) legitimni interes. Bez bannera za privolu
+  (odluka voditelja, 14. 10. 2026.). **Otvoreno za pravnika:** trajni
+  identifikator uređaja u pohrani uređaja/preglednika po ePrivacy pravilima
+  (ZEK) u pravilu traži privolu ako nije nužan za uslugu.
+- **Kategorije podataka:** događaji (`session_start`, `screen_view`,
+  `heartbeat`, `app_background`, `identify`/`sign_out`, `sponsored_*`) s
+  rutom, ID-em epizode/kanala; nasumični trajni `device_id` (localStorage /
+  SharedPreferences), `session_id`, `user_id` (samo prijavljeni), platforma,
+  preglednik i OS (iz User-Agenta), verzija aplikacije, jezik, veličina
+  zaslona, država/regija/grad (Cloudflare geolokacija). **IP se ne sprema.**
+- **Ispitanici:** svi korisnici aplikacije (gosti i prijavljeni).
+- **Rok čuvanja:** 25 mjeseci (ClickHouse TTL,
+  `domovina-analytics/clickhouse/sql/003_retention.sql`). Brisanje računa ih
+  NE briše automatski; brisanje na zahtjev:
+  `ALTER TABLE analytics.events DELETE WHERE user_id = '<uuid>'`.
+- **Lokacija:** ClickHouse na vlastitom Coolify VM-u (Oracle Cloud
+  `eu-frankfurt-1`); ingest kroz Cloudflare Worker na `domovina.ai/api/state`.
+  Pristup: Grafana iza Cloudflare Accessa, ClickHouse HTTP samo sa service
+  tokenom. Tehnički opis: repo `domovina-analytics`.
+
 ## 3. Pravna osnova — sažetak (čl. 6)
 
 | Obrada | Osnova |
@@ -67,6 +91,7 @@ smjernice AZOP-a i EDPB-a.
 | Račun (OAuth/email/passkey) | čl. 6(1)(b) ugovor |
 | KYC (Certilia eID) | čl. 6(1)(a) privola + (b) nužnost |
 | Sadržaj/napredak | čl. 6(1)(b)/(f) |
+| Analitika korištenja | čl. 6(1)(f) legitimni interes ‹ePrivacy — potvrditi› |
 
 > **Zašto NE čl. 9:** posebne kategorije (biometrija) bi nastale obradom
 > fotografije s e-Osobne. Sustav **ne prikuplja fotografiju** → izbjegnut je
@@ -134,15 +159,16 @@ obvezu**; ako se imenuje, kontakt objaviti u Politici privatnosti i prijaviti AZ
 
 | Primatelj | Uloga | Podaci | Lokacija |
 |---|---|---|---|
-| Self-hosted Supabase (VPS/Coolify) | obrada/pohrana | svi | ‹EU — potvrditi VPS regiju› |
+| Self-hosted Supabase i ClickHouse (Coolify VM) | obrada/pohrana | svi, uključivo analitiku | EU — Oracle Cloud `eu-frankfurt-1` (provjereno 14. 10. 2026.) |
+| Oracle Cloud | infrastruktura (VM) za gornje | svi (pohrana) | EU (Frankfurt) |
 | Certilia / NIAS (AKD) | izvor eID identiteta | OIB, ime, DOB, država | HR/EU |
 | Resend | slanje e-maila | e-mail adresa | ‹regija — potvrditi DPA› |
 | Google | OAuth prijava | e-mail, profil | EU/SAD ‹SCC/DPF› |
-| Cloudflare | CDN/hosting/TLS | tehnički/IP | globalno ‹DPF/SCC› |
+| Cloudflare | CDN/hosting/TLS; Worker za ingest analitike (prolazno, bez pohrane osim rezervnog Queuea) | tehnički/IP, događaji analitike | globalno ‹DPF/SCC› |
 
 Za svakog sub-procesora osigurati **Ugovor o obradi (DPA, čl. 28)** i, za prijenose
 izvan EU, odgovarajući mehanizam (DPF/SCC). ‹potvrditi po procesoru›.
 
 ---
 
-_Zadnje ažurirano: 2026-05-29. Vlasnik dokumenta: ‹DPO / voditelj obrade›._
+_Zadnje ažurirano: 2026-10-14. Vlasnik dokumenta: ‹DPO / voditelj obrade›._
