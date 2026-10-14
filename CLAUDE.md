@@ -977,7 +977,7 @@ gase je `dispose` i terminalni stage (`settled`/`rejected`).
 posjetiteljev IP odalo vlasniku tog hosta. Preview u obrascu ide preko edge
 funkcije `pinka-link-preview`, ne dohvatom iz preglednika.
 
-### Vlastita analitika — `Analytics` (od 14.10.2026., nedeployano)
+### Vlastita analitika — `Analytics` (LIVE od v2.0.187, 14.10.2026.)
 
 Klijent servisa `../domovina-analytics` (Worker na `domovina.ai/api/state` →
 ClickHouse na Coolifyju; ugovor `docs/ugovor.md` u tom repou). Batch svakih
@@ -998,6 +998,12 @@ izmjereno ostala zapisana kao `/`.
 
 **Rule (novi događaj)**: `Analytics.instance.track('snake_case', props: …)`,
 props ≤ 4 KB, i redak u `domovina-analytics/docs/ugovor.md`. Shema se ne mijenja.
+
+**Rule (politika privatnosti prati analitiku)**: odjeljak „Analitika
+korištenja” (`legalPrivacyAnalytics*`, `docs/compliance/`) nabraja što se
+bilježi i kaže 25 mjeseci (ClickHouse TTL u `003_retention.sql`). Nova
+kategorija podatka ili promjena roka mijenja i taj tekst. Brisanje računa
+događaje NE briše — brišu se na zahtjev (`data-protection.md`, Obrada E).
 
 ## Logging
 
