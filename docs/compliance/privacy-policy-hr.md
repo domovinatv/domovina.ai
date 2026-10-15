@@ -31,7 +31,9 @@ e-Osobnom, uz tvoju privolu na Certilia ekranu, primamo i pohranjujemo
 **d) Sadržaj.** Napredak gledanja, favoriti.
 
 **e) Analitika korištenja.** Bilježimo kako se aplikacija koristi: pokretanje,
-stranice i epizode koje otvaraš, trajanje sesije te prikaze i klikove na
+stranice i epizode koje otvaraš, reprodukciju (pokretanje, pauzu,
+premotavanje, brzinu i koliko je epizode odslušano), upite koje upišeš u
+pretragu i što iz rezultata otvoriš, trajanje sesije te prikaze i klikove na
 sponzorske poruke. Uz to spremamo nasumični identifikator uređaja (aplikacija
 ga stvara pri prvom pokretanju i čuva na uređaju ili u pregledniku),
 identifikator sesije, vrstu uređaja i preglednika, verziju aplikacije, jezik,

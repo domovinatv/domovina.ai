@@ -12,6 +12,7 @@ import '../../src/log.dart' show log;
 import '../../models/podcast_outline.dart';
 import '../../services/cdn_config.dart';
 import '../../services/data_service.dart';
+import '../../services/analytics/playback_analytics.dart';
 import '../../services/player_resume.dart';
 import '../../services/watch_progress_service.dart';
 import '../../widgets/cached_thumbnail.dart';
@@ -145,6 +146,7 @@ class _TvEpisodeScreenState extends State<TvEpisodeScreen> {
   StreamSubscription<Duration>? _durationSub;
   StreamSubscription<Duration>? _bufferSub;
   StreamSubscription<bool>? _playingSub;
+  PlaybackAnalytics? _playbackAnalytics;
   StreamSubscription<bool>? _bufferingSub;
 
   @override
@@ -186,6 +188,13 @@ class _TvEpisodeScreenState extends State<TvEpisodeScreen> {
       ),
     );
     final controller = VideoController(player);
+    _playbackAnalytics = PlaybackAnalytics(
+      playingStream: player.stream.playing,
+      positionStream: player.stream.position,
+      videoId: widget.youtubeId,
+      surface: 'tv',
+      durationSeconds: _data?.info.duration ?? 0,
+    );
 
     // Subscribe na error/log streamove PRIJE open-a — open async vec moze
     // propucnuti error event ako URI nije validan ili TLS handshake padne.
@@ -366,6 +375,7 @@ class _TvEpisodeScreenState extends State<TvEpisodeScreen> {
     _bufferSub?.cancel();
     _playingSub?.cancel();
     _bufferingSub?.cancel();
+    _playbackAnalytics?.dispose();
     _player?.dispose();
     _playerFocus.dispose();
     _fullscreenFocus.dispose();

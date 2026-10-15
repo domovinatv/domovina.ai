@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
 import '../src/log.dart' show log;
+import '../services/analytics/analytics.dart';
 import '../services/transcript_search.dart';
 import 'em_highlight_text.dart';
 
@@ -39,20 +40,46 @@ class _FindInEpisodeSectionState extends State<FindInEpisodeSection> {
   bool _failed = false;
   TranscriptSearchResult? _result;
 
+  // Zadnji upit s odgovorom i koliko je puta iz njega skočeno — jedan
+  // `episode_find` po upitu, poslan kad se polje očisti ili sekcija nestane.
+  String? _trackedQuery;
+  int _trackedHits = 0;
+  int _jumps = 0;
+  late String _trackedVideo = widget.youtubeId;
+
   @override
   void didUpdateWidget(FindInEpisodeSection old) {
     super.didUpdateWidget(old);
     if (old.youtubeId != widget.youtubeId) _clear();
+    _trackedVideo = widget.youtubeId;
   }
 
   @override
   void dispose() {
+    _trackFind();
     _debounce?.cancel();
     _controller.dispose();
     super.dispose();
   }
 
+  void _trackFind() {
+    final q = _trackedQuery;
+    if (q == null) return;
+    _trackedQuery = null;
+    Analytics.instance.track('episode_find', videoId: _trackedVideo, props: {
+      'q': q.length > 100 ? q.substring(0, 100) : q,
+      'hits': _trackedHits,
+      'jumps': _jumps,
+    });
+  }
+
+  void _jump(int second) {
+    _jumps++;
+    widget.onJump?.call(second);
+  }
+
   void _clear() {
+    _trackFind();
     _debounce?.cancel();
     _requestId++;
     _controller.clear();
@@ -89,6 +116,14 @@ class _FindInEpisodeSectionState extends State<FindInEpisodeSection> {
       final r = await TranscriptSearch.search(widget.youtubeId, q);
       if (!mounted || id != _requestId) return;
       log('FindInEpisode: "$q" → ${r.totalHits} pogodaka');
+      // Novi upit koji nije samo dotipkavanje prethodnog zatvara prethodni.
+      final prev = _trackedQuery;
+      if (prev != null && !q.startsWith(prev) && !prev.startsWith(q)) {
+        _trackFind();
+      }
+      if (_trackedQuery == null) _jumps = 0;
+      _trackedQuery = q;
+      _trackedHits = r.totalHits;
       setState(() {
         _result = r;
         _loading = false;
@@ -157,7 +192,7 @@ class _FindInEpisodeSectionState extends State<FindInEpisodeSection> {
             ),
           ],
           if (hasQuery && result != null && !_failed) ...[
-            for (final h in result.exact) _HitRow(hit: h, hp: hp, onJump: widget.onJump),
+            for (final h in result.exact) _HitRow(hit: h, hp: hp, onJump: widget.onJump == null ? null : _jump),
             if (result.approximate.isNotEmpty) ...[
               Padding(
                 padding: EdgeInsets.fromLTRB(hp, 14, hp, 4),
@@ -169,7 +204,7 @@ class _FindInEpisodeSectionState extends State<FindInEpisodeSection> {
                 ),
               ),
               for (final h in result.approximate)
-                _HitRow(hit: h, hp: hp, onJump: widget.onJump, dimmed: true),
+                _HitRow(hit: h, hp: hp, onJump: widget.onJump == null ? null : _jump, dimmed: true),
             ],
           ],
         ],

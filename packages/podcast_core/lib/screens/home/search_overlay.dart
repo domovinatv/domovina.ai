@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import '../../models/channel_index.dart';
 import '../../models/person_hub.dart';
 import '../../models/channel_detail.dart';
+import '../../services/analytics/analytics.dart';
 import '../../services/cdn_config.dart';
 import '../../services/channel_cache.dart';
 import '../../services/entitlement_service.dart';
@@ -123,6 +124,12 @@ class _SearchOverlayState extends State<_SearchOverlay> {
   String _meiliQuery = '';
   String _semanticQuery = '';
 
+  // Što je korisnik iz palete otvorio — ide u `search` događaj pri
+  // zatvaranju. Bez odabira = odustao (ili nije našao).
+  String? _pickedKind;
+  int? _pickedRank;
+  String? _pickedVideo;
+
   // Foldani tekst epizoda, računa se JEDNOM po stanju `channelCache`-a, ne pri
   // svakom buildu. Korpus je ~3300 epizoda / 2,7 MB teksta; prije je cijeli
   // prolazio kroz `foldText` u svakom `build()` (spinner, stigli rezultati,
@@ -215,6 +222,7 @@ class _SearchOverlayState extends State<_SearchOverlay> {
 
   @override
   void dispose() {
+    _trackSearch();
     PersonChannelFlag.instance.removeListener(_onFlagChanged);
     personIndexCache.removeListener(_onPersonIndexChanged);
     channelCache.removeListener(_onChannelCacheChanged);
@@ -325,6 +333,26 @@ class _SearchOverlayState extends State<_SearchOverlay> {
     });
   }
 
+  /// Jedan `search` događaj po otvaranju palete: zadnji upit, koliko je čega
+  /// nađeno i što je otvoreno. Pojedinačni pritisci tipki se ne šalju.
+  void _trackSearch() {
+    final q = normalizeQuery(_searchController.text);
+    if (q.isEmpty) return;
+    Analytics.instance.track('search', videoId: _pickedVideo, props: {
+      'q': q.length > 100 ? q.substring(0, 100) : q,
+      'persons': _visiblePersons.length,
+      'channels': _visibleChannels.length,
+      'episodes': _visibleEpisodes.length,
+      'picked': ?_pickedKind,
+      'rank': ?_pickedRank,
+    });
+  }
+
+  void _pick(String kind, [int? rank]) {
+    _pickedKind ??= kind;
+    _pickedRank ??= rank;
+  }
+
   void _abortSemantic() {
     final a = _semanticAbort;
     _semanticAbort = null;
@@ -334,6 +362,7 @@ class _SearchOverlayState extends State<_SearchOverlay> {
   void _openVideoId() {
     final id = _idController.text.trim();
     if (id.isEmpty) return;
+    _pick('video_id');
     Navigator.of(context).pop();
     widget.onSelectVideo(id);
   }
@@ -342,6 +371,7 @@ class _SearchOverlayState extends State<_SearchOverlay> {
   void _openFullResults() {
     final router = GoRouter.of(context);
     final q = normalizeQuery(_searchController.text);
+    _pick('all_results');
     Navigator.of(context).pop();
     drillDownOn(router,
         q.isEmpty ? '/search' : '/search?q=${Uri.encodeQueryComponent(q)}');
@@ -415,16 +445,20 @@ class _SearchOverlayState extends State<_SearchOverlay> {
   void _openPerson(PersonSummary person) {
     // Router se uzima PRIJE pop-a — nakon njega ovaj context više nije u stablu.
     final router = GoRouter.of(context);
+    _pick('person', _visiblePersons.indexOf(person));
     Navigator.of(context).pop();
     drillDownOn(router, person.routePath);
   }
 
   void _openChannel(ChannelSummary ch) {
+    _pick('channel', _visibleChannels.indexOf(ch));
     Navigator.of(context).pop();
     widget.onSelectChannel(ch);
   }
 
   void _openEpisode(EpisodeHit hit, {int? at}) {
+    _pick(at == null ? 'episode' : 'moment', _visibleEpisodes.indexOf(hit));
+    _pickedVideo ??= hit.youtubeId;
     Navigator.of(context).pop();
     final seconds = at ?? hit.openAt;
     if (seconds != null) {
@@ -874,11 +908,7 @@ class _SearchOverlayState extends State<_SearchOverlay> {
       identifier: 'person-card-${p.slug}',
       container: true,
       child: InkWell(
-        onTap: () {
-          final router = GoRouter.of(context);
-          Navigator.of(context).pop();
-          drillDownOn(router, p.routePath);
-        },
+        onTap: () => _openPerson(p),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           child: Row(
@@ -922,10 +952,7 @@ class _SearchOverlayState extends State<_SearchOverlay> {
 
   Widget _channelRow(ThemeData theme, ChannelSummary ch) {
     return InkWell(
-      onTap: () {
-        Navigator.of(context).pop();
-        widget.onSelectChannel(ch);
-      },
+      onTap: () => _openChannel(ch),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         child: Row(

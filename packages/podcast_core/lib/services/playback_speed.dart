@@ -21,6 +21,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'analytics/analytics.dart';
 import 'local_prefs.dart';
 
 /// Ponuđene brzine, redoslijedom kružnog prekidača.
@@ -70,6 +71,7 @@ class PlaybackSpeed extends ChangeNotifier {
     _loading ??= Future<void>.value();
     final value = _nearest(r);
     if (value == _rate) return;
+    Analytics.instance.track('playback_rate', props: {'from': _rate, 'to': value});
     _rate = value;
     notifyListeners();
     await _write(_encode(value));
@@ -82,6 +84,7 @@ class PlaybackSpeed extends ChangeNotifier {
     _loaded = true;
     final value = _decode(raw);
     if (value == _rate) return;
+    Analytics.instance.track('playback_rate', props: {'from': _rate, 'to': value});
     _rate = value;
     notifyListeners();
   }

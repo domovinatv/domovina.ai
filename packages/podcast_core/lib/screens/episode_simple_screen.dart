@@ -29,6 +29,7 @@ import '../services/player_mute.dart';
 import '../services/player_resume.dart';
 import '../services/page_meta.dart';
 import '../services/seek_undo.dart';
+import '../services/analytics/playback_analytics.dart';
 import '../services/sponsored_moments_controller.dart';
 import '../services/sponsored_moments_service.dart';
 import '../services/url_sync.dart';
@@ -212,6 +213,7 @@ class _SimpleEpisodeContentState extends State<_SimpleEpisodeContent>
   /// skokove (resume pri otvaranju, tap na poglavlje — odluka D2) najavljujemo
   /// kroz `suppress()`. Vidi services/seek_undo.dart.
   SeekUndo? _seekUndo;
+  PlaybackAnalytics? _playbackAnalytics;
 
   /// In-app YouTube embed mode — native player pauziran, iframe preuzima.
   bool _ytMode = false;
@@ -333,6 +335,7 @@ class _SimpleEpisodeContentState extends State<_SimpleEpisodeContent>
     MediaSession.clear();
     _intent?.dispose();
     _seekUndo?.dispose();
+    _playbackAnalytics?.dispose();
     _sponsored?.dispose();
     final player = _player;
     if (player != null) {
@@ -475,6 +478,13 @@ class _SimpleEpisodeContentState extends State<_SimpleEpisodeContent>
       // Detekcija skoka sluša isti položajni stream — i ona mora biti gore,
       // prije open/seeka.
       _seekUndo = SeekUndo(positionStream: player.stream.position);
+      _playbackAnalytics = PlaybackAnalytics(
+        playingStream: player.stream.playing,
+        positionStream: player.stream.position,
+        videoId: widget.data.youtubeId,
+        surface: 'm',
+        durationSeconds: widget.data.info.duration,
+      );
       // Resume-seek pri otvaranju NIJE korisnikov skok. Prozor je namjerno
       // dug: `openAndResume` čeka duration (do 5 s) prije nego seekne, pa bi
       // standardnih 1,2 s isteklo prije samog skoka.

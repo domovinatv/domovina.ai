@@ -69,7 +69,12 @@ smjernice AZOP-a i EDPB-a.
   (ZEK) u pravilu traži privolu ako nije nužan za uslugu.
 - **Kategorije podataka:** događaji (`session_start`, `screen_view`,
   `heartbeat`, `app_background`, `identify`/`sign_out`, `sponsored_*`) s
-  rutom, ID-em epizode/kanala; nasumični trajni `device_id` (localStorage /
+  rutom, ID-em epizode/kanala; od 15. 10. 2026. i reprodukcija
+  (`playback_*`: start, pauza, skok, pragovi napretka, odslušane sekunde,
+  brzina) te **tekst upita pretrage** (`search` u paleti, `episode_find` u
+  „Pronađi u epizodi", skraćen na 100 znakova) uz broj rezultata i ono što je
+  otvoreno. Upit je slobodan tekst pa može sadržavati ime osobe koju korisnik
+  traži; nasumični trajni `device_id` (localStorage /
   SharedPreferences), `session_id`, `user_id` (samo prijavljeni), platforma,
   preglednik i OS (iz User-Agenta), verzija aplikacije, jezik, veličina
   zaslona, država/regija/grad (Cloudflare geolokacija). **IP se ne sprema.**

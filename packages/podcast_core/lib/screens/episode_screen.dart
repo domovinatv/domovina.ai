@@ -40,6 +40,7 @@ import '../services/playback_intent.dart';
 import '../services/playback_speed.dart';
 import '../services/player_mute.dart';
 import '../services/seek_undo.dart';
+import '../services/analytics/playback_analytics.dart';
 import '../services/url_sync.dart';
 import '../services/view_mode.dart';
 import '../services/watch_progress_service.dart';
@@ -776,6 +777,7 @@ class _EpisodeContentState extends State<_EpisodeContent>
   /// skokove (resume pri otvaranju, tap na poglavlje — odluka D2) najavljujemo
   /// kroz `suppress()`. Vidi `services/seek_undo.dart`.
   SeekUndo? _seekUndo;
+  PlaybackAnalytics? _playbackAnalytics;
 
   /// Per-episode jezik prikaza. URL `/en` sufix ima prednost nad sticky pref.
   /// Inicijalno HR; ako URL nije EN, ucitaj sticky pref iz prefs-a.
@@ -1101,6 +1103,7 @@ class _EpisodeContentState extends State<_EpisodeContent>
     MediaSession.clear();
     _playbackIntent?.dispose();
     _seekUndo?.dispose();
+    _playbackAnalytics?.dispose();
     _sponsored?.dispose();
     DeferredScreenshots.instance.release();
     final player = _player;
@@ -1477,6 +1480,13 @@ class _EpisodeContentState extends State<_EpisodeContent>
       // streamovi su broadcast (ne replay), pa kasnija pretplata izgubi rane
       // evente.
       _seekUndo = SeekUndo(positionStream: player.stream.position);
+      _playbackAnalytics = PlaybackAnalytics(
+        playingStream: player.stream.playing,
+        positionStream: player.stream.position,
+        videoId: widget.data.youtubeId,
+        surface: 'v',
+        durationSeconds: widget.data.info.duration,
+      );
       // Resume-seek pri otvaranju NIJE korisnikov skok. Prozor je namjerno
       // dug: `openAndResume` čeka duration (do 5 s) prije nego seekne, pa bi
       // standardnih 1,2 s isteklo prije samog skoka.
