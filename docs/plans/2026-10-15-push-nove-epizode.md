@@ -312,8 +312,9 @@ Worker se pali tek kad ima pretplatnika. Do tada radi u `DRY_RUN`.
 | FCM API | uključen u `domovina-production` |
 | Service account za slanje | `push-sender@domovina-production`, uloga `roles/firebasecloudmessaging.admin`; JSON ključ postoji SAMO kao Worker tajna `FCM_SERVICE_ACCOUNT` |
 | Push capability na App ID-u | `PUSH_NOTIFICATIONS` uključen kroz ASC API (bundle id `CB24KNJML2`) |
-| APNs Auth Key | `DRC6JVC539` („DOMOVINA Push APNs”, tim `6SCK58757K`, Sandbox & Production) — treba ga upisati u Firebase konzolu (Project settings → Cloud Messaging → Apple app configuration) |
-| Worker | `domovina-push`, cron `*/10`, R2 `cdn-domovina-ai`, KV `a2bcc79eddb04ff8b78520b9fbad7717`, `DRY_RUN=1` |
+| APNs Auth Key | `DRC6JVC539` („DOMOVINA Push APNs”, tim `6SCK58757K`, Sandbox & Production). U Firebase konzoli upisan kao **production** ključ (15. 10. 2026.); isti `.p8` treba upisati i u redak **development** — bez njega debug build s uređaja (`aps-environment = development`) ne prima push. `.p8` čuva vlasnik (`~/secrets/`); agentu je preuzimanje ključa blokirano |
+| Worker repo | [`domovinatv/domovina-push`](https://github.com/domovinatv/domovina-push) (javni; tajna je samo u Workeru) |
+| Worker | `domovina-push`, cron `*/10`, R2 `cdn-domovina-ai`, KV `a2bcc79eddb04ff8b78520b9fbad7717`, `DRY_RUN=1`; prvi prolaz (15. 10.) zapamtio 7 epizoda (`seeded`) |
 
 Provjera slanja: poruka na temu `ep_test` vratila je `projects/domovina-production/messages/…`
 (IAM uloga je trebala ~5 min da proradi; do tada 403 `cloudmessaging.messages.create`).
