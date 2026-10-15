@@ -61,12 +61,17 @@ smjernice AZOP-a i EDPB-a.
 
 ### Obrada E — Analitika korištenja (od 14. 10. 2026.)
 - **Svrha:** mjerenje i poboljšanje usluge (koliko se koristi, koje stranice i
-  epizode, trajanje sesije, „tko je sada u aplikaciji”), bilježenje prikaza
-  i klikova na plaćene sponzorske poruke.
+  epizode, trajanje sesije, „tko je sada u aplikaciji”), koliko se epizode
+  stvarno slušaju (od 15. 10. 2026.), poboljšanje pretrage (što se traži i
+  što se ne nađe, od 15. 10. 2026.), bilježenje prikaza i klikova na plaćene
+  sponzorske poruke.
 - **Pravna osnova:** čl. 6(1)(f) legitimni interes. Bez bannera za privolu
   (odluka voditelja, 14. 10. 2026.). **Otvoreno za pravnika:** trajni
   identifikator uređaja u pohrani uređaja/preglednika po ePrivacy pravilima
-  (ZEK) u pravilu traži privolu ako nije nužan za uslugu.
+  (ZEK) u pravilu traži privolu ako nije nužan za uslugu. **Otvoreno za
+  pravnika (15. 10. 2026.):** tekst upita pretrage je slobodan unos povezan s
+  `device_id`/`user_id`; procijeniti je li legitimni interes dovoljan i treba
+  li kraći rok čuvanja za `props.q` nego za ostale događaje.
 - **Kategorije podataka:** događaji (`session_start`, `screen_view`,
   `heartbeat`, `app_background`, `identify`/`sign_out`, `sponsored_*`) s
   rutom, ID-em epizode/kanala; od 15. 10. 2026. i reprodukcija
@@ -176,4 +181,4 @@ izvan EU, odgovarajući mehanizam (DPF/SCC). ‹potvrditi po procesoru›.
 
 ---
 
-_Zadnje ažurirano: 2026-10-14. Vlasnik dokumenta: ‹DPO / voditelj obrade›._
+_Zadnje ažurirano: 2026-10-15 (reprodukcija i upiti pretrage u Obradi E). Vlasnik dokumenta: ‹DPO / voditelj obrade›._

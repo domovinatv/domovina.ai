@@ -999,11 +999,28 @@ izmjereno ostala zapisana kao `/`.
 **Rule (novi događaj)**: `Analytics.instance.track('snake_case', props: …)`,
 props ≤ 4 KB, i redak u `domovina-analytics/docs/ugovor.md`. Shema se ne mijenja.
 
-**Rule (politika privatnosti prati analitiku)**: odjeljak „Analitika
-korištenja” (`legalPrivacyAnalytics*`, `docs/compliance/`) nabraja što se
-bilježi i kaže 25 mjeseci (ClickHouse TTL u `003_retention.sql`). Nova
-kategorija podatka ili promjena roka mijenja i taj tekst. Brisanje računa
-događaje NE briše — brišu se na zahtjev (`data-protection.md`, Obrada E).
+**Rule (svaka promjena događaja mijenja i pravne dokumente, u istom
+commitu)**: dodaš, makneš ili proširiš događaj (ili polje u `props`) →
+ažuriraj SVE od ovoga:
+
+1. `docs/compliance/data-protection.md` — Obrada E (svrha, kategorije, popis
+   događaja), datum na dnu;
+2. `docs/compliance/store-privacy-labels.md` — Apple App Privacy / Google
+   Data safety mapiranje (+ podsjeti korisnika da konzole upisuje ručno);
+3. politika privatnosti: `legalPrivacyAnalyticsBody` u `app_hr.arb` i
+   `app_en.arb` (+ `flutter gen-l10n`), `docs/compliance/privacy-policy-hr.md`,
+   i datum `legalLastUpdated` u `screens/legal/privacy_screen.dart` — kad se
+   mijenja vrsta podatka ili svrha;
+4. `domovina-analytics/docs/ugovor.md` — tablica događaja.
+
+Prva dva čuva `test/analytics_legal_docs_test.dart` (ime događaja u
+backtickovima, `prefiks_*` pokriva obitelj); treći i četvrti nijedan test ne
+vidi, pa ih ne preskakati. Politika kaže 25 mjeseci (ClickHouse TTL u
+`003_retention.sql`) — promjena roka mijenja tekst. Brisanje računa događaje
+NE briše — brišu se na zahtjev (`data-protection.md`, Obrada E).
+
+Reprodukcija ide kroz `services/analytics/playback_analytics.dart` (streamovi
+playera, isti obrazac kao `SeekUndo`), ne kroz pozive po gumbima.
 
 ## Logging
 

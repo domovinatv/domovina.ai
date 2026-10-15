@@ -18,6 +18,7 @@ uredbe o zaštiti podataka** (NN 42/2018).
 |---|---|
 | [`data-protection.md`](data-protection.md) | MASTER: ROPA (evidencija obrade), pravna osnova, DPIA, TOMs, prava ispitanika, postupak povrede, sub-procesori |
 | [`privacy-policy-hr.md`](privacy-policy-hr.md) | Korisnička **Politika privatnosti** (HR) — nacrt za objavu |
+| [`store-privacy-labels.md`](store-privacy-labels.md) | Odgovori za App Store **App Privacy** i Google Play **Data safety** (console-only, upisuje čovjek) |
 | [`kyc-strategy-and-extensibility.md`](kyc-strategy-and-extensibility.md) | **Širina KYC-a**: spektar opsega, AML/wallet, AZOP/DPIA trigeri, backward-kompatibilan model proširenja, decision log |
 
 ## Što je tehnički već implementirano (i gdje)
@@ -34,4 +35,4 @@ Ažuriraj ove dokumente pri **svakoj** promjeni: koje podatke skupljamo, gdje ih
 spremamo, koji sub-procesori, rokovi čuvanja, nove obrade (npr. self-custody
 wallet / AML). Vidi tehnički vodič: [`../authentication-setup-guide.md`](../authentication-setup-guide.md).
 
-_Zadnje ažurirano: 2026-10-14 (analitika korištenja, regija poslužitelja)._
+_Zadnje ažurirano: 2026-10-15 (analitika: reprodukcija i upiti pretrage; deklaracije za store)._

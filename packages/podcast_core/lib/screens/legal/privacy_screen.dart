@@ -18,7 +18,7 @@ class PrivacyScreen extends StatelessWidget {
       title: l.legalPrivacyTitle,
       children: [
         Text(
-          l.legalLastUpdated('14. listopada 2026.'),
+          l.legalLastUpdated('15. listopada 2026.'),
           style: theme.textTheme.bodySmall?.copyWith(
             color: theme.colorScheme.onSurfaceVariant,
           ),

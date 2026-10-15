@@ -1,6 +1,7 @@
 # Politika privatnosti — DOMOVINA.ai
 
-> Analitika korištenja dodana 14. 10. 2026. (§1e, §2, §3).
+> Analitika korištenja dodana 14. 10. 2026. (§1e, §2, §3). Reprodukcija i
+> upiti pretrage dodani 15. 10. 2026. (§1e, §2).
 >
 > **NACRT za pravni pregled** — vidi [`README.md`](README.md). Ne objavljivati
 > bez odobrenja pravnika/DPO-a. `‹…›` popuniti.
@@ -49,7 +50,7 @@ alate trećih strana za praćenje.
 | Anonimni nastavak korištenja | legitimni interes (čl. 6(1)(f)) |
 | Verifikacija identiteta e-Osobnom | tvoja **privola** (čl. 6(1)(a)) + nužnost za uslugu |
 | Prijava e-mailom | izvršenje ugovora |
-| Analitika korištenja | legitimni interes (čl. 6(1)(f)): mjerenje i poboljšanje usluge, bilježenje sponzorskih poruka |
+| Analitika korištenja | legitimni interes (čl. 6(1)(f)): mjerenje i poboljšanje usluge i pretrage, bilježenje sponzorskih poruka |
 
 Verificirani identitet koristimo da potvrdimo da si stvarna osoba i kao pripremu
 za buduće regulirane funkcije (npr. novčanik). Privolu možeš povući (vidi §6).
