@@ -4673,4 +4673,12 @@ class AppLocalizationsHr extends AppLocalizations {
 
   @override
   String get notificationsFollowingLabel => 'Pratiš';
+
+  @override
+  String get episodeVariant => 'Varijanta';
+
+  @override
+  String episodeVariantNumbered(int n) {
+    return 'Varijanta $n';
+  }
 }

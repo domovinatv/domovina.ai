@@ -1117,7 +1117,7 @@ class _PlayerTab extends StatelessWidget {
                   )
                 : ytMode
                 ? YouTubeEmbed(
-                    videoId: data.youtubeId,
+                    videoId: data.youtubeVideoId,
                     startSeconds: position.inSeconds,
                   )
                 : videoReady && videoController != null && player != null
@@ -1136,7 +1136,7 @@ class _PlayerTab extends StatelessWidget {
                 // Sinteticki ID-evi (X / ne-YT izvori) nemaju sto ugraditi.
                 ? (!data.info.isX && data.info.ytMatched
                     ? InAppYouTubePlayer(
-                        videoId: data.youtubeId,
+                        videoId: data.youtubeVideoId,
                         posterUrl: CdnConfig.thumbnailUrl(data.youtubeId),
                         playableInEmbed: data.info.playableInEmbed,
                       )

@@ -1071,7 +1071,10 @@ function injectEpisodeTags(indexHtml, ytId, info, summary, article, hasOgShare, 
   const releaseDate = formatUploadDate(info.upload_date);
   const isoDur = isoDuration(info.duration);
   const videoUrl = `${CDN}/data/${ytId}/video.mp4`;
-  const ytUrl = info.webpage_url || `https://www.youtube.com/watch?v=${ytId}`;
+  // Varijanta epizode ima sintetički ID (`OspwepfLO_2`); YouTube zna samo
+  // pravi ID izvorne epizode iz `_variant_of`. CDN/og URL-ovi ostaju na ytId.
+  const ytUrl = info.webpage_url
+    || `https://www.youtube.com/watch?v=${info._variant_of || ytId}`;
 
   // Tagovi — section override (section-specifični keywords+entities) > summary.key_topics > info.tags.
   const topicTags = overrideTopicTags

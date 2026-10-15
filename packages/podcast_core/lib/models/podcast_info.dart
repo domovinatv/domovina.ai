@@ -43,6 +43,21 @@ class PodcastInfo {
   /// Default true: polje ima samo YouTube info.json, a stariji ga nemaju.
   final bool playableInEmbed;
 
+  /// `_variant_of` — pravi YouTube ID izvorne epizode kad je ova epizoda
+  /// „varijanta" (ista snimka, drugi prolaz pipelinea) objavljena pod
+  /// SINTETIČKIM ID-om (`OspwepfLO_2` = prvih 9 znakova + `_` + broj). Null
+  /// za obične epizode. Podaci s CDN-a (`data/<id>/`, `images/<id>/`) i
+  /// domovina.ai linkovi ostaju na [id]; sve što ide prema YouTubeu koristi
+  /// [youtubeVideoId].
+  final String? variantOf;
+
+  /// `_variant.n` — redni broj varijante (npr. 2). Null kad nije varijanta.
+  final int? variantNumber;
+
+  /// `_variant.label` — kratki opis varijante (npr. „Canary + pyannote →
+  /// Opus"). Null kad nije varijanta ili pipeline nije dao opis.
+  final String? variantLabel;
+
   const PodcastInfo({
     required this.id,
     required this.title,
@@ -67,6 +82,9 @@ class PodcastInfo {
     this.soundLink,
     this.ytMatched = true,
     this.playableInEmbed = true,
+    this.variantOf,
+    this.variantNumber,
+    this.variantLabel,
   });
 
   factory PodcastInfo.fromJson(Map<String, dynamic> json) {
@@ -77,6 +95,13 @@ class PodcastInfo {
     // fallback-amo na `uploader` ("Hobba 🟢"). Vidi CLAUDE.md / X info.json.
     final channelRaw = json['channel'] as String?;
     final uploaderRaw = json['uploader'] as String? ?? '';
+    // Varijanta epizode: `_variant_of` + `_variant: {n, label}`. Čitamo
+    // defenzivno — krivi tip ili prazan string znači „nije varijanta".
+    final variantOfRaw = json['_variant_of'];
+    final variantRaw = json['_variant'];
+    final variantMap = variantRaw is Map ? variantRaw : null;
+    final variantNumberRaw = variantMap?['n'];
+    final variantLabelRaw = variantMap?['label'];
     return PodcastInfo(
       id: json['id'] as String? ?? '',
       title: json['title'] as String? ?? '',
@@ -107,8 +132,25 @@ class PodcastInfo {
       soundLink: json['_sound_link'] as String?,
       ytMatched: json['_yt_matched'] as bool? ?? true,
       playableInEmbed: json['playable_in_embed'] as bool? ?? true,
+      variantOf: variantOfRaw is String && variantOfRaw.trim().isNotEmpty
+          ? variantOfRaw.trim()
+          : null,
+      variantNumber: variantNumberRaw is num ? variantNumberRaw.toInt() : null,
+      variantLabel:
+          variantLabelRaw is String && variantLabelRaw.trim().isNotEmpty
+          ? variantLabelRaw.trim()
+          : null,
     );
   }
+
+  /// Je li ova epizoda varijanta druge (sintetički [id], pravi YouTube ID u
+  /// [variantOf]).
+  bool get isVariant => variantOf != null;
+
+  /// YouTube video ID za player, ytimg thumbnail i youtube.com link:
+  /// `variantOf ?? id`. Za varijantu je [id] sintetički i YouTube ga ne zna.
+  /// NE koristi za CDN putanje ni domovina.ai linkove — ondje ide [id].
+  String get youtubeVideoId => variantOf ?? id;
 
   /// Je li izvor X/Twitter post (ne YouTube). X info.json ima `_source: "x"` i
   /// `extractor: "twitter"`; kao dodatni guard gledamo i host webpage_url-a.
@@ -133,7 +175,7 @@ class PodcastInfo {
     if (isX || !ytMatched) {
       return webpageUrl.isNotEmpty ? webpageUrl : null;
     }
-    return 'https://www.youtube.com/watch?v=$id';
+    return 'https://www.youtube.com/watch?v=$youtubeVideoId';
   }
 
   /// Kanonski YouTube channel ID (`UC…`) ili null. yt-dlp `channel_id` JEST

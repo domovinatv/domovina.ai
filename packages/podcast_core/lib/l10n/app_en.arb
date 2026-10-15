@@ -1202,5 +1202,7 @@
   "notificationsAccountOff": "Off",
   "notificationsBellOn": "Turn off notifications for this channel",
   "notificationsBellOff": "Notify me about new episodes from this channel",
-  "notificationsFollowingLabel": "Following"
+  "notificationsFollowingLabel": "Following",
+  "episodeVariant": "Variant",
+  "episodeVariantNumbered": "Variant {n}"
 }

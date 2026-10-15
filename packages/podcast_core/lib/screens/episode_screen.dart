@@ -417,13 +417,19 @@ class _NotFoundScreen extends StatelessWidget {
 /// kartica s koracima obrade time ostaje iznad pregiba umjesto da je 16:9 blok
 /// gurne dolje. Panel se ne skrola sa sadržajem — kao ni `VideoPanel`.
 class _YouTubeSidePanel extends StatelessWidget {
+  /// ID epizode — CDN poster (`images/<id>/`).
   final String youtubeId;
+
+  /// Pravi YouTube video ID za player. Za varijantu epizode razlikuje se od
+  /// [youtubeId] (sintetički) — vidi `EpisodeData.youtubeVideoId`.
+  final String videoId;
 
   /// Isti raspon kao `VideoPanel` (360), ali malo širi jer je ovdje player
   /// jedini sadržaj stupca, a YouTube kontrole na 360 dp postaju skučene.
   static const double width = 440;
 
-  const _YouTubeSidePanel({required this.youtubeId});
+  const _YouTubeSidePanel({required this.youtubeId, String? videoId})
+    : videoId = videoId ?? youtubeId;
 
   @override
   Widget build(BuildContext context) {
@@ -442,7 +448,7 @@ class _YouTubeSidePanel extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(12),
             child: InAppYouTubePlayer(
-              videoId: youtubeId,
+              videoId: videoId,
               posterUrl: CdnConfig.thumbnailUrl(youtubeId),
             ),
           ),
@@ -2913,7 +2919,7 @@ class _EpisodeContentState extends State<_EpisodeContent>
             VideoPanel(
               player: _player!,
               seekUndo: _seekUndo,
-              youtubeId: widget.data.youtubeId,
+              youtubeId: widget.data.youtubeVideoId,
               audioOnly: data.isAudioOnly,
               posterUrl: _audioArtUrl,
               controller: _videoController!,
@@ -2949,7 +2955,7 @@ class _EpisodeContentState extends State<_EpisodeContent>
           VideoPanel(
             player: _player!,
             seekUndo: _seekUndo,
-            youtubeId: widget.data.youtubeId,
+            youtubeId: widget.data.youtubeVideoId,
             audioOnly: data.isAudioOnly,
             posterUrl: _audioArtUrl,
             controller: _videoController!,
@@ -3001,7 +3007,7 @@ class _EpisodeContentState extends State<_EpisodeContent>
           VideoPanel(
             player: _player!,
             seekUndo: _seekUndo,
-            youtubeId: widget.data.youtubeId,
+            youtubeId: widget.data.youtubeVideoId,
             audioOnly: data.isAudioOnly,
             posterUrl: _audioArtUrl,
             controller: _videoController!,
@@ -3073,7 +3079,7 @@ class _EpisodeContentState extends State<_EpisodeContent>
           ? VideoPanel(
               player: _player!,
               seekUndo: _seekUndo,
-              youtubeId: widget.data.youtubeId,
+              youtubeId: widget.data.youtubeVideoId,
               audioOnly: data.isAudioOnly,
               posterUrl: _audioArtUrl,
               controller: _videoController!,
@@ -3346,7 +3352,7 @@ class _EpisodeContentState extends State<_EpisodeContent>
                     // iframe krene tek na korisnikov tap.
                     if (embedYouTube && !showEmbedPanel) ...[
                       InAppYouTubePlayer(
-                        videoId: data.youtubeId,
+                        videoId: data.youtubeVideoId,
                         posterUrl: CdnConfig.thumbnailUrl(data.youtubeId),
                       ),
                       const SizedBox(height: 20),
@@ -3422,14 +3428,14 @@ class _EpisodeContentState extends State<_EpisodeContent>
                           child: (embedYouTube || _videoReady)
                               ? TextButton.icon(
                                   onPressed: () => openUrl(
-                                    'https://www.youtube.com/watch?v=${data.youtubeId}',
+                                    'https://www.youtube.com/watch?v=${data.youtubeVideoId}',
                                   ),
                                   icon: const Icon(Icons.open_in_new, size: 18),
                                   label: Text(l.episodeOpenOnYouTube),
                                 )
                               : FilledButton.icon(
                                   onPressed: () => openUrl(
-                                    'https://www.youtube.com/watch?v=${data.youtubeId}',
+                                    'https://www.youtube.com/watch?v=${data.youtubeVideoId}',
                                   ),
                                   icon: const Icon(Icons.smart_display),
                                   label: Text(l.episodeWatchOnYouTube),
@@ -3480,7 +3486,10 @@ class _EpisodeContentState extends State<_EpisodeContent>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(child: scrollBody),
-          _YouTubeSidePanel(youtubeId: data.youtubeId),
+          _YouTubeSidePanel(
+            youtubeId: data.youtubeId,
+            videoId: data.youtubeVideoId,
+          ),
         ],
       );
     } else if (showVideo) {
@@ -3491,7 +3500,7 @@ class _EpisodeContentState extends State<_EpisodeContent>
           VideoPanel(
             player: _player!,
             seekUndo: _seekUndo,
-            youtubeId: widget.data.youtubeId,
+            youtubeId: widget.data.youtubeVideoId,
             audioOnly: data.isAudioOnly,
             posterUrl: _audioArtUrl,
             controller: _videoController!,
@@ -3524,7 +3533,7 @@ class _EpisodeContentState extends State<_EpisodeContent>
           ? VideoPanel(
               player: _player!,
               seekUndo: _seekUndo,
-              youtubeId: widget.data.youtubeId,
+              youtubeId: widget.data.youtubeVideoId,
               audioOnly: data.isAudioOnly,
               posterUrl: _audioArtUrl,
               controller: _videoController!,

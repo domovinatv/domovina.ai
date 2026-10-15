@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../models/podcast_info.dart';
 import '../models/podcast_summary.dart';
@@ -117,6 +118,10 @@ class _HeroSectionState extends State<HeroSection> {
                           ? info.durationString
                           : _formatDuration(info.duration),
                     ),
+                    // Varijanta epizode (`_variant_of` u info.json): ista snimka,
+                    // drugi prolaz pipelinea. Diskretna oznaka da se ne miješa
+                    // s izvornom epizodom.
+                    if (info.isVariant) _VariantBadge(info: info),
                     // YouTube view/like/comment counts hidden — snapshot data, not live-synced.
                     // Re-enable once we have our own internal statistics.
                     // _Stat(
@@ -161,6 +166,36 @@ class _HeroSectionState extends State<HeroSection> {
       return '${(count / 1000).toStringAsFixed(1)}K';
     }
     return count.toString();
+  }
+}
+
+/// Diskretna oznaka varijante: „Varijanta 2: Canary + pyannote → Opus".
+/// Broj ide kroz ARB (chrome), opis je CDN tekst i ne lokalizira se.
+class _VariantBadge extends StatelessWidget {
+  final PodcastInfo info;
+
+  const _VariantBadge({required this.info});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l = AppLocalizations.of(context);
+    final n = info.variantNumber;
+    final prefix = n != null ? l.episodeVariantNumbered(n) : l.episodeVariant;
+    final label = info.variantLabel;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: theme.colorScheme.outlineVariant),
+      ),
+      child: Text(
+        label != null ? '$prefix: $label' : prefix,
+        style: theme.textTheme.labelSmall?.copyWith(
+          color: theme.colorScheme.onSurfaceVariant,
+        ),
+      ),
+    );
   }
 }
 

@@ -162,4 +162,43 @@ void main() {
       );
     });
   });
+
+  group('PodcastInfo.fromJson — varijanta epizode (`_variant_of`)', () {
+    test('sintetički id ostaje za CDN, YouTube ide na _variant_of', () {
+      final info = PodcastInfo.fromJson(<String, dynamic>{
+        'id': 'OspwepfLO_2',
+        'title': 'Epizoda',
+        'webpage_url': 'https://www.youtube.com/watch?v=OspwepfLObY',
+        '_variant_of': 'OspwepfLObY',
+        '_variant': {'n': 2, 'label': 'Canary + pyannote → Opus'},
+      });
+      expect(info.id, 'OspwepfLO_2');
+      expect(info.isVariant, isTrue);
+      expect(info.variantOf, 'OspwepfLObY');
+      expect(info.variantNumber, 2);
+      expect(info.variantLabel, 'Canary + pyannote → Opus');
+      expect(info.youtubeVideoId, 'OspwepfLObY');
+      expect(info.sourceUrl, 'https://www.youtube.com/watch?v=OspwepfLObY');
+    });
+
+    test('bez polja, prazno ili krivog tipa → nije varijanta', () {
+      for (final extra in <Map<String, dynamic>>[
+        {},
+        {'_variant_of': '', '_variant': 'x'},
+        {
+          '_variant_of': 42,
+          '_variant': {'n': 'dva', 'label': 7},
+        },
+      ]) {
+        final info = PodcastInfo.fromJson(<String, dynamic>{
+          'id': 'OspwepfLObY',
+          ...extra,
+        });
+        expect(info.isVariant, isFalse, reason: '$extra');
+        expect(info.variantOf, isNull);
+        expect(info.variantLabel, isNull);
+        expect(info.youtubeVideoId, 'OspwepfLObY');
+      }
+    });
+  });
 }

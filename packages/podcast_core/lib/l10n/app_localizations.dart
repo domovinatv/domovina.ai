@@ -7324,6 +7324,18 @@ abstract class AppLocalizations {
   /// In hr, this message translates to:
   /// **'Pratiš'**
   String get notificationsFollowingLabel;
+
+  /// Oznaka na ekranu epizode kad je epizoda varijanta druge (isti izvorni video, drugi prolaz obrade), a pipeline nije dao redni broj.
+  ///
+  /// In hr, this message translates to:
+  /// **'Varijanta'**
+  String get episodeVariant;
+
+  /// Oznaka na ekranu epizode kad je epizoda varijanta druge (isti izvorni video, drugi prolaz obrade); n je redni broj varijante iz info.json `_variant.n`. Iza nje može slijediti opis varijante s CDN-a.
+  ///
+  /// In hr, this message translates to:
+  /// **'Varijanta {n}'**
+  String episodeVariantNumbered(int n);
 }
 
 class _AppLocalizationsDelegate

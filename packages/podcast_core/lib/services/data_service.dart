@@ -678,6 +678,12 @@ class EpisodeData {
     required this.videoUri,
   });
 
+  /// YouTube video ID za player/embed, ytimg i youtube.com linkove. Za
+  /// varijantu epizode (`_variant_of` u info.json) [youtubeId] je SINTETIČKI
+  /// (`OspwepfLO_2`) i YouTube ga ne zna — tada je ovo pravi ID izvorne
+  /// epizode. CDN podaci, share i domovina.ai rute ostaju na [youtubeId].
+  String get youtubeVideoId => info.variantOf ?? youtubeId;
+
   /// True kad AI pipeline (clanak) nije produkcijski gotov. UI tada pokazuje
   /// samo player + basic info i opcionalno YouTube chapters iz info.json.
   bool get hasAiContent => article != null;

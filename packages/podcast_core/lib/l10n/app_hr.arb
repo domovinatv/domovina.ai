@@ -5855,5 +5855,18 @@
   "notificationsFollowingLabel": "Pratiš",
   "@notificationsFollowingLabel": {
     "description": "Oznaka uz praćeni kanal u popisu."
+  },
+  "episodeVariant": "Varijanta",
+  "@episodeVariant": {
+    "description": "Oznaka na ekranu epizode kad je epizoda varijanta druge (isti izvorni video, drugi prolaz obrade), a pipeline nije dao redni broj."
+  },
+  "episodeVariantNumbered": "Varijanta {n}",
+  "@episodeVariantNumbered": {
+    "description": "Oznaka na ekranu epizode kad je epizoda varijanta druge (isti izvorni video, drugi prolaz obrade); n je redni broj varijante iz info.json `_variant.n`. Iza nje može slijediti opis varijante s CDN-a.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
   }
 }

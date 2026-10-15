@@ -4630,4 +4630,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notificationsFollowingLabel => 'Following';
+
+  @override
+  String get episodeVariant => 'Variant';
+
+  @override
+  String episodeVariantNumbered(int n) {
+    return 'Variant $n';
+  }
 }
