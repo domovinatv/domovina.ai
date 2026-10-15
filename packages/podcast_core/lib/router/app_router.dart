@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import '../brand/app_brand.dart';
 import '../onboarding/moments/m4_handoff_screen.dart';
+import '../screens/notifications/notifications_screen.dart';
 import '../screens/home/home_screen.dart';
 import '../screens/channels/all_channels_screen.dart';
 import '../screens/channel/channel_screen.dart';
@@ -532,6 +533,17 @@ GoRouter createRouter() {
             );
           },
         ),
+      // Obavijesti o novim epizodama — postoji uvijek (deep link, URL), a
+      // ekran sam kaže „samo u aplikaciji" kad ljuska nije predala push
+      // transport (web, TV, Podcasterium). Plan:
+      // docs/plans/2026-10-15-push-nove-epizode.md §4.3.
+      GoRoute(
+        path: '/obavijesti',
+        pageBuilder: (context, state) => const NoTransitionPage(
+          key: ValueKey('notifications'),
+          child: NotificationsScreen(),
+        ),
+      ),
       // Moj račun — account management (identiteti, passkeyji, brisanje)
       GoRoute(
         path: '/account',

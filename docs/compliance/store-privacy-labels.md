@@ -20,6 +20,7 @@ označeni ‹provjeriti› ne dolaze iz analitike nego iz drugih obrada.
 | `screen_view`, `session_start`, `heartbeat`, `app_background`, `playback_*`, `episode_find` (skokovi) | Usage Data → Product Interaction | App activity → App interactions |
 | `search.q`, `episode_find.q` (tekst upita) | Search History | App activity → In-app search history |
 | `sponsored_*` (prikaz i klik na sponzorsku poruku) | Usage Data → Advertising Data | App activity → App interactions |
+| `push_*` (pitanje za dozvolu, ishod, tema uključena/isključena, tap na obavijest) | Usage Data → Product Interaction | App activity → App interactions |
 | država/regija/grad (Cloudflare iz IP-a; IP se ne sprema) | Location → Coarse Location | Location → Approximate location |
 | vrsta uređaja, OS, preglednik, veličina zaslona, verzija aplikacije | (nije zasebna kategorija; dio Product Interaction) | (nije zasebna kategorija) |
 
@@ -35,6 +36,10 @@ Za svaki tip podatka iz tablice:
   i **Developer's Advertising or Marketing** jer se njima mjeri prikaz
   plaćenih sponzorskih poruka ‹provjeriti s pravnikom; ako se mjerenje ne
   koristi za naplatu, ostaje samo Analytics›.
+
+**Push obavijesti (Obrada F, od 15. 10. 2026.):** FCM token je
+Identifiers → Device ID, svrha **App Functionality**, Linked: Ne (ne vežemo ga
+uz račun i ne spremamo ga). Apple pitanje „Used for tracking" ostaje Ne.
 
 Ostalo iz drugih obrada ‹provjeriti›: Contact Info → Email Address (račun,
 App Functionality); Contact Info → Name (Certilia KYC, App Functionality);
@@ -56,6 +61,10 @@ Za svaki tip iz tablice:
 - **Required or optional:** Required. Korisnik analitiku ne može isključiti.
 - **Purpose:** Analytics. Za Approximate location i App interactions uz
   sponzorske poruke i **Advertising or marketing** ‹isto kao kod Applea›.
+
+**Push obavijesti (Obrada F):** Device or other IDs (FCM token) —
+Collected: Da, Shared: Ne (Google je izvršitelj), Optional (korisnik ih
+uključuje sam), Purpose: **App functionality**.
 
 Ostalo iz drugih obrada ‹provjeriti›: Personal info → Email address, Name
 (račun, KYC; App functionality, Account management); Financial info →

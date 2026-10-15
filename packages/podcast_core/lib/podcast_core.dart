@@ -6,6 +6,7 @@
 library;
 
 export 'auth/auth_provider_plugin.dart';
+export 'push/push_transport.dart';
 export 'brand/app_brand.dart' show AppBrand;
 export 'brand/brand_config.dart';
 export 'brand/domovina_brand.dart' show domovinaBrand;

@@ -18,6 +18,7 @@ import '../../brand/app_brand.dart';
 import '../../src/log.dart' show log;
 import '../../src/app.dart' show rootScaffoldMessengerKey;
 import '../../onboarding/ui/auth_sheet.dart';
+import '../../services/push_topics.dart';
 import '../../services/auth_service.dart';
 import '../../services/background_playback.dart';
 import '../../services/entitlement_service.dart';
@@ -203,6 +204,10 @@ class _AccountScreenState extends State<AccountScreen> {
               ),
               _backgroundPlaybackCard(theme),
               const SizedBox(height: 16),
+              if (PushTopics.instance.available) ...[
+                _notificationsCard(theme),
+                const SizedBox(height: 16),
+              ],
               _languageCard(theme),
             ],
           ),
@@ -257,6 +262,11 @@ class _AccountScreenState extends State<AccountScreen> {
               _sectionLabel(theme, l.authSectionPlayback),
               _backgroundPlaybackCard(theme),
               const SizedBox(height: 16),
+              if (PushTopics.instance.available) ...[
+                _sectionLabel(theme, l.notificationsTitle),
+                _notificationsCard(theme),
+                const SizedBox(height: 16),
+              ],
               _sectionLabel(theme, l.authSectionLanguage),
               _languageCard(theme),
               const SizedBox(height: 16),
@@ -484,6 +494,39 @@ class _AccountScreenState extends State<AccountScreen> {
         ),
       ),
       child: child,
+    );
+  }
+
+  /// Ulaz na ekran Obavijesti (samo kad ljuska ima push — iOS/Android).
+  Widget _notificationsCard(ThemeData theme) {
+    final cs = theme.colorScheme;
+    final l = AppLocalizations.of(context);
+    return ListenableBuilder(
+      listenable: PushTopics.instance,
+      builder: (context, _) {
+        final on = PushTopics.instance.enabled;
+        return _card(
+          theme,
+          child: ListTile(
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
+            leading: Icon(
+              on
+                  ? Icons.notifications_active_outlined
+                  : Icons.notifications_outlined,
+              color: cs.primary,
+            ),
+            title: Text(l.notificationsTitle),
+            subtitle: Text(
+              on ? l.notificationsAccountOn : l.notificationsAccountOff,
+              style: theme.textTheme.bodySmall
+                  ?.copyWith(color: cs.onSurfaceVariant),
+            ),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => drillDown(context, '/obavijesti'),
+          ),
+        );
+      },
     );
   }
 

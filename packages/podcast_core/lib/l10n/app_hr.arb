@@ -1976,6 +1976,14 @@
       }
     }
   },
+  "legalPrivacyPushTitle": "Push obavijesti",
+  "@legalPrivacyPushTitle": {
+    "description": "Naslov odjeljka politike privatnosti o push obavijestima."
+  },
+  "legalPrivacyPushBody": "Ako u aplikaciji za iOS ili Android uključite obavijesti, javljamo Vam kad stigne nova epizoda — sve nove ili samo s kanala koje izaberete na ekranu Obavijesti. Za dostavu koristimo Google Firebase Cloud Messaging: uređaj dobiva registracijski token i pretplaćuje se na teme koje ste izabrali (npr. „sve nove epizode” ili pojedini kanal). Token i popis tema ne spremamo uz Vaš račun; izbor tema čuva se samo na Vašem uređaju, a pretplate drži Google kao izvršitelj obrade.\n\nObavijesti šaljemo na temelju Vaše privole (čl. 6. st. 1. t. a) GDPR-a), koju dajete uključivanjem obavijesti i sistemskom dozvolom. Možete je povući u svakom trenutku na ekranu Obavijesti ili u postavkama uređaja. Između 22 i 7 sati obavijesti ne šaljemo.",
+  "@legalPrivacyPushBody": {
+    "description": "Odjeljak politike privatnosti o push obavijestima (Obrada F)."
+  },
   "legalContactTitle": "Kontakt",
   "@legalContactTitle": {
     "description": "Section heading for the contact details on legal pages (privacy and terms)."
@@ -5767,5 +5775,85 @@
   "sponsorLeavePayConfirm": "Napusti",
   "@sponsorLeavePayConfirm": {
     "description": "Confirm leaving the payment step."
+  },
+  "notificationsTitle": "Obavijesti",
+  "@notificationsTitle": {
+    "description": "Naslov ekrana s postavkama push obavijesti."
+  },
+  "notificationsIntro": "Javit ćemo ti kad stigne nova epizoda. Ti biraš o čemu.",
+  "@notificationsIntro": {
+    "description": "Uvod na ekranu Obavijesti."
+  },
+  "notificationsEnable": "Uključi obavijesti",
+  "@notificationsEnable": {
+    "description": "Gumb koji otvara sistemski dijalog za dozvolu."
+  },
+  "notificationsEnabledStatus": "Obavijesti su uključene",
+  "@notificationsEnabledStatus": {
+    "description": "Stanje kad je dozvola dana."
+  },
+  "notificationsDeniedTitle": "Obavijesti su isključene u postavkama uređaja",
+  "@notificationsDeniedTitle": {
+    "description": "Naslov kad je sistemska dozvola odbijena."
+  },
+  "notificationsDeniedBody": "Uključi ih u postavkama, pa ćemo ti javljati nove epizode.",
+  "@notificationsDeniedBody": {
+    "description": "Objašnjenje uz odbijenu dozvolu."
+  },
+  "notificationsOpenSettings": "Otvori postavke",
+  "@notificationsOpenSettings": {
+    "description": "Gumb koji otvara sistemske postavke aplikacije."
+  },
+  "notificationsAllTitle": "Sve nove epizode",
+  "@notificationsAllTitle": {
+    "description": "Prekidač za temu svih novih epizoda."
+  },
+  "notificationsAllSubtitle": "Otprilike jedna do četiri dnevno",
+  "@notificationsAllSubtitle": {
+    "description": "Koliko obavijesti donosi „Sve nove epizode” (izmjereno 15. 10. 2026.)."
+  },
+  "notificationsChannelsSection": "Kanali",
+  "@notificationsChannelsSection": {
+    "description": "Naslov popisa kanala."
+  },
+  "notificationsCoveredByAll": "Uključeno kroz Sve nove epizode",
+  "@notificationsCoveredByAll": {
+    "description": "Podnaslov kanala dok je uključeno „Sve nove epizode”."
+  },
+  "notificationsSearchHint": "Traži kanal",
+  "@notificationsSearchHint": {
+    "description": "Hint u polju za pretragu kanala."
+  },
+  "notificationsQuietHours": "Ne šaljemo obavijesti između 22 i 7 sati.",
+  "@notificationsQuietHours": {
+    "description": "Informacija o tihim satima."
+  },
+  "notificationsChannelsError": "Popis kanala trenutno nije dostupan.",
+  "@notificationsChannelsError": {
+    "description": "Greška pri učitavanju popisa kanala."
+  },
+  "notificationsAppOnly": "Obavijesti su dostupne u aplikaciji za iOS i Android.",
+  "@notificationsAppOnly": {
+    "description": "Poruka kad ekran nije dostupan (web, TV)."
+  },
+  "notificationsAccountOn": "Uključene",
+  "@notificationsAccountOn": {
+    "description": "Podnaslov retka na računu kad su obavijesti uključene."
+  },
+  "notificationsAccountOff": "Isključene",
+  "@notificationsAccountOff": {
+    "description": "Podnaslov retka na računu kad su obavijesti isključene."
+  },
+  "notificationsBellOn": "Isključi obavijesti za ovaj kanal",
+  "@notificationsBellOn": {
+    "description": "Tooltip zvonca kad je obavijest kanala uključena."
+  },
+  "notificationsBellOff": "Javi mi za nove epizode ovog kanala",
+  "@notificationsBellOff": {
+    "description": "Tooltip zvonca kad je obavijest kanala isključena."
+  },
+  "notificationsFollowingLabel": "Pratiš",
+  "@notificationsFollowingLabel": {
+    "description": "Oznaka uz praćeni kanal u popisu."
   }
 }

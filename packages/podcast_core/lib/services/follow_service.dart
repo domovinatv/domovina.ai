@@ -25,6 +25,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../src/log.dart' show log;
 import 'local_prefs.dart';
+import 'push_topics.dart';
 
 /// Popis praćenih entiteta (JSON lista ključeva).
 const String kFollowsStorageKey = 'follows_v1';
@@ -122,6 +123,7 @@ class FollowService extends ChangeNotifier {
     await _persistKeys();
     notifyListeners();
     await _syncRemote(key, nowFollowing);
+    await PushTopics.instance.onFollowChanged(key, nowFollowing);
     return nowFollowing;
   }
 

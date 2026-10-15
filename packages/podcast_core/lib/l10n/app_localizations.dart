@@ -2570,6 +2570,18 @@ abstract class AppLocalizations {
   /// **'Zadnje ažurirano: {date}'**
   String legalLastUpdated(String date);
 
+  /// Naslov odjeljka politike privatnosti o push obavijestima.
+  ///
+  /// In hr, this message translates to:
+  /// **'Push obavijesti'**
+  String get legalPrivacyPushTitle;
+
+  /// Odjeljak politike privatnosti o push obavijestima (Obrada F).
+  ///
+  /// In hr, this message translates to:
+  /// **'Ako u aplikaciji za iOS ili Android uključite obavijesti, javljamo Vam kad stigne nova epizoda — sve nove ili samo s kanala koje izaberete na ekranu Obavijesti. Za dostavu koristimo Google Firebase Cloud Messaging: uređaj dobiva registracijski token i pretplaćuje se na teme koje ste izabrali (npr. „sve nove epizode” ili pojedini kanal). Token i popis tema ne spremamo uz Vaš račun; izbor tema čuva se samo na Vašem uređaju, a pretplate drži Google kao izvršitelj obrade.\n\nObavijesti šaljemo na temelju Vaše privole (čl. 6. st. 1. t. a) GDPR-a), koju dajete uključivanjem obavijesti i sistemskom dozvolom. Možete je povući u svakom trenutku na ekranu Obavijesti ili u postavkama uređaja. Između 22 i 7 sati obavijesti ne šaljemo.'**
+  String get legalPrivacyPushBody;
+
   /// Section heading for the contact details on legal pages (privacy and terms).
   ///
   /// In hr, this message translates to:
@@ -7192,6 +7204,126 @@ abstract class AppLocalizations {
   /// In hr, this message translates to:
   /// **'Napusti'**
   String get sponsorLeavePayConfirm;
+
+  /// Naslov ekrana s postavkama push obavijesti.
+  ///
+  /// In hr, this message translates to:
+  /// **'Obavijesti'**
+  String get notificationsTitle;
+
+  /// Uvod na ekranu Obavijesti.
+  ///
+  /// In hr, this message translates to:
+  /// **'Javit ćemo ti kad stigne nova epizoda. Ti biraš o čemu.'**
+  String get notificationsIntro;
+
+  /// Gumb koji otvara sistemski dijalog za dozvolu.
+  ///
+  /// In hr, this message translates to:
+  /// **'Uključi obavijesti'**
+  String get notificationsEnable;
+
+  /// Stanje kad je dozvola dana.
+  ///
+  /// In hr, this message translates to:
+  /// **'Obavijesti su uključene'**
+  String get notificationsEnabledStatus;
+
+  /// Naslov kad je sistemska dozvola odbijena.
+  ///
+  /// In hr, this message translates to:
+  /// **'Obavijesti su isključene u postavkama uređaja'**
+  String get notificationsDeniedTitle;
+
+  /// Objašnjenje uz odbijenu dozvolu.
+  ///
+  /// In hr, this message translates to:
+  /// **'Uključi ih u postavkama, pa ćemo ti javljati nove epizode.'**
+  String get notificationsDeniedBody;
+
+  /// Gumb koji otvara sistemske postavke aplikacije.
+  ///
+  /// In hr, this message translates to:
+  /// **'Otvori postavke'**
+  String get notificationsOpenSettings;
+
+  /// Prekidač za temu svih novih epizoda.
+  ///
+  /// In hr, this message translates to:
+  /// **'Sve nove epizode'**
+  String get notificationsAllTitle;
+
+  /// Koliko obavijesti donosi „Sve nove epizode” (izmjereno 15. 10. 2026.).
+  ///
+  /// In hr, this message translates to:
+  /// **'Otprilike jedna do četiri dnevno'**
+  String get notificationsAllSubtitle;
+
+  /// Naslov popisa kanala.
+  ///
+  /// In hr, this message translates to:
+  /// **'Kanali'**
+  String get notificationsChannelsSection;
+
+  /// Podnaslov kanala dok je uključeno „Sve nove epizode”.
+  ///
+  /// In hr, this message translates to:
+  /// **'Uključeno kroz Sve nove epizode'**
+  String get notificationsCoveredByAll;
+
+  /// Hint u polju za pretragu kanala.
+  ///
+  /// In hr, this message translates to:
+  /// **'Traži kanal'**
+  String get notificationsSearchHint;
+
+  /// Informacija o tihim satima.
+  ///
+  /// In hr, this message translates to:
+  /// **'Ne šaljemo obavijesti između 22 i 7 sati.'**
+  String get notificationsQuietHours;
+
+  /// Greška pri učitavanju popisa kanala.
+  ///
+  /// In hr, this message translates to:
+  /// **'Popis kanala trenutno nije dostupan.'**
+  String get notificationsChannelsError;
+
+  /// Poruka kad ekran nije dostupan (web, TV).
+  ///
+  /// In hr, this message translates to:
+  /// **'Obavijesti su dostupne u aplikaciji za iOS i Android.'**
+  String get notificationsAppOnly;
+
+  /// Podnaslov retka na računu kad su obavijesti uključene.
+  ///
+  /// In hr, this message translates to:
+  /// **'Uključene'**
+  String get notificationsAccountOn;
+
+  /// Podnaslov retka na računu kad su obavijesti isključene.
+  ///
+  /// In hr, this message translates to:
+  /// **'Isključene'**
+  String get notificationsAccountOff;
+
+  /// Tooltip zvonca kad je obavijest kanala uključena.
+  ///
+  /// In hr, this message translates to:
+  /// **'Isključi obavijesti za ovaj kanal'**
+  String get notificationsBellOn;
+
+  /// Tooltip zvonca kad je obavijest kanala isključena.
+  ///
+  /// In hr, this message translates to:
+  /// **'Javi mi za nove epizode ovog kanala'**
+  String get notificationsBellOff;
+
+  /// Oznaka uz praćeni kanal u popisu.
+  ///
+  /// In hr, this message translates to:
+  /// **'Pratiš'**
+  String get notificationsFollowingLabel;
 }
 
 class _AppLocalizationsDelegate

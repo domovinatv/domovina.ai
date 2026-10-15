@@ -1524,6 +1524,13 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get legalPrivacyPushTitle => 'Push notifications';
+
+  @override
+  String get legalPrivacyPushBody =>
+      'If you turn on notifications in the iOS or Android app, we let you know when a new episode arrives — all new episodes, or only from the channels you choose on the Notifications screen. Delivery uses Google Firebase Cloud Messaging: your device receives a registration token and subscribes to the topics you chose (such as \"all new episodes\" or a single channel). We do not store the token or the topic list with your account; your choice of topics is kept only on your device, and Google holds the subscriptions as a data processor.\n\nWe send notifications on the basis of your consent (Article 6(1)(a) GDPR), which you give by turning notifications on and granting the system permission. You can withdraw it at any time on the Notifications screen or in your device settings. We do not send notifications between 10 pm and 7 am.';
+
+  @override
   String get legalContactTitle => 'Contact';
 
   @override
@@ -4556,4 +4563,71 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sponsorLeavePayConfirm => 'Leave';
+
+  @override
+  String get notificationsTitle => 'Notifications';
+
+  @override
+  String get notificationsIntro =>
+      'We\'ll let you know when a new episode arrives. You choose what about.';
+
+  @override
+  String get notificationsEnable => 'Turn on notifications';
+
+  @override
+  String get notificationsEnabledStatus => 'Notifications are on';
+
+  @override
+  String get notificationsDeniedTitle =>
+      'Notifications are turned off in your device settings';
+
+  @override
+  String get notificationsDeniedBody =>
+      'Turn them on in settings and we\'ll let you know about new episodes.';
+
+  @override
+  String get notificationsOpenSettings => 'Open settings';
+
+  @override
+  String get notificationsAllTitle => 'All new episodes';
+
+  @override
+  String get notificationsAllSubtitle => 'About one to four a day';
+
+  @override
+  String get notificationsChannelsSection => 'Channels';
+
+  @override
+  String get notificationsCoveredByAll => 'Included in All new episodes';
+
+  @override
+  String get notificationsSearchHint => 'Search channels';
+
+  @override
+  String get notificationsQuietHours =>
+      'We don\'t send notifications between 10 pm and 7 am.';
+
+  @override
+  String get notificationsChannelsError =>
+      'The channel list is not available right now.';
+
+  @override
+  String get notificationsAppOnly =>
+      'Notifications are available in the iOS and Android app.';
+
+  @override
+  String get notificationsAccountOn => 'On';
+
+  @override
+  String get notificationsAccountOff => 'Off';
+
+  @override
+  String get notificationsBellOn => 'Turn off notifications for this channel';
+
+  @override
+  String get notificationsBellOff =>
+      'Notify me about new episodes from this channel';
+
+  @override
+  String get notificationsFollowingLabel => 'Following';
 }

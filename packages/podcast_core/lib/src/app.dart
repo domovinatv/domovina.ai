@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart'
     show TargetPlatform, defaultTargetPlatform, kIsWeb;
 import 'package:flutter/material.dart';
@@ -16,6 +18,7 @@ import '../services/background_playback.dart';
 import '../services/entitlement_service.dart';
 import '../services/locale_service.dart';
 import '../services/playback_speed.dart';
+import '../services/push_topics.dart';
 import '../services/revenue_cat_service.dart';
 import '../services/theme_mode_service.dart';
 import '../services/tv_mode.dart';
@@ -24,6 +27,7 @@ import '../services/watch_progress_service.dart';
 import '../services/episode_language.dart';
 import '../theme/app_theme.dart';
 import '../auth/auth_provider_plugin.dart';
+import '../push/push_transport.dart';
 import '../brand/app_brand.dart';
 import '../brand/brand_config.dart';
 import '../theme/typography.dart';
@@ -44,6 +48,7 @@ const String _supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
 Future<void> runPodcastApp(
   BrandConfig brand, {
   List<AuthProviderPlugin> authPlugins = const [],
+  PushTransport? pushTransport,
 }) async {
   // Prije prvog log() poziva — prefiks loga dolazi iz branda.
   AppBrand.init(brand);
@@ -174,6 +179,13 @@ Future<void> runPodcastApp(
   AuthService.instance.addListener(syncAnalyticsUser);
   LocaleController.instance.addListener(syncAnalyticsLocale);
 
+  // Push obavijesti o novim epizodama — samo kad ljuska preda transport, i
+  // nikad na webu/TV-u. Init NE pita za dozvolu; dijalog otvara tek korisnikov
+  // tap (ekran Obavijesti ili zvonce kanala).
+  if (!kIsWeb && !TvMode.isTv && pushTransport != null) {
+    await PushTopics.instance.init(pushTransport);
+  }
+
   // Uhvati Flutter greske i ispisi u console (vidljivo i u minified buildu)
   FlutterError.onError = (details) {
     log('FLUTTER ERROR: ${details.exception}');
@@ -226,6 +238,37 @@ class _PodcastAppState extends State<PodcastApp> {
     // go/push/pop i browserov Back.
     _router.routeInformationProvider.addListener(_reportScreen);
     _reportScreen();
+    _listenForPushOpens();
+  }
+
+  StreamSubscription<String>? _pushOpenSub;
+
+  /// Tap na obavijest otvara rutu iz `data.route` (npr. `/v/<id>`) — i dok
+  /// aplikacija živi, i kad ju je obavijest pokrenula (hladni start).
+  void _listenForPushOpens() {
+    final transport = PushTopics.instance.transport;
+    if (transport == null) return;
+    _pushOpenSub = transport.openedRoutes.listen(_openPushRoute);
+    unawaited(transport.initialRoute().then((route) {
+      if (route == null) return;
+      // Ruter mora imati prvi frame prije push-a, inače se ruta izgubi pod
+      // inicijalnom lokacijom.
+      WidgetsBinding.instance.addPostFrameCallback((_) => _openPushRoute(route));
+    }));
+  }
+
+  void _openPushRoute(String route) {
+    // Samo naše interne putanje — obavijest nikad ne vodi na tuđi host.
+    if (!route.startsWith('/') || route.startsWith('//')) return;
+    log('push: open $route');
+    Analytics.instance.track('push_open', props: {'route': route});
+    unawaited(_router.push(route));
+  }
+
+  @override
+  void dispose() {
+    unawaited(_pushOpenSub?.cancel());
+    super.dispose();
   }
 
   void _reportScreen() =>

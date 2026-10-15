@@ -1536,6 +1536,13 @@ class AppLocalizationsHr extends AppLocalizations {
   }
 
   @override
+  String get legalPrivacyPushTitle => 'Push obavijesti';
+
+  @override
+  String get legalPrivacyPushBody =>
+      'Ako u aplikaciji za iOS ili Android uključite obavijesti, javljamo Vam kad stigne nova epizoda — sve nove ili samo s kanala koje izaberete na ekranu Obavijesti. Za dostavu koristimo Google Firebase Cloud Messaging: uređaj dobiva registracijski token i pretplaćuje se na teme koje ste izabrali (npr. „sve nove epizode” ili pojedini kanal). Token i popis tema ne spremamo uz Vaš račun; izbor tema čuva se samo na Vašem uređaju, a pretplate drži Google kao izvršitelj obrade.\n\nObavijesti šaljemo na temelju Vaše privole (čl. 6. st. 1. t. a) GDPR-a), koju dajete uključivanjem obavijesti i sistemskom dozvolom. Možete je povući u svakom trenutku na ekranu Obavijesti ili u postavkama uređaja. Između 22 i 7 sati obavijesti ne šaljemo.';
+
+  @override
   String get legalContactTitle => 'Kontakt';
 
   @override
@@ -4600,4 +4607,70 @@ class AppLocalizationsHr extends AppLocalizations {
 
   @override
   String get sponsorLeavePayConfirm => 'Napusti';
+
+  @override
+  String get notificationsTitle => 'Obavijesti';
+
+  @override
+  String get notificationsIntro =>
+      'Javit ćemo ti kad stigne nova epizoda. Ti biraš o čemu.';
+
+  @override
+  String get notificationsEnable => 'Uključi obavijesti';
+
+  @override
+  String get notificationsEnabledStatus => 'Obavijesti su uključene';
+
+  @override
+  String get notificationsDeniedTitle =>
+      'Obavijesti su isključene u postavkama uređaja';
+
+  @override
+  String get notificationsDeniedBody =>
+      'Uključi ih u postavkama, pa ćemo ti javljati nove epizode.';
+
+  @override
+  String get notificationsOpenSettings => 'Otvori postavke';
+
+  @override
+  String get notificationsAllTitle => 'Sve nove epizode';
+
+  @override
+  String get notificationsAllSubtitle => 'Otprilike jedna do četiri dnevno';
+
+  @override
+  String get notificationsChannelsSection => 'Kanali';
+
+  @override
+  String get notificationsCoveredByAll => 'Uključeno kroz Sve nove epizode';
+
+  @override
+  String get notificationsSearchHint => 'Traži kanal';
+
+  @override
+  String get notificationsQuietHours =>
+      'Ne šaljemo obavijesti između 22 i 7 sati.';
+
+  @override
+  String get notificationsChannelsError =>
+      'Popis kanala trenutno nije dostupan.';
+
+  @override
+  String get notificationsAppOnly =>
+      'Obavijesti su dostupne u aplikaciji za iOS i Android.';
+
+  @override
+  String get notificationsAccountOn => 'Uključene';
+
+  @override
+  String get notificationsAccountOff => 'Isključene';
+
+  @override
+  String get notificationsBellOn => 'Isključi obavijesti za ovaj kanal';
+
+  @override
+  String get notificationsBellOff => 'Javi mi za nove epizode ovog kanala';
+
+  @override
+  String get notificationsFollowingLabel => 'Pratiš';
 }

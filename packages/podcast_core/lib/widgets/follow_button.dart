@@ -13,8 +13,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
+import '../router/nav.dart';
 import '../services/follow_service.dart';
 import '../services/person_channel_flag.dart';
+import '../services/push_topics.dart';
 
 class FollowButton extends StatefulWidget {
   /// Ključ u popisu praćenja — [personFollowKey] ili [channelFollowKey].
@@ -53,6 +56,7 @@ class _FollowButtonState extends State<FollowButton> {
     // iz build()-a srušilo frame.
     PersonChannelFlag.instance.addListener(_onFlagChanged);
     FollowService.instance.addListener(_onFollowsChanged);
+    PushTopics.instance.addListener(_onPushChanged);
     unawaited(Future.microtask(_bootstrap));
   }
 
@@ -73,6 +77,7 @@ class _FollowButtonState extends State<FollowButton> {
   void dispose() {
     PersonChannelFlag.instance.removeListener(_onFlagChanged);
     FollowService.instance.removeListener(_onFollowsChanged);
+    PushTopics.instance.removeListener(_onPushChanged);
     super.dispose();
   }
 
@@ -86,6 +91,10 @@ class _FollowButtonState extends State<FollowButton> {
     final following = FollowService.instance.isFollowingSync(widget.followKey);
     if (!mounted || following == _following) return;
     setState(() => _following = following);
+  }
+
+  void _onPushChanged() {
+    if (mounted) setState(() {});
   }
 
   Future<void> _toggle() async {
@@ -117,8 +126,36 @@ class _FollowButtonState extends State<FollowButton> {
             ),
           );
 
+    final withBell = _bell(context) == null
+        ? child
+        : Row(mainAxisSize: MainAxisSize.min, children: [child, _bell(context)!]);
+
     final id = widget.semanticsIdentifier;
-    if (id == null) return child;
-    return Semantics(identifier: id, container: true, child: child);
+    if (id == null) return withBell;
+    return Semantics(identifier: id, container: true, child: withBell);
+  }
+
+  /// Zvonce uz „Pratiš" na KANALU: obavijest o novim epizodama tog kanala.
+  /// Samo dok korisnik prati i samo kad ljuska ima push. Tap iz isključenog
+  /// stanja je prvi trenutak u kojem se smije otvoriti sistemski dijalog —
+  /// i tada pretplati SAMO taj kanal (vidi `PushTopics._setTopic`).
+  Widget? _bell(BuildContext context) {
+    final push = PushTopics.instance;
+    final channelId = channelIdFromFollowKey(widget.followKey);
+    if (!push.available || channelId == null || !_following) return null;
+    final l = AppLocalizations.of(context);
+    final on = push.allEpisodes || push.isChannelOn(channelId);
+    return IconButton(
+      key: const ValueKey('follow-bell'),
+      tooltip: on ? l.notificationsBellOn : l.notificationsBellOff,
+      icon: Icon(on
+          ? Icons.notifications_active
+          : Icons.notifications_none_outlined),
+      // Pod „Sve nove epizode" kanal se ne može isključiti zasebno — zvonce
+      // tada vodi na ekran gdje je to objašnjeno.
+      onPressed: push.allEpisodes
+          ? () => drillDown(context, '/obavijesti')
+          : () => push.setChannel(channelId, !on),
+    );
   }
 }

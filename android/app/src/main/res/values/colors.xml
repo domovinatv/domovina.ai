@@ -4,4 +4,6 @@
     <!-- Splash screen background — Croatian navy (match AppTheme seed
          Color(0xFF002F6C)). Drzi se u sync s lib/theme/app_theme.dart. -->
     <color name="splash_bg">#002F6C</color>
+    <!-- Boja male ikone push obavijesti (brand crvena, AppTheme.brandAccent). -->
+    <color name="notification_accent">#FF0000</color>
 </resources>

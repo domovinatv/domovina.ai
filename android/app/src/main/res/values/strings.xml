@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Kanal push obavijesti o novim epizodama (MainActivity.kt). -->
+    <string name="push_channel_new_episodes">Nove epizode</string>
+    <string name="push_channel_new_episodes_description">Javlja kad stigne nova epizoda kanala koje si izabrao.</string>
+</resources>

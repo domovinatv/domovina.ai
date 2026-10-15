@@ -42,6 +42,12 @@ veličinu zaslona i približnu lokaciju (država, regija, grad). Ako si prijavlj
 događaje povezujemo s tvojim računom. **IP adresu ne spremamo** i ne koristimo
 alate trećih strana za praćenje.
 
+**f) Push obavijesti (iOS i Android aplikacija).** Ako uključiš obavijesti,
+javljamo ti kad stigne nova epizoda — sve nove ili samo s kanala koje izabereš.
+Dostava ide preko Google Firebase Cloud Messaginga: uređaj dobije registracijski
+token i pretplati se na izabrane teme. **Token i popis tema ne spremamo uz tvoj
+račun** — izbor stoji samo na tvom uređaju, a pretplate drži Google.
+
 ## 2. Zašto i na kojoj osnovi (čl. 6 GDPR)
 
 | Svrha | Pravna osnova |
@@ -51,6 +57,7 @@ alate trećih strana za praćenje.
 | Verifikacija identiteta e-Osobnom | tvoja **privola** (čl. 6(1)(a)) + nužnost za uslugu |
 | Prijava e-mailom | izvršenje ugovora |
 | Analitika korištenja | legitimni interes (čl. 6(1)(f)): mjerenje i poboljšanje usluge i pretrage, bilježenje sponzorskih poruka |
+| Push obavijesti o novim epizodama | tvoja **privola** (čl. 6(1)(a)) — uključuješ ih sam, povlačiš na ekranu Obavijesti ili u postavkama uređaja |
 
 Verificirani identitet koristimo da potvrdimo da si stvarna osoba i kao pripremu
 za buduće regulirane funkcije (npr. novčanik). Privolu možeš povući (vidi §6).
@@ -70,7 +77,7 @@ računom piši na `privacy@domovina.ai`.
 
 Podatke obrađujemo na vlastitoj (self-hosted) infrastrukturi na poslužitelju u
 EU (Oracle Cloud, Frankfurt). Koristimo i provjerene izvršitelje obrade: **Certilia/NIAS** (izvor eID identiteta),
-**Resend** (slanje e-maila), **Google** (prijava), **Cloudflare** (hosting/CDN i prijenos događaja analitike), **Oracle Cloud** (poslužitelj).
+**Resend** (slanje e-maila), **Google** (prijava; Firebase Cloud Messaging za push obavijesti), **Cloudflare** (hosting/CDN i prijenos događaja analitike), **Oracle Cloud** (poslužitelj).
 Ne prodajemo tvoje podatke.
 
 ## 5. Sigurnost

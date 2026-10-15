@@ -42,6 +42,10 @@ class PrivacyScreen extends StatelessWidget {
           style: body,
         ),
         const SizedBox(height: 24),
+        Text(l.legalPrivacyPushTitle, style: theme.textTheme.titleMedium),
+        const SizedBox(height: 8),
+        Text(l.legalPrivacyPushBody, style: body),
+        const SizedBox(height: 24),
         Text(l.legalContactTitle, style: theme.textTheme.titleMedium),
         const SizedBox(height: 8),
         Text(

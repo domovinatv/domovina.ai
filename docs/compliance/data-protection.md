@@ -83,6 +83,9 @@ smjernice AZOP-a i EDPB-a.
   SharedPreferences), `session_id`, `user_id` (samo prijavljeni), platforma,
   preglednik i OS (iz User-Agenta), verzija aplikacije, jezik, veličina
   zaslona, država/regija/grad (Cloudflare geolokacija). **IP se ne sprema.**
+  Od 15. 10. 2026. i push obavijesti (`push_*`: prikaz i ishod sistemskog
+  pitanja za dozvolu, uključena/isključena tema, tap na obavijest s rutom
+  epizode) — vidi Obradu F.
 - **Ispitanici:** svi korisnici aplikacije (gosti i prijavljeni).
 - **Rok čuvanja:** 25 mjeseci (ClickHouse TTL,
   `domovina-analytics/clickhouse/sql/003_retention.sql`). Brisanje računa ih
@@ -93,6 +96,25 @@ smjernice AZOP-a i EDPB-a.
   Pristup: Grafana iza Cloudflare Accessa, ClickHouse HTTP samo sa service
   tokenom. Tehnički opis: repo `domovina-analytics`.
 
+### Obrada F — Push obavijesti o novim epizodama (od 15. 10. 2026.)
+- **Svrha:** javiti korisniku da je stigla nova epizoda (sve nove ili samo s
+  kanala koje je izabrao). Samo iOS i Android aplikacija.
+- **Pravna osnova:** čl. 6(1)(a) privola — obavijesti se pale tek korisnikovim
+  tapom, uz sistemsku dozvolu; povlače se na ekranu Obavijesti ili u
+  postavkama uređaja.
+- **Kategorije podataka:** FCM registracijski token uređaja i popis tema na
+  koje je uređaj pretplaćen (`ep_all`, `ep_c_<kanal>`). **Mi ne spremamo ni
+  token ni popis uz korisnika** — pretplate drži Google (Firebase Cloud
+  Messaging, projekt `domovina-production`), a izbor tema stoji lokalno na
+  uređaju (SharedPreferences). Nema povezivanja s `user_id`. Analitički
+  događaji o obavijestima (`push_*`) idu u Obradu E.
+- **Ispitanici:** korisnici aplikacije koji su uključili obavijesti (gosti i
+  prijavljeni).
+- **Rok čuvanja:** dok je aplikacija instalirana i pretplata uključena; FCM
+  token koji se ne javi 270 dana Google sam briše.
+- **Lokacija:** Google Firebase (globalno); slanje kroz Cloudflare Worker
+  `domovina-push` koji čita samo javni katalog epizoda.
+
 ## 3. Pravna osnova — sažetak (čl. 6)
 
 | Obrada | Osnova |
@@ -102,6 +124,7 @@ smjernice AZOP-a i EDPB-a.
 | KYC (Certilia eID) | čl. 6(1)(a) privola + (b) nužnost |
 | Sadržaj/napredak | čl. 6(1)(b)/(f) |
 | Analitika korištenja | čl. 6(1)(f) legitimni interes ‹ePrivacy — potvrditi› |
+| Push obavijesti | čl. 6(1)(a) privola (sistemska dozvola + izbor tema) |
 
 > **Zašto NE čl. 9:** posebne kategorije (biometrija) bi nastale obradom
 > fotografije s e-Osobne. Sustav **ne prikuplja fotografiju** → izbjegnut je
@@ -174,6 +197,7 @@ obvezu**; ako se imenuje, kontakt objaviti u Politici privatnosti i prijaviti AZ
 | Certilia / NIAS (AKD) | izvor eID identiteta | OIB, ime, DOB, država | HR/EU |
 | Resend | slanje e-maila | e-mail adresa | ‹regija — potvrditi DPA› |
 | Google | OAuth prijava | e-mail, profil | EU/SAD ‹SCC/DPF› |
+| Google Firebase Cloud Messaging | dostava push obavijesti | FCM token, pretplaćene teme | globalno ‹SCC/DPF› |
 | Cloudflare | CDN/hosting/TLS; Worker za ingest analitike (prolazno, bez pohrane osim rezervnog Queuea) | tehnički/IP, događaji analitike | globalno ‹DPF/SCC› |
 
 Za svakog sub-procesora osigurati **Ugovor o obradi (DPA, čl. 28)** i, za prijenose
@@ -181,4 +205,4 @@ izvan EU, odgovarajući mehanizam (DPF/SCC). ‹potvrditi po procesoru›.
 
 ---
 
-_Zadnje ažurirano: 2026-10-15 (reprodukcija i upiti pretrage u Obradi E). Vlasnik dokumenta: ‹DPO / voditelj obrade›._
+_Zadnje ažurirano: 2026-10-15 (push obavijesti — Obrada F; reprodukcija i upiti pretrage u Obradi E). Vlasnik dokumenta: ‹DPO / voditelj obrade›._
