@@ -20,6 +20,14 @@ Future<SendResult> sendBatch(String url, String body) =>
 /// Referrer dokumenta na webu; null na nativeu ili kad ga nema.
 String? documentReferrer() => platform.documentReferrer();
 
+/// Je li tab stvarno vidljiv (`document.visibilityState`); null na nativeu.
+bool? documentVisible() => platform.documentVisible();
+
+/// Web: [onChange] pri svakoj promjeni vidljivosti taba (`visibilitychange`,
+/// `pagehide` kao skriven). Native: ništa — tamo vrijedi Flutter lifecycle.
+void listenDocumentVisibility(void Function(bool visible) onChange) =>
+    platform.listenDocumentVisibility(onChange);
+
 SendResult resultForStatus(int status) {
   if (status >= 200 && status < 300) return SendResult.ok;
   if (status == 429 || status >= 500) return SendResult.retry;

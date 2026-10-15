@@ -18,3 +18,7 @@ Future<SendResult> sendBatch(String url, String body) async {
 }
 
 String? documentReferrer() => null;
+
+bool? documentVisible() => null;
+
+void listenDocumentVisibility(void Function(bool visible) onChange) {}

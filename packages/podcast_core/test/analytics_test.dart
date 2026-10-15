@@ -140,6 +140,37 @@ void main() {
       expect(names(sent.last), ['screen_view']);
     });
 
+    test('web: hidden uz vidljiv tab ne gasi heartbeat', () async {
+      var visible = true;
+      final w = Analytics.forTest(
+        sender: (url, body) async {
+          sent.add(jsonDecode(body) as Map<String, dynamic>);
+          return SendResult.ok;
+        },
+        clock: () => now,
+        visible: () => visible,
+      );
+      await w.flush();
+      w.handleLifecycle(AppLifecycleState.hidden);
+      now = now.add(const Duration(seconds: 30));
+      await w.tick();
+      expect(names(sent.last), ['heartbeat']);
+
+      // Pravi odlazak javi preglednik (visibilitychange), jednom.
+      visible = false;
+      w.handleVisibility(false);
+      w.handleLifecycle(AppLifecycleState.hidden);
+      await Future<void>.delayed(Duration.zero);
+      expect(names(sent.last), ['app_background']);
+      expect(sent.where((e) => names(e).contains('app_background')), hasLength(1));
+
+      visible = true;
+      w.handleVisibility(true);
+      now = now.add(const Duration(seconds: 30));
+      await w.tick();
+      expect(names(sent.last), ['heartbeat']);
+    });
+
     test('send koji visi ne zaključa red zauvijek', () {
       fakeAsync((async) {
         final hung = Analytics.forTest(

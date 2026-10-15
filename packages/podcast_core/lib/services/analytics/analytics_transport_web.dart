@@ -36,3 +36,24 @@ String? documentReferrer() {
     return null;
   }
 }
+
+bool? documentVisible() {
+  try {
+    return web.document.visibilityState == 'visible';
+  } catch (_) {
+    return null;
+  }
+}
+
+void listenDocumentVisibility(void Function(bool visible) onChange) {
+  try {
+    web.document.addEventListener(
+      'visibilitychange',
+      ((web.Event _) => onChange(documentVisible() ?? true)).toJS,
+    );
+    web.window.addEventListener(
+      'pagehide',
+      ((web.Event _) => onChange(false)).toJS,
+    );
+  } catch (_) {}
+}

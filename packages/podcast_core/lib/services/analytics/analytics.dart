@@ -43,8 +43,10 @@ class Analytics {
     AnalyticsSender? sender,
     DateTime Function()? clock,
     Random? random,
+    bool? Function()? visible,
   })  : _send = sender ?? sendBatch,
         _clock = clock ?? DateTime.now,
+        _visible = visible ?? documentVisible,
         _random = random ?? Random.secure();
 
   static final Analytics instance = Analytics._();
@@ -57,8 +59,14 @@ class Analytics {
     required DateTime Function() clock,
     String endpoint = 'https://example.test/api/state',
     String deviceId = 'dev_test',
+    bool? Function()? visible,
   }) {
-    final a = Analytics._(sender: sender, clock: clock, random: Random(1));
+    final a = Analytics._(
+      sender: sender,
+      clock: clock,
+      random: Random(1),
+      visible: visible ?? () => null,
+    );
     a._configure(
       endpoint: endpoint,
       app: 'test.app',
@@ -79,6 +87,7 @@ class Analytics {
 
   final AnalyticsSender _send;
   final DateTime Function() _clock;
+  final bool? Function() _visible;
   final Random _random;
 
   bool _enabled = false;
@@ -126,6 +135,11 @@ class Analytics {
     );
     _readScreen();
     _lifecycle = AppLifecycleListener(onStateChange: handleLifecycle);
+    // Web: vidljivost iz preglednika, ne samo iz Fluttera. Kad lažni
+    // `hidden` ostane Flutterovo zadnje stanje, pravi odlazak više ne
+    // mijenja stanje pa ga Flutter ne javi — a bez ovoga izostane završni
+    // flush.
+    if (kIsWeb) listenDocumentVisibility(handleVisibility);
     _startTimer();
     // Prvi batch ne čeka puni interval: posjet kraći od 30 s bi inače ostao
     // neizbrojen kad tab nestane bez `hidden` događaja.
@@ -303,16 +317,42 @@ class Analytics {
         _startTimer();
       case AppLifecycleState.hidden:
       case AppLifecycleState.paused:
-      case AppLifecycleState.detached:
-        if (_foreground) {
-          _foreground = false;
-          _timer?.cancel();
-          _enqueue('app_background');
-          unawaited(flush(force: true));
+        // Web: Flutter javi `hidden` i dok je tab vidljiv (sekundu nakon
+        // otvaranja ekrana, izmjereno 15. 10. 2026.). Bez ove provjere
+        // timer stane i heartbeat skoro nikad ne ode: 1 heartbeat na 10
+        // sesija u produkciji. Stvarni odlazak ima visibilityState hidden.
+        if (_visible() == true) {
+          log('Analytics: ${state.name} uz vidljiv tab — ignoriram');
+          break;
         }
+        _goBackground();
+      case AppLifecycleState.detached:
+        _goBackground();
       case AppLifecycleState.inactive:
         break;
     }
+  }
+
+  /// Web: promjena vidljivosti taba izravno iz preglednika.
+  @visibleForTesting
+  void handleVisibility(bool visible) {
+    if (!_enabled) return;
+    if (visible) {
+      if (_foreground) return;
+      _foreground = true;
+      _touch();
+      _startTimer();
+    } else {
+      _goBackground();
+    }
+  }
+
+  void _goBackground() {
+    if (!_foreground) return;
+    _foreground = false;
+    _timer?.cancel();
+    _enqueue('app_background');
+    unawaited(flush(force: true));
   }
 
   void _startTimer() {
