@@ -322,3 +322,19 @@ Provjera slanja: poruka na temu `ep_test` vratila je `projects/domovina-producti
 **Puštanje u rad**: kad build s pushom prođe review, u `wrangler.jsonc` postavi
 `DRY_RUN` na `"0"` i `npx wrangler deploy`. Do tada log Workera
 (`npx wrangler tail domovina-push`) pokazuje što BI bilo poslano.
+
+### Otvoreno (15. 10. 2026., nakon builda 213)
+
+- [ ] Development APNs redak u Firebase konzoli (isti `.p8`).
+- [ ] Na uređaju provjeriti: dijalog dozvole, pretplata (`ep_test` iz Firebase
+      konzole), tap na obavijest u tri stanja aplikacije. Smoke 213 nije
+      prošao (moto edge 30 ultra zaključan PIN-om, iPhone SE nevidljiv za
+      `devicectl`) — to blokira promociju, ne TestFlight/Play internal.
+- [ ] Nakon reviewa: `DRY_RUN` → `"0"` u `domovina-push`.
+- [ ] Faza 2 (§9): osobe, slika na iOS-u (NSE), web push.
+
+Zamke iz implementacije: `firebase_messaging` 17 traži Android minSdk 24 i ide
+na iOS-u kroz Swift Package Manager (Flutter pri buildu migrira
+`project.pbxproj`); Android 13+ `denied` nije trajno odbijanje (zato ga
+transport mapira u `notDetermined`); nova IAM uloga na FCM-u proradi tek nakon
+~5 min (403 `cloudmessaging.messages.create` do tada).
