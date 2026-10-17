@@ -290,6 +290,38 @@ function wellKnownResponse(body) {
   });
 }
 
+/**
+ * `web/cast-receiver.html` — Google Cast Web Receiver (CAF), plan
+ * docs/plans/2026-10-17-cast-na-tv.md, iteracija C.
+ *
+ * Namjerno BEZ COOP/COEP (za razliku od htmlResponse): Flutter ih treba zbog
+ * skwasm dretvi, a receiver nije Flutter. CAF skripta s gstatica šalje CORP
+ * cross-origin pa bi radila i pod COEP-om, ali slike koje pošiljatelj navede
+ * (logo sponzora, poster) ne šalju ni CORP ni CORS — pod COEP-om bi ih
+ * preglednik u televizoru odbio.
+ *
+ * Asset se traži po pretty URL-u (`/cast-receiver`), pa po `.html`; preusmjerenje
+ * se ne slijedi — televizoru vraćamo 200 ili pravu grešku, nikad 308.
+ */
+async function handleCastReceiver(request, env, url) {
+  let res = null;
+  for (const p of ['/cast-receiver', '/cast-receiver.html']) {
+    res = await env.ASSETS.fetch(
+      new Request(`${url.origin}${p}`, { headers: request.headers, redirect: 'manual' }),
+    );
+    if (res.ok || res.status === 304) break;
+  }
+  if (!res.ok && res.status !== 304) return res;
+  const headers = new Headers({
+    'Content-Type': 'text/html;charset=UTF-8',
+    // Deploy mijenja receiver na istom URL-u — uvijek revalidiraj (ETag → 304).
+    'Cache-Control': 'public, max-age=0, must-revalidate',
+  });
+  const etag = res.headers.get('ETag');
+  if (etag) headers.set('ETag', etag);
+  return new Response(res.status === 304 ? null : res.body, { status: res.status, headers });
+}
+
 export default {
   async fetch(request, env) {
     // Brend za ovaj zahtjev — iz Pages env bindinga, defaulti = DOMOVINA.ai.
@@ -315,6 +347,13 @@ export default {
     // Bez FEATURE_CAL ruta pada dalje kao svaka nepoznata (SPA fallback).
     if (BRAND.FEATURE_CAL && (path === '/api/cal/slots' || path === '/api/cal/book')) {
       return handleCalProxy(request, env, path);
+    }
+
+    // Google Cast receiver — MORA biti prije ASSETS grane: `.html` bi inače
+    // otišao u env.ASSETS.fetch(), a Pages pretty-URL pravilo ga 308-ica na
+    // `/cast-receiver`. URL registriran u Cast konzoli treba odgovoriti 200.
+    if (path === '/cast-receiver.html' || path === '/cast-receiver') {
+      return handleCastReceiver(request, env, url);
     }
 
     // Statički asseti (JS, CSS, slike, fontovi...) — direktno iz ASSETS.

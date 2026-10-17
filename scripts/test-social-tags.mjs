@@ -560,10 +560,41 @@ async function testEnglishShare(ytId, tSec) {
   return { ytId: `${ytId}@${tSec}/en`, passed, failed };
 }
 
+/**
+ * Google Cast receiver (`web/cast-receiver.html`). URL registriran u Cast
+ * konzoli mora vratiti 200 — bez rute u workeru Pages ga 308-ica na
+ * `/cast-receiver` — i to BEZ COEP-a, koji Flutter stranice nose.
+ */
+async function testCastReceiver(path) {
+  const url = `${BASE}${path}`;
+  console.log(`\n${BOLD}── ${path}${RESET}  ${url}`);
+  let res;
+  let html;
+  try {
+    res = await fetch(url, { redirect: 'manual' });
+    html = await res.text();
+  } catch (e) {
+    console.log(`  ${fail(`Network error: ${e.message}`)}`);
+    return { ytId: path, passed: 0, failed: 1 };
+  }
+  let passed = 0;
+  let failed = 0;
+  const check = (label, good, detail) => {
+    const lab = label.padEnd(26);
+    if (good) { console.log(`  ${ok(lab)} ${detail}`); passed++; } else { console.log(`  ${fail(lab)} ${detail}`); failed++; }
+  };
+  check('HTTP 200 (bez 308)', res.status === 200, `${res.status}`);
+  const coep = res.headers.get('cross-origin-embedder-policy');
+  check('bez COEP', !coep, coep ?? 'nema');
+  check('CAF receiver SDK', html.includes('caf_receiver/v3/cast_receiver_framework.js'), 'gstatic skripta');
+  check('sponzorska traka', html.includes('id="sponsored"'), '#sponsored');
+  return { ytId: path, passed, failed };
+}
+
 async function main() {
   console.log(`${BOLD}DOMOVINA.ai — Social Tag Tester${RESET}`);
   console.log(`Target: ${BOLD}${BASE}${RESET}`);
-  console.log(`Testira: homepage + ${VIDEO_IDS.length} epizoda + timestamp shareovi + /glasanje + izlog oglasa\n`);
+  console.log(`Testira: homepage + ${VIDEO_IDS.length} epizoda + timestamp shareovi + /glasanje + izlog oglasa + cast receiver\n`);
 
   const results = [];
   results.push(await testHomepage());
@@ -584,6 +615,9 @@ async function main() {
   // Izlog sponzorskih trenutaka — kanal i karta epizode.
   results.push(await testSponsorRoute(`/c/${SPONSOR_CHANNEL_SLUG}/oglasi`, 'Oglašavanje'));
   results.push(await testSponsorRoute(`/v/${SPONSOR_VIDEO_ID}/sponzoriraj`, 'Sponzorirajte'));
+  // Google Cast receiver — oba oblika URL-a, 200 bez COEP-a.
+  results.push(await testCastReceiver('/cast-receiver.html'));
+  results.push(await testCastReceiver('/cast-receiver'));
 
   const totalPassed = results.reduce((s, r) => s + r.passed, 0);
   const totalFailed = results.reduce((s, r) => s + r.failed, 0);
