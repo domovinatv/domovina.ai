@@ -12,9 +12,7 @@ import '../../src/log.dart' show log;
 import '../../models/podcast_outline.dart';
 import '../../services/cdn_config.dart';
 import '../../services/data_service.dart';
-import '../../services/analytics/playback_analytics.dart';
-import '../../services/player_resume.dart';
-import '../../services/watch_progress_service.dart';
+import '../../services/episode_playback_session.dart';
 import '../../widgets/cached_thumbnail.dart';
 import 'widgets/tv_focus.dart';
 import 'widgets/tv_key_hint.dart';
@@ -66,14 +64,20 @@ class _TvEpisodeScreenState extends State<TvEpisodeScreen> {
   EpisodeData? _data;
   Object? _error;
 
-  Player? _player;
-  VideoController? _controller;
+  // Reprodukcija živi u dijeljenoj sesiji — čitač (`/v/<id>/read`) nad istom
+  // epizodom koristi ISTI player, pa se pri prijelazu ništa ne bufferira
+  // ponovno i ne sviraju dva zvuka. Vidi EpisodePlaybackSession.
+  late final EpisodePlaybackSession _session;
 
-  Duration _position = Duration.zero;
-  Duration _duration = Duration.zero;
-  Duration _buffer = Duration.zero;
-  bool _playing = false;
-  bool _buffering = true;
+  Player? get _player => _session.player;
+  VideoController? get _controller => _session.controller;
+  Duration get _position => _session.position;
+  Duration get _duration => _session.duration;
+  Duration get _buffer => _session.buffer;
+  bool get _playing => _session.playing;
+  bool get _buffering => _session.buffering;
+  bool get _firstFrame => _session.firstFrame;
+  DateTime? get _loadStartedAt => _session.loadStartedAt;
 
   // Target koliko sekundi unaprijed mora biti buffered prije nego se UI prebaci
   // u playing state. 5s je razuman trade-off — dovoljno da ne stutter na
@@ -88,32 +92,12 @@ class _TvEpisodeScreenState extends State<TvEpisodeScreen> {
   // TV mrezi (5-10 Mbps); progress = (elapsed-500ms) / 8000ms. Uzimamo max
   // od (real, time) pa ako buffer napredak postoji, real ga overrideuje.
   static const _timeFallbackTargetMs = 8000;
-  DateTime? _loadStartedAt;
-
-  // True nakon sto je prvi frame stvarno renderirao. Drzimo thumbnail backdrop
-  // dok ovo nije true — bez ovoga TV pokazuje crni rect 5-10s na prosjecnom
-  // internetu, sto izgleda kao da je app crashao. Postavlja se na true prvi
-  // put kad `playing=true && position > 0` (znaci media_kit je zapocelo
-  // dekodirati i prikazivati frameove, ne samo poslati play komandu).
-  bool _firstFrame = false;
 
   // Overlay kontrola se gasi 4s nakon zadnje interakcije — TV konvencija
   // (Netflix, YouTube TV) da se ne ometa gledanje. Bilo koji D-pad event
   // (seek, toggle) je ponovno upali.
   bool _showOverlay = true;
   Timer? _overlayHideTimer;
-
-  // Periodicni save 5s — WatchProgressService.scheduleSave dalje debounceuje
-  // remote upsert (ne saljemo Supabase upsert svake sekunde).
-  Timer? _saveTimer;
-
-  // Poll `player.state.buffer` svake 250ms tijekom inicijalnog loadinga jer
-  // media_kit Android backend (libmpv) ne emitira `stream.buffer` updateove
-  // konzistentno — buffer u logu zna ostati 0s dok video nije gotov pa skoci
-  // odjednom. Bez polla, progress ring bi visio na 0% dok ne kresne 100%.
-  // Stopiramo polling jednom kad _firstFrame=true (player vise nije u
-  // "punim se" stanju).
-  Timer? _pollTimer;
 
   final FocusNode _playerFocus = FocusNode(debugLabel: 'tv-episode-player');
   // Fullscreen gumb u overlay-u ima vlastiti focusNode da je dohvatljiv
@@ -142,17 +126,13 @@ class _TvEpisodeScreenState extends State<TvEpisodeScreen> {
   // animaciju kad se aktivni chapter promijeni.
   final Map<int, GlobalKey> _chapterKeys = {};
 
-  StreamSubscription<Duration>? _positionSub;
-  StreamSubscription<Duration>? _durationSub;
-  StreamSubscription<Duration>? _bufferSub;
-  StreamSubscription<bool>? _playingSub;
-  PlaybackAnalytics? _playbackAnalytics;
-  StreamSubscription<bool>? _bufferingSub;
-
   @override
   void initState() {
     super.initState();
     log('TvEpisodeScreen.init id=${widget.youtubeId} startAt=${widget.startAtSeconds}');
+    _session =
+        EpisodePlaybackSession.acquire(widget.youtubeId, surface: 'tv')
+          ..addListener(_onSession);
     _load();
   }
 
@@ -161,178 +141,28 @@ class _TvEpisodeScreenState extends State<TvEpisodeScreen> {
       final data = await EpisodeData.load(youtubeId: widget.youtubeId);
       if (!mounted) return;
       setState(() => _data = data);
-      await _initPlayer(data);
+      final wasOpen = _session.isOpen;
+      await _session.open(data, startAtSeconds: widget.startAtSeconds);
+      if (!mounted) return;
+      // Seek iz URL-a nad sesijom koju je otvorio drugi ekran (npr. čitač pa
+      // deep link na istu epizodu) — open je tada no-op.
+      final t = widget.startAtSeconds;
+      if (wasOpen && t != null) await _session.seek(Duration(seconds: t));
+      if (!mounted) return;
+      _playerFocus.requestFocus();
+      _scheduleOverlayHide();
     } catch (e) {
       log('TvEpisodeScreen.load error: $e');
       if (mounted) setState(() => _error = e);
     }
   }
 
-  Future<void> _initPlayer(EpisodeData data) async {
-    // Resume policy: URL t= ima prednost. Inače saved progress ako > 5s i
-    // epizoda nije completed. Identično EpisodeScreen-u.
-    int? startAt = widget.startAtSeconds;
-    if (startAt == null) {
-      final saved = WatchProgressService.instance.getSync(widget.youtubeId);
-      if (saved != null && !saved.completed && saved.positionSeconds > 5) {
-        startAt = saved.positionSeconds;
-        log('TvEpisode: resume from ${saved.positionSeconds}s');
-      }
-    }
-
-    // logLevel warn — propusta libmpv internal warnings (TLS, demuxer, codec
-    // errors) u `stream.log` da debug build moze vidjeti zasto video ne kreće.
-    final player = Player(
-      configuration: const PlayerConfiguration(
-        logLevel: MPVLogLevel.warn,
-      ),
-    );
-    final controller = VideoController(player);
-    _playbackAnalytics = PlaybackAnalytics(
-      playingStream: player.stream.playing,
-      positionStream: player.stream.position,
-      videoId: widget.youtubeId,
-      surface: 'tv',
-      durationSeconds: _data?.info.duration ?? 0,
-    );
-
-    // Subscribe na error/log streamove PRIJE open-a — open async vec moze
-    // propucnuti error event ako URI nije validan ili TLS handshake padne.
-    player.stream.error.listen((e) {
-      log('TvEpisode mpv ERROR: $e');
-    });
-    player.stream.log.listen((e) {
-      log('TvEpisode mpv [${e.level}] ${e.prefix}: ${e.text.trim()}');
-    });
-
-    // KLJUCNI redoslijed: setState({player, controller}) MORA biti PRIJE
-    // `await player.open(...)`. Razlog: Video widget se mounta iz buildera
-    // tek kad je `_controller != null`. Mpv-u treba native surface za
-    // dekoder — open() na surface=NULL daje "Both surface and native_window
-    // are NULL" za hardware codec-e, i na nekim Android backendovima open()
-    // visi na sljedecem otvaranju (zato je drugi load zapinjao na "Priprema…").
-    // Mount-a se Video widget najprije, surface se attacha, pa open() radi.
-    if (!mounted) {
-      await player.dispose();
-      return;
-    }
-    setState(() {
-      _player = player;
-      _controller = controller;
-    });
-    // Cekamo jedan frame da Video widget bude u tree-u i texture surface
-    // bude attached prije nego se zovne open().
-    await WidgetsBinding.instance.endOfFrame;
-
-    // AV1 fallback: EON SDSTB02 (Amlogic, Android 11) reportira AV1
-    // mediacodec ali stvarno ga ne dekodira — "Unsupported or unknown
-    // profile". Svi video.mp4 na CDN-u su AV1 Main @ 640×360 (libaom).
-    // Forsiramo software decode (`hwdec=no`) — pri 640×360 bitrate-u
-    // CPU-decode je trivijalan i za stare Amlogic SoC-ove. `cache=no`
-    // suprimira "Failed to create file cache" warning (Android sandbox).
-    final platform = player.platform;
-    if (platform != null) {
-      try {
-        await (platform as dynamic).setProperty('hwdec', 'no');
-        await (platform as dynamic).setProperty('cache', 'no');
-        log('TvEpisode: mpv hwdec=no, cache=no');
-      } catch (e) {
-        log('TvEpisode: setProperty failed (web?): $e');
-      }
-    }
-
-    log('TvEpisode: opening ${data.videoUri}');
-    _loadStartedAt = DateTime.now();
-    // Otvori + pouzdano resume-seek (čeka duration prije seeka — inače libmpv
-    // odbaci seek prije prvog frame-a pa video kreće od 0).
-    await openAndResume(
-      player,
-      uri: data.videoUri,
-      startAtSeconds: startAt,
-    );
-    log('TvEpisode: open() returned');
-
-    _positionSub = player.stream.position.listen((pos) {
-      if (!mounted) return;
-      setState(() {
-        _position = pos;
-        if (!_firstFrame && _playing && !_buffering) _firstFrame = true;
-      });
-      // Update active chapter + auto-scroll na novu poziciju.
-      final d = _data;
-      if (d != null) _updateActiveChapter(_flatChapters(d.outline));
-    });
-    _durationSub = player.stream.duration.listen((dur) {
-      if (!mounted) return;
-      setState(() => _duration = dur);
-      log('TvEpisode: duration ${dur.inSeconds}s');
-    });
-    _bufferSub = player.stream.buffer.listen((buf) {
-      if (!mounted) return;
-      setState(() => _buffer = buf);
-    });
-    _playingSub = player.stream.playing.listen((p) {
-      if (!mounted) return;
-      log('TvEpisode: playing=$p');
-      setState(() {
-        _playing = p;
-        if (p && !_buffering) _firstFrame = true;
-      });
-    });
-    _bufferingSub = player.stream.buffering.listen((b) {
-      if (!mounted) return;
-      log('TvEpisode: buffering=$b buffer=${_buffer.inSeconds}s pos=${_position.inSeconds}s');
-      setState(() {
-        _buffering = b;
-        if (!b && _playing) _firstFrame = true;
-      });
-    });
-
+  /// Iz sesije: rebuild + aktivno poglavlje prati poziciju.
+  void _onSession() {
     if (!mounted) return;
-    _playerFocus.requestFocus();
-    _scheduleOverlayHide();
-    _startSaveTimer();
-    _startPollTimer();
-  }
-
-  /// Polira live PlayerState dok video ne pocne renderirati frameove + tick
-  /// za time-based progress fallback. Vidi komentare uz `_pollTimer` i
-  /// `_timeFallbackTargetMs` zasto je ovo potrebno.
-  void _startPollTimer() {
-    _pollTimer?.cancel();
-    int tickCount = 0;
-    _pollTimer = Timer.periodic(const Duration(milliseconds: 200), (_) {
-      final p = _player;
-      if (p == null || !mounted) return;
-      final s = p.state;
-      tickCount++;
-      // setState svaki tick — UI prsten cita _buffer/_position i time-based
-      // progress se rebuilda iz `_loadStartedAt`. Drzimo setState i kad
-      // nista nije promijenjeno jer time fallback raste s vremenom.
-      setState(() {
-        _buffer = s.buffer;
-        _position = s.position;
-        _buffering = s.buffering;
-        _playing = s.playing;
-        if (s.playing && !s.buffering) _firstFrame = true;
-      });
-      // Active chapter update i kroz poll (jer pre-firstFrame `stream.position`
-      // ne emitira na svim backendovima).
-      final d = _data;
-      if (d != null) _updateActiveChapter(_flatChapters(d.outline));
-      // Log svake sekunde (5 tickova × 200ms) da logcat ima trag bez spama.
-      if (!_firstFrame && tickCount % 5 == 0) {
-        log('TvEpisode poll #$tickCount: buffer=${s.buffer.inMilliseconds}ms '
-            'pos=${s.position.inMilliseconds}ms '
-            'buffering=${s.buffering} playing=${s.playing}');
-      }
-      if (_firstFrame) {
-        _pollTimer?.cancel();
-        _pollTimer = null;
-        log('TvEpisode: polling stopped — first frame rendered '
-            'after ${tickCount * 200}ms');
-      }
-    });
+    setState(() {});
+    final d = _data;
+    if (d != null) _updateActiveChapter(_flatChapters(d.outline));
   }
 
   void _scheduleOverlayHide() {
@@ -343,40 +173,11 @@ class _TvEpisodeScreenState extends State<TvEpisodeScreen> {
     });
   }
 
-  void _startSaveTimer() {
-    _saveTimer?.cancel();
-    _saveTimer = Timer.periodic(const Duration(seconds: 5), (_) => _save());
-  }
-
-  void _save() {
-    final data = _data;
-    if (data == null || _position.inSeconds < 5) return;
-    WatchProgressService.instance.scheduleSave(
-      episodeId: data.youtubeId,
-      positionSeconds: _position.inSeconds,
-      durationSeconds: _duration.inSeconds > 0
-          ? _duration.inSeconds
-          : data.info.duration,
-      channelId: data.info.channelId,
-      episodeTitle: data.displayTitle,
-      episodeThumbnailUrl: CdnConfig.thumbnailUrl(data.youtubeId),
-    );
-  }
-
   @override
   void dispose() {
     _overlayHideTimer?.cancel();
-    _saveTimer?.cancel();
-    _pollTimer?.cancel();
-    _save();
-    WatchProgressService.instance.flush();
-    _positionSub?.cancel();
-    _durationSub?.cancel();
-    _bufferSub?.cancel();
-    _playingSub?.cancel();
-    _bufferingSub?.cancel();
-    _playbackAnalytics?.dispose();
-    _player?.dispose();
+    _session.removeListener(_onSession);
+    _session.release();
     _playerFocus.dispose();
     _fullscreenFocus.dispose();
     _readerFocus.dispose();

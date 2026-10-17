@@ -60,13 +60,29 @@ Provjera: `nc -zv <ip> 5555`.
 
 | Faza | Status | Sadržaj |
 |---|---|---|
-| 1 | ✅ Done | TV detekcija (MethodChannel + FORCE_TV), `AppTheme.tv()`, skeleton `TvHomeScreen` s autofocus hero gumbom + jednim placeholder rail-om, Leanback launcher manifest |
-| 2 | ✅ Done | Pravi rail-ovi wired-up na `HomeFeed.pickFeatured` / `HomeFeed.latestEpisodes` / `WatchProgressService.continueWatching` / `ChannelCache`. `TvFocusable` + `TvRail` + `TvHero` + `TvEpisodeCard` + `TvChannelCard` reusable widget set. Skeleton states tijekom prefetch-a. Navigation na `/v/<id>` i `/c/<slug>`. |
-| 2.5 | ⏳ Next | TV search ekran s on-screen IME tipkovnicom |
-| 3 | Planned | `TvChannelScreen` (`/c/:slug` TV varijanta) — 4×N grid s D-pad nav, sort chips |
-| 4 | Planned | `TvEpisodeScreen` (`/v/:id` TV varijanta) — fullscreen player s overlay kontrolama, MEDIA_PLAY_PAUSE handling, BACK overlay-aware |
-| 4.5 | Planned | TV handoff ekran (`/handoff` TV varijanta) — XL kod + QR za cross-device sign-in |
-| 5 | Planned | Polish + Play Store TV listing (banner PNG, screenshots, AAB) |
+| 1 | Gotovo | TV detekcija (MethodChannel + FORCE_TV), `AppTheme.tv()`, Leanback launcher manifest |
+| 2 | Gotovo | Railovi naslovnice (`HomeFeed`, `WatchProgressService`, `ChannelCache`), `TvFocusable`/`TvRail`/`TvHero`/kartice, skeletoni |
+| 3 | Gotovo | `TvChannelScreen` (`/c/:slug`) i `TvPersonScreen` (`/p/:slug`) — mreža epizoda s D-padom |
+| 4 | Gotovo | `TvEpisodeScreen` (`/v/:id`, i `/t/`, `/en` varijante) — player s poglavljima, fullscreen, overlay |
+| 4.1 | Gotovo | `TvEpisodeReaderScreen` (`/v/:id/read`) — članak po sekcijama, video u kutu |
+| 2.5 | Nije počelo | TV pretraga |
+| 4.5 | Nije počelo | TV handoff prijava (kod + QR) |
+| 5 | Djelomično | Banner PNG postoji; TV listing u Play Consoleu nije provjeren |
+
+Od 17. 10. 2026. TV se usklađuje s ostatkom aplikacije (sponzorski trenuci,
+faza obrade, titlovi, …) i reprodukcija ide kroz zajedničku
+`EpisodePlaybackSession`. Inventura razlika i redoslijed:
+`docs/plans/2026-10-17-tv-uskladivanje-i-refaktor.md`.
+
+### Reprodukcija i dekoder
+
+Oba TV ekrana epizode dijele jednu `EpisodePlaybackSession` po videu
+(`acquire`/`release`) — čitač nastavlja player epizode ispod sebe u stogu.
+mpv dobiva `hwdec-codecs` bez `av1` (EON AV1 mediacodec prijavi, a ne
+dekodira), pa H.264 ide hardverski, a stari AV1 `video.mp4` softverski. Za
+mjerenje na uređaju: `--dart-define=MPV_HWDEC=no` (ili druga mpv vrijednost);
+logcat svakih 60 s piše `PlaybackSession stats: codec=… hwdec-current=…
+frame-drop=…`.
 
 ## Build & deploy
 

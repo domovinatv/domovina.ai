@@ -12,6 +12,7 @@ import '../../models/magisterium_data.dart';
 import '../../models/podcast_article.dart';
 import '../../services/cdn_config.dart';
 import '../../services/data_service.dart';
+import '../../services/episode_playback_session.dart';
 import '../../services/watch_progress_service.dart';
 import '../../theme/markdown_brand.dart';
 import '../../widgets/cached_thumbnail.dart';
@@ -50,16 +51,16 @@ class _TvEpisodeReaderScreenState extends State<TvEpisodeReaderScreen> {
   EpisodeData? _data;
   Object? _error;
 
-  Player? _player;
-  VideoController? _controller;
-  bool _firstFrame = false;
-  Duration _position = Duration.zero;
-  Duration _duration = Duration.zero;
-  bool _playing = false;
+  // Ista sesija kao TvEpisodeScreen ispod u stogu — čitač ne pokreće svoj
+  // player, nego nastavlja onaj koji već svira (vidi EpisodePlaybackSession).
+  late final EpisodePlaybackSession _session;
 
-  StreamSubscription<Duration>? _positionSub;
-  StreamSubscription<Duration>? _durationSub;
-  StreamSubscription<bool>? _playingSub;
+  Player? get _player => _session.player;
+  VideoController? get _controller => _session.controller;
+  bool get _firstFrame => _session.firstFrame;
+  Duration get _position => _session.position;
+  Duration get _duration => _session.duration;
+  bool get _playing => _session.playing;
 
   // Flat kronološka lista sekcija (preferira HR varijantu članka).
   List<PodcastSection> _sections = const [];
@@ -74,8 +75,6 @@ class _TvEpisodeReaderScreenState extends State<TvEpisodeReaderScreen> {
   DateTime? _navLock;
   static const _navLockDuration = Duration(milliseconds: 2200);
 
-  Timer? _saveTimer;
-
   final ScrollController _contentScroll = ScrollController();
   final FocusNode _contentFocus = FocusNode(debugLabel: 'reader-content');
   final FocusNode _magFocus = FocusNode(debugLabel: 'reader-magisterium');
@@ -86,6 +85,8 @@ class _TvEpisodeReaderScreenState extends State<TvEpisodeReaderScreen> {
     log('TvReader.init id=${widget.youtubeId} startAt=${widget.startAtSeconds}');
     _contentFocus.addListener(_onAnyFocusChange);
     _magFocus.addListener(_onAnyFocusChange);
+    _session = EpisodePlaybackSession.acquire(widget.youtubeId, surface: 'tv')
+      ..addListener(_onSession);
     _load();
   }
 
@@ -121,11 +122,15 @@ class _TvEpisodeReaderScreenState extends State<TvEpisodeReaderScreen> {
         }
       }
 
-      final startSec = widget.startAtSeconds ??
-          WatchProgressService.instance
-              .getSync(widget.youtubeId)
-              ?.positionSeconds ??
-          0;
+      // Nad živom sesijom (došli smo s epizode) sekcija prati stvarnu
+      // poziciju; `?t=` je tada samo informacija iste vrijednosti.
+      final startSec = _session.isOpen
+          ? _session.position.inSeconds
+          : widget.startAtSeconds ??
+              WatchProgressService.instance
+                  .getSync(widget.youtubeId)
+                  ?.positionSeconds ??
+              0;
 
       setState(() {
         _data = data;
@@ -134,7 +139,8 @@ class _TvEpisodeReaderScreenState extends State<TvEpisodeReaderScreen> {
         _currentIdx = _indexForSecond(startSec);
       });
 
-      await _initPlayer(data, startSec);
+      await _session.open(data, startAtSeconds: startSec > 5 ? startSec : null);
+      if (mounted) _contentFocus.requestFocus();
     } catch (e) {
       log('TvReader.load error: $e');
       if (mounted) setState(() => _error = e);
@@ -163,58 +169,10 @@ class _TvEpisodeReaderScreenState extends State<TvEpisodeReaderScreen> {
     return idx;
   }
 
-  Future<void> _initPlayer(EpisodeData data, int startSec) async {
-    final player = Player(
-      configuration: const PlayerConfiguration(
-        logLevel: MPVLogLevel.warn,
-      ),
-    );
-    final controller = VideoController(player);
-
-    if (!mounted) {
-      await player.dispose();
-      return;
-    }
-    setState(() {
-      _player = player;
-      _controller = controller;
-    });
-    await WidgetsBinding.instance.endOfFrame;
-
-    // AV1 HW decode ne radi na EON Amlogic — software fallback.
-    final platform = player.platform;
-    if (platform != null) {
-      try {
-        await (platform as dynamic).setProperty('hwdec', 'no');
-        await (platform as dynamic).setProperty('cache', 'no');
-      } catch (_) {}
-    }
-
-    await player.open(Media(data.videoUri), play: true);
-    if (startSec > 5) {
-      await player.seek(Duration(seconds: startSec));
-    }
-
-    _positionSub = player.stream.position.listen(_onPosition);
-    _durationSub = player.stream.duration.listen((d) {
-      if (mounted) setState(() => _duration = d);
-    });
-    _playingSub = player.stream.playing.listen((p) {
-      if (!mounted) return;
-      setState(() {
-        _playing = p;
-        if (p) _firstFrame = true;
-      });
-    });
-
-    _saveTimer = Timer.periodic(const Duration(seconds: 5), (_) => _save());
-
-    if (mounted) _contentFocus.requestFocus();
-  }
-
-  void _onPosition(Duration pos) {
+  void _onSession() {
     if (!mounted) return;
-    setState(() => _position = pos);
+    setState(() {});
+    final pos = _session.position;
     final lock = _navLock;
     if (lock != null && DateTime.now().difference(lock) < _navLockDuration) {
       return;
@@ -224,21 +182,6 @@ class _TvEpisodeReaderScreenState extends State<TvEpisodeReaderScreen> {
       setState(() => _currentIdx = newIdx);
       if (_contentScroll.hasClients) _contentScroll.jumpTo(0);
     }
-  }
-
-  void _save() {
-    final data = _data;
-    if (data == null || _position.inSeconds < 5) return;
-    WatchProgressService.instance.scheduleSave(
-      episodeId: data.youtubeId,
-      positionSeconds: _position.inSeconds,
-      durationSeconds: _duration.inSeconds > 0
-          ? _duration.inSeconds
-          : data.info.duration,
-      channelId: data.info.channelId,
-      episodeTitle: data.displayTitle,
-      episodeThumbnailUrl: CdnConfig.thumbnailUrl(data.youtubeId),
-    );
   }
 
   void _gotoSection(int idx) {
@@ -282,13 +225,8 @@ class _TvEpisodeReaderScreenState extends State<TvEpisodeReaderScreen> {
 
   @override
   void dispose() {
-    _saveTimer?.cancel();
-    _save();
-    WatchProgressService.instance.flush();
-    _positionSub?.cancel();
-    _durationSub?.cancel();
-    _playingSub?.cancel();
-    _player?.dispose();
+    _session.removeListener(_onSession);
+    _session.release();
     _contentScroll.dispose();
     _contentFocus.removeListener(_onAnyFocusChange);
     _magFocus.removeListener(_onAnyFocusChange);
