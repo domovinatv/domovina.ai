@@ -454,8 +454,12 @@ class _EpisodeVideoState extends State<EpisodeVideo> {
     final backgroundButton = compactSlot(
       const BackgroundPlaybackButton(onVideo: true),
     );
+    // PiP postoji samo na native Androidu, cast iz preglednika samo na webu —
+    // dijele isti 40 dp slot, pa širinski budžet trake ostaje isti.
     final pipButton = compactSlot(
-      const PictureInPictureButton(onVideo: true),
+      pipPluginSupported
+          ? const PictureInPictureButton(onVideo: true)
+          : const RemotePlaybackButton(onVideo: true),
     );
     // SAMO u mobilnoj traci: desktop varijanta već ima
     // `MaterialDesktopVolumeButton` (klizač), a osmi gumb bi joj razbio

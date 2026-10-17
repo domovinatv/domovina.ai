@@ -1707,6 +1707,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mediaBoostVolume => 'Turn on sound';
 
   @override
+  String get mediaRemotePlay => 'Play on TV';
+
+  @override
+  String get mediaRemoteConnecting => 'Connecting to TV…';
+
+  @override
+  String get mediaRemoteConnected => 'Playing on TV';
+
+  @override
   String get mediaMute => 'Mute (M)';
 
   @override

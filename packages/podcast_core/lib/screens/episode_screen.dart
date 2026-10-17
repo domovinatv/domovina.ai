@@ -39,6 +39,7 @@ import '../services/person_service.dart';
 import '../services/playback_intent.dart';
 import '../services/playback_speed.dart';
 import '../services/player_mute.dart';
+import '../services/remote_playback.dart';
 import '../services/seek_undo.dart';
 import '../services/analytics/playback_analytics.dart';
 import '../services/url_sync.dart';
@@ -1115,6 +1116,7 @@ class _EpisodeContentState extends State<_EpisodeContent>
     final player = _player;
     if (player != null) {
       PlayerMute.instance.detach(player);
+      RemotePlayback.instance.detach(player);
       player.dispose();
     }
     super.dispose();

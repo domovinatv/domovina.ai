@@ -22,6 +22,7 @@ import '../l10n/app_localizations.dart';
 import '../services/background_playback.dart';
 import '../services/playback_speed.dart';
 import '../services/player_mute.dart';
+import '../services/remote_playback.dart';
 import '../services/seek_undo.dart';
 import '../theme/app_theme.dart';
 
@@ -375,6 +376,67 @@ class PictureInPictureButton extends StatelessWidget {
           icon: Icon(Icons.picture_in_picture_alt, color: color),
           tooltip: 'Picture in Picture',
           onPressed: () => _toggle(context),
+        );
+      },
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Reprodukcija na televizoru (web: AirPlay / Remote Playback)
+// ---------------------------------------------------------------------------
+
+/// AirPlay (Safari) ili Cast (Chrome na Androidu) za epizodu koja svira.
+///
+/// Crta se SAMO kad preglednik javi da u mreži ima uređaj — mrtav gumb koji
+/// otvori prazan izbornik je gori od nikakvog. Dok traje veza, ikona prelazi u
+/// „spojeno" i dobiva brand tretman (kao [MuteToggleButton] u muted autoplayu),
+/// jer slika na ekranu tada ne svira i korisnik mora vidjeti zašto.
+class RemotePlaybackButton extends StatelessWidget {
+  const RemotePlaybackButton({super.key, this.onVideo = false});
+
+  final bool onVideo;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l = AppLocalizations.of(context);
+
+    return ListenableBuilder(
+      listenable: RemotePlayback.instance,
+      builder: (context, _) {
+        final remote = RemotePlayback.instance;
+        final target = remote.target;
+        final state = remote.state;
+        // Spojena sesija ostaje vidljiva i ako dostupnost u međuvremenu padne,
+        // inače korisnik ne bi imao kako prekinuti cast.
+        if (target == null && state == RemoteState.disconnected) {
+          return const SizedBox.shrink();
+        }
+        final connected = state == RemoteState.connected;
+        final icon = target == RemoteTarget.airPlay
+            ? Icons.airplay
+            : connected
+                ? Icons.cast_connected
+                : Icons.cast;
+        final tooltip = switch (state) {
+          RemoteState.connected => l.mediaRemoteConnected,
+          RemoteState.connecting => l.mediaRemoteConnecting,
+          RemoteState.disconnected => l.mediaRemotePlay,
+        };
+        return IconButton(
+          icon: Icon(icon),
+          tooltip: tooltip,
+          style: connected
+              ? IconButton.styleFrom(
+                  backgroundColor: AppTheme.brandPrimary,
+                  foregroundColor: Colors.white,
+                  side: AppTheme.brandRim(theme.brightness),
+                )
+              : IconButton.styleFrom(
+                  foregroundColor: _controlColor(context, onVideo),
+                ),
+          onPressed: remote.prompt,
         );
       },
     );

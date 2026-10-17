@@ -1723,6 +1723,15 @@ class AppLocalizationsHr extends AppLocalizations {
   String get mediaBoostVolume => 'Uključi zvuk';
 
   @override
+  String get mediaRemotePlay => 'Reproduciraj na televizoru';
+
+  @override
+  String get mediaRemoteConnecting => 'Spajanje s televizorom…';
+
+  @override
+  String get mediaRemoteConnected => 'Reproducira se na televizoru';
+
+  @override
   String get mediaMute => 'Isključi zvuk (M)';
 
   @override

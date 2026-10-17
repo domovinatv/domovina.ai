@@ -2822,6 +2822,24 @@ abstract class AppLocalizations {
   /// **'Uključi zvuk'**
   String get mediaBoostVolume;
 
+  /// No description provided for @mediaRemotePlay.
+  ///
+  /// In hr, this message translates to:
+  /// **'Reproduciraj na televizoru'**
+  String get mediaRemotePlay;
+
+  /// No description provided for @mediaRemoteConnecting.
+  ///
+  /// In hr, this message translates to:
+  /// **'Spajanje s televizorom…'**
+  String get mediaRemoteConnecting;
+
+  /// No description provided for @mediaRemoteConnected.
+  ///
+  /// In hr, this message translates to:
+  /// **'Reproducira se na televizoru'**
+  String get mediaRemoteConnected;
+
   /// Tooltip na gumbu za zvuk dok zvuk svira; (M) je tipkovnička kratica.
   ///
   /// In hr, this message translates to:

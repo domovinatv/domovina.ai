@@ -2211,6 +2211,9 @@
   "@mediaBoostVolume": {
     "description": "CTA preko videa pri muted autoplayu (browser politika) — klik uključuje zvuk. Isti tekst nosi i tooltip gumba za zvuk dok je mutirano."
   },
+  "mediaRemotePlay": "Reproduciraj na televizoru",
+  "mediaRemoteConnecting": "Spajanje s televizorom…",
+  "mediaRemoteConnected": "Reproducira se na televizoru",
   "mediaMute": "Isključi zvuk (M)",
   "@mediaMute": {
     "description": "Tooltip na gumbu za zvuk dok zvuk svira; (M) je tipkovnička kratica."

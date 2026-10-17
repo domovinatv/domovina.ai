@@ -26,6 +26,7 @@ import '../services/open_url.dart';
 import '../services/playback_intent.dart';
 import '../services/playback_speed.dart';
 import '../services/player_mute.dart';
+import '../services/remote_playback.dart';
 import '../services/player_resume.dart';
 import '../services/page_meta.dart';
 import '../services/seek_undo.dart';
@@ -340,6 +341,7 @@ class _SimpleEpisodeContentState extends State<_SimpleEpisodeContent>
     final player = _player;
     if (player != null) {
       PlayerMute.instance.detach(player);
+      RemotePlayback.instance.detach(player);
       player.dispose();
     }
     super.dispose();
@@ -1293,6 +1295,7 @@ class _PlayerTab extends StatelessWidget {
                 MuteToggleButton(),
                 SizedBox(width: 8),
                 BackgroundPlaybackButton(),
+                RemotePlaybackButton(),
               ],
             ),
           ],

@@ -12,6 +12,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:media_kit/media_kit.dart';
 
 import 'player_mute.dart';
+import 'remote_playback.dart';
 
 /// Otvara [uri] i, ako je [startAtSeconds] zadan, pouzdano seeka na tu poziciju
 /// prije play-a. Vraća `true` ako je unmuted autoplay uspio; `false` ako je
@@ -26,6 +27,7 @@ Future<bool> openAndResume(
   int? startAtSeconds,
 }) async {
   PlayerMute.instance.attach(player);
+  RemotePlayback.instance.attach(player);
   await player.open(Media(uri), play: false);
 
   if (startAtSeconds != null && startAtSeconds > 0) {

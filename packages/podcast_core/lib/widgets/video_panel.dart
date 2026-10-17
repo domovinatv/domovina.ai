@@ -418,40 +418,60 @@ class _VideoPanelState extends State<VideoPanel> {
                         // postoji na audio-only putanji), pa je ovo uvijek vidljivi
                         // ulaz u iste postavke — uključujući jedini unmute na
                         // audio-only epizodama.
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            const SpeedCycleButton(),
-                            const MuteToggleButton(),
-                            IconButton(
-                              icon: const Icon(Icons.replay_10),
-                              onPressed: () => widget.player.seek(
-                                _position - const Duration(seconds: 10),
+                        //
+                        // Kad preglednik nađe televizor, gumb za cast je sedmi u
+                        // redu i 336 dp stupca (360 − 2×12) više nije dovoljno.
+                        // Red se tada umjesto preljeva malo skupi (`scaleDown`);
+                        // dok ima mjesta, `minWidth` ga drži razvučenog kao prije.
+                        LayoutBuilder(
+                          builder: (context, constraints) => FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(
+                                minWidth: constraints.maxWidth,
                               ),
-                              tooltip: '-10s',
-                            ),
-                            IconButton(
-                              iconSize: 40,
-                              icon: Icon(
-                                _playing
-                                    ? Icons.pause_circle_filled
-                                    : Icons.play_circle_filled,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  const SpeedCycleButton(),
+                                  const MuteToggleButton(),
+                                  const RemotePlaybackButton(),
+                                  IconButton(
+                                    icon: const Icon(Icons.replay_10),
+                                    onPressed: () => widget.player.seek(
+                                      _position - const Duration(seconds: 10),
+                                    ),
+                                    tooltip: '-10s',
+                                  ),
+                                  IconButton(
+                                    iconSize: 40,
+                                    icon: Icon(
+                                      _playing
+                                          ? Icons.pause_circle_filled
+                                          : Icons.play_circle_filled,
+                                    ),
+                                    color: theme.colorScheme.primary,
+                                    tooltip: _playing
+                                        ? l.mediaPause
+                                        : l.mediaPlay,
+                                    onPressed: () => _playing
+                                        ? widget.player.pause()
+                                        : widget.player.play(),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.forward_10),
+                                    onPressed: () => widget.player.seek(
+                                      _position + const Duration(seconds: 10),
+                                    ),
+                                    tooltip: '+10s',
+                                  ),
+                                  const BackgroundPlaybackButton(),
+                                ],
                               ),
-                              color: theme.colorScheme.primary,
-                              tooltip: _playing ? l.mediaPause : l.mediaPlay,
-                              onPressed: () => _playing
-                                  ? widget.player.pause()
-                                  : widget.player.play(),
                             ),
-                            IconButton(
-                              icon: const Icon(Icons.forward_10),
-                              onPressed: () => widget.player.seek(
-                                _position + const Duration(seconds: 10),
-                              ),
-                              tooltip: '+10s',
-                            ),
-                            const BackgroundPlaybackButton(),
-                          ],
+                          ),
                         ),
 
                         // Trenutni govornik
