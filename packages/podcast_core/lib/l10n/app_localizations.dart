@@ -2798,6 +2798,30 @@ abstract class AppLocalizations {
   /// **'Otvori na Magisterium.com'**
   String get magisteriumOpenOnMagisterium;
 
+  /// Oznaka citiranog broja (paragrafa) crkvenog dokumenta, npr. „br. 74”.
+  ///
+  /// In hr, this message translates to:
+  /// **'br. {ref}'**
+  String magisteriumRefNumber(String ref);
+
+  /// Oznaka citirane stranice crkvenog dokumenta (Acta Apostolicae Sedis), npr. „str. 65”.
+  ///
+  /// In hr, this message translates to:
+  /// **'str. {ref}'**
+  String magisteriumRefPage(String ref);
+
+  /// Oznaka na kartici izvora: tap otvara Magisterium.com, koji nema hrvatsko izdanje dokumenta. 'Magisterium.com' ostaje doslovno.
+  ///
+  /// In hr, this message translates to:
+  /// **'Magisterium.com · nije na hrvatskom'**
+  String get magisteriumSourceNotCroatian;
+
+  /// Napomena u sheetu izvora kad pipeline nije spremio citirani tekst.
+  ///
+  /// In hr, this message translates to:
+  /// **'Doslovni odlomak nije preuzet. Magisterium.com nema hrvatsko izdanje, pa se dokument otvara na jeziku izvornika ili u engleskom prijevodu.'**
+  String get magisteriumNoQuotedText;
+
   /// Tooltip na gumbu koji prebacuje s ugrađenog playera na YouTube embed radi veće kvalitete.
   ///
   /// In hr, this message translates to:

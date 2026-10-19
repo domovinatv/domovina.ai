@@ -306,7 +306,7 @@ class MagisteriumSectionAnalysis extends StatefulWidget {
 
 class _MagisteriumSectionAnalysisState
     extends State<MagisteriumSectionAnalysis> {
-  bool _citationsExpanded = false;
+  bool _citationsExpanded = true; // izvori zadano rašireni
 
   @override
   Widget build(BuildContext context) {
@@ -532,14 +532,16 @@ class _FullCitation extends StatelessWidget {
         ? '${cleaned.substring(0, 500)}...'
         : cleaned;
 
+    final l = AppLocalizations.of(context);
     final parts = <String>[
       citation.documentTitle,
-      if (citation.documentReference.isNotEmpty) citation.documentReference,
+      if (citation.documentReference.isNotEmpty)
+        citationRefLabel(citation.documentReference, l),
       if (citation.documentYear.isNotEmpty) citation.documentYear,
     ];
 
     return GestureDetector(
-      onTap: () => showCitationSheet(context, citation),
+      onTap: () => openCitation(context, citation),
       child: Container(
         margin: const EdgeInsets.only(top: 10),
         padding: const EdgeInsets.all(12),
@@ -585,14 +587,25 @@ class _FullCitation extends StatelessWidget {
                   ),
                 ),
               ),
-            const SizedBox(height: 8),
-            Text(
-              displayText,
-              style: theme.textTheme.bodySmall?.copyWith(
-                height: 1.6,
-                fontStyle: FontStyle.italic,
+            if (displayText.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text(
+                displayText,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  height: 1.6,
+                  fontStyle: FontStyle.italic,
+                ),
               ),
-            ),
+            ] else if (citation.sourceUrl.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 2, left: 20),
+                child: Text(
+                  l.magisteriumSourceNotCroatian,
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.colorScheme.primary,
+                  ),
+                ),
+              ),
           ],
         ),
       ),

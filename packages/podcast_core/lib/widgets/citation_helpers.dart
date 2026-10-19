@@ -15,6 +15,30 @@ String cleanCitedText(String raw) {
       .trim();
 }
 
+/// Čitljiva oznaka reference: pipeline piše goli broj paragrafa („74"),
+/// stranicu Acta Apostolicae Sedis („page65") ili odlomak („para-3"); sve
+/// ostalo (naslovi poglavlja, rimski brojevi) ide kako je stiglo.
+String citationRefLabel(String ref, AppLocalizations l) {
+  final r = ref.trim();
+  if (RegExp(r'^\d+$').hasMatch(r)) return l.magisteriumRefNumber(r);
+  final page = RegExp(r'^page[\s-]?(\d+)$', caseSensitive: false).firstMatch(r);
+  if (page != null) return l.magisteriumRefPage(page.group(1)!);
+  final para = RegExp(r'^para-(\d+)$', caseSensitive: false).firstMatch(r);
+  if (para != null) return l.magisteriumRefNumber(para.group(1)!);
+  return r;
+}
+
+/// Tap na citat: sheet samo kad ima što pokazati. MCP pipeline citate sprema
+/// BEZ `cited_text` (izmjereno 19.10.2026.: 394 od 394 u 6 epizoda), pa bi
+/// sheet bio prazan naslov s gumbom — tada odmah otvaramo izvor.
+void openCitation(BuildContext context, MagisteriumCitation citation) {
+  if (cleanCitedText(citation.citedText).isNotEmpty) {
+    showCitationSheet(context, citation);
+  } else if (citation.sourceUrl.isNotEmpty) {
+    openUrl(citation.sourceUrl);
+  }
+}
+
 /// Converts MagisteriumFullCitation to MagisteriumCitation for reuse.
 MagisteriumCitation _toMagCitation(MagisteriumFullCitation c) =>
     MagisteriumCitation(
@@ -28,8 +52,9 @@ MagisteriumCitation _toMagCitation(MagisteriumFullCitation c) =>
 
 /// Shows a bottom sheet for MagisteriumFullCitation.
 void showFullCitationSheet(
-        BuildContext context, MagisteriumFullCitation citation) =>
-    showCitationSheet(context, _toMagCitation(citation));
+  BuildContext context,
+  MagisteriumFullCitation citation,
+) => openCitation(context, _toMagCitation(citation));
 
 /// Shows a bottom sheet with full citation details and link to source.
 void showCitationSheet(BuildContext context, MagisteriumCitation citation) {
@@ -46,7 +71,8 @@ void showCitationSheet(BuildContext context, MagisteriumCitation citation) {
     builder: (ctx) {
       final cleaned = cleanCitedText(citation.citedText);
       final ref = [
-        if (citation.documentReference.isNotEmpty) citation.documentReference,
+        if (citation.documentReference.isNotEmpty)
+          citationRefLabel(citation.documentReference, l),
         if (citation.documentYear.isNotEmpty) citation.documentYear,
       ].join(' — ');
 
@@ -75,14 +101,18 @@ void showCitationSheet(BuildContext context, MagisteriumCitation citation) {
               // Document title
               Row(
                 children: [
-                  Icon(Icons.menu_book,
-                      size: 20, color: theme.colorScheme.primary),
+                  Icon(
+                    Icons.menu_book,
+                    size: 20,
+                    color: theme.colorScheme.primary,
+                  ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       citation.documentTitle,
-                      style: theme.textTheme.titleMedium
-                          ?.copyWith(fontWeight: FontWeight.bold),
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ],
@@ -111,37 +141,49 @@ void showCitationSheet(BuildContext context, MagisteriumCitation citation) {
                 ),
               const SizedBox(height: 16),
               // Cited text — markdown rendered
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color:
-                      theme.colorScheme.surfaceContainerHighest.withAlpha(120),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border(
-                    left: BorderSide(
-                      color: theme.colorScheme.primary.withAlpha(100),
-                      width: 3,
+              if (cleaned.isEmpty)
+                Text(
+                  l.magisteriumNoQuotedText,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                    height: 1.5,
+                  ),
+                )
+              else
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surfaceContainerHighest.withAlpha(
+                      120,
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border(
+                      left: BorderSide(
+                        color: theme.colorScheme.primary.withAlpha(100),
+                        width: 3,
+                      ),
                     ),
                   ),
+                  child: MarkdownBody(
+                    data: cleaned,
+                    styleSheet: MarkdownStyleSheet.fromTheme(theme)
+                        .copyWith(
+                          p: theme.textTheme.bodyMedium?.copyWith(height: 1.7),
+                          em: theme.textTheme.bodyMedium?.copyWith(
+                            fontStyle: FontStyle.italic,
+                            height: 1.7,
+                          ),
+                          strong: theme.textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            height: 1.7,
+                          ),
+                        )
+                        .withBrandBlockquote(theme),
+                    onTapLink: (text, href, title) {
+                      if (href != null) openUrl(href);
+                    },
+                  ),
                 ),
-                child: MarkdownBody(
-                  data: cleaned,
-                  styleSheet: MarkdownStyleSheet.fromTheme(theme).copyWith(
-                    p: theme.textTheme.bodyMedium?.copyWith(height: 1.7),
-                    em: theme.textTheme.bodyMedium?.copyWith(
-                      fontStyle: FontStyle.italic,
-                      height: 1.7,
-                    ),
-                    strong: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      height: 1.7,
-                    ),
-                  ).withBrandBlockquote(theme),
-                  onTapLink: (text, href, title) {
-                    if (href != null) openUrl(href);
-                  },
-                ),
-              ),
               // Open on Magisterium button
               if (citation.sourceUrl.isNotEmpty) ...[
                 const SizedBox(height: 16),

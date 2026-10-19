@@ -2195,6 +2195,32 @@
   "@magisteriumOpenOnMagisterium": {
     "description": "Button in the citation detail sheet that opens the source on Magisterium.com. 'Magisterium.com' kept literal."
   },
+  "magisteriumRefNumber": "br. {ref}",
+  "@magisteriumRefNumber": {
+    "description": "Oznaka citiranog broja (paragrafa) crkvenog dokumenta, npr. „br. 74”.",
+    "placeholders": {
+      "ref": {
+        "type": "String"
+      }
+    }
+  },
+  "magisteriumRefPage": "str. {ref}",
+  "@magisteriumRefPage": {
+    "description": "Oznaka citirane stranice crkvenog dokumenta (Acta Apostolicae Sedis), npr. „str. 65”.",
+    "placeholders": {
+      "ref": {
+        "type": "String"
+      }
+    }
+  },
+  "magisteriumSourceNotCroatian": "Magisterium.com · nije na hrvatskom",
+  "@magisteriumSourceNotCroatian": {
+    "description": "Oznaka na kartici izvora: tap otvara Magisterium.com, koji nema hrvatsko izdanje dokumenta. 'Magisterium.com' ostaje doslovno."
+  },
+  "magisteriumNoQuotedText": "Doslovni odlomak nije preuzet. Magisterium.com nema hrvatsko izdanje, pa se dokument otvara na jeziku izvornika ili u engleskom prijevodu.",
+  "@magisteriumNoQuotedText": {
+    "description": "Napomena u sheetu izvora kad pipeline nije spremio citirani tekst."
+  },
   "mediaYouTubeHigherQuality": "YouTube player (viša kvaliteta)",
   "@mediaYouTubeHigherQuality": {
     "description": "Tooltip na gumbu koji prebacuje s ugrađenog playera na YouTube embed radi veće kvalitete."

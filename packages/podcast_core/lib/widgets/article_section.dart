@@ -350,7 +350,9 @@ class ArticleSectionCard extends StatefulWidget {
 }
 
 class _ArticleSectionCardState extends State<ArticleSectionCard> {
-  bool _citationsExpanded = false;
+  // Izvori su zadano rašireni — median je 2 po odlomku, a skriveni su se
+  // čitali kao da ih nema.
+  bool _citationsExpanded = true;
 
   /// True kad screenshot za ovu sekciju ne postoji (404) — tada kolabiramo
   /// cijeli blok da se ne vidi prazan sivi placeholder.
@@ -887,19 +889,26 @@ class _CitationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l = AppLocalizations.of(context);
     final cleanText = cleanCitedText(citation.citedText);
     final displayText = cleanText.length > 300
         ? '${cleanText.substring(0, 300)}...'
         : cleanText;
+    final hasLink = citation.sourceUrl.isNotEmpty;
 
-    final ref = [
-      citation.documentTitle,
-      if (citation.documentReference.isNotEmpty) citation.documentReference,
+    final meta = [
+      if (citation.documentReference.isNotEmpty)
+        citationRefLabel(citation.documentReference, l),
+      if (citation.documentAuthor.isNotEmpty &&
+          citation.documentAuthor != citation.documentTitle)
+        citation.documentAuthor,
       if (citation.documentYear.isNotEmpty) citation.documentYear,
-    ].join(' — ');
+    ].join(' · ');
 
     return GestureDetector(
-      onTap: () => showCitationSheet(context, citation),
+      onTap: displayText.isNotEmpty || hasLink
+          ? () => openCitation(context, citation)
+          : null,
       child: Container(
         margin: const EdgeInsets.only(top: 8),
         padding: const EdgeInsets.all(10),
@@ -916,34 +925,62 @@ class _CitationCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              displayText,
-              style: theme.textTheme.bodySmall?.copyWith(
-                height: 1.5,
-                fontStyle: FontStyle.italic,
-              ),
-              maxLines: 6,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 6),
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 1),
+                  child: Icon(Icons.menu_book,
+                      size: 14, color: theme.colorScheme.primary),
+                ),
+                const SizedBox(width: 6),
                 Expanded(
                   child: Text(
-                    ref,
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                      fontWeight: FontWeight.w500,
+                    citation.documentTitle,
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
-                Icon(
-                  Icons.open_in_new,
-                  size: 12,
-                  color: theme.colorScheme.primary,
-                ),
+                if (hasLink)
+                  Icon(
+                    Icons.open_in_new,
+                    size: 12,
+                    color: theme.colorScheme.primary,
+                  ),
               ],
             ),
+            if (meta.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 2, left: 20),
+                child: Text(
+                  meta,
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+            if (displayText.isNotEmpty) ...[
+              const SizedBox(height: 6),
+              Text(
+                displayText,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  height: 1.5,
+                  fontStyle: FontStyle.italic,
+                ),
+                maxLines: 6,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ] else if (hasLink)
+              Padding(
+                padding: const EdgeInsets.only(top: 2, left: 20),
+                child: Text(
+                  l.magisteriumSourceNotCroatian,
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.colorScheme.primary,
+                  ),
+                ),
+              ),
           ],
         ),
       ),

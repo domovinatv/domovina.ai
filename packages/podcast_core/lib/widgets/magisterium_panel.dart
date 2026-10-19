@@ -303,7 +303,7 @@ class _MagisteriumFullContent extends StatefulWidget {
 }
 
 class _MagisteriumFullContentState extends State<_MagisteriumFullContent> {
-  bool _citationsExpanded = false;
+  bool _citationsExpanded = true; // izvori zadano rašireni
 
   @override
   Widget build(BuildContext context) {
@@ -521,8 +521,11 @@ class _FullCitationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l = AppLocalizations.of(context);
     final authorYear = [
       citation.documentAuthor ?? '',
+      if ((citation.documentReference ?? '').isNotEmpty)
+        citationRefLabel(citation.documentReference!, l),
       citation.documentYear ?? '',
     ].where((s) => s.isNotEmpty).join(', ');
 

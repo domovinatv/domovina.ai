@@ -1695,6 +1695,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get magisteriumOpenOnMagisterium => 'Open on Magisterium.com';
 
   @override
+  String magisteriumRefNumber(String ref) {
+    return 'no. $ref';
+  }
+
+  @override
+  String magisteriumRefPage(String ref) {
+    return 'p. $ref';
+  }
+
+  @override
+  String get magisteriumSourceNotCroatian => 'Magisterium.com';
+
+  @override
+  String get magisteriumNoQuotedText =>
+      'The exact passage was not retrieved. Magisterium.com opens the document in its original language or in English translation.';
+
+  @override
   String get mediaYouTubeHigherQuality => 'YouTube player (higher quality)';
 
   @override
