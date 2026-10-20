@@ -1412,6 +1412,18 @@ abstract class AppLocalizations {
   /// **'Ne možemo dohvatiti termine.'**
   String get channelCannotFetchSlots;
 
+  /// Cal.com rezervacija odbijena bez poruke servera.
+  ///
+  /// In hr, this message translates to:
+  /// **'Rezervacija nije uspjela. Pokušaj drugi termin.'**
+  String get channelBookingFailed;
+
+  /// Cal.com proxy vratio odgovor bez očekivanih polja.
+  ///
+  /// In hr, this message translates to:
+  /// **'Neočekivan odgovor servera.'**
+  String get channelBookingUnexpectedResponse;
+
   /// Empty state when no booking slots are available.
   ///
   /// In hr, this message translates to:
@@ -2869,6 +2881,18 @@ abstract class AppLocalizations {
   /// In hr, this message translates to:
   /// **'Isključi zvuk (M)'**
   String get mediaMute;
+
+  /// Tooltip na gumbu za Picture-in-Picture.
+  ///
+  /// In hr, this message translates to:
+  /// **'Slika u slici'**
+  String get mediaPictureInPicture;
+
+  /// Snackbar kad uređaj ne podržava Picture-in-Picture.
+  ///
+  /// In hr, this message translates to:
+  /// **'Slika u slici nije podržana na ovom uređaju.'**
+  String get mediaPictureInPictureUnsupported;
 
   /// Tooltip na središnjem play/pause gumbu kad video svira.
   ///

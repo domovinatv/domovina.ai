@@ -1020,6 +1020,14 @@
   "@channelCannotFetchSlots": {
     "description": "Error fallback when fetching booking slots fails."
   },
+  "channelBookingFailed": "Rezervacija nije uspjela. Pokušaj drugi termin.",
+  "@channelBookingFailed": {
+    "description": "Cal.com rezervacija odbijena bez poruke servera."
+  },
+  "channelBookingUnexpectedResponse": "Neočekivan odgovor servera.",
+  "@channelBookingUnexpectedResponse": {
+    "description": "Cal.com proxy vratio odgovor bez očekivanih polja."
+  },
   "channelNoSlotsThreeWeeks": "Trenutačno nema slobodnih termina u sljedeća tri tjedna.",
   "@channelNoSlotsThreeWeeks": {
     "description": "Empty state when no booking slots are available."
@@ -2243,6 +2251,14 @@
   "mediaMute": "Isključi zvuk (M)",
   "@mediaMute": {
     "description": "Tooltip na gumbu za zvuk dok zvuk svira; (M) je tipkovnička kratica."
+  },
+  "mediaPictureInPicture": "Slika u slici",
+  "@mediaPictureInPicture": {
+    "description": "Tooltip na gumbu za Picture-in-Picture."
+  },
+  "mediaPictureInPictureUnsupported": "Slika u slici nije podržana na ovom uređaju.",
+  "@mediaPictureInPictureUnsupported": {
+    "description": "Snackbar kad uređaj ne podržava Picture-in-Picture."
   },
   "mediaPause": "Pauziraj",
   "@mediaPause": {

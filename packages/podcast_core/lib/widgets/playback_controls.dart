@@ -350,10 +350,12 @@ class PictureInPictureButton extends StatelessWidget {
       messenger
         ..hideCurrentSnackBar()
         ..showSnackBar(
-          const SnackBar(
-            content: Text('Picture-in-Picture nije podržan na ovom uređaju.'),
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context).mediaPictureInPictureUnsupported,
+            ),
             behavior: SnackBarBehavior.floating,
-            duration: Duration(seconds: 3),
+            duration: const Duration(seconds: 3),
           ),
         );
     }
@@ -374,7 +376,7 @@ class PictureInPictureButton extends StatelessWidget {
         }
         return IconButton(
           icon: Icon(Icons.picture_in_picture_alt, color: color),
-          tooltip: 'Picture in Picture',
+          tooltip: AppLocalizations.of(context).mediaPictureInPicture,
           onPressed: () => _toggle(context),
         );
       },

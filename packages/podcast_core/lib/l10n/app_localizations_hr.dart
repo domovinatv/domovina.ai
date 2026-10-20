@@ -787,6 +787,13 @@ class AppLocalizationsHr extends AppLocalizations {
   String get channelCannotFetchSlots => 'Ne možemo dohvatiti termine.';
 
   @override
+  String get channelBookingFailed =>
+      'Rezervacija nije uspjela. Pokušaj drugi termin.';
+
+  @override
+  String get channelBookingUnexpectedResponse => 'Neočekivan odgovor servera.';
+
+  @override
   String get channelNoSlotsThreeWeeks =>
       'Trenutačno nema slobodnih termina u sljedeća tri tjedna.';
 
@@ -1751,6 +1758,13 @@ class AppLocalizationsHr extends AppLocalizations {
 
   @override
   String get mediaMute => 'Isključi zvuk (M)';
+
+  @override
+  String get mediaPictureInPicture => 'Slika u slici';
+
+  @override
+  String get mediaPictureInPictureUnsupported =>
+      'Slika u slici nije podržana na ovom uređaju.';
 
   @override
   String get mediaPause => 'Pauziraj';

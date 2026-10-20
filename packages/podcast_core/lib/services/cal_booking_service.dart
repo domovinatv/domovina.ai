@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 
 import '../brand/app_brand.dart';
 import '../src/log.dart' show log;
+import 'locale_service.dart' show appStrings;
 
 /// Klijent za Cal.com booking ("15 min DOMOVINA.ai" / stepanic/15min).
 ///
@@ -84,7 +85,7 @@ class CalBookingService {
     final res = await _client.get(uri);
     if (res.statusCode != 200) {
       log('CalBookingService.fetchSlots HTTP ${res.statusCode}: ${res.body}');
-      throw const CalException('Ne mogu dohvatiti slobodne termine.');
+      throw CalException(appStrings.channelCannotFetchSlots);
     }
     final body = jsonDecode(res.body) as Map<String, dynamic>;
     final data = (body['data'] as Map<String, dynamic>?) ?? const {};
@@ -125,7 +126,7 @@ class CalBookingService {
     try {
       body = jsonDecode(res.body) as Map<String, dynamic>;
     } catch (_) {
-      throw const CalException('Neočekivan odgovor servera.');
+      throw CalException(appStrings.channelBookingUnexpectedResponse);
     }
     final ok = res.statusCode >= 200 &&
         res.statusCode < 300 &&
@@ -142,7 +143,7 @@ class CalBookingService {
             ? body['error']['message'] as String?
             : null) ??
         body['message'] as String? ??
-        'Rezervacija nije uspjela. Pokušaj drugi termin.';
+        appStrings.channelBookingFailed;
     log('CalBookingService.createBooking FAIL ${res.statusCode}: $msg');
     throw CalException(msg);
   }

@@ -482,6 +482,21 @@ class _LoadingScreen extends StatelessWidget {
 
   const _LoadingScreen({required this.youtubeId, required this.assetStatus});
 
+  /// Imena asseta iz `EpisodeData.loadWithProgress` su hrvatski ključevi;
+  /// ovdje ih prevodimo na UI jezik. Magisterium i Info su vlastita imena.
+  static String _assetLabel(String key, AppLocalizations l) {
+    final en = key.endsWith(' (EN)');
+    final base = en ? key.substring(0, key.length - 5) : key;
+    final label = switch (base) {
+      'Sažetak' => l.sectionSummary,
+      'Poglavlja' => l.sectionChapters,
+      'Članak' => l.sectionArticle,
+      'Transkript' => l.episodeStepTranscript,
+      _ => base,
+    };
+    return en ? '$label (EN)' : label;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -561,7 +576,7 @@ class _LoadingScreen extends StatelessWidget {
                           ),
                           const SizedBox(width: 10),
                           Text(
-                            e.key,
+                            _assetLabel(e.key, l),
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: done && !ok
                                   ? theme.colorScheme.onSurfaceVariant

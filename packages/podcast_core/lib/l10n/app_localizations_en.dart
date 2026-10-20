@@ -785,6 +785,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get channelCannotFetchSlots => 'We couldn’t load the available times.';
 
   @override
+  String get channelBookingFailed => 'Booking failed. Please try another time.';
+
+  @override
+  String get channelBookingUnexpectedResponse => 'Unexpected server response.';
+
+  @override
   String get channelNoSlotsThreeWeeks =>
       'There are no open slots in the next three weeks.';
 
@@ -1734,6 +1740,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mediaMute => 'Mute (M)';
+
+  @override
+  String get mediaPictureInPicture => 'Picture-in-Picture';
+
+  @override
+  String get mediaPictureInPictureUnsupported =>
+      'Picture-in-Picture isn’t supported on this device.';
 
   @override
   String get mediaPause => 'Pause';
