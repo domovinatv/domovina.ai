@@ -101,3 +101,13 @@ dvaput je zapela pa je odbačena — Safari ostaje za ručni test na iPhoneu.
 - **WebP za TV reader** (`tv_episode_reader_screen.dart`) još crta PNG.
 - Video se u aplikaciji otvara tek nakon `episode.json`; hladni share link je
   izmjeren na ~26 s do zahtjeva za video (od toga ~19 s boot wasma).
+
+## Dopuna 24. 10. 2026. — fmp4 bez interleavinga ruši libmpv
+
+Prvi fmp4-ovi (11.–24.10.) imali su po fragmentu jedan video pa jedan audio trun;
+libmpv u iOS aplikaciji (`cache=no`) zbog toga je skakao natrag-naprijed i preko
+CDN-a otvarao novi TLS po uzorku — `kmVTa8OjHpc` nije mogao bufferirati (460 HTTP
+zahtjeva za 2 min videa). Pipeline sada remuxa s `-frag_interleave 25`, a
+`verifyFmp4` odbija ne-interleavan izlaz; svih 55 datoteka prepisano + purge.
+Ovaj test u Chromeu je to propustio jer Chrome ima vlastiti buffer. Mjerenja i
+zamke: `../fetch.domovina.tv/docs/2026-10-24-fmp4-interleave-ios-zastajkivanje.md`.
