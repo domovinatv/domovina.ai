@@ -199,8 +199,11 @@ class EpisodePlaybackSession extends ChangeNotifier {
       if (_hwdecOverride.isNotEmpty) {
         await p.setProperty('hwdec', _hwdecOverride);
       }
-      // Suprimira „Failed to create file cache" (Android sandbox).
-      await p.setProperty('cache', 'no');
+      // „Failed to create file cache" (Android sandbox) dolazi od cache-a na
+      // disku; gasi se samo on. `cache=no` je gasio i memorijski readahead
+      // (media_kit default: 32 MB) pa je TV na slabijoj mreži zapinjao.
+      await p.setProperty('cache', 'yes');
+      await p.setProperty('cache-on-disk', 'no');
       log('PlaybackSession: mpv hwdec-codecs=$_hwdecCodecs'
           '${_hwdecOverride.isEmpty ? '' : ' hwdec=$_hwdecOverride'}');
     } catch (e) {
