@@ -500,3 +500,29 @@ prema Certiliji bio prekinut na prvom koraku.
 **Pravilo za idući put**: review kruga gleda diff onoga što je task dirao, pa
 NE vidi točku iz plana koja uopće nije napisana. Kad plan nabraja N stavki,
 zapisnik taska mora izrijekom reći koliko ih je isporučeno.
+
+## Privremeno skriveno (26.10.2026., v2.0.200)
+
+Značajka je ugašena za krajnje korisnike jer je na domovina.ai još zbunjujuća
+i nije dovoljno razrađena. Kod, baza, RPC-evi i `voting-drift-check.sh` rade
+dalje; ništa nije obrisano.
+
+Kako je skrivena:
+
+- `packages/podcast_core/lib/brand/domovina_brand.dart` — `voting: false`.
+  Postojeća zastavica već je gatala sve ulaze: rute `/glasanje*`
+  (`app_router.dart`), rail na naslovnici, chip u zaglavlju, traku na
+  `/channels`, karticu u Mom računu (i njezin `VotingService.refresh`) i
+  `upTarget`. Stari linkovi na `/glasanje` padaju u `errorPageBuilder`, tj.
+  na naslovnicu.
+- `web/_worker.js` — `VOTING_HIDDEN = true`. Env `FEATURE_VOTING` je zadano
+  `true`, pa bi bez ovoga worker i dalje davao OG kartu glasanja i slao
+  `/glasanje*` u native app kroz AASA. Provjereno na produkciji: AASA bez
+  `/glasanje`, `/glasanje` dobiva OG naslovnice.
+- Prijava e-Osobnom (Certilia) NIJE dio ove zastavice i ostaje.
+
+Vraćanje: `voting: true`, `VOTING_HIDDEN = false`, a u
+`test/feature_flags_test.dart` invarijanta `domovinaBrand` opet
+`containsAll(votingRoutes)` + `isUnroutable('/glasanje') == false`. Što
+točno je korisnicima bilo zbunjujuće još nije zapisano — to je prvo pitanje
+prije povratka.
