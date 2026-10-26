@@ -865,6 +865,24 @@ na 390 px: seek je sjeo na 5963 s, a poruka nije krenula). Panel platna je sad
 uvijek montiran, ali `_revealPlayer` i dalje ponovi `play()` na 300/900 ms kao
 osigurač — osim ako je korisnik u međuvremenu pauzirao (`PlaybackIntent`).
 
+### Istaknuti trenuci (reels) — `EpisodeReels` (LIVE od v2.0.197)
+
+`data/<id>/reels.json` (fetch pipeline): trake na seek baru za sve kandidate,
+„Istaknuti trenuci" u `VideoPanel` i `_PlayerTab`, 9:16 modal
+(`showReelViewer`) za one s `render.url`. Odluke, zamke i otvoreno:
+`docs/2026-10-26-istaknuti-trenuci-reels.md`.
+
+**Rule (reels.json je promjenjiv)**: traži se samo kad ga `episode.json`
+navodi, i ide kroz `CdnJsonCache.getMutable`, NE kroz `_get` (cache-first na
+disku) — pipeline ga prepisuje. CDN ga zato servira `max-age=60` + ETag.
+
+**Rule (markeri prate uvlaku Slidera)**: track je uvučen za radijus overlaya s
+obje strane; marker crtan preko pune širine odstupa do 14 px (~5 min u 2 h).
+
+**Popis poglavlja u panelu playera je OBSOLETE** (`_kShowChapterList = false`
+u `video_panel.dart`): poglavlja su u lijevom sidebaru i u članku, a njegov
+auto-scroll je odvlačio panel. Kod ostaje; ne vraćati bez razloga.
+
 ### Plaćeni sponzorski trenuci — `SponsoredMoment` (od 7.10.2026., nedeployano)
 
 Samoposlužni oglas na `domovina_tv`: izlog `/c/:slug/oglasi`, karta + checkout
