@@ -12,6 +12,7 @@ import '../services/episode_language.dart';
 import '../services/share_links.dart';
 import '../src/log.dart' show log;
 import 'cached_thumbnail.dart';
+import 'reel_share_sheet.dart' show showReelShareSheet;
 import 'sponsors_in_video_section.dart' show formatSponsorClock;
 
 /// Istaknuti trenuci (`reels.json`) u playeru: trake na seek baru, popis u
@@ -446,6 +447,21 @@ class _ReelViewerState extends State<_ReelViewer> {
     );
   }
 
+  /// 9:16 isječak kao datoteka + 16:9 isti raspon s cuttera.
+  void _share(BuildContext context) {
+    showReelShareSheet(
+      context,
+      reel: widget.reel,
+      youtubeId: widget.youtubeId,
+      episodeUrl: episodeShareUrl(
+        widget.youtubeId,
+        seconds: widget.reel.startSeconds,
+        lang: widget.language,
+      ),
+      messenger: ScaffoldMessenger.of(context),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
@@ -508,6 +524,11 @@ class _ReelViewerState extends State<_ReelViewer> {
                     runSpacing: 8,
                     children: [
                       FilledButton.icon(
+                        icon: const Icon(Icons.ios_share),
+                        label: Text(l.commonShare),
+                        onPressed: () => _share(context),
+                      ),
+                      FilledButton.tonalIcon(
                         icon: const Icon(Icons.smart_display_outlined),
                         label: Text(l.reelsWatchInEpisode),
                         onPressed: () => Navigator.of(context).pop(true),

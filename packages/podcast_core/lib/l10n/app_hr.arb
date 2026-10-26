@@ -5943,5 +5943,49 @@
   "reelsPlaybackError": "Isječak se trenutno ne može pustiti.",
   "@reelsPlaybackError": {
     "description": "Shown in the clip viewer when the vertical clip fails to load."
+  },
+  "reelsShareTitle": "Istaknuti trenutak",
+  "@reelsShareTitle": {
+    "description": "Overline heading of the share sheet opened from the vertical clip viewer, above the moment title."
+  },
+  "reelsSendVideo": "Pošalji vertikalni video (9:16)",
+  "@reelsSendVideo": {
+    "description": "Share-sheet action: send the vertical clip as a video file through the system share sheet (WhatsApp, Messages…)."
+  },
+  "reelsDownloadVideo": "Preuzmi vertikalni video (9:16)",
+  "@reelsDownloadVideo": {
+    "description": "Same action as reelsSendVideo on platforms that cannot share files (desktop browser): the clip is downloaded."
+  },
+  "reelsSendHint": "WhatsApp, poruke, e-pošta",
+  "@reelsSendHint": {
+    "description": "Subtitle hint under the send-video action listing typical destinations."
+  },
+  "reelsPreparing": "Pripremam video…",
+  "@reelsPreparing": {
+    "description": "Subtitle while the vertical clip file is being downloaded before it can be shared."
+  },
+  "reelsCopyVideoLink": "Kopiraj vezu na video",
+  "@reelsCopyVideoLink": {
+    "description": "Share-sheet action: copy the direct link to the vertical clip file."
+  },
+  "reelsVideoLinkCopied": "Veza na video kopirana",
+  "@reelsVideoLinkCopied": {
+    "description": "Snackbar after copying the direct link to the vertical clip."
+  },
+  "reelsVideoDownloaded": "Video je preuzet",
+  "@reelsVideoDownloaded": {
+    "description": "Snackbar after the clip was downloaded as a file because the platform cannot share files."
+  },
+  "reelsShareFailed": "Video se nije uspio pripremiti. Pokušaj ponovno.",
+  "@reelsShareFailed": {
+    "description": "Snackbar when downloading or sharing the vertical clip failed."
+  },
+  "reelsDownloadWide": "Preuzmi vodoravni isječak (16:9)",
+  "@reelsDownloadWide": {
+    "description": "Share-sheet action: download the same moment cut from the episode as a 16:9 MP4 (cutter service)."
+  },
+  "reelsCopyWideLink": "Kopiraj vezu na vodoravni isječak (16:9)",
+  "@reelsCopyWideLink": {
+    "description": "Share-sheet action: copy a link to the 16:9 cutter clip of the same moment."
   }
 }

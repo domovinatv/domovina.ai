@@ -167,6 +167,9 @@ class EbookService {
     return '$base${isEn ? '-en' : ''}.epub';
   }
 
+  /// Isti slug za druge datoteke koje putuju kroz share (npr. reel MP4).
+  static String fileSlug(String title) => _slug(title);
+
   static const Map<String, String> _translit = {
     'č': 'c', 'ć': 'c', 'ž': 'z', 'š': 's', 'đ': 'd',
     'Č': 'C', 'Ć': 'C', 'Ž': 'Z', 'Š': 'S', 'Đ': 'D',

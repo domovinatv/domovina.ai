@@ -4742,4 +4742,38 @@ class AppLocalizationsHr extends AppLocalizations {
 
   @override
   String get reelsPlaybackError => 'Isječak se trenutno ne može pustiti.';
+
+  @override
+  String get reelsShareTitle => 'Istaknuti trenutak';
+
+  @override
+  String get reelsSendVideo => 'Pošalji vertikalni video (9:16)';
+
+  @override
+  String get reelsDownloadVideo => 'Preuzmi vertikalni video (9:16)';
+
+  @override
+  String get reelsSendHint => 'WhatsApp, poruke, e-pošta';
+
+  @override
+  String get reelsPreparing => 'Pripremam video…';
+
+  @override
+  String get reelsCopyVideoLink => 'Kopiraj vezu na video';
+
+  @override
+  String get reelsVideoLinkCopied => 'Veza na video kopirana';
+
+  @override
+  String get reelsVideoDownloaded => 'Video je preuzet';
+
+  @override
+  String get reelsShareFailed =>
+      'Video se nije uspio pripremiti. Pokušaj ponovno.';
+
+  @override
+  String get reelsDownloadWide => 'Preuzmi vodoravni isječak (16:9)';
+
+  @override
+  String get reelsCopyWideLink => 'Kopiraj vezu na vodoravni isječak (16:9)';
 }

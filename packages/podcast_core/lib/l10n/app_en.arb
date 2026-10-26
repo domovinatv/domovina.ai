@@ -1221,5 +1221,16 @@
   "reelsWatchShort": "Watch",
   "reelsJumpTo": "Jump to {time} in the episode",
   "reelsWatchInEpisode": "Watch in the full episode",
-  "reelsPlaybackError": "This clip can't be played right now."
+  "reelsPlaybackError": "This clip can't be played right now.",
+  "reelsShareTitle": "Highlight",
+  "reelsSendVideo": "Send vertical video (9:16)",
+  "reelsDownloadVideo": "Download vertical video (9:16)",
+  "reelsSendHint": "WhatsApp, messages, email",
+  "reelsPreparing": "Preparing video…",
+  "reelsCopyVideoLink": "Copy link to video",
+  "reelsVideoLinkCopied": "Video link copied",
+  "reelsVideoDownloaded": "Video downloaded",
+  "reelsShareFailed": "Couldn't prepare the video. Try again.",
+  "reelsDownloadWide": "Download horizontal clip (16:9)",
+  "reelsCopyWideLink": "Copy link to horizontal clip (16:9)"
 }

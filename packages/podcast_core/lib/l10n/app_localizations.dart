@@ -7438,6 +7438,72 @@ abstract class AppLocalizations {
   /// In hr, this message translates to:
   /// **'Isječak se trenutno ne može pustiti.'**
   String get reelsPlaybackError;
+
+  /// Overline heading of the share sheet opened from the vertical clip viewer, above the moment title.
+  ///
+  /// In hr, this message translates to:
+  /// **'Istaknuti trenutak'**
+  String get reelsShareTitle;
+
+  /// Share-sheet action: send the vertical clip as a video file through the system share sheet (WhatsApp, Messages…).
+  ///
+  /// In hr, this message translates to:
+  /// **'Pošalji vertikalni video (9:16)'**
+  String get reelsSendVideo;
+
+  /// Same action as reelsSendVideo on platforms that cannot share files (desktop browser): the clip is downloaded.
+  ///
+  /// In hr, this message translates to:
+  /// **'Preuzmi vertikalni video (9:16)'**
+  String get reelsDownloadVideo;
+
+  /// Subtitle hint under the send-video action listing typical destinations.
+  ///
+  /// In hr, this message translates to:
+  /// **'WhatsApp, poruke, e-pošta'**
+  String get reelsSendHint;
+
+  /// Subtitle while the vertical clip file is being downloaded before it can be shared.
+  ///
+  /// In hr, this message translates to:
+  /// **'Pripremam video…'**
+  String get reelsPreparing;
+
+  /// Share-sheet action: copy the direct link to the vertical clip file.
+  ///
+  /// In hr, this message translates to:
+  /// **'Kopiraj vezu na video'**
+  String get reelsCopyVideoLink;
+
+  /// Snackbar after copying the direct link to the vertical clip.
+  ///
+  /// In hr, this message translates to:
+  /// **'Veza na video kopirana'**
+  String get reelsVideoLinkCopied;
+
+  /// Snackbar after the clip was downloaded as a file because the platform cannot share files.
+  ///
+  /// In hr, this message translates to:
+  /// **'Video je preuzet'**
+  String get reelsVideoDownloaded;
+
+  /// Snackbar when downloading or sharing the vertical clip failed.
+  ///
+  /// In hr, this message translates to:
+  /// **'Video se nije uspio pripremiti. Pokušaj ponovno.'**
+  String get reelsShareFailed;
+
+  /// Share-sheet action: download the same moment cut from the episode as a 16:9 MP4 (cutter service).
+  ///
+  /// In hr, this message translates to:
+  /// **'Preuzmi vodoravni isječak (16:9)'**
+  String get reelsDownloadWide;
+
+  /// Share-sheet action: copy a link to the 16:9 cutter clip of the same moment.
+  ///
+  /// In hr, this message translates to:
+  /// **'Kopiraj vezu na vodoravni isječak (16:9)'**
+  String get reelsCopyWideLink;
 }
 
 class _AppLocalizationsDelegate

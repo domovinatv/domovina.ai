@@ -4697,4 +4697,37 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reelsPlaybackError => 'This clip can\'t be played right now.';
+
+  @override
+  String get reelsShareTitle => 'Highlight';
+
+  @override
+  String get reelsSendVideo => 'Send vertical video (9:16)';
+
+  @override
+  String get reelsDownloadVideo => 'Download vertical video (9:16)';
+
+  @override
+  String get reelsSendHint => 'WhatsApp, messages, email';
+
+  @override
+  String get reelsPreparing => 'Preparing video…';
+
+  @override
+  String get reelsCopyVideoLink => 'Copy link to video';
+
+  @override
+  String get reelsVideoLinkCopied => 'Video link copied';
+
+  @override
+  String get reelsVideoDownloaded => 'Video downloaded';
+
+  @override
+  String get reelsShareFailed => 'Couldn\'t prepare the video. Try again.';
+
+  @override
+  String get reelsDownloadWide => 'Download horizontal clip (16:9)';
+
+  @override
+  String get reelsCopyWideLink => 'Copy link to horizontal clip (16:9)';
 }
