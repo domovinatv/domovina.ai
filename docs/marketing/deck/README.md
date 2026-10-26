@@ -35,6 +35,16 @@ Uzeti su sa **žive produkcije**, ne iz lokalnog builda. Flutter na
 `domovina.ai` traži ~30 s do prvog painta u automatiziranom Chromeu — prerani
 screenshot je prazna stranica, ne puknuta stranica.
 
+Ponovno snimanje: `node scripts/deck-shots.mjs` (headed sistemski Chrome,
+1440×817 @2x, 45 s po stranici).
+
+**Rule (prije zamjene pogledaj što je na slici)**: 26.10.2026. novi shotovi
+NISU ugrađeni. Naslovnica od v2.0.200 nema glasanje, a opis ispod slike i dalje
+tvrdi „the public creator vote”. Epizoda je na dnu nosila „Sponzorski trenuci —
+DOMOVINA TV · Prikupljeno 0 €” (bug iz
+`../../plans/2026-10-06-mvp-sponzorski-trenuci-zakljucak.md`, backend 1) i
+„Uključi zvuk” preko videa. Opis i slika mijenjaju se zajedno.
+
 ## Layout
 
 Deck mora stati u ekran bez scrolla na **svakoj** projektorskoj rezoluciji od
