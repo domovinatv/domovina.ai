@@ -17,6 +17,7 @@ import '../models/episode_status.dart';
 import '../models/person_hub.dart' show personSlug;
 import '../models/podcast_article.dart' show PodcastSection;
 import '../models/sponsored_moment.dart';
+import '../models/episode_reels.dart';
 import '../models/sponsors_in_video.dart';
 import '../services/sponsored_moments_controller.dart';
 import '../services/sponsored_moments_service.dart';
@@ -51,6 +52,7 @@ import '../widgets/hero_section.dart';
 import '../widgets/language_toggle_chip.dart';
 import '../pinka_sdk/pinka_sdk.dart';
 import '../widgets/summary_section.dart';
+import '../widgets/episode_reels.dart';
 import '../widgets/sponsors_in_video_section.dart';
 import '../widgets/chapters_section.dart';
 import '../widgets/find_in_episode_section.dart';
@@ -854,6 +856,10 @@ class _EpisodeContentState extends State<_EpisodeContent>
   /// dok ne stigne, i zauvijek kad ih nema ili dohvat padne.
   SponsoredMomentsController? _sponsored;
 
+  /// Istaknuti trenuci i 9:16 isječci (`reels.json`) — isto lijeno i izvan
+  /// [EpisodeData.load]; null dok ne stignu i zauvijek kad ih nema.
+  EpisodeReels? _reels;
+
   @override
   void initState() {
     super.initState();
@@ -874,6 +880,10 @@ class _EpisodeContentState extends State<_EpisodeContent>
     ) {
       if (!mounted || found == null) return;
       setState(() => _sponsored = SponsoredMomentsController(found));
+    });
+    DataService(youtubeId: widget.data.youtubeId).loadReels().then((found) {
+      if (!mounted || found == null) return;
+      setState(() => _reels = found);
     });
 
     // 1) URL forsiranje (npr. /v/<id>/en) — najjaci signal.
@@ -2256,6 +2266,56 @@ class _EpisodeContentState extends State<_EpisodeContent>
     _revealPlayer();
   }
 
+  /// Tap na istaknuti trenutak: članak skoči na sekciju u koju PADA POČETAK
+  /// trenutka (kao tap na poglavlje), a video na točnu sekundu trenutka, ne
+  /// na početak sekcije. Adresna traka se sama poravna na `/v/<id>/t/<sec>`.
+  void _jumpReel(EpisodeReel reel) {
+    log('Reels: jump #${reel.rank} ${reel.startSeconds}s');
+    _sponsorClip = null;
+    final ts = _sectionAt(reel.startPosition);
+    if (ts != null) {
+      setState(() {
+        _activeTimestamp = ts;
+        _scrollTimestamp = ts;
+      });
+      _scrollToSection(ts);
+    }
+    _seekToAndPlay(reel.startPosition);
+    _revealPlayer();
+  }
+
+  /// Zadnja sekcija s početkom ≤ [pos]; trenutak prije prve ide u prvu.
+  String? _sectionAt(Duration pos) {
+    String? ts;
+    for (final s in _sortedSections) {
+      if (s.dur > pos) break;
+      ts = s.ts;
+    }
+    return ts ?? (_sortedSections.isEmpty ? null : _sortedSections.first.ts);
+  }
+
+  /// „Pogledaj" na renderiranom trenutku: epizoda se pauzira dok isječak
+  /// svira. „Pogledaj u cijeloj epizodi" skoči na trenutak; obično zatvaranje
+  /// vrati epizodu u stanje prije (svirala → svira dalje s istog mjesta).
+  Future<void> _watchReel(EpisodeReel reel) async {
+    final player = _player;
+    final wasPlaying = player?.state.playing ?? false;
+    await player?.pause();
+    if (!mounted) return;
+    final jump = await showReelViewer(
+      context,
+      reel: reel,
+      youtubeId: widget.data.youtubeId,
+      language: _language,
+    );
+    if (!mounted) return;
+    if (jump) {
+      _jumpReel(reel);
+    } else if (wasPlaying) {
+      await _player?.play();
+    }
+  }
+
   /// Plaćeni trenuci po sekciji članka (sidro je vrijeme).
   Map<String, List<SponsoredMoment>> get _sponsoredMarks =>
       _sponsored?.moments.marksBySection([
@@ -2950,6 +3010,9 @@ class _EpisodeContentState extends State<_EpisodeContent>
               onSponsorListen: _listenSponsor,
               sponsoredMoments: _sponsored,
               onSponsoredListen: _listenSponsored,
+              reels: _reels,
+              onReelJump: _videoReady ? _jumpReel : null,
+              onReelWatch: _watchReel,
               totalDurationSeconds: data.info.duration,
               speakerTimeline: data.speakerTimeline,
               speakers: summaryForUi.summary.speakers,
@@ -2986,6 +3049,9 @@ class _EpisodeContentState extends State<_EpisodeContent>
             onSponsorListen: _listenSponsor,
             sponsoredMoments: _sponsored,
             onSponsoredListen: _listenSponsored,
+            reels: _reels,
+            onReelJump: _videoReady ? _jumpReel : null,
+            onReelWatch: _watchReel,
             totalDurationSeconds: data.info.duration,
             speakerTimeline: data.speakerTimeline,
             speakers: summaryForUi.summary.speakers,
@@ -3038,6 +3104,9 @@ class _EpisodeContentState extends State<_EpisodeContent>
             onSponsorListen: _listenSponsor,
             sponsoredMoments: _sponsored,
             onSponsoredListen: _listenSponsored,
+            reels: _reels,
+            onReelJump: _videoReady ? _jumpReel : null,
+            onReelWatch: _watchReel,
             totalDurationSeconds: data.info.duration,
             speakerTimeline: data.speakerTimeline,
             speakers: summaryForUi.summary.speakers,
@@ -3109,6 +3178,9 @@ class _EpisodeContentState extends State<_EpisodeContent>
               onSponsorListen: _listenSponsor,
               sponsoredMoments: _sponsored,
               onSponsoredListen: _listenSponsored,
+              reels: _reels,
+              onReelJump: _videoReady ? _jumpReel : null,
+              onReelWatch: _watchReel,
               totalDurationSeconds: data.info.duration,
               speakerTimeline: data.speakerTimeline,
               speakers: summaryForUi.summary.speakers,
@@ -3529,6 +3601,9 @@ class _EpisodeContentState extends State<_EpisodeContent>
             onSponsorListen: _listenSponsor,
             sponsoredMoments: _sponsored,
             onSponsoredListen: _listenSponsored,
+            reels: _reels,
+            onReelJump: _videoReady ? _jumpReel : null,
+            onReelWatch: _watchReel,
             totalDurationSeconds: data.info.duration,
             speakerTimeline: data.speakerTimeline,
           ),
@@ -3562,6 +3637,9 @@ class _EpisodeContentState extends State<_EpisodeContent>
               onSponsorListen: _listenSponsor,
               sponsoredMoments: _sponsored,
               onSponsoredListen: _listenSponsored,
+              reels: _reels,
+              onReelJump: _videoReady ? _jumpReel : null,
+              onReelWatch: _watchReel,
               totalDurationSeconds: data.info.duration,
               speakerTimeline: data.speakerTimeline,
               width: null,

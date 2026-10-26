@@ -5,6 +5,7 @@ import '../l10n/app_localizations.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 
+import '../models/episode_reels.dart';
 import '../models/speaker_timeline.dart';
 import '../models/sponsored_moment.dart';
 import '../models/sponsors_in_video.dart';
@@ -13,6 +14,7 @@ import '../models/podcast_summary.dart';
 import '../services/seek_undo.dart';
 import '../theme/app_theme.dart';
 import 'audio_poster.dart';
+import 'episode_reels.dart';
 import 'episode_video.dart';
 import 'subtitle_caption.dart';
 import 'playback_controls.dart';
@@ -68,6 +70,12 @@ class VideoPanel extends StatefulWidget {
   final SponsoredMomentsController? sponsoredMoments;
   final void Function(SponsoredMoment moment)? onSponsoredListen;
 
+  /// Istaknuti trenuci (`reels.json`): trake iznad tracka seek bara i popis
+  /// ispod sponzora. Skok i vertikalni isječak vodi ekran.
+  final EpisodeReels? reels;
+  final void Function(EpisodeReel reel)? onReelJump;
+  final void Function(EpisodeReel reel)? onReelWatch;
+
   /// YouTube ID epizode — omogućuje in-app YouTube embed mode (web).
   final String? youtubeId;
 
@@ -101,6 +109,9 @@ class VideoPanel extends StatefulWidget {
     this.onSponsorListen,
     this.sponsoredMoments,
     this.onSponsoredListen,
+    this.reels,
+    this.onReelJump,
+    this.onReelWatch,
     this.youtubeId,
     this.audioOnly = false,
     this.posterUrl,
@@ -241,6 +252,14 @@ class _VideoPanelState extends State<VideoPanel> {
       child: LayoutBuilder(
         builder: (context, constraints) {
           final compact = constraints.maxHeight < _kCompactPanelHeight;
+          final reelsStrip = (widget.reels?.isNotEmpty ?? false)
+              ? EpisodeReelsPlayerStrip(
+                  reels: widget.reels,
+                  position: _position,
+                  onJump: widget.onReelJump,
+                  onWatch: widget.onReelWatch,
+                )
+              : null;
           final chapters = Padding(
             padding: const EdgeInsets.only(bottom: 8),
             child: Column(
@@ -258,6 +277,28 @@ class _VideoPanelState extends State<VideoPanel> {
                   ),
               ],
             ),
+          );
+          final scrollBody = Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (reelsStrip != null) ...[
+                reelsStrip,
+                Divider(height: 1, color: theme.colorScheme.outlineVariant),
+              ],
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+                child: Text(
+                  l.mediaChapters,
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.onSurfaceVariant,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ),
+              chapters,
+            ],
           );
           return SingleChildScrollView(
             physics: compact ? null : const NeverScrollableScrollPhysics(),
@@ -379,6 +420,7 @@ class _VideoPanelState extends State<VideoPanel> {
                           paidRanges:
                               widget.sponsoredMoments?.moments.ranges ??
                               const [],
+                          reels: widget.reels?.reels ?? const [],
                           totalMs: totalMs,
                           onChangeStart: (_) => setState(() => _seeking = true),
                           onChanged: (v) => setState(() => _sliderValue = v),
@@ -507,22 +549,13 @@ class _VideoPanelState extends State<VideoPanel> {
 
                   Divider(height: 1, color: theme.colorScheme.outlineVariant),
 
-                  // Chapter lista — scrollable
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
-                    child: Text(
-                      l.mediaChapters,
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: theme.colorScheme.onSurfaceVariant,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                  ),
+                  // Istaknuti trenuci + poglavlja — u ISTOM scrollu. Osam
+                  // trenutaka je ~450 px; iznad scrolla bi pojeli visinu i
+                  // poglavlja ostavili bez mjesta.
                   if (compact)
-                    chapters
+                    scrollBody
                   else
-                    Expanded(child: SingleChildScrollView(child: chapters)),
+                    Expanded(child: SingleChildScrollView(child: scrollBody)),
                 ],
               ),
             ),
@@ -535,6 +568,11 @@ class _VideoPanelState extends State<VideoPanel> {
 
 // ---------------------------------------------------------------------------
 
+/// Radijus overlaya Slidera = koliko je track uvučen od ruba s obje strane.
+/// Markeri se crtaju u istom uvučenom rasponu, inače bi pri rubovima
+/// odstupali do 14 px (u dvosatnoj epizodi to je ~5 min).
+const double _kSeekOverlayRadius = 14;
+
 class _SeekBar extends StatelessWidget {
   final double value;
   final List<VideoChapterMark> chapters;
@@ -543,6 +581,9 @@ class _SeekBar extends StatelessWidget {
   /// Plaćeni trenuci — crtaju se ISTOM geometrijom, ali [AppTheme
   /// .sponsoredAccent] bojom, da se oglas razlikuje od autorovog sponzora.
   final List<({Duration start, Duration end})> paidRanges;
+
+  /// Istaknuti trenuci — iznad tracka, da se ne miješaju sa sponzorima.
+  final List<EpisodeReel> reels;
   final int totalMs;
   final ValueChanged<double> onChangeStart;
   final ValueChanged<double> onChanged;
@@ -553,6 +594,7 @@ class _SeekBar extends StatelessWidget {
     required this.chapters,
     this.sponsorRanges = const [],
     this.paidRanges = const [],
+    this.reels = const [],
     required this.totalMs,
     required this.onChangeStart,
     required this.onChanged,
@@ -577,6 +619,9 @@ class _SeekBar extends StatelessWidget {
                   chapters: chapters,
                   sponsorRanges: sponsorRanges,
                   paidRanges: paidRanges,
+                  reels: reels,
+                  reelColors: reelBandColors(theme),
+                  inset: _kSeekOverlayRadius,
                   totalMs: totalMs,
                   color: theme.colorScheme.primary.withAlpha(120),
                   sponsorColor: theme.colorScheme.tertiary.withAlpha(110),
@@ -590,7 +635,9 @@ class _SeekBar extends StatelessWidget {
           data: SliderTheme.of(context).copyWith(
             trackHeight: 3,
             thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
-            overlayShape: const RoundSliderOverlayShape(overlayRadius: 14),
+            overlayShape: const RoundSliderOverlayShape(
+              overlayRadius: _kSeekOverlayRadius,
+            ),
           ),
           child: Slider(
             value: value.clamp(0.0, 1.0),
@@ -608,6 +655,9 @@ class _ChapterMarkerPainter extends CustomPainter {
   final List<VideoChapterMark> chapters;
   final List<({Duration start, Duration end})> sponsorRanges;
   final List<({Duration start, Duration end})> paidRanges;
+  final List<EpisodeReel> reels;
+  final ({Color rendered, Color candidate})? reelColors;
+  final double inset;
   final int totalMs;
   final Color color;
   final Color sponsorColor;
@@ -617,6 +667,9 @@ class _ChapterMarkerPainter extends CustomPainter {
     required this.chapters,
     this.sponsorRanges = const [],
     this.paidRanges = const [],
+    this.reels = const [],
+    this.reelColors,
+    this.inset = 0,
     required this.totalMs,
     required this.color,
     required this.sponsorColor,
@@ -626,13 +679,16 @@ class _ChapterMarkerPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     if (totalMs <= 0) return;
+    final w = size.width - 2 * inset;
+    if (w <= 0) return;
+    double xAt(Duration d) => inset + d.inMilliseconds / totalMs * w;
     // Rasponi poruka sponzora: tanka traka ispod tracka, najmanje 3 px da se
     // kratak spot (45 s u 2 h) uopće vidi.
     void bands(List<({Duration start, Duration end})> ranges, Color c) {
       final band = Paint()..color = c;
       for (final r in ranges) {
-        final x0 = r.start.inMilliseconds / totalMs * size.width;
-        var x1 = r.end.inMilliseconds / totalMs * size.width;
+        final x0 = xAt(r.start);
+        var x1 = xAt(r.end);
         if (x1 - x0 < 3) x1 = x0 + 3;
         canvas.drawRRect(
           RRect.fromLTRBR(
@@ -656,11 +712,24 @@ class _ChapterMarkerPainter extends CustomPainter {
       ..style = PaintingStyle.stroke;
 
     for (final ch in chapters) {
-      final x = ch.position.inMilliseconds / totalMs * size.width;
+      final x = xAt(ch.position);
       canvas.drawLine(
         Offset(x, size.height * 0.1),
         Offset(x, size.height * 0.9),
         paint,
+      );
+    }
+    // Istaknuti trenuci zadnji, preko crta poglavlja.
+    final rc = reelColors;
+    if (rc != null) {
+      paintReelBands(
+        canvas,
+        size,
+        reels: reels,
+        totalMs: totalMs,
+        rendered: rc.rendered,
+        candidate: rc.candidate,
+        inset: inset,
       );
     }
   }
@@ -671,6 +740,9 @@ class _ChapterMarkerPainter extends CustomPainter {
       old.sponsorRanges != sponsorRanges ||
       old.paidRanges != paidRanges ||
       old.paidColor != paidColor ||
+      old.reels != reels ||
+      old.reelColors != reelColors ||
+      old.inset != inset ||
       old.totalMs != totalMs;
 }
 

@@ -5913,5 +5913,35 @@
         "type": "int"
       }
     }
+  },
+  "reelsTitle": "Istaknuti trenuci",
+  "@reelsTitle": {
+    "description": "Header of the list of highlighted moments (reels) in the player panel."
+  },
+  "reelsWatch": "Pogledaj isječak",
+  "@reelsWatch": {
+    "description": "Tooltip/semantic label: open the vertical 9:16 clip of this moment."
+  },
+  "reelsWatchShort": "Pogledaj",
+  "@reelsWatchShort": {
+    "description": "Short button label on a highlighted moment that has a vertical clip."
+  },
+  "reelsJumpTo": "Skoči na {time} u epizodi",
+  "@reelsJumpTo": {
+    "description": "Tooltip on a highlighted moment row; tapping seeks the episode.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "52:29"
+      }
+    }
+  },
+  "reelsWatchInEpisode": "Pogledaj u cijeloj epizodi",
+  "@reelsWatchInEpisode": {
+    "description": "Button in the clip viewer: close it and continue in the full episode at this moment."
+  },
+  "reelsPlaybackError": "Isječak se trenutno ne može pustiti.",
+  "@reelsPlaybackError": {
+    "description": "Shown in the clip viewer when the vertical clip fails to load."
   }
 }

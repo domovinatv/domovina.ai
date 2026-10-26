@@ -9,6 +9,7 @@ import 'package:media_kit_video/media_kit_video.dart';
 
 import '../l10n/app_localizations.dart';
 import '../brand/app_brand.dart';
+import '../models/episode_reels.dart';
 import '../models/person_hub.dart';
 import '../models/sponsored_moment.dart';
 import '../pinka_sdk/pinka_sdk.dart';
@@ -41,6 +42,7 @@ import '../widgets/episode_status_card.dart';
 import '../widgets/anonymous_signin_bar.dart';
 import '../widgets/audio_poster.dart';
 import '../widgets/clip_share_sheet.dart';
+import '../widgets/episode_reels.dart';
 import '../widgets/episode_video.dart';
 import '../widgets/sponsored_moment_widgets.dart';
 import '../widgets/subtitle_caption.dart';
@@ -244,6 +246,10 @@ class _SimpleEpisodeContentState extends State<_SimpleEpisodeContent>
   /// tko je platio (oznake preko slike nema).
   SponsoredMomentsController? _sponsored;
 
+  /// Istaknuti trenuci (`reels.json`) — trake na seek baru i popis u
+  /// [_PlayerTab]. Null dok ne stignu i zauvijek kad ih nema.
+  EpisodeReels? _reels;
+
   @override
   void initState() {
     super.initState();
@@ -258,6 +264,10 @@ class _SimpleEpisodeContentState extends State<_SimpleEpisodeContent>
     ) {
       if (!mounted || found == null) return;
       setState(() => _sponsored = SponsoredMomentsController(found));
+    });
+    DataService(youtubeId: widget.data.youtubeId).loadReels().then((found) {
+      if (!mounted || found == null) return;
+      setState(() => _reels = found);
     });
 
     if (widget.initialLanguageEn && widget.data.hasTranslationEn) {
@@ -599,6 +609,27 @@ class _SimpleEpisodeContentState extends State<_SimpleEpisodeContent>
     }
   }
 
+  /// „Pogledaj" na renderiranom trenutku — isti tok kao na detaljnom ekranu:
+  /// epizoda stoji dok isječak svira, a „Pogledaj u cijeloj epizodi" skoči.
+  Future<void> _watchReel(EpisodeReel reel) async {
+    final player = _player;
+    final wasPlaying = player?.state.playing ?? false;
+    await player?.pause();
+    if (!mounted) return;
+    final jump = await showReelViewer(
+      context,
+      reel: reel,
+      youtubeId: widget.data.youtubeId,
+      language: _language,
+    );
+    if (!mounted) return;
+    if (jump) {
+      await _seekTo(reel.startSeconds);
+    } else if (wasPlaying) {
+      await _player?.play();
+    }
+  }
+
   /// Kopira share link na trenutnu poziciju playera (path-based `/v/<id>/t/<sec>`).
   /// Vidi web/_worker.js — chapter-aware OG injection na ovaj path.
   void _copyMomentLink(BuildContext context, String youtubeId) {
@@ -661,6 +692,9 @@ class _SimpleEpisodeContentState extends State<_SimpleEpisodeContent>
         seekUndo: _seekUndo,
         sponsoredMoments: _sponsored,
         onSponsoredListen: (m) => _seekTo(m.start),
+        reels: _reels,
+        onReelJump: (r) => _seekTo(r.startSeconds),
+        onReelWatch: _watchReel,
         onEnterYtMode: () {
           _player?.pause();
           setState(() => _ytMode = true);
@@ -1043,6 +1077,11 @@ class _PlayerTab extends StatelessWidget {
   /// Plaćeni sponzorski trenuci (vlasnik je ekran) i „Poslušaj" za njih.
   final SponsoredMomentsController? sponsoredMoments;
   final void Function(SponsoredMoment moment)? onSponsoredListen;
+
+  /// Istaknuti trenuci; skok i isječak vodi ekran.
+  final EpisodeReels? reels;
+  final void Function(EpisodeReel reel)? onReelJump;
+  final void Function(EpisodeReel reel)? onReelWatch;
   final VoidCallback onEnterYtMode;
   final VoidCallback onExitYtMode;
   final VoidCallback onPlayPause;
@@ -1063,6 +1102,9 @@ class _PlayerTab extends StatelessWidget {
     required this.seekUndo,
     this.sponsoredMoments,
     this.onSponsoredListen,
+    this.reels,
+    this.onReelJump,
+    this.onReelWatch,
     required this.onEnterYtMode,
     required this.onExitYtMode,
     required this.onPlayPause,
@@ -1212,26 +1254,39 @@ class _PlayerTab extends StatelessWidget {
                   child: SeekUndoPill(undo: seekUndo!, onUndo: onSeek),
                 ),
               ),
-            SliderTheme(
-              data: SliderThemeData(
-                trackHeight: 3,
-                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
-                overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
-                activeTrackColor: theme.colorScheme.primary,
-                inactiveTrackColor: theme.colorScheme.primary.withAlpha(40),
-                thumbColor: theme.colorScheme.primary,
-              ),
-              child: Slider(
-                value: duration.inMilliseconds > 0
-                    ? position.inMilliseconds
-                          .clamp(0, duration.inMilliseconds)
-                          .toDouble()
-                    : 0,
-                max: duration.inMilliseconds > 0
-                    ? duration.inMilliseconds.toDouble()
-                    : 1,
-                onChanged: (v) => onSeek(Duration(milliseconds: v.toInt())),
-              ),
+            // Istaknuti trenuci iznad tracka; uvlaka = radijus overlaya (16),
+            // koliko Slider uvuče track od ruba.
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                if (reels?.isNotEmpty ?? false)
+                  ReelTimelineMarks(
+                    reels: reels!.reels,
+                    totalMs: duration.inMilliseconds,
+                    inset: 16,
+                  ),
+                SliderTheme(
+                  data: SliderThemeData(
+                    trackHeight: 3,
+                    thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
+                    overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
+                    activeTrackColor: theme.colorScheme.primary,
+                    inactiveTrackColor: theme.colorScheme.primary.withAlpha(40),
+                    thumbColor: theme.colorScheme.primary,
+                  ),
+                  child: Slider(
+                    value: duration.inMilliseconds > 0
+                        ? position.inMilliseconds
+                              .clamp(0, duration.inMilliseconds)
+                              .toDouble()
+                        : 0,
+                    max: duration.inMilliseconds > 0
+                        ? duration.inMilliseconds.toDouble()
+                        : 1,
+                    onChanged: (v) => onSeek(Duration(milliseconds: v.toInt())),
+                  ),
+                ),
+              ],
             ),
 
             // Time + controls
@@ -1304,6 +1359,14 @@ class _PlayerTab extends StatelessWidget {
           SponsoredMomentsPlayerStrip(
             controller: sponsoredMoments,
             onListen: videoReady ? onSponsoredListen : null,
+          ),
+
+          // Istaknuti trenuci — i na audio-only putanji (skok u epizodu).
+          EpisodeReelsPlayerStrip(
+            reels: reels,
+            position: position,
+            onJump: videoReady ? onReelJump : null,
+            onWatch: onReelWatch,
           ),
 
           const SizedBox(height: 16),

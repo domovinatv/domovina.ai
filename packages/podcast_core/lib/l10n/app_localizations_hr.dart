@@ -4722,4 +4722,24 @@ class AppLocalizationsHr extends AppLocalizations {
   String episodeVariantNumbered(int n) {
     return 'Varijanta $n';
   }
+
+  @override
+  String get reelsTitle => 'Istaknuti trenuci';
+
+  @override
+  String get reelsWatch => 'Pogledaj isječak';
+
+  @override
+  String get reelsWatchShort => 'Pogledaj';
+
+  @override
+  String reelsJumpTo(String time) {
+    return 'Skoči na $time u epizodi';
+  }
+
+  @override
+  String get reelsWatchInEpisode => 'Pogledaj u cijeloj epizodi';
+
+  @override
+  String get reelsPlaybackError => 'Isječak se trenutno ne može pustiti.';
 }

@@ -4677,4 +4677,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String episodeVariantNumbered(int n) {
     return 'Variant $n';
   }
+
+  @override
+  String get reelsTitle => 'Highlights';
+
+  @override
+  String get reelsWatch => 'Watch clip';
+
+  @override
+  String get reelsWatchShort => 'Watch';
+
+  @override
+  String reelsJumpTo(String time) {
+    return 'Jump to $time in the episode';
+  }
+
+  @override
+  String get reelsWatchInEpisode => 'Watch in the full episode';
+
+  @override
+  String get reelsPlaybackError => 'This clip can\'t be played right now.';
 }

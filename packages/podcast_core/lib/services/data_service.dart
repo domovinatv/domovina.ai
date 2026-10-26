@@ -17,11 +17,13 @@ import '../models/episode_status.dart';
 import '../models/magisterium_full_v2_data.dart';
 import '../models/speaker_timeline.dart';
 import '../brand/app_brand.dart';
+import '../models/episode_reels.dart';
 import '../models/sponsors_in_video.dart';
 import 'cdn_config.dart';
 import 'mobile_web_detect.dart' show isWebKitBrowser;
 import 'cdn_json_cache.dart';
 import 'cdn_store.dart' show StoreBucket;
+import '../src/log.dart' show log;
 
 /// Bačen kad info.json za dani YouTube ID ne postoji na CDN-u (HTTP 404).
 class VideoNotFoundException implements Exception {
@@ -465,6 +467,34 @@ class DataService {
       if (json is! Map<String, dynamic>) return null;
       return SponsorsInVideo.fromJson(json);
     } catch (_) {
+      return null;
+    }
+  }
+
+  /// Istaknuti trenuci epizode (`reels.json`) — opcionalno, kao i sponzori:
+  /// null na svaku grešku, i sekcije nema.
+  ///
+  /// Traži se samo kad ga `episode.json` navodi u `files`: datoteka postoji
+  /// za malo epizoda, a bez bundlea bi svaka druga epizoda platila 404 (i
+  /// retry s cache-busterom). Bez bundlea (stara epizoda) — nema ni reelova.
+  ///
+  /// Za razliku od ostalih per-epizoda datoteka NIJE nepromjenjiva: pipeline
+  /// je prepisuje kad doda poster ili renderira sljedeći kandidat, pa ide
+  /// kroz stale-while-revalidate ([CdnJsonCache.getMutable]), ne kroz [_get].
+  Future<EpisodeReels?> loadReels() async {
+    try {
+      final bundle = await _bundle();
+      if (bundle == null || !bundle.has('reels.json')) return null;
+      final raw = await CdnJsonCache.instance.getMutable(
+        CdnConfig.reelsUrl(youtubeId),
+        bucket: StoreBucket.episode,
+      );
+      final json = jsonDecode(raw);
+      if (json is! Map<String, dynamic>) return null;
+      final reels = EpisodeReels.fromJson(json);
+      return reels.isEmpty ? null : reels;
+    } catch (e) {
+      log('DataService.loadReels($youtubeId): $e');
       return null;
     }
   }

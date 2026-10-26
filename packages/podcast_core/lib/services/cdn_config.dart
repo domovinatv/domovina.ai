@@ -109,6 +109,11 @@ class CdnConfig {
   static String sponsorsInVideoUrl(String ytId) =>
       '$base/data/$ytId/sponsors_in_video.json';
 
+  /// Istaknuti trenuci i 9:16 isječci (`reels.json`). Postoji samo za
+  /// epizode kanala s pristankom; traži se SAMO kad ga `episode.json` navodi.
+  /// Vidi `EpisodeReels`.
+  static String reelsUrl(String ytId) => '$base/data/$ytId/reels.json';
+
   /// EPUB e-knjiga epizode (pipeline KORAK 9.8, `generate_ebook.js`).
   /// Postoji samo za epizode koje imaju članak; englesko izdanje samo kad
   /// postoji i `article.en.json`. Ime na CDN-u je `book.epub` / `book.en.epub`

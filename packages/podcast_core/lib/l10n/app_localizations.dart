@@ -7402,6 +7402,42 @@ abstract class AppLocalizations {
   /// In hr, this message translates to:
   /// **'Varijanta {n}'**
   String episodeVariantNumbered(int n);
+
+  /// Header of the list of highlighted moments (reels) in the player panel.
+  ///
+  /// In hr, this message translates to:
+  /// **'Istaknuti trenuci'**
+  String get reelsTitle;
+
+  /// Tooltip/semantic label: open the vertical 9:16 clip of this moment.
+  ///
+  /// In hr, this message translates to:
+  /// **'Pogledaj isječak'**
+  String get reelsWatch;
+
+  /// Short button label on a highlighted moment that has a vertical clip.
+  ///
+  /// In hr, this message translates to:
+  /// **'Pogledaj'**
+  String get reelsWatchShort;
+
+  /// Tooltip on a highlighted moment row; tapping seeks the episode.
+  ///
+  /// In hr, this message translates to:
+  /// **'Skoči na {time} u epizodi'**
+  String reelsJumpTo(String time);
+
+  /// Button in the clip viewer: close it and continue in the full episode at this moment.
+  ///
+  /// In hr, this message translates to:
+  /// **'Pogledaj u cijeloj epizodi'**
+  String get reelsWatchInEpisode;
+
+  /// Shown in the clip viewer when the vertical clip fails to load.
+  ///
+  /// In hr, this message translates to:
+  /// **'Isječak se trenutno ne može pustiti.'**
+  String get reelsPlaybackError;
 }
 
 class _AppLocalizationsDelegate

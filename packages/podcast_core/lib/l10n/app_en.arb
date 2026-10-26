@@ -1215,5 +1215,11 @@
   "notificationsBellOff": "Notify me about new episodes from this channel",
   "notificationsFollowingLabel": "Following",
   "episodeVariant": "Variant",
-  "episodeVariantNumbered": "Variant {n}"
+  "episodeVariantNumbered": "Variant {n}",
+  "reelsTitle": "Highlights",
+  "reelsWatch": "Watch clip",
+  "reelsWatchShort": "Watch",
+  "reelsJumpTo": "Jump to {time} in the episode",
+  "reelsWatchInEpisode": "Watch in the full episode",
+  "reelsPlaybackError": "This clip can't be played right now."
 }
