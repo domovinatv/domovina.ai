@@ -4685,6 +4685,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reelsWatch => 'Watch clip';
 
   @override
+  String get reelsDirected => 'Directed';
+
+  @override
+  String get reelsDirectedHint =>
+      'Clip with illustrations timed to the spoken words';
+
+  @override
   String get reelsWatchShort => 'Watch';
 
   @override

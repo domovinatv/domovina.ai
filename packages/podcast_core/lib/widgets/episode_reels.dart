@@ -303,6 +303,14 @@ class _ReelRow extends StatelessWidget {
                       Text.rich(
                         TextSpan(
                           children: [
+                            if (reel.isPremium)
+                              WidgetSpan(
+                                alignment: PlaceholderAlignment.middle,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(right: 6),
+                                  child: _DirectedBadge(l: l),
+                                ),
+                              ),
                             TextSpan(
                               text: time,
                               style: TextStyle(
@@ -341,6 +349,53 @@ class _ReelRow extends StatelessWidget {
                 ],
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Oznaka režiranog isječka (`render.premium`). Namjerno NE „Premium":
+/// u aplikaciji s Plus pretplatom ta riječ obećava zaključan sadržaj.
+class _DirectedBadge extends StatelessWidget {
+  final AppLocalizations l;
+
+  const _DirectedBadge({required this.l});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    // WidgetSpan ne nasljeđuje stil retka, pa veličina ide eksplicitno.
+    final size = theme.textTheme.labelSmall?.fontSize ?? 11;
+    return Tooltip(
+      message: l.reelsDirectedHint,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: scheme.secondaryContainer,
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.auto_awesome,
+                size: size,
+                color: scheme.onSecondaryContainer,
+              ),
+              const SizedBox(width: 3),
+              Text(
+                l.reelsDirected,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: scheme.onSecondaryContainer,
+                  fontWeight: FontWeight.w600,
+                  height: 1.2,
+                ),
+              ),
+            ],
           ),
         ),
       ),

@@ -69,6 +69,30 @@ flowchart LR
 popravka (fetch `b6fc6d00`) zaključani pri ponovnom izboru; kandidati bez
 rendera smiju se promijeniti, vremena su uvijek apsolutna u epizodi.
 
+### `render.premium` — režirani isječak
+
+Prvi je `ja70p_gJWZA` #1 („Puška mu se raspala…", 1:02:07): Opus je režirao
+ilustracije usidrene na izgovorene riječi (crtež puške, ravnalo „1 m", tihi
+citat), dok standardni reelovi imaju samo tekstualne kartice. Jedini signal
+je `render.premium` **kao objekt** (`{ beats, tail_sec }`); izostanak ili
+druga vrijednost (`true`) = standardni. Polje je aditivno i opcionalno.
+Model: `EpisodeReel.isPremium`.
+
+Odluke (Matija, 26.10.2026.):
+
+- **Oznaka je chip „Režirano"** (`Icons.auto_awesome`, `secondaryContainer`)
+  ispred vremena u retku, s tooltipom. Riječ „Premium" je namjerno izbjegnuta:
+  uz DOMOVINA Plus pretplatu čita se kao zaključan, plaćeni sadržaj.
+- **Redoslijed ostaje po vremenu** — oznaka ne diže režirani reel na vrh
+  (prvi prijedlog je bio obratno). Test to čuva.
+- **Traka na seek baru se ne mijenja**: primary, tertiary i zlatna su
+  zauzete, a nova nijansa u traci od 4 px je šum.
+- Poster ostaje čist kadar bez kartica (fetch `posterSec()`); poster iz
+  ključnog kadra (`render.poster_sec` override) bio bi posao fetch sesije.
+
+Provjereno u Braveu na lokalnom buildu: chip samo na „Puška…" retku, ostalih
+sedam bez njega, „Pogledaj" pušta `reels/1-95dd6512.mp4`.
+
 ## Otvoreno
 
 - **Native neprovjereno**: iOS (libmpv), Android, Android TV (EON A11,

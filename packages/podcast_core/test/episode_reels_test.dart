@@ -18,7 +18,8 @@ import 'package:podcast_core/widgets/episode_reels.dart';
 ///
 /// Fixture je skraćena kopija stvarnog odgovora za `Yoln5fe9RdY`
 /// (26.10.2026.): #1 i #2 renderirani, #3 samo kandidat; dodana su dva
-/// pokvarena zapisa koja parser mora preskočiti.
+/// pokvarena zapisa koja parser mora preskočiti. `premium` na #1 je oblik iz
+/// `ja70p_gJWZA` (prvi režirani isječak); `true` na #2 nije objekt pa ne vrijedi.
 const _yoln = '''
 {
   "version": 1, "video_id": "Yoln5fe9RdY", "channel": "muzevni_budite",
@@ -31,9 +32,11 @@ const _yoln = '''
      "render": {"version": 1, "clip_start_sec": 3149.79, "duration_sec": 66.33,
        "url": "https://cdn.domovina.ai/data/Yoln5fe9RdY/reels/1-882a249e.mp4",
        "storyboard_url": "https://cdn.domovina.ai/data/Yoln5fe9RdY/reels/1-882a249e.storyboard.jpg",
-       "poster_url": "https://cdn.domovina.ai/data/Yoln5fe9RdY/reels/1-882a249e.poster.webp"}},
+       "poster_url": "https://cdn.domovina.ai/data/Yoln5fe9RdY/reels/1-882a249e.poster.webp",
+       "premium": {"beats": "beats.v2.json", "tail_sec": 4}}},
     {"rank": 2, "start_sec": 907.83, "end_sec": 985.41, "title": "Drugi",
-     "render": {"url": "https://cdn.domovina.ai/data/Yoln5fe9RdY/reels/2-d979126b.mp4"}},
+     "render": {"url": "https://cdn.domovina.ai/data/Yoln5fe9RdY/reels/2-d979126b.mp4",
+       "premium": true}},
     {"rank": 3, "start_sec": 1564.77, "end_sec": 1630.71, "title": "Treći",
      "speaker": "  "},
     {"rank": 4, "start_sec": 2000, "end_sec": 1990, "title": "Obrnut raspon"},
@@ -78,6 +81,13 @@ void main() {
       final byRank = {for (final e in _parse(_yoln).reels) e.rank: e};
       expect(byRank[1]!.render!.posterUrl, endsWith('.poster.webp'));
       expect(byRank[2]!.render!.posterUrl, isNull);
+    });
+
+    test('režiran je samo render s objektom premium', () {
+      final byRank = {for (final e in _parse(_yoln).reels) e.rank: e};
+      expect(byRank[1]!.isPremium, isTrue);
+      expect(byRank[2]!.isPremium, isFalse, reason: 'premium nije objekt');
+      expect(byRank[3]!.isPremium, isFalse, reason: 'bez rendera');
     });
 
     test('prazan govornik = bez govornika', () {
@@ -192,6 +202,23 @@ void main() {
 
       await tester.tap(find.text('Pogledaj').first);
       expect(watched, [2], reason: 'prvi po vremenu je #2 (15:07)');
+    });
+
+    testWidgets('„Režirano" samo uz režirani isječak, redoslijed ostaje po '
+        'vremenu', (tester) async {
+      await tester.pumpWidget(
+        _host(
+          EpisodeReelsPlayerStrip(
+            reels: _parse(_yoln),
+            position: Duration.zero,
+          ),
+        ),
+      );
+      expect(find.text('Režirano'), findsOneWidget);
+      // #1 (52:29) je zadnji po vremenu — oznaka ga ne diže na vrh.
+      final badgeY = tester.getCenter(find.text('Režirano')).dy;
+      final firstY = tester.getCenter(find.text('Drugi')).dy;
+      expect(badgeY, greaterThan(firstY));
     });
 
     testWidgets('bez podataka nema sekcije', (tester) async {

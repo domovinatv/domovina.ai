@@ -1218,6 +1218,8 @@
   "episodeVariantNumbered": "Variant {n}",
   "reelsTitle": "Highlights",
   "reelsWatch": "Watch clip",
+  "reelsDirected": "Directed",
+  "reelsDirectedHint": "Clip with illustrations timed to the spoken words",
   "reelsWatchShort": "Watch",
   "reelsJumpTo": "Jump to {time} in the episode",
   "reelsWatchInEpisode": "Watch in the full episode",

@@ -4730,6 +4730,13 @@ class AppLocalizationsHr extends AppLocalizations {
   String get reelsWatch => 'Pogledaj isječak';
 
   @override
+  String get reelsDirected => 'Režirano';
+
+  @override
+  String get reelsDirectedHint =>
+      'Isječak s ilustracijama usklađenim s izgovorenim riječima';
+
+  @override
   String get reelsWatchShort => 'Pogledaj';
 
   @override

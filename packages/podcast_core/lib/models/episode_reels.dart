@@ -27,11 +27,17 @@ class EpisodeReelRender {
   final double clipStartSec;
   final double durationSec;
 
+  /// Režirani isječak (`render.premium`, objekt `{ beats, tail_sec }`):
+  /// uz tekstualne kartice nosi i ilustracije usidrene na izgovorene riječi.
+  /// Polje je opcionalno i aditivno — izostanak znači standardni isječak.
+  final bool isPremium;
+
   const EpisodeReelRender({
     required this.url,
     this.posterUrl,
     required this.clipStartSec,
     required this.durationSec,
+    this.isPremium = false,
   });
 
   static EpisodeReelRender? tryParse(Object? raw) {
@@ -43,6 +49,7 @@ class EpisodeReelRender {
       posterUrl: _https(raw['poster_url']),
       clipStartSec: _num(raw['clip_start_sec']) ?? 0,
       durationSec: _num(raw['duration_sec']) ?? 0,
+      isPremium: raw['premium'] is Map,
     );
   }
 }
@@ -70,6 +77,9 @@ class EpisodeReel {
   });
 
   bool get isRendered => render != null;
+
+  /// Režirani isječak — vidi [EpisodeReelRender.isPremium].
+  bool get isPremium => render?.isPremium ?? false;
 
   Duration get startPosition =>
       Duration(milliseconds: (startSec * 1000).round());

@@ -7415,6 +7415,18 @@ abstract class AppLocalizations {
   /// **'Pogledaj isječak'**
   String get reelsWatch;
 
+  /// Small badge on a highlighted moment whose vertical clip has directed illustrations (render.premium). Not a paid tier.
+  ///
+  /// In hr, this message translates to:
+  /// **'Režirano'**
+  String get reelsDirected;
+
+  /// Tooltip on the directed-clip badge.
+  ///
+  /// In hr, this message translates to:
+  /// **'Isječak s ilustracijama usklađenim s izgovorenim riječima'**
+  String get reelsDirectedHint;
+
   /// Short button label on a highlighted moment that has a vertical clip.
   ///
   /// In hr, this message translates to:

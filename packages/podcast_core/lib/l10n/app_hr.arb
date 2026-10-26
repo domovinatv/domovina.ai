@@ -5922,6 +5922,14 @@
   "@reelsWatch": {
     "description": "Tooltip/semantic label: open the vertical 9:16 clip of this moment."
   },
+  "reelsDirected": "Režirano",
+  "@reelsDirected": {
+    "description": "Small badge on a highlighted moment whose vertical clip has directed illustrations (render.premium). Not a paid tier."
+  },
+  "reelsDirectedHint": "Isječak s ilustracijama usklađenim s izgovorenim riječima",
+  "@reelsDirectedHint": {
+    "description": "Tooltip on the directed-clip badge."
+  },
   "reelsWatchShort": "Pogledaj",
   "@reelsWatchShort": {
     "description": "Short button label on a highlighted moment that has a vertical clip."
