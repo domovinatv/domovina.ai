@@ -79,6 +79,38 @@ rendera smiju se promijeniti, vremena su uvijek apsolutna u epizodi.
 - U lijevom sidebaru je viđena narančasta oznaka na 17:50 nakon skokova —
   vjerojatno postojeće `scrollTimestamp` stanje, nije istraženo.
 
-Vezani dokumenti: `docs/2026-09-24-sponzori-u-snimci-frontend.md` (isti
+## Dijeljenje reela (v2.0.201)
+
+Gumb **Podijeli** u 9:16 playeru otvara `showReelShareSheet`
+(`lib/widgets/reel_share_sheet.dart`). Korisnik je tražio OBA formata:
+
+| Redak | Što | Veličina |
+|---|---|---|
+| Pošalji vertikalni video (9:16) | `render.url` kao DATOTEKA kroz `shareFile` (WhatsApp…), uz tekst `episodeShareUrl(id, seconds: start)` | 30–35 MB (1080p) |
+| Kopiraj vezu na video | izravni `render.url` | — |
+| Preuzmi vodoravni isječak (16:9) | cutter `rangeDownloadUrl(start, ceil(end))`, isto kao poglavlja | ~27 kB/s → ~2 MB/min |
+| Kopiraj vezu na vodoravni isječak (16:9) | cutter `rangeInlineUrl` | — |
+
+Odluke i zamke:
+
+- **Preuzimanje kreće na otvaranje lista**, a „Pošalji" se omogući tek kad su
+  bajtovi tu — `navigator.share` mora pasti u svježu gestu (isti razlog kao
+  e-knjiga). Pamti se samo zadnji reel (35 MB u memoriji).
+- CDN za `data/<id>/reels/*.mp4` šalje `access-control-allow-origin: *`
+  (izmjereno 26.10. na `DOfcONrRyDY`, `f2HIRJPHHK4`, `ja70p_gJWZA`), pa
+  `http.get` iz browsera radi.
+- Snackbar ide u **messenger 9:16 modala** (proslijeđen parametrom) — list je
+  ruta iznad modala, pa bi `ScaffoldMessenger.of` iz lista našao korijenski
+  Scaffold ispod modala.
+- `isScrollControlled` + scroll: šest redaka se u zadanih 9/16 visine
+  prelijevalo za 87 px (uhvatio `test/reel_share_sheet_test.dart`).
+- Desktop browser ne zna dijeliti datoteke → `shareFile` preuzme MP4.
+
+Otvoreno: **nijedan put nije isproban na uređaju** — posebno iOS Safari
+`navigator.share` s 35 MB videom i što WhatsApp napravi s 1080p datotekom
+(vjerojatno ga sažme).
+
+Vezani dokumenti: `docs/2026-09-15-ebook-epub-na-frontendu.md` (isti
+obrazac dijeljenja datoteke), `docs/2026-09-24-sponzori-u-snimci-frontend.md` (isti
 obrazac trake i oznaka), `docs/2026-10-08-brzina-ucitavanja-naslovnice.md` §8
 (`episode.json`).
