@@ -105,6 +105,16 @@ Odluke i zamke:
 - `isScrollControlled` + scroll: šest redaka se u zadanih 9/16 visine
   prelijevalo za 87 px (uhvatio `test/reel_share_sheet_test.dart`).
 - Desktop browser ne zna dijeliti datoteke → `shareFile` preuzme MP4.
+- **v2.0.202**: prva verzija je do kraja preuzimanja pisala samo „Pripremam
+  video…" — na mobitelu je izgledalo kao zaglavljen list (prijava korisnika
+  26.10.; zatvori-pa-otvori je „popravljao" jer je preuzimanje u međuvremenu
+  završilo). Sada: `http.Client.send` + stream (http 1.6 na webu ide kroz
+  `fetch` i čita tijelo kao stream) → postotak i veličina u retku; stanje je
+  `ChangeNotifier` izvan lista koji redak sluša izravno; reel se pauzira dok
+  je list otvoren da `<video>` ne vuče isti fajl usporedno. Ništa se ne
+  generira — reel je gotov na CDN-u, samo je 1080p ~15× veći od 16:9 cutter
+  isječka (360p). Ako je i s napretkom presporo, jedini pravi lijek je manji
+  render (720p je korisnik ranije odbio).
 
 Otvoreno: **nijedan put nije isproban na uređaju** — posebno iOS Safari
 `navigator.share` s 35 MB videom i što WhatsApp napravi s 1080p datotekom
