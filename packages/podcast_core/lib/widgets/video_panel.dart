@@ -42,6 +42,16 @@ class VideoChapterMark {
 /// bar ~130 px vlastitog scrolla.
 const double _kCompactPanelHeight = 520;
 
+/// OBSOLETE (26.10.2026.): popis poglavlja u panelu playera. Ista poglavlja
+/// već stoje u lijevom sidebaru („Sadržaj") i kao naslovi sekcija u članku,
+/// pa je ova treća kopija samo povijesni ostatak. Uz to je pri svakoj
+/// promjeni sekcije scrollala panel na aktivno poglavlje i odvlačila
+/// korisnika s „Istaknutih trenutaka" koje je upravo tapnuo.
+///
+/// Kod ostaje (popis, ključevi, `_scheduleScrollTo`) da se može vratiti
+/// jednom zastavicom; crte poglavlja na seek baru NISU dio ovoga i ostaju.
+const bool _kShowChapterList = false;
+
 class VideoPanel extends StatefulWidget {
   final Player player;
   final VideoController controller;
@@ -150,6 +160,7 @@ class _VideoPanelState extends State<VideoPanel> {
   }
 
   void _scheduleScrollTo(String timestamp) {
+    if (!_kShowChapterList) return; // vidi _kShowChapterList (obsolete)
     // Odgodi na post-frame kad je layout zavrsen
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -282,22 +293,24 @@ class _VideoPanelState extends State<VideoPanel> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (reelsStrip != null) ...[
-                reelsStrip,
+              ?reelsStrip,
+              if (reelsStrip != null && _kShowChapterList)
                 Divider(height: 1, color: theme.colorScheme.outlineVariant),
-              ],
-              Padding(
-                padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
-                child: Text(
-                  l.mediaChapters,
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: theme.colorScheme.onSurfaceVariant,
-                    letterSpacing: 0.5,
+              // OBSOLETE: popis poglavlja — vidi [_kShowChapterList].
+              if (_kShowChapterList) ...[
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+                  child: Text(
+                    l.mediaChapters,
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: theme.colorScheme.onSurfaceVariant,
+                      letterSpacing: 0.5,
+                    ),
                   ),
                 ),
-              ),
-              chapters,
+                chapters,
+              ],
             ],
           );
           return SingleChildScrollView(
