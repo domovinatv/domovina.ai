@@ -451,6 +451,15 @@ PNG se nikad ne briše ni ne prepisuje — trajni full-HD originali. Do prvog
 **Rule (fmp4 bez `sidx` ne radi)**: Chrome ga skenira fragment po fragment i ne
 krene ni u 2 min. Pipelineov `verifyFmp4` odbija takav izlaz — ne zaobilaziti.
 
+**Rule (seek se testira, i fmp4 ima generaciju)**: remux s `-frag_interleave`
+bez `+cmaf` (24.–26.10.2026.) rušio je Chromium već na jednom skoku
+(`PIPELINE_ERROR_DECODE`): zvuk i slika se raziđu pri klikanju po poglavljima, a
+refresh (resume = skok) ne učita video. Struktura fajla je bila „ispravna".
+Pipelineov `verifyFmp4Seek` to sada hvata. Fajl je `immutable` i prepisuje se
+na istom R2 ključu, pa klijent traži `?g=N` (`CdnConfig._fmp4Generation`): kad
+pipeline opet prepiše fmp4, podigni N, ali tek NAKON uploada i purgea.
+`docs/2026-10-26-fmp4-seek-decode-error.md`.
+
 ### Android TV — AV1 codec ne-radi u hardware decoder-u
 
 EON SDSTB02 (Amlogic, Android 11) i većina Android TV box-ova prije ~2024.
