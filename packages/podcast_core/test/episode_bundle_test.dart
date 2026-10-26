@@ -94,7 +94,7 @@ void main() {
 
     test('fmp4 ima prednost pred video_h264.mp4', () async {
       final data = await loadWith(['video_h264.mp4', 'video_h264_fmp4.mp4']);
-      expect(data.videoUri, endsWith('/data/$id/video_h264_fmp4.mp4'));
+      expect(data.videoUri, contains('/data/$id/video_h264_fmp4.mp4?g='));
       expect(data.isAudioOnly, isFalse);
     });
 

@@ -147,8 +147,22 @@ class CdnConfig {
   /// Postoji samo za epizode od 11.10.2026. i bira se SAMO kad ga
   /// `episode.json` navodi (bez probe-a). Vidi
   /// `docs/2026-10-11-brzi-start-videa-fmp4.md`.
+  ///
+  /// `?g=` je generacija datoteke, ne cache-buster: fajl je `immutable` na
+  /// godinu dana, a pipeline ga prepisuje na istom R2 ključu. Bez novog
+  /// ključa preglednik koji je epizodu već gledao vadi stare range-ove iz
+  /// svog cachea (Cloudflare purge do njih ne dopire) i slaže ih s novima.
+  /// Kad pipeline opet prepiše fmp4, podigni broj — tek NAKON uploada, inače
+  /// se pod novim ključem cachira stari fajl.
+  ///
+  /// 3 = remux s `+cmaf`. Generacija 2 (`-frag_interleave 25`
+  /// bez `cmaf`, 24.10.) ruši Chromium već na jednom skoku
+  /// (`PIPELINE_ERROR_DECODE`, `PPXbSP14H4Y` @3403 s) — vidi
+  /// `docs/2026-10-26-fmp4-seek-decode-error.md`.
+  static const _fmp4Generation = 3;
+
   static String videoH264FragmentedUrl(String ytId) =>
-      '$base/data/$ytId/video_h264_fmp4.mp4';
+      '$base/data/$ytId/video_h264_fmp4.mp4?g=$_fmp4Generation';
 
   /// Probe URL za H.264 postojanje — s cache-busterom da stale 404 (od prije
   /// nego je transcode završio) ne zaglavi fallback na izvorni video.
