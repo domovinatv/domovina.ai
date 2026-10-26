@@ -82,6 +82,10 @@ Sada obje grane idu kroz `_invokeContribute` i bacaju `PinkaSlotTaken`.
    podrške ni u statistiku donacija"). Popravak je u RPC-u (isključiti
    kampanje s `timeline` kartom ili `unlisted`), ne u klijentu. **Blokira
    go-live.**
+   **Reproducirano na produkciji 26.10.2026.** (v2.0.200,
+   `https://domovina.ai/v/WRE248YCIeI/t/1475`, gost): traka piše „Sponzorski
+   trenuci — DOMOVINA TV · Prikupljeno 0 € · 0 podržavatelja · Podrži”. Vidi
+   ga dakle svaki posjetitelj epizoda `domovina_tv`, ne samo lokalna baza.
 2. Lokalno: `enable_anonymous_sign_ins` je isključen u `config.toml`, pa
    checkout lokalno nema sesiju (`401 not_authenticated`). E2E je išao s
    testnim korisnikom.
