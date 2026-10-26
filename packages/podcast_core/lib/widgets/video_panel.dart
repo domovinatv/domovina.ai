@@ -42,15 +42,15 @@ class VideoChapterMark {
 /// bar ~130 px vlastitog scrolla.
 const double _kCompactPanelHeight = 520;
 
-/// OBSOLETE (26.10.2026.): popis poglavlja u panelu playera. Ista poglavlja
-/// već stoje u lijevom sidebaru („Sadržaj") i kao naslovi sekcija u članku,
-/// pa je ova treća kopija samo povijesni ostatak. Uz to je pri svakoj
-/// promjeni sekcije scrollala panel na aktivno poglavlje i odvlačila
-/// korisnika s „Istaknutih trenutaka" koje je upravo tapnuo.
-///
-/// Kod ostaje (popis, ključevi, `_scheduleScrollTo`) da se može vratiti
-/// jednom zastavicom; crte poglavlja na seek baru NISU dio ovoga i ostaju.
-const bool _kShowChapterList = false;
+/// Popis poglavlja u panelu playera crta se SAMO kad epizoda nema
+/// istaknutih trenutaka (`reels.json`). Uz reelove je bio treća kopija istih
+/// poglavlja (lijevi sidebar „Sadržaj" + naslovi sekcija u članku), a pri
+/// svakoj promjeni sekcije scrollao je panel na aktivno poglavlje i odvlačio
+/// korisnika s trenutka koji je upravo tapnuo. Bez reelova (većina kataloga)
+/// panel bi ispod kontrola ostao prazan, pa je ondje popis i dalje sadržaj
+/// panela. (26.10.2026. je prvo ugašen svugdje — to je ispraznilo panel.)
+/// Crte poglavlja na seek baru ne ovise o ovome.
+bool _showChapterList(EpisodeReels? reels) => !(reels?.isNotEmpty ?? false);
 
 class VideoPanel extends StatefulWidget {
   final Player player;
@@ -160,7 +160,7 @@ class _VideoPanelState extends State<VideoPanel> {
   }
 
   void _scheduleScrollTo(String timestamp) {
-    if (!_kShowChapterList) return; // vidi _kShowChapterList (obsolete)
+    if (!_showChapterList(widget.reels)) return; // vidi _showChapterList
     // Odgodi na post-frame kad je layout zavrsen
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -294,10 +294,8 @@ class _VideoPanelState extends State<VideoPanel> {
             mainAxisSize: MainAxisSize.min,
             children: [
               ?reelsStrip,
-              if (reelsStrip != null && _kShowChapterList)
-                Divider(height: 1, color: theme.colorScheme.outlineVariant),
-              // OBSOLETE: popis poglavlja — vidi [_kShowChapterList].
-              if (_kShowChapterList) ...[
+              // Popis poglavlja samo bez reelova — vidi [_showChapterList].
+              if (_showChapterList(widget.reels)) ...[
                 Padding(
                   padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
                   child: Text(

@@ -42,7 +42,7 @@ flowchart LR
 | poster = `render.poster_url` (540×960 WebP, ~18 kB), nikad `storyboard_url` | storyboard je kontaktni list od 6 kadrova (1128×1024); rezanje u klijentu ovisi o rasporedu |
 | bez 720p varijante | odluka korisnika: sve ostaje 1080p (H.264 High@L4.0, ~4,3 Mbps, ~35 MB / 66 s) |
 | traka i poglavlja u istom scrollu | 8 redaka je ~450 px; iznad scrolla su pojeli visinu panela |
-| popis poglavlja u panelu playera ugašen (`_kShowChapterList = false`, OBSOLETE) | treća kopija istih poglavlja (lijevi sidebar + sekcije članka); njegov auto-scroll na aktivno poglavlje odvlačio je panel s trenutka koji je korisnik upravo tapnuo |
+| popis poglavlja u panelu playera samo kad epizoda NEMA reelova (`_showChapterList`) | uz reelove je treća kopija istih poglavlja (lijevi sidebar + sekcije članka) i njegov auto-scroll odvlačio je panel s trenutka koji je korisnik upravo tapnuo. v2.0.197 ga je ugasio svugdje (`_kShowChapterList = false`) — reelove ima desetak epizoda, pa je panel za ostatak kataloga ostao prazan ispod kontrola |
 | bez novih analitičkih događaja | inače bi trebalo mijenjati pravne dokumente (CLAUDE.md, Vlastita analitika) |
 
 ## Zamke

@@ -879,9 +879,13 @@ disku) — pipeline ga prepisuje. CDN ga zato servira `max-age=60` + ETag.
 **Rule (markeri prate uvlaku Slidera)**: track je uvučen za radijus overlaya s
 obje strane; marker crtan preko pune širine odstupa do 14 px (~5 min u 2 h).
 
-**Popis poglavlja u panelu playera je OBSOLETE** (`_kShowChapterList = false`
-u `video_panel.dart`): poglavlja su u lijevom sidebaru i u članku, a njegov
-auto-scroll je odvlačio panel. Kod ostaje; ne vraćati bez razloga.
+**Rule (poglavlja u panelu playera ILI reelovi, nikad ništa)**: popis
+poglavlja u `video_panel.dart` crta se samo kad epizoda nema reelova
+(`_showChapterList`) — uz reelove je treća kopija poglavlja i njegov
+auto-scroll odvlači panel. Prva izvedba (v2.0.197) ga je ugasila svugdje, a
+reelove ima tek desetak epizoda: panel je ispod kontrola ostao prazan za
+gotovo cijeli katalog. Mijenjaš li sadržaj panela, provjeri i epizodu BEZ
+`reels.json`.
 
 ### Plaćeni sponzorski trenuci — `SponsoredMoment` (od 7.10.2026., nedeployano)
 
