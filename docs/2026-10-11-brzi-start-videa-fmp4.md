@@ -111,3 +111,7 @@ zahtjeva za 2 min videa). Pipeline sada remuxa s `-frag_interleave 25`, a
 `verifyFmp4` odbija ne-interleavan izlaz; svih 55 datoteka prepisano + purge.
 Ovaj test u Chromeu je to propustio jer Chrome ima vlastiti buffer. Mjerenja i
 zamke: `../fetch.domovina.tv/docs/2026-10-24-fmp4-interleave-ios-zastajkivanje.md`.
+
+## Nastavak
+
+- `docs/2026-10-26-fmp4-seek-decode-error.md`: remux s interleaveom (24.10.) rušio seek u Chromiumu; popravljeno s `+cmaf` i `?g=3`.
