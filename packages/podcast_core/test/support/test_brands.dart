@@ -14,7 +14,12 @@ BrandConfig brandWithoutDomainScore() =>
 /// nema Corbado projekt.
 BrandConfig brandWithoutPasskeys() => _domovinaWith(passkeys: false);
 
-BrandConfig _domovinaWith({bool? domainScore, bool? passkeys}) {
+/// DOMOVINA s uključenim glasanjem. Glasanje je u [domovinaBrand]
+/// privremeno ugašeno (26.10.2026.), a testovi njegove logike i dalje
+/// trebaju brend u kojem `/glasanje*` postoji.
+BrandConfig brandWithVoting() => _domovinaWith(voting: true);
+
+BrandConfig _domovinaWith({bool? domainScore, bool? passkeys, bool? voting}) {
   final d = domovinaBrand;
   final f = d.flags;
   return BrandConfig(
@@ -36,7 +41,7 @@ BrandConfig _domovinaWith({bool? domainScore, bool? passkeys}) {
     defaultEpisodeLanguage: d.defaultEpisodeLanguage,
     endpoints: d.endpoints,
     flags: FeatureFlags(
-      voting: f.voting,
+      voting: voting ?? f.voting,
       pinka: f.pinka,
       channelOwnership: f.channelOwnership,
       domainScore: domainScore ?? f.domainScore,

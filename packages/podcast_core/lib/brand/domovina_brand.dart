@@ -33,7 +33,13 @@ const BrandConfig domovinaBrand = BrandConfig(
     events: 'https://domovina.ai/api/state',
   ),
   flags: FeatureFlags(
-    voting: true,
+    // PRIVREMENO UGAŠENO (26.10.2026.): „Tko ide sljedeći” (glasanje o
+    // sljedećem podcastu, potvrda e-Osobnom/Certilijom) korisnicima je još
+    // zbunjujuće i nije dovoljno razrađeno. Implementacija ostaje netaknuta;
+    // zastavica skriva rutu /glasanje*, rail na naslovnici, chip u
+    // zaglavlju, traku na /channels i karticu u Mom računu. Vraćanje: true
+    // ovdje + VOTING_HIDDEN u web/_worker.js na false.
+    voting: false,
     pinka: true,
     channelOwnership: true,
     domainScore: true,

@@ -95,11 +95,13 @@ void main() {
     AppBrand.init(domovinaBrand);
     final paths = routePaths();
     expect(paths, containsAll(coreRoutes));
-    expect(paths, containsAll(votingRoutes));
+    // Glasanje je PRIVREMENO skriveno (26.10.2026., `voting: false` u
+    // domovina_brand.dart). Kad se vrati, ovdje opet containsAll + isFalse.
+    expect(paths.intersection(votingRoutes), isEmpty);
     expect(paths, containsAll(pinkaRoutes));
     expect(paths, containsAll(campaignRoutes));
     expect(paths, containsAll(ownershipRoutes));
-    expect(isUnroutable('/glasanje'), isFalse);
+    expect(isUnroutable('/glasanje'), isTrue);
     expect(isUnroutable('/c/laudato/doniraj'), isFalse);
     expect(isUnroutable('/account/channels'), isFalse);
   });

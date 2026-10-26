@@ -192,6 +192,12 @@ S dvije je `v` host i ruter dobije samo `/<id>`.
 
 ## Tripwire: registar podcasta ↔ glasački bazen (launchd, 08:30)
 
+> **Glasanje je PRIVREMENO skriveno od 26.10.2026.** (`voting: false` u
+> `packages/podcast_core/lib/brand/domovina_brand.dart` + `VOTING_HIDDEN` u
+> `web/_worker.js`): značajka je korisnicima bila zbunjujuća. Kod, backend i
+> ovaj tripwire rade dalje; vraćanje = obje zastavice natrag + invarijanta u
+> `test/feature_flags_test.dart`.
+
 `domovina_ai.vote_candidates` je **snimka** `fetch.domovina.tv/data/podcasts_registry.json`,
 ne živi pogled — podcast dodan u registar ne stigne u bazu dok se ne pokrene
 `sync_voting_candidates.mjs --commit`. Izmjereno 25.8.2026.: registar je 17 dana

@@ -1,6 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:podcast_core/brand/app_brand.dart';
+import 'package:podcast_core/brand/domovina_brand.dart';
 import 'package:podcast_core/router/nav.dart';
+
+import 'support/test_brands.dart';
 
 /// Ugovor za „gore" (Android Up), odvojen od „nazad" (Back).
 ///
@@ -58,6 +62,9 @@ void main() {
   });
 
   group('upTarget — glasanje i račun', () {
+    setUp(() => AppBrand.init(brandWithVoting()));
+    tearDown(() => AppBrand.init(domovinaBrand));
+
     test('detalj kandidata ide na ljestvicu', () {
       expect(upTarget('/glasanje/abbacast'), '/glasanje');
     });

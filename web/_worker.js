@@ -30,6 +30,12 @@
 // Zastavice (FEATURE_*) su stringovi 'true'/'false' — Pages env bindinzi su
 // uvijek stringovi, pa se uspoređuju kao string, ne kao boolean. Popisi
 // (ANDROID_SHA256, WEBAUTHN_ORIGINS) su zarezom odvojeni stringovi.
+// PRIVREMENO (26.10.2026.): glasanje je skriveno u aplikaciji
+// (`FeatureFlags.voting: false` u domovina_brand.dart), pa worker ne smije
+// davati OG kartu glasanja ni slati /glasanje* u native app kroz AASA.
+// Nadjačava env FEATURE_VOTING; vraćanje = false, zajedno s flagom u Dartu.
+const VOTING_HIDDEN = true;
+
 function brandFromEnv(env) {
   const e = env || {};
   const flag = (name) => (e[name] ?? 'true') === 'true';
@@ -80,7 +86,7 @@ function brandFromEnv(env) {
       'https://www.domovina.tv',
     ]),
     // Brend-specifični blokovi; 'false' ih isključuje.
-    FEATURE_VOTING: flag('FEATURE_VOTING'),   // „Izborni dan" /glasanje* (OG + AASA)
+    FEATURE_VOTING: flag('FEATURE_VOTING') && !VOTING_HIDDEN, // „Izborni dan" /glasanje* (OG + AASA)
     FEATURE_CAL: flag('FEATURE_CAL'),         // Cal.com proxy /api/cal/*
     FEATURE_AIRKUNA: flag('FEATURE_AIRKUNA'), // airKUNA wallet u assetlinks + AASA
   };
