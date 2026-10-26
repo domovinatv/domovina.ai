@@ -448,8 +448,13 @@ class _ReelViewerState extends State<_ReelViewer> {
   }
 
   /// 9:16 isječak kao datoteka + 16:9 isti raspon s cuttera.
-  void _share(BuildContext context) {
-    showReelShareSheet(
+  ///
+  /// Reel se pauzira dok je list otvoren: `<video>` inače vuče isti 35 MB
+  /// fajl usporedno s preuzimanjem za dijeljenje.
+  Future<void> _share(BuildContext context) async {
+    final wasPlaying = _player.state.playing;
+    if (wasPlaying) _player.pause();
+    await showReelShareSheet(
       context,
       reel: widget.reel,
       youtubeId: widget.youtubeId,
@@ -460,6 +465,7 @@ class _ReelViewerState extends State<_ReelViewer> {
       ),
       messenger: ScaffoldMessenger.of(context),
     );
+    if (wasPlaying && mounted) _player.play();
   }
 
   @override

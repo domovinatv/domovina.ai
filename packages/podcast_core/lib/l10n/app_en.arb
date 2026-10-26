@@ -1227,6 +1227,7 @@
   "reelsDownloadVideo": "Download vertical video (9:16)",
   "reelsSendHint": "WhatsApp, messages, email",
   "reelsPreparing": "Preparing video…",
+  "reelsPreparingProgress": "Preparing video… {percent}% of {size}",
   "reelsCopyVideoLink": "Copy link to video",
   "reelsVideoLinkCopied": "Video link copied",
   "reelsVideoDownloaded": "Video downloaded",

@@ -43,27 +43,76 @@ Future<void> showReelShareSheet(
   );
 }
 
-/// Zadnji preuzeti isječak — ponovno otvaranje lista za isti reel je odmah
-/// spremno. Samo jedan, jer je svaki ~35 MB.
-String? _cachedUrl;
-Uint8List? _cachedBytes;
-final Map<String, Future<Uint8List>> _inFlight = {};
+/// Preuzimanje 9:16 isječka u memoriju, s napretkom.
+///
+/// Živi IZVAN lista: zatvoren pa ponovno otvoren list nastavlja isto
+/// preuzimanje (ili odmah ima bajtove), umjesto da krene ispočetka. Pamti se
+/// samo zadnji reel, jer je svaki ~35 MB. `http` 1.6 na webu ide kroz `fetch`
+/// i čita tijelo kao stream, pa napredak radi i u browseru (`Content-Length`
+/// je u CDN-ovom `access-control-expose-headers`).
+class _ReelDownload extends ChangeNotifier {
+  final String url;
+  int received = 0;
+  int? total;
+  Uint8List? bytes;
+  Object? error;
 
-Future<Uint8List> _download(String url) {
-  if (url == _cachedUrl && _cachedBytes != null) {
-    return Future.value(_cachedBytes);
+  _ReelDownload(this.url) {
+    _run();
   }
-  return _inFlight[url] ??= http
-      .get(Uri.parse(url))
-      .then((r) {
-        if (r.statusCode != 200) {
-          throw http.ClientException('HTTP ${r.statusCode}', Uri.parse(url));
+
+  bool get done => bytes != null;
+  bool get failed => error != null;
+
+  /// 0–100, ili null dok veličina nije poznata.
+  int? get percent {
+    final t = total;
+    if (t == null || t <= 0) return null;
+    return (received * 100 ~/ t).clamp(0, 100);
+  }
+
+  Future<void> _run() async {
+    final client = http.Client();
+    final sw = Stopwatch()..start();
+    try {
+      final res = await client.send(http.Request('GET', Uri.parse(url)));
+      if (res.statusCode != 200) {
+        throw http.ClientException('HTTP ${res.statusCode}', Uri.parse(url));
+      }
+      total = res.contentLength;
+      final builder = BytesBuilder(copy: false);
+      var lastPercent = -1;
+      await for (final chunk in res.stream) {
+        builder.add(chunk);
+        received += chunk.length;
+        // Obavijest po postotku, ne po chunku (na 35 MB su to tisuće chunkova).
+        final p = percent ?? -1;
+        if (p != lastPercent) {
+          lastPercent = p;
+          notifyListeners();
         }
-        _cachedUrl = url;
-        _cachedBytes = r.bodyBytes;
-        return r.bodyBytes;
-      })
-      .whenComplete(() => _inFlight.remove(url));
+      }
+      bytes = builder.takeBytes();
+      log(
+        'Reels: share download ${bytes!.length} B '
+        'in ${sw.elapsedMilliseconds} ms',
+      );
+    } catch (e) {
+      error = e;
+      log('Reels: share download failed: $e');
+    } finally {
+      client.close();
+      notifyListeners();
+    }
+  }
+}
+
+_ReelDownload? _current;
+
+_ReelDownload _downloadFor(String url) {
+  final c = _current;
+  if (c != null && c.url == url && !c.failed) return c;
+  return _current = _ReelDownload(url);
 }
 
 class _ReelShareSheet extends StatefulWidget {
@@ -84,8 +133,7 @@ class _ReelShareSheet extends StatefulWidget {
 }
 
 class _ReelShareSheetState extends State<_ReelShareSheet> {
-  Uint8List? _bytes;
-  bool _failed = false;
+  late _ReelDownload _download = _downloadFor(_url);
   bool _sharing = false;
 
   String get _url => widget.reel.render!.url;
@@ -93,26 +141,10 @@ class _ReelShareSheetState extends State<_ReelShareSheet> {
   int get _start => widget.reel.startSeconds;
   int get _end => widget.reel.endSec.ceil();
 
-  @override
-  void initState() {
-    super.initState();
-    _prefetch();
-  }
-
-  void _prefetch() {
-    setState(() => _failed = false);
-    _download(_url)
-        .then((bytes) {
-          if (mounted) setState(() => _bytes = bytes);
-        })
-        .catchError((Object e) {
-          log('Reels: share download failed: $e');
-          if (mounted) setState(() => _failed = true);
-        });
-  }
+  void _retry() => setState(() => _download = _downloadFor(_url));
 
   Future<void> _send(BuildContext rowContext) async {
-    final bytes = _bytes;
+    final bytes = _download.bytes;
     if (bytes == null || _sharing) return;
     final l = AppLocalizations.of(context);
     final navigator = Navigator.of(context);
@@ -157,13 +189,53 @@ class _ReelShareSheetState extends State<_ReelShareSheet> {
     return box.localToGlobal(Offset.zero) & box.size;
   }
 
+  Widget _sendRow(AppLocalizations l, bool canShare) {
+    final dl = _download;
+    final bytes = dl.bytes;
+    final percent = dl.percent;
+    final total = dl.total;
+    return Builder(
+      builder: (rowContext) => ListTile(
+        enabled: (bytes != null && !_sharing) || dl.failed,
+        leading: dl.failed
+            ? const Icon(Icons.refresh)
+            : bytes == null || _sharing
+            ? SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  value: _sharing || percent == null ? null : percent / 100,
+                ),
+              )
+            : Icon(canShare ? Icons.ios_share : Icons.download_outlined),
+        title: Text(canShare ? l.reelsSendVideo : l.reelsDownloadVideo),
+        subtitle: Text(
+          dl.failed
+              ? l.reelsShareFailed
+              : bytes == null
+              ? (percent == null || total == null
+                    ? l.reelsPreparing
+                    : l.reelsPreparingProgress(
+                        percent,
+                        EbookService.formatSize(total),
+                      ))
+              : [
+                  'MP4',
+                  EbookService.formatSize(bytes.length),
+                  if (canShare) l.reelsSendHint,
+                ].join(' · '),
+        ),
+        onTap: dl.failed ? _retry : () => _send(rowContext),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l = AppLocalizations.of(context);
     final canShare = canShareFiles();
-    final bytes = _bytes;
-    final busy = !_failed && (bytes == null || _sharing);
 
     return SafeArea(
       child: SingleChildScrollView(
@@ -194,36 +266,11 @@ class _ReelShareSheetState extends State<_ReelShareSheet> {
                 ],
               ),
             ),
-            Builder(
-              builder: (rowContext) => ListTile(
-                enabled: (bytes != null && !_sharing) || _failed,
-                leading: busy
-                    ? const SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : Icon(
-                        _failed
-                            ? Icons.refresh
-                            : canShare
-                            ? Icons.ios_share
-                            : Icons.download_outlined,
-                      ),
-                title: Text(canShare ? l.reelsSendVideo : l.reelsDownloadVideo),
-                subtitle: Text(
-                  _failed
-                      ? l.reelsShareFailed
-                      : bytes == null
-                      ? l.reelsPreparing
-                      : [
-                          'MP4',
-                          EbookService.formatSize(bytes.length),
-                          if (canShare) l.reelsSendHint,
-                        ].join(' · '),
-                ),
-                onTap: _failed ? _prefetch : () => _send(rowContext),
-              ),
+            // Redak sluša preuzimanje izravno — ne ovisi o tome je li future
+            // završio dok je list bio otvoren.
+            ListenableBuilder(
+              listenable: _download,
+              builder: (context, _) => _sendRow(l, canShare),
             ),
             ListTile(
               leading: const Icon(Icons.link),

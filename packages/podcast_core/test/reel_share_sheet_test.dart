@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
 
 import 'package:podcast_core/brand/app_brand.dart';
 import 'package:podcast_core/brand/domovina_brand.dart';
@@ -71,5 +75,71 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
     // Raspon: početak zaokružen dolje, kraj gore — cijeli trenutak stane.
     expect(copied, 'https://cutter.domovina.ai/clip/abc/r/3149-3216.mp4');
+  });
+
+  testWidgets('napredak preuzimanja se vidi i redak se otključa na kraju', (
+    tester,
+  ) async {
+    const otherReel = EpisodeReel(
+      rank: 2,
+      startSec: 10,
+      endSec: 70,
+      title: 'Drugi trenutak',
+      render: EpisodeReelRender(
+        url: 'https://cdn.domovina.ai/data/abc/reels/2-cafebabe.mp4',
+        clipStartSec: 10,
+        durationSec: 60,
+      ),
+    );
+    final body = StreamController<List<int>>();
+    final client = MockClient.streaming(
+      (request, _) async =>
+          http.StreamedResponse(body.stream, 200, contentLength: 1000),
+    );
+
+    await http.runWithClient(() async {
+      await tester.pumpWidget(
+        MaterialApp(
+          locale: const Locale('hr'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Scaffold(
+            body: Builder(
+              builder: (context) => TextButton(
+                onPressed: () => showReelShareSheet(
+                  context,
+                  reel: otherReel,
+                  youtubeId: 'abc',
+                  episodeUrl: 'https://domovina.ai/v/abc/t/10',
+                  messenger: ScaffoldMessenger.of(context),
+                ),
+                child: const Text('open'),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('open'));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+
+      body.add(List.filled(400, 0));
+      await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+      await tester.pump();
+      expect(find.textContaining('40 %'), findsOneWidget);
+
+      body.add(List.filled(600, 0));
+      await body.close();
+      await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+      await tester.pump();
+      expect(find.textContaining('MP4 · 1 kB'), findsOneWidget);
+      final tile = tester.widget<ListTile>(
+        find.ancestor(
+          of: find.textContaining('(9:16)'),
+          matching: find.byType(ListTile),
+        ),
+      );
+      expect(tile.enabled, isTrue);
+    }, () => client);
   });
 }

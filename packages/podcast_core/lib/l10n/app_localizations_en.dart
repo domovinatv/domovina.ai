@@ -4714,6 +4714,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reelsPreparing => 'Preparing video…';
 
   @override
+  String reelsPreparingProgress(int percent, String size) {
+    return 'Preparing video… $percent% of $size';
+  }
+
+  @override
   String get reelsCopyVideoLink => 'Copy link to video';
 
   @override

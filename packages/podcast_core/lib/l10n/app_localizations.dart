@@ -7469,6 +7469,12 @@ abstract class AppLocalizations {
   /// **'Pripremam video…'**
   String get reelsPreparing;
 
+  /// Subtitle while the vertical clip file downloads: percent done and total size (e.g. 35,4 MB).
+  ///
+  /// In hr, this message translates to:
+  /// **'Pripremam video… {percent} % od {size}'**
+  String reelsPreparingProgress(int percent, String size);
+
   /// Share-sheet action: copy the direct link to the vertical clip file.
   ///
   /// In hr, this message translates to:

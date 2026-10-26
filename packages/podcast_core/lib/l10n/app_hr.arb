@@ -5964,6 +5964,19 @@
   "@reelsPreparing": {
     "description": "Subtitle while the vertical clip file is being downloaded before it can be shared."
   },
+  "reelsPreparingProgress": "Pripremam video… {percent} % od {size}",
+  "@reelsPreparingProgress": {
+    "description": "Subtitle while the vertical clip file downloads: percent done and total size (e.g. 35,4 MB).",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      },
+      "size": {
+        "type": "String",
+        "example": "35,4 MB"
+      }
+    }
+  },
   "reelsCopyVideoLink": "Kopiraj vezu na video",
   "@reelsCopyVideoLink": {
     "description": "Share-sheet action: copy the direct link to the vertical clip file."
