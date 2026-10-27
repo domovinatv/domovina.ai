@@ -208,6 +208,25 @@ provjera 60/60 svježe kroz oba zapisa.
 
 ---
 
+## Dopuna 27.10.2026.: `/hr` sufiks vodio na naslovnicu
+
+`/v/<id>/t/<sec>/en` je radio, a `/v/<id>/t/<sec>/hr` je padao na
+`errorPageBuilder` (naslovnicu) jer `/hr` ruta nikad nije postojala: hrvatski je
+izvornik i kanonski URL nema sufiks. Ljudi ga ipak upisuju po analogiji s `/en`.
+
+- **Flutter** (`lib/router/app_router.dart`, top-level `redirect`, regex
+  `_hrSuffix`): `/v|m/<id>[/t/<sec>]/hr` → isti put bez `/hr`, query ostaje.
+  Redirect usput zove `savePreferredLanguage(hr)`. Bez toga bi zapamćena EN
+  preferencija (`loadPreferredLanguage` u `initState` ekrana epizode) odmah
+  prebacila ekran na engleski, pa bi `/hr` u praksi otvarao engleski čim je
+  korisnik ikad birao EN. Odbačeno: zasebne `/hr` GoRoute rute (četiri kopije
+  pageBuildera) i parametar „forsiraj HR" na `EpisodeScreen`.
+- **Worker** (`web/_worker.js`): matcheri primaju `(\/(?:en|hr))?`, a jezik je EN
+  samo za `=== '/en'`. Canonical za `/hr` je adresa bez sufiksa (provjereno na
+  produkciji v2.0.204).
+- Za redirect nema testa: `test/nav_contract_test.dart` gradi vlastiti router,
+  ne `createRouter()`.
+
 ## Što je ostalo otvoreno
 
 - **Native čeka nightly build.** Flutter popravak (v2.0.150–151) na iOS/Android
