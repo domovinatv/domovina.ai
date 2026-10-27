@@ -15,6 +15,13 @@ import '../theme/app_theme.dart';
 /// jednom i rezultat prosljeđuje ovim widgetima; nijedan od njih se ne prikazuje
 /// dok se ne zna da knjiga doista postoji.
 
+/// Tekstovi e-knjige na jeziku SADRŽAJA epizode, ne sučelja. `/v/<id>/en`
+/// otvoren uz hrvatsko sučelje nudio je „Englesko izdanje” s hrvatskim
+/// naslovom kartice, opisom i „Kopiraj poveznicu na knjigu”. Knjiga je dio
+/// sadržaja (izdanje bira `preferEn`), pa i riječi oko nje prate taj jezik.
+AppLocalizations ebookStrings(bool preferEn) =>
+    lookupAppLocalizations(Locale(preferEn ? 'en' : 'hr'));
+
 /// Ikona u app baru epizode. Vraća prazan prostor dok se ne zna da knjiga
 /// postoji — nikad ne nudi akciju koja bi završila na 404.
 class EbookAction extends StatelessWidget {
@@ -38,7 +45,7 @@ class EbookAction extends StatelessWidget {
       // `auto_stories` (otvorena knjiga), NE `menu_book` — tu ikonu u
       // jednostavnom prikazu već nosi tab Magisteriuma.
       icon: const Icon(Icons.auto_stories_outlined),
-      tooltip: AppLocalizations.of(context).ebookTooltip,
+      tooltip: ebookStrings(preferEn).ebookTooltip,
       onPressed: () => showEbookSheet(
         context,
         availability: availability,
@@ -70,7 +77,7 @@ class EbookCard extends StatelessWidget {
   Widget build(BuildContext context) {
     if (!availability.any) return const SizedBox.shrink();
     final theme = Theme.of(context);
-    final l = AppLocalizations.of(context);
+    final l = ebookStrings(preferEn);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
@@ -219,7 +226,7 @@ class _EbookSheetState extends State<_EbookSheet> {
 
   Future<void> _take(BuildContext rowContext, EbookEdition edition) async {
     if (_busyUrl != null) return;
-    final l = AppLocalizations.of(context);
+    final l = ebookStrings(widget.preferEn);
     final messenger = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);
     final origin = _rectOf(rowContext);
@@ -275,7 +282,7 @@ class _EbookSheetState extends State<_EbookSheet> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final l = AppLocalizations.of(context);
+    final l = ebookStrings(widget.preferEn);
     final canShare = canShareFiles();
 
     return SafeArea(

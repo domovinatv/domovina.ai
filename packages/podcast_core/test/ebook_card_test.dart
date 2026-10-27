@@ -56,6 +56,33 @@ void main() {
     expect(find.text('E-knjiga (EPUB)'), findsOneWidget);
   });
 
+  // Jezik e-knjige je jezik SADRŽAJA: `/v/<id>/en` uz hrvatsko sučelje je
+  // nudio hrvatsku karticu i „Kopiraj poveznicu na knjigu".
+  testWidgets('engleski sadržaj uz hrvatsko sučelje: kartica i sheet na engleskom',
+      (tester) async {
+    const en = EbookEdition(
+      isEn: true,
+      url: 'https://cdn.domovina.ai/data/abc/book.en.epub',
+      bytes: 2638696,
+    );
+    await tester.pumpWidget(
+      _host(
+        const EbookCard(
+          availability: EbookAvailability(hr: _hr, en: en),
+          title: 'Episode',
+          preferEn: true,
+        ),
+      ),
+    );
+    expect(find.text('Take the episode with you'), findsOneWidget);
+    expect(find.text('Ponesi epizodu sa sobom'), findsNothing);
+
+    expect(find.text('Ebook (EPUB)'), findsOneWidget);
+    // Sheet (traži GoRouter zbog closeOnRouteChange) čita iste tekstove.
+    expect(ebookStrings(true).ebookCopyLink, 'Copy link to the book');
+    expect(ebookStrings(false).ebookCopyLink, 'Kopiraj poveznicu na knjigu');
+  });
+
   testWidgets('ikona u app baru se pojavi tek s knjigom', (tester) async {
     await tester.pumpWidget(
       _host(

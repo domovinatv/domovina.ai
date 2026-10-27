@@ -826,6 +826,11 @@ izdanje na jeziku koji korisnik čita; tap tada samo preda gotove bajtove.
 tiho odbiti). `share_plus` je u projektu SAMO zbog nativea; ovisi o `web: ^1.1.1`
 (ne o `dart:html`) pa ne ruši `--wasm` build — provjeriti pri svakom bumpu.
 
+**Rule (tekstovi prate jezik SADRŽAJA)**: kartica, ikona i sheet e-knjige
+čitaju `ebookStrings(preferEn)`, ne `AppLocalizations.of(context)`. `/v/<id>/en`
+uz hrvatsko sučelje je do v2.0.206 nudio englesko izdanje pod hrvatskim
+tekstovima (čuva `test/ebook_card_test.dart`).
+
 **Rule (ime datoteke se transliterira)**: `EbookService.fileName` miče
 dijakritike i interpunkciju. Datoteka putuje kroz WhatsApp, e-poštu i tuđe
 datotečne sustave, gdje „č" i „?" završe kao smeće ili odbijen upload.
