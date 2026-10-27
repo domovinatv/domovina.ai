@@ -122,6 +122,17 @@ Provjereno 15.9.2026.:
 - **`epubcheck` nikad pokrenut** (pipeline doc §8) — bitno ako knjiga ikad ide u
   Apple Books / Play Books.
 
+## Dopuna 27.10.2026.: tekstovi na jeziku sadržaja (v2.0.206)
+
+Kartica, tooltip ikone i sheet čitali su `AppLocalizations.of(context)`, dakle
+jezik SUČELJA, dok izdanje bira `preferEn` (jezik SADRŽAJA). Otvaranje
+`/v/<id>/en` ne mijenja UI locale, pa je engleska knjiga stajala pod
+„Ponesi epizodu sa sobom" i „Kopiraj poveznicu na knjigu". Sada sve ide kroz
+`ebookStrings(preferEn)` (`lookupAppLocalizations`), čuva
+`test/ebook_card_test.dart`. Sheet se u testu ne otvara jer
+`closeOnRouteChange` traži GoRouter, pa test provjerava stringove izravno.
+Neprovjereno u browseru.
+
 ## Vezani dokumenti
 
 - `fetch.domovina.tv/docs/ebook_epub_pipeline.md` — kako knjiga nastaje
