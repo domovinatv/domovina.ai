@@ -227,6 +227,25 @@ izvornik i kanonski URL nema sufiks. Ljudi ga ipak upisuju po analogiji s `/en`.
 - Za redirect nema testa: `test/nav_contract_test.dart` gradi vlastiti router,
   ne `createRouter()`.
 
+## Dopuna 27.10.2026.: naslov epizode na engleskom (v2.0.205)
+
+Pravilo „naslov se ne prevodi" je ukinuto. `summary.en.json` već nosi
+`summary.title_en` (pipeline `translate_to_english.js` ga prevodi uz abstract),
+a hero na `/v/` i ekran `/m/` su ga koristili, dok su breadcrumb, `<title>`,
+Media Session i OG za `/en` ostajali na izvornom naslovu. EN stranica je tako
+imala dva naslova na dva jezika.
+
+- App: `EpisodeData.titleFor(wantEn)` (`lib/services/data_service.dart`) je
+  jedino mjesto pravila; `_syncPageMeta` u `episode_screen.dart` prepisuje
+  `<title>`/opis kad je jezik EN (URL, sticky pref, toggle).
+- Worker: `baseTitle` u `injectEpisodeTags` uzima `title_en` za `lang === 'en'`.
+  Provjereno na produkciji: `/v/kmVTa8OjHpc/en` → „Sofascore launches its own
+  social network", HR ostaje izvorni.
+- Ostaje na HR: naslov u favoritima i „Nastavi slušati" (spremljen pri
+  dodavanju), Media Session ako se jezik prebaci usred reprodukcije.
+- Reels (`reels.json`) nemaju EN polja. Prijevod je zadatak za pipeline
+  (handoff u fetch.domovina.tv, 27.10.2026.).
+
 ## Što je ostalo otvoreno
 
 - **Native čeka nightly build.** Flutter popravak (v2.0.150–151) na iOS/Android
