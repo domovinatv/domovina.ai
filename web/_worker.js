@@ -1012,9 +1012,11 @@ function isoDuration(seconds) {
 
 function injectEpisodeTags(indexHtml, ytId, info, summary, article, hasOgShare, tSec, viewMode, sectionImageUrl, lang = 'hr') {
   const copy = SHARE_COPY[lang] || SHARE_COPY.hr;
-  // Naslov epizode NIJE preveden — to je izvorni YouTube naslov (pipeline ga ne
-  // prevodi). Prevodi se samo AI-generirani sloj: abstract, subtitle, opisi.
-  const baseTitle = info.title || APP_NAME;
+  // EN naslov je `title_en` iz summary.en.json (AI prijevod naslova). HR
+  // varijanta ostaje izvorni YouTube naslov, isto kao do 27.10.2026. — tada je
+  // i EN share nosio hrvatski naslov uz engleski opis.
+  const baseTitle = (lang === 'en' && summary?.summary?.title_en?.trim())
+    || info.title || APP_NAME;
   const rawDesc = pickDescription(info, summary, lang);
   const baseDesc = rawDesc.length > 300 ? rawDesc.slice(0, 297) + '…' : rawDesc;
 

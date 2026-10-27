@@ -889,6 +889,7 @@ class _EpisodeContentState extends State<_EpisodeContent>
     // 1) URL forsiranje (npr. /v/<id>/en) — najjaci signal.
     if (widget.initialLanguageEn && widget.data.hasTranslationEn) {
       _language = EpisodeLanguage.en;
+      _syncPageMeta();
     } else {
       // 2) Sticky pref iz prosle sesije — samo ako EN prijevod postoji.
       // Bez prijevoda toggle se i ne prikazuje, pa nema smisla startati u EN.
@@ -897,6 +898,7 @@ class _EpisodeContentState extends State<_EpisodeContent>
         if (saved == EpisodeLanguage.en && widget.data.hasTranslationEn) {
           setState(() => _language = EpisodeLanguage.en);
           _syncLanguageUrl(EpisodeLanguage.en);
+          _syncPageMeta();
         }
       });
     }
@@ -1386,6 +1388,22 @@ class _EpisodeContentState extends State<_EpisodeContent>
     setState(() => _language = lang);
     savePreferredLanguage(lang);
     _syncLanguageUrl(lang);
+    _syncPageMeta();
+  }
+
+  /// Naslov epizode na trenutnom jeziku sadržaja (vidi `EpisodeData.titleFor`).
+  String get _title => widget.data.titleFor(_language == EpisodeLanguage.en);
+
+  /// `<title>` i opis stranice prate jezik. Roditelj ih postavi na HR pri
+  /// učitavanju; ovo ih prepiše kad je jezik EN (URL `/en`, sticky pref,
+  /// toggle) i vrati na HR kad se korisnik prebaci natrag.
+  void _syncPageMeta() {
+    final wantEn = _language == EpisodeLanguage.en;
+    final s = widget.data.summaryFor(wantEn)?.summary;
+    setPageMeta(
+      title: _title,
+      description: (wantEn ? s?.abstractEn : null) ?? s?.abstractHr,
+    );
   }
 
   /// Update adresne trake za novi jezik bez triggera router refresha.
@@ -1598,7 +1616,7 @@ class _EpisodeContentState extends State<_EpisodeContent>
                 thumbnail16x9Url: thumbUrl,
               )
             : null;
-        final mediaTitle = widget.data.displayTitle;
+        final mediaTitle = _title;
         BackgroundAudio.instance.attach(
           player: player,
           title: mediaTitle,
@@ -2508,7 +2526,7 @@ class _EpisodeContentState extends State<_EpisodeContent>
       title: _Breadcrumb(
         channelName: data.info.channel,
         channelSlug: _channelSlug,
-        episodeTitle: data.displayTitle,
+        episodeTitle: _title,
       ),
       actions: [
         Padding(
@@ -2883,7 +2901,7 @@ class _EpisodeContentState extends State<_EpisodeContent>
             title: _Breadcrumb(
               channelName: data.info.channel,
               channelSlug: _channelSlug,
-              episodeTitle: data.displayTitle,
+              episodeTitle: _title,
             ),
             actions: [
               Padding(
@@ -3387,7 +3405,7 @@ class _EpisodeContentState extends State<_EpisodeContent>
           title: _Breadcrumb(
             channelName: data.info.channel,
             channelSlug: _channelSlug,
-            episodeTitle: data.displayTitle,
+            episodeTitle: _title,
           ),
           actions: [
             Padding(

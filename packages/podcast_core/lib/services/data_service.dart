@@ -764,6 +764,17 @@ class EpisodeData {
     return info.title;
   }
 
+  /// Naslov na jeziku sadržaja: EN iz `summary.en.json` (`title_en`), inače
+  /// [displayTitle]. Isto pravilo kao `HeroSection` — breadcrumb, `<title>` i
+  /// Media Session ne smiju ostati na hrvatskom dok naslov ispod piše engleski.
+  String titleFor(bool wantEn) {
+    if (wantEn) {
+      final en = summaryEn?.summary.titleEn;
+      if (en != null && en.isNotEmpty) return en;
+    }
+    return displayTitle;
+  }
+
   /// All available Magisterium variants as (label, data) pairs.
   /// [wantEn] swap-a u EN-superset verziju ako postoji prijevod.
   List<(String, MagisteriumData)> magisteriumVariantsFor({

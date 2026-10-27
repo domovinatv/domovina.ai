@@ -1365,8 +1365,9 @@ osoba) i dalje koriste obični konstruktor.
 **Rule (EN je zaseban CDN fajl, ne polje)**: prijevod živi u
 `data/<id>/article.en.json` i `summary.en.json` — u njima su i HR i `*_en`
 polja, pa se fallback radi **po polju** (`pickLang`), ne po dokumentu; prijevodi
-su parcijalni. Naslov epizode se NE prevodi (izvorni YouTube naslov), niti
-`inLanguage` u JSON-LD-u — audio ostaje hrvatski. HR i EN imaju svaki svoj
+su parcijalni. Naslov epizode u EN načinu je `summary.en.json` `title_en`
+(`EpisodeData.titleFor` u appu, `baseTitle` u workeru; od 27.10.2026.), uz
+pad na HR. `inLanguage` u JSON-LD-u se NE prevodi — audio ostaje hrvatski. HR i EN imaju svaki svoj
 self-referencing canonical + uzajamni `hreflang`.
 
 **Rule (u OG sliku se ne piše emoji)**: `generate_og_sections.py` je crtao `⏱`
