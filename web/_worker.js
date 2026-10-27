@@ -404,6 +404,7 @@ export default {
     //   /m/<ytId>               — mobile simplified view (isti OG, canonical → /v/<id>)
     //   /?v=<ytId>              — query param format
     //   …/en                    — engleska varijanta SVIH gornjih (osim /?v=)
+    //   …/hr                    — izričito hrvatski; isto što i bez sufiksa (canonical bez njega)
     //
     // `/en` sufiks (a ne ?lang=en) postoji upravo zato što crawleri droppaju
     // query parametre — vidi komentar uz rutu u lib/router/app_router.dart.
@@ -414,26 +415,26 @@ export default {
     let tSec = null;
     let viewMode = 'v'; // 'v' = detailed, 'm' = simple
     let lang = 'hr';    // 'hr' = original, 'en' = prijevod iz *.en.json
-    const tMatch = path.match(/^\/v\/([A-Za-z0-9_-]{6,20})\/t\/(\d+)(\/en)?$/);
-    const vMatch = !tMatch && path.match(/^\/v\/([A-Za-z0-9_-]{6,20})(\/en)?$/);
-    const mtMatch = !tMatch && !vMatch && path.match(/^\/m\/([A-Za-z0-9_-]{6,20})\/t\/(\d+)(\/en)?$/);
-    const mMatch = !tMatch && !vMatch && !mtMatch && path.match(/^\/m\/([A-Za-z0-9_-]{6,20})(\/en)?$/);
+    const tMatch = path.match(/^\/v\/([A-Za-z0-9_-]{6,20})\/t\/(\d+)(\/(?:en|hr))?$/);
+    const vMatch = !tMatch && path.match(/^\/v\/([A-Za-z0-9_-]{6,20})(\/(?:en|hr))?$/);
+    const mtMatch = !tMatch && !vMatch && path.match(/^\/m\/([A-Za-z0-9_-]{6,20})\/t\/(\d+)(\/(?:en|hr))?$/);
+    const mMatch = !tMatch && !vMatch && !mtMatch && path.match(/^\/m\/([A-Za-z0-9_-]{6,20})(\/(?:en|hr))?$/);
     if (tMatch) {
       ytId = tMatch[1];
       tSec = parseInt(tMatch[2], 10);
-      if (tMatch[3]) lang = 'en';
+      if (tMatch[3] === '/en') lang = 'en';
     } else if (vMatch) {
       ytId = vMatch[1];
-      if (vMatch[2]) lang = 'en';
+      if (vMatch[2] === '/en') lang = 'en';
     } else if (mtMatch) {
       ytId = mtMatch[1];
       tSec = parseInt(mtMatch[2], 10);
       viewMode = 'm';
-      if (mtMatch[3]) lang = 'en';
+      if (mtMatch[3] === '/en') lang = 'en';
     } else if (mMatch) {
       ytId = mMatch[1];
       viewMode = 'm';
-      if (mMatch[2]) lang = 'en';
+      if (mMatch[2] === '/en') lang = 'en';
     } else if (path === '/' || path === '') {
       ytId = url.searchParams.get('v');
     }

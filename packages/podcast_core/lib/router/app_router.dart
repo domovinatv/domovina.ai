@@ -31,6 +31,7 @@ import '../screens/voting/voting_screen.dart';
 import '../screens/youtube_watch/youtube_watch_screen.dart';
 import '../screens/sponsor/sponsor_episode_screen.dart';
 import '../screens/sponsor/sponsor_store_screen.dart';
+import '../services/episode_language.dart';
 import '../services/tv_mode.dart';
 
 /// App router — go_router s NoTransitionPage za instant navigaciju.
@@ -618,6 +619,15 @@ GoRouter createRouter() {
     ],
     // ?v=ytId query param support (redirect to /v/ytId)
     redirect: (context, state) {
+      // Izričiti hrvatski — /v/<id>[/t/<sec>]/hr i /m/… — isto je što i bez
+      // sufiksa (HR je izvornik, canonical nema `/hr`). Bez ovoga je ruta
+      // padala na errorPageBuilder (naslovnica). Izbor se pamti, inače bi
+      // sticky EN preferencija na ekranu epizode odmah prebacila na engleski.
+      final hr = _hrSuffix.firstMatch(state.uri.path);
+      if (hr != null) {
+        savePreferredLanguage(EpisodeLanguage.hr);
+        return state.uri.replace(path: hr.group(1)).toString();
+      }
       final v = state.uri.queryParameters['v'];
       if (v != null && v.isNotEmpty && state.matchedLocation == '/') {
         return '/v/$v';
@@ -630,6 +640,8 @@ GoRouter createRouter() {
     ),
   );
 }
+
+final _hrSuffix = RegExp(r'^(/[vm]/[A-Za-z0-9_-]+(?:/t/\d+)?)/hr/?$');
 
 /// `?video=0` → false, `?video=1` → true, inače null (vidi
 /// EpisodeScreen.openVideo).
