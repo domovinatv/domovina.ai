@@ -107,6 +107,13 @@ class EpisodePanelCanvasState extends State<EpisodePanelCanvas>
   EpisodePanelSide? get openSide => _open;
   bool get isOpen => _open != null;
 
+  /// Otvoreni panel nije stao uz centar nego ga je gurnuo s ekrana.
+  bool get centerHidden => switch (_open) {
+    EpisodePanelSide.left => !_leftFits,
+    EpisodePanelSide.right => !_rightFits,
+    null => false,
+  };
+
   @override
   void initState() {
     super.initState();

@@ -47,6 +47,7 @@ import '../services/url_sync.dart';
 import '../services/view_mode.dart';
 import '../services/watch_progress_service.dart';
 import '../widgets/anonymous_signin_bar.dart';
+import '../widgets/article_page_keys.dart';
 import '../widgets/favorite_button.dart';
 import '../widgets/hero_section.dart';
 import '../widgets/language_toggle_chip.dart';
@@ -2476,8 +2477,16 @@ class _EpisodeContentState extends State<_EpisodeContent>
 
   // ---------- build ---------------------------------------------------------
 
+  /// Home/End/PageUp/PageDown pomiču članak, ne fokusiranu listu.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => ArticlePageKeys(
+    controller: _scrollController,
+    active: () =>
+        _mobileTab == 0 && !(_panelKey.currentState?.centerHidden ?? false),
+    child: _buildEpisode(context),
+  );
+
+  Widget _buildEpisode(BuildContext context) {
     final data = widget.data;
     // Basic path — video je dostupan ali AI pipeline jos nije producirao
     // clanak/sazetak/poglavlja. Renderiramo samo player + osnovne info.
