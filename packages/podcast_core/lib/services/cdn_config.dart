@@ -164,6 +164,17 @@ class CdnConfig {
   static String videoH264FragmentedUrl(String ytId) =>
       '$base/data/$ytId/video_h264_fmp4.mp4?g=$_fmp4Generation';
 
+  /// Fragmentirani MP4 za Chromium: isti remux kao [videoH264FragmentedUrl]
+  /// (`+cmaf`), ali BEZ `-frag_interleave`. Interleavani fajl ruši Chromium
+  /// nakon niza skokova (`PIPELINE_ERROR_DECODE`, zvuk i slika se raziđu,
+  /// player zapne u „buffering") — vidi
+  /// `docs/2026-10-28-fmp4-interleave-chromium-seek.md`. `?g=` ima isto
+  /// značenje kao kod [videoH264FragmentedUrl]; nova datoteka kreće od 1.
+  static const _fmp4WebGeneration = 1;
+
+  static String videoH264FragmentedWebUrl(String ytId) =>
+      '$base/data/$ytId/video_h264_fmp4_web.mp4?g=$_fmp4WebGeneration';
+
   /// Probe URL za H.264 postojanje — s cache-busterom da stale 404 (od prije
   /// nego je transcode završio) ne zaglavi fallback na izvorni video.
   /// Playback i dalje koristi čisti [videoH264Url] (immutable cache OK).

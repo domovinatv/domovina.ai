@@ -98,6 +98,38 @@ void main() {
       expect(data.isAudioOnly, isFalse);
     });
 
+    group('fragmentedVideoUrl po platformi', () {
+      const both = EpisodeBundle(files: {
+        'video_h264.mp4',
+        'video_h264_fmp4.mp4',
+        'video_h264_fmp4_web.mp4',
+      }, inline: {});
+      const onlyInterleaved = EpisodeBundle(
+          files: {'video_h264.mp4', 'video_h264_fmp4.mp4'}, inline: {});
+
+      test('native uzima interleavani fmp4', () {
+        expect(fragmentedVideoUrl(both, id, web: false, webKit: false),
+            contains('/video_h264_fmp4.mp4?g='));
+      });
+
+      test('Chromium uzima samo web fmp4', () {
+        expect(fragmentedVideoUrl(both, id, web: true, webKit: false),
+            contains('/video_h264_fmp4_web.mp4?g='));
+      });
+
+      // Interleavani fmp4 ruši Chromium nakon niza skokova
+      // (docs/2026-10-28-fmp4-interleave-chromium-seek.md).
+      test('Chromium NIKAD ne uzima interleavani fmp4', () {
+        expect(
+            fragmentedVideoUrl(onlyInterleaved, id, web: true, webKit: false),
+            isNull);
+      });
+
+      test('WebKit ne uzima nijedan fmp4', () {
+        expect(fragmentedVideoUrl(both, id, web: true, webKit: true), isNull);
+      });
+    });
+
     test('bez fmp4 ostaje video_h264.mp4', () async {
       final data = await loadWith(['video_h264.mp4', 'audio.mp3']);
       expect(data.videoUri, endsWith('/data/$id/video_h264.mp4'));

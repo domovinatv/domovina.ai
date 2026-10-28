@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:flutter/foundation.dart' show visibleForTesting;
+import 'package:flutter/foundation.dart' show kIsWeb, visibleForTesting;
 import 'package:http/http.dart' as http;
 import '../models/channel_index.dart';
 import '../models/channel_detail.dart';
@@ -522,20 +522,20 @@ class DataService {
   ///
   /// S [EpisodeBundle] nema probe-a: njegov popis datoteka je izmjeren na R2,
   /// pa vrijedi isti redoslijed nad popisom (tri HEAD-a manje, i oni idu
-  /// jedan za drugim). Ispred svega ide `video_h264_fmp4.mp4` (isti video,
-  /// brži start — [CdnConfig.videoH264FragmentedUrl]); njega bira samo bundle,
-  /// put s probe-ovima ostaje na `video_h264.mp4`.
+  /// jedan za drugim). Ispred svega ide fragmentirani MP4 (isti video, brži
+  /// start — [fragmentedVideoUrl]); njega bira samo bundle, put s
+  /// probe-ovima ostaje na `video_h264.mp4`.
   Future<({String uri, EpisodeMediaKind kind})> resolveMedia() async {
     final bundle = await _bundle();
     if (bundle != null) {
-      // WebKit (Safari, svi iOS preglednici) fmp4 još nije isproban na pravom
-      // uređaju — dok ne bude, ostaje na video_h264.mp4. Native (libmpv) i
-      // Chromium su izmjereni.
-      if (bundle.has('video_h264_fmp4.mp4') && !isWebKitBrowser()) {
-        return (
-          uri: CdnConfig.videoH264FragmentedUrl(youtubeId),
-          kind: EpisodeMediaKind.video,
-        );
+      final fmp4 = fragmentedVideoUrl(
+        bundle,
+        youtubeId,
+        web: kIsWeb,
+        webKit: isWebKitBrowser(),
+      );
+      if (fmp4 != null) {
+        return (uri: fmp4, kind: EpisodeMediaKind.video);
       }
       if (bundle.has('video_h264.mp4')) {
         return (
@@ -996,4 +996,33 @@ class EpisodeData {
     }
     return build(await srtF);
   }
+}
+
+/// Koji fragmentirani MP4 smije svirati ova platforma, ili `null` kad nijedan
+/// (tada [DataService.resolveMedia] ide na `video_h264.mp4`).
+///
+/// - **Native** (libmpv): `video_h264_fmp4.mp4`, s `-frag_interleave` koji
+///   libmpv na iOS-u treba da ne zastajkuje.
+/// - **Chromium**: SAMO `video_h264_fmp4_web.mp4` (isti remux bez
+///   interleavea). Interleavani fmp4 i uz `+cmaf` ruši Chromium nakon niza
+///   skokova (`PIPELINE_ERROR_DECODE`, 7/7 na `QkcpHsj43rE`, 28.10.2026.) —
+///   vidi `docs/2026-10-28-fmp4-interleave-chromium-seek.md`.
+/// - **WebKit** (Safari, svi iOS preglednici): nijedan, dok se fmp4 ne
+///   isproba na pravom uređaju.
+@visibleForTesting
+String? fragmentedVideoUrl(
+  EpisodeBundle bundle,
+  String youtubeId, {
+  required bool web,
+  required bool webKit,
+}) {
+  if (!web) {
+    return bundle.has('video_h264_fmp4.mp4')
+        ? CdnConfig.videoH264FragmentedUrl(youtubeId)
+        : null;
+  }
+  if (webKit) return null;
+  return bundle.has('video_h264_fmp4_web.mp4')
+      ? CdnConfig.videoH264FragmentedWebUrl(youtubeId)
+      : null;
 }
