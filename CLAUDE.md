@@ -466,6 +466,15 @@ na istom R2 ključu, pa klijent traži `?g=N` (`CdnConfig._fmp4Generation`): kad
 pipeline opet prepiše fmp4, podigni N, ali tek NAKON uploada i purgea.
 `docs/2026-10-26-fmp4-seek-decode-error.md`.
 
+**Rule (web NIKAD ne pušta interleavani fmp4)**: `-frag_interleave` (i uz
+`+cmaf`) ruši Chromium na NIZU skokova — `PIPELINE_ERROR_DECODE`, zvuk se
+razide sa slikom, player zapne u „buffering" (`QkcpHsj43rE` 7/7, 28.10.2026.).
+Native (libmpv) treba interleave, pa pipeline radi dvije datoteke:
+`video_h264_fmp4.mp4` (native) i `video_h264_fmp4_web.mp4` (web, bez
+interleavea); bira `fragmentedVideoUrl`. ffmpeg i `verifyFmp4Seek` ovaj kvar
+NE vide — provjera je niz skokova u pregledniku.
+`docs/2026-10-28-fmp4-interleave-chromium-seek.md`.
+
 ### Android TV — AV1 codec ne-radi u hardware decoder-u
 
 EON SDSTB02 (Amlogic, Android 11) i većina Android TV box-ova prije ~2024.
