@@ -984,6 +984,17 @@ ručnog scrolla i ne vuče korisnika koji je više od ekrana daleko. Novi
 programski scroll članka postavlja `_scrollLock`, inače ga `_onScroll` pročita
 kao ručni i ugasi špicu.
 
+### Tipke stranice na epizodi — `ArticlePageKeys` (od v2.0.207)
+
+Home/End/PageUp/PageDown/strelice pomiču članak (`widgets/article_page_keys.dart`
+omotan oko `build` u `episode_screen.dart`). Zašto zadani `ScrollIntent` ne
+radi, zamke s fokusom i otvoreno: `docs/2026-10-28-tipke-stranice-na-epizodi.md`.
+
+**Rule (ne `HardwareKeyboard.addHandler`)**: Flutter zove i globalne handlere
+i fokus sustav za istu tipku, pa bi PageDown u fokusiranom scrollableu išao
+dvaput. Tipke idu kroz `Shortcuts`/`Actions` + fokus koji widget sam vraća s
+rute.
+
 ### Titlovi riječ po riječ + titl ispod playera (od 6.10.2026.)
 
 `data/<id>/words.json` (Speechmatics vrijeme po riječi, poravnato s Geminijevim
