@@ -7522,6 +7522,12 @@ abstract class AppLocalizations {
   /// In hr, this message translates to:
   /// **'Kopiraj vezu na vodoravni isječak (16:9)'**
   String get reelsCopyWideLink;
+
+  /// Skriveni gumb (uz ?osvjezi=1) koji briše sve spremljene podatke aplikacije i ponovno učita stranicu.
+  ///
+  /// In hr, this message translates to:
+  /// **'Osvježi sve podatke'**
+  String get devRefreshAll;
 }
 
 class _AppLocalizationsDelegate

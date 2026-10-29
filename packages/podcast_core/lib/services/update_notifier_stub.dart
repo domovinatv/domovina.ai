@@ -1,3 +1,3 @@
 void listenForAppUpdateImpl(void Function() onUpdateAvailable) {}
 void reloadPageImpl() {}
-void hardReloadImpl() {}
+Future<void> hardReloadImpl({bool stayHere = false}) async {}

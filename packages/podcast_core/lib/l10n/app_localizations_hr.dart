@@ -4788,4 +4788,7 @@ class AppLocalizationsHr extends AppLocalizations {
 
   @override
   String get reelsCopyWideLink => 'Kopiraj vezu na vodoravni isječak (16:9)';
+
+  @override
+  String get devRefreshAll => 'Osvježi sve podatke';
 }

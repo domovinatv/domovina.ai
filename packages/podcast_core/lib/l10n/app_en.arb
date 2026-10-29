@@ -1235,5 +1235,6 @@
   "reelsVideoDownloaded": "Video downloaded",
   "reelsShareFailed": "Couldn't prepare the video. Try again.",
   "reelsDownloadWide": "Download horizontal clip (16:9)",
-  "reelsCopyWideLink": "Copy link to horizontal clip (16:9)"
+  "reelsCopyWideLink": "Copy link to horizontal clip (16:9)",
+  "devRefreshAll": "Refresh all data"
 }

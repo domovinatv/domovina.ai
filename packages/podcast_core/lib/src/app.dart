@@ -27,6 +27,7 @@ import '../services/update_notifier.dart';
 import '../services/watch_progress_service.dart';
 import '../services/episode_language.dart';
 import '../theme/app_theme.dart';
+import '../widgets/refresh_all_button.dart';
 import '../auth/auth_provider_plugin.dart';
 import '../push/push_transport.dart';
 import '../brand/app_brand.dart';
@@ -328,6 +329,8 @@ class _PodcastAppState extends State<PodcastApp> {
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         routerConfig: _router,
+        builder: (context, child) =>
+            RefreshAllOverlay(child: child ?? const SizedBox.shrink()),
       ),
     );
   }

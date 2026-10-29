@@ -6008,5 +6008,9 @@
   "reelsCopyWideLink": "Kopiraj vezu na vodoravni isječak (16:9)",
   "@reelsCopyWideLink": {
     "description": "Share-sheet action: copy a link to the 16:9 cutter clip of the same moment."
+  },
+  "devRefreshAll": "Osvježi sve podatke",
+  "@devRefreshAll": {
+    "description": "Skriveni gumb (uz ?osvjezi=1) koji briše sve spremljene podatke aplikacije i ponovno učita stranicu."
   }
 }

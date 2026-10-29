@@ -328,7 +328,7 @@ class HomeFooter extends StatelessWidget {
 
   Widget _versionPill(ThemeData theme) {
     return GestureDetector(
-      onTap: kIsWeb ? hardReload : null,
+      onTap: kIsWeb ? () => hardReload() : null,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

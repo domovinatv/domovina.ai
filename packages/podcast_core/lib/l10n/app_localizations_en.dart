@@ -4742,4 +4742,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reelsCopyWideLink => 'Copy link to horizontal clip (16:9)';
+
+  @override
+  String get devRefreshAll => 'Refresh all data';
 }

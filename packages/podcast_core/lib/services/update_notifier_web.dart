@@ -16,7 +16,7 @@ void reloadPageImpl() {
   web.window.location.reload();
 }
 
-void hardReloadImpl() async {
+Future<void> hardReloadImpl({bool stayHere = false}) async {
   try {
     // Clear all caches (Cache API)
     final cacheNames = await web.window.caches.keys().toDart;
@@ -31,6 +31,10 @@ void hardReloadImpl() async {
       await reg.unregister().toDart;
     }
   } catch (_) {}
+  if (stayHere) {
+    web.window.location.reload();
+    return;
+  }
   // Navigate with cache-buster to bypass bfcache
   final base = web.window.location.origin;
   final bust = DateTime.now().millisecondsSinceEpoch;

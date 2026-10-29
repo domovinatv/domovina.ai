@@ -18,8 +18,9 @@ void reloadPage() {
 }
 
 /// Unregisters all Service Workers then reloads — guarantees fresh version.
-void hardReload() {
+/// [stayHere] ponovno učita trenutnu adresu umjesto naslovnice.
+Future<void> hardReload({bool stayHere = false}) async {
   if (kIsWeb) {
-    platform.hardReloadImpl();
+    await platform.hardReloadImpl(stayHere: stayHere);
   }
 }

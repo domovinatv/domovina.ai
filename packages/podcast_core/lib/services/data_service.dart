@@ -167,9 +167,31 @@ class DataService {
       }
       // Popis je izmjeren na R2, pa ovdje 404 bez mreže JEST istina — za
       // razliku od 404 s CDN-a, koji je mogao biti cachiran prije uploada.
-      if (!bundle.has(name)) return http.Response('', 404);
+      // Ali popis sa diska može biti star: prije 404 pričekaj revalidaciju.
+      if (!bundle.has(name)) {
+        final fresh = await _freshBundle();
+        if (fresh == null || !fresh.has(name)) return http.Response('', 404);
+      }
     }
     return _network(url);
+  }
+
+  /// Svježi `episode.json` kad je [_bundle] vratio kopiju s diska koja se
+  /// na CDN-u u međuvremenu promijenila, inače `null`. Svježi zamijeni
+  /// spremljeni u [_bundles], pa ga dalje čita cijela sesija.
+  ///
+  /// Izmjereno 29.10.2026. na `MNk-eEpDb3E`: pipeline je ujutro dodao
+  /// `article.magisterium.json`, a preglednik je i nakon Ctrl+Shift+R čitao
+  /// `episode.json` iz Cache Storagea (`domovina-episodes-v1`) bez njega —
+  /// Magisterium se nije ni tražio. Cijena: datoteka koje doista nema čeka
+  /// jednu malu revalidaciju (dijeljenu, jednom po sesiji).
+  Future<EpisodeBundle?> _freshBundle() async {
+    final body = await CdnJsonCache.instance
+        .revalidation(CdnConfig.episodeBundleUrl(youtubeId));
+    if (body == null) return null;
+    final fresh = EpisodeBundle.tryParse(body);
+    if (fresh != null) _bundles[youtubeId] = Future.value(fresh);
+    return fresh;
   }
 
   Future<http.Response> _network(String url) {
@@ -241,7 +263,10 @@ class DataService {
 
   /// Samo za testove: memorija iz [_get] inače preživi između testova.
   @visibleForTesting
-  static void resetMemoryForTest() {
+  static void resetMemoryForTest() => clearMemory();
+
+  /// Zaboravi sve dohvaćeno u ovoj sesiji (skriveni gumb „Osvježi sve").
+  static void clearMemory() {
     _inflight.clear();
     _recent.clear();
     _bundles.clear();

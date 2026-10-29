@@ -57,6 +57,10 @@ class CdnJsonCache {
   /// URL-ovi koji su u ovoj sesiji već revalidirani — ne pitamo CDN dvaput.
   final Set<String> _revalidated = {};
 
+  /// Revalidacije pokrenute u ovoj sesiji: tijelo kad je CDN vratio DRUGAČIJE
+  /// od spremljenog, inače `null`. Vidi [revalidation].
+  final Map<String, Future<String?>> _revalidations = {};
+
   static bool _nocacheRequested() {
     if (!kIsWeb) return false;
     try {
@@ -102,12 +106,23 @@ class CdnJsonCache {
     }
 
     if (_revalidated.add(url)) {
-      unawaited(_revalidate(url, stored, onUpdate, bucket));
+      _revalidations[url] = _revalidate(url, stored, onUpdate, bucket);
     }
     return stored.body;
   }
 
-  Future<void> _revalidate(
+  /// Pozadinska revalidacija za [url] koju je pokrenuo [getMutable]: završi
+  /// novim tijelom ako se datoteka na CDN-u promijenila, inače `null`. `null`
+  /// i kad revalidacije nema (tijelo je stiglo s mreže, cache je ugašen).
+  ///
+  /// Za odluku koja ne smije počivati na staroj kopiji: `episode.json` sa
+  /// diska kaže da `article.magisterium.json` ne postoji, a pipeline ga je u
+  /// međuvremenu uploadao — bez ovoga se Magisterium ne vidi do sljedećeg
+  /// učitavanja (i Ctrl+Shift+R ne pomaže, jer ne briše Cache Storage).
+  Future<String?> revalidation(String url) =>
+      _revalidations[url] ?? Future<String?>.value();
+
+  Future<String?> _revalidate(
     String url,
     StoredEntry stored,
     void Function(String body)? onUpdate,
@@ -119,14 +134,16 @@ class CdnJsonCache {
           headers: sendConditionalHeaders && etag != null
               ? {'If-None-Match': etag}
               : null);
-      if (res.statusCode != 200) return; // 304, 404, 5xx: ostaje spremljeno
-      if (res.body == stored.body) return;
+      if (res.statusCode != 200) return null; // 304, 404, 5xx: ostaje spremljeno
+      if (res.body == stored.body) return null;
       await _store.put(bucket, url,
           StoredEntry(res.body, etag: res.headers['etag']));
       onUpdate?.call(res.body);
+      return res.body;
     } catch (e) {
       // Offline ili mreža pukla — spremljeno ostaje važeće.
       log('CdnJsonCache: revalidacija nije uspjela ($url): $e');
+      return null;
     }
   }
 
@@ -160,6 +177,7 @@ class CdnJsonCache {
   /// Obriši sve spremljeno (za „očisti spremljene podatke").
   Future<void> clear() {
     _revalidated.clear();
+    _revalidations.clear();
     return _store.clear();
   }
 }
