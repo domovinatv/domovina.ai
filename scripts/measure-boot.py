@@ -73,6 +73,12 @@ INIT = r"""
       m.stages = m.stages || [];
       const last = m.stages[m.stages.length - 1];
       if (ld && (!last || last[1] !== ld.textContent)) m.stages.push([t(), ld.textContent]);
+      // Postotak preuzimanja: zapis na svakih 10 %.
+      const pc = document.getElementById('bi-pct');
+      const p = pc && parseInt(pc.textContent, 10);
+      m.pct = m.pct || [];
+      if (p >= 0 && (!m.pct.length || Math.floor(p / 10) > Math.floor(m.pct[m.pct.length - 1][1] / 10)))
+        m.pct.push([t(), p]);
     }).observe(document.documentElement, {subtree: true, childList: true, characterData: true,
                                           attributes: true, attributeFilter: ['style']});
   });
@@ -87,7 +93,8 @@ WATCH = ["passkeys_bundle.js", "flutter_bootstrap.js", "main.dart.mjs",
          "main.dart.wasm", "main.dart.js", "skwasm.js", "skwasm.wasm",
          "skwasm_heavy.js", "skwasm_heavy.wasm", "canvaskit.wasm",
          "fonts.googleapis.com/css2", "beacon.min.js",
-         "auth/v1/token", "rest/v1/", "fonts.gstatic.com"]
+         "auth/v1/token", "rest/v1/", "fonts.gstatic.com",
+         "cdn.domovina.ai", "api.domovina.ai", "/api/"]
 
 
 def run_once(pw, url, profile, mobile, shots=None, cpu=1):
@@ -160,6 +167,8 @@ def main():
                 print(f"  {k:<10} {('—' if v is None else str(v)):>6} ms")
             for ms, txt in marks.get("stages") or []:
                 print(f"  faza {ms:>6} ms  {txt}")
+            if marks.get("pct"):
+                print("  traka " + "  ".join(f"{p}%@{ms}" for ms, p in marks["pct"]))
             if marks.get("mainStart") and marks.get("runApp"):
                 print(f"  main()→runApp {marks['runApp'] - marks['mainStart']} ms")
             gap = None

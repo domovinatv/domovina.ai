@@ -138,7 +138,11 @@
       #boot-intro .bi-progress i{position:absolute;top:0;bottom:0;left:0;width:35%;border-radius:3px;background:#FF0000;animation:bi-slide 1.4s ease-in-out infinite;}
       @keyframes bi-slide{0%{transform:translateX(-100%)}100%{transform:translateX(290%)}}
       @media (prefers-reduced-motion:reduce){#boot-intro .bi-progress i{animation:none;width:100%;opacity:.5;}}
-      #boot-intro .bi-load{margin:12px 0 0;font-size:13px;color:var(--boot-dim);min-height:1.5em;transition:opacity .2s ease;}
+      /* Određena traka (bajtovi se broje): širina = napredak, bez klizanja. */
+      #boot-intro .bi-progress.det i{animation:none;transform:none;opacity:1;width:0;transition:width .3s linear;}
+      #boot-intro .bi-load{margin:12px 0 0;font-size:13px;color:var(--boot-dim);min-height:1.5em;}
+      #boot-intro #bi-load{transition:opacity .2s ease;}
+      #boot-intro #bi-pct{font-variant-numeric:tabular-nums;}
       #boot-intro .bi-note{margin:6px auto 0;max-width:340px;font-size:13px;line-height:1.5;color:var(--boot-dim);}
       #boot-intro .bi-note[hidden]{display:block;visibility:hidden;} /* mjesto ostaje rezervirano: bez skoka wordmarka */
       #boot-intro button{margin-top:14px;font:600 14px 'Inter',system-ui,sans-serif;color:#fff;background:#002F6C;border:0;border-radius:8px;padding:10px 18px;cursor:pointer;}
@@ -292,8 +296,8 @@
           setTimeout(next, dwell(order[0]));
         })();
       </script>
-      <div class="bi-progress" aria-hidden="true"><i></i></div>
-      <p class="bi-load" id="bi-load" aria-live="polite">Preuzimanje aplikacije…</p>
+      <div class="bi-progress" id="bi-progress" aria-hidden="true"><i></i></div>
+      <p class="bi-load"><span id="bi-load" aria-live="polite">Preuzimanje aplikacije…</span> <span id="bi-pct" aria-hidden="true"></span></p>
       <p class="bi-note" id="bi-note" hidden>Veza je spora. Aplikacija se preuzima samo prvi put; sljedeće otvaranje bit će brzo.</p>
       <button type="button" id="bi-retry" hidden onclick="location.reload()">Pokušaj ponovno</button>
     </div>
@@ -380,6 +384,10 @@
           });
         })();
       }
+      window.addEventListener('flutter-first-frame', function () {
+        setBar(1);
+        try { if (SIZES['main.dart.wasm']) localStorage.setItem('boot_wasm_size', String(SIZES['main.dart.wasm'])); } catch (_) {}
+      }, { once: true });
       window.addEventListener('flutter-first-frame', hideWhenPainted, { once: true });
 
       // Istinite faze (docs/2026-10-09-boot-splash.md §6). Svaka se MJERI:
@@ -396,10 +404,73 @@
       var DART_STAGES = { fonts: 3 };
       var stage = 0, swap = 0;
       var still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // Traka 0–100 %. Preuzimanje (0–80 %) broji STVARNE bajtove: Flutterov
+      // loader dohvaća main.dart.wasm i skwasm.wasm kroz globalni fetch
+      // (compileStreaming(fetch(…))), pa ga omotamo i brojimo dekomprimirane
+      // bajtove tijela. Nazivnik su veličine iz builda, koje deploy upiše
+      // umjesto komentara ispod (scripts/stamp-boot-sizes.sh). Faza fontova
+      // puni 85 → 98 % kroz 3 s jer awaitPreload ima timeout od 3 s — to je
+      // gornja granica, ne pogađanje. Bez veličina, na dart2js putanji
+      // (main.dart.js ide <script> tagom) ili kad je kod već u cacheu traka
+      // ostaje neodređena. docs/2026-10-09-boot-splash.md §7.
+      var SIZES = {/*BOOT_SIZES*/};
+      var bar = document.getElementById('bi-progress'), fill = bar.firstChild, pct = document.getElementById('bi-pct');
+      var got = {}, renderer = 'skwasm.wasm', shown = -1;
+      function setBar(f, secs) {
+        if (bar.className.indexOf('det') < 0) return;
+        fill.style.transitionDuration = still ? '0s' : (secs || 0.3) + 's';
+        fill.style.width = (f * 100).toFixed(1) + '%';
+      }
+      function counted() {
+        var total = SIZES['main.dart.wasm'] + SIZES[renderer], n = 0, k;
+        for (k in got) n += got[k];
+        var f = Math.min(1, n / total), p = Math.floor(f * 100);
+        if (stage < 2 && p !== shown) { shown = p; pct.textContent = p + ' %'; }
+        setBar(f * 0.8);
+      }
+      try {
+        var seen = null;
+        try { seen = localStorage.getItem('boot_wasm_size'); } catch (_) {}
+        // Isti build kao prošli put → kod je u HTTP cacheu, nema se što brojati,
+        // a omotan Response bi V8-u uzeo cache kompiliranog wasma.
+        if (SIZES['main.dart.wasm'] && SIZES[renderer] && String(SIZES['main.dart.wasm']) !== seen &&
+            window.fetch && typeof ReadableStream === 'function' && typeof Response === 'function') {
+          var origFetch = window.fetch;
+          window.fetch = function (input) {
+            var url = typeof input === 'string' ? input : (input && input.url) || String(input);
+            var m = /\/(main\.dart\.wasm|skwasm(?:_heavy)?\.wasm)(\?|$)/.exec(url);
+            var p = origFetch.apply(window, arguments);
+            if (!m || done || !SIZES[m[1]]) return p;
+            var name = m[1];
+            if (name !== 'main.dart.wasm') renderer = name;
+            got[name] = 0;
+            bar.className += ' det';
+            return p.then(function (res) {
+              if (!res.ok || !res.body) return res;
+              var reader = res.body.getReader();
+              return new Response(new ReadableStream({
+                pull: function (ctl) {
+                  return reader.read().then(function (r) {
+                    if (r.done) { ctl.close(); return; }
+                    got[name] += r.value.byteLength;
+                    counted();
+                    ctl.enqueue(r.value);
+                  });
+                },
+                cancel: function (why) { return reader.cancel(why); }
+              }), { status: res.status, statusText: res.statusText, headers: res.headers });
+            });
+          };
+        }
+      } catch (_) {}
+
       function advance(n) {
         if (done || n <= stage) return;
         stage = n;
-        if (n >= 2) note.hidden = true;
+        if (n >= 2) { note.hidden = true; pct.textContent = ''; }
+        if (n === 2) setBar(0.85);
+        if (n === 3) { setBar(0.85); setTimeout(function () { setBar(0.98, 3); }, 50); }
         if (still) { load.textContent = STAGES[n]; return; }
         // Kratki fade; faze koje se smijene unutar njega se preskoče.
         load.style.opacity = '0';
@@ -437,6 +508,7 @@
         if (done) return;
         stage = 99;
         clearTimeout(swap);
+        pct.textContent = '';
         load.style.opacity = '1';
         load.textContent = 'Učitavanje je zapelo.';
         note.hidden = true;

@@ -186,3 +186,54 @@ Otvoreno: preuzimanje je i dalje najdulja faza (~12 s na Slow 4G). Pravi
 postotak bi tražio da bajtove broji naš kod, ne Flutterov loader, jer Resource
 Timing javlja tek završenu datoteku. Postotak koji se procjenjuje iz vremena ne
 bi bio istinit.
+
+## 7. Traka 0–100 % po stvarnim bajtovima (29.10.2026.)
+
+Prijedlog je bio procijeniti brzinu veze i iz nje puniti traku. Nije bilo
+potrebno: Flutterov loader dohvaća `main.dart.wasm` i `skwasm.wasm` kroz
+**globalni `fetch`** (`compileStreaming(fetch(c))` u `flutter_bootstrap.js`), pa
+splash omota `fetch` i broji bajtove tijela kako stižu. Postotak je mjeren,
+ne procijenjen.
+
+| dio trake | izvor | istinitost |
+|---|---|---|
+| 0–80 % | brojeni bajtovi `main.dart.wasm` + `skwasm(_heavy).wasm` | mjereno |
+| 85 % | Resource Timing: `main.dart.wasm` stigao | mjereno |
+| 85 → 98 % kroz 3 s | `reportBootStage('fonts')` | gornja granica: `awaitPreload` ima timeout 3 s |
+| 100 % | `flutter-first-frame` | mjereno |
+
+- **Nazivnik** su nekomprimirane veličine iz builda (fetch predaje tijelo već
+  dekomprimirano). `scripts/stamp-boot-sizes.sh` ih nakon `flutter build web`
+  upiše u `build/web/index.html` umjesto `/*BOOT_SIZES*/`; `deploy.sh` ga zove.
+  `skwasm.wasm` s gstatic.com je ista datoteka kao `build/web/canvaskit/skwasm.wasm`.
+- **Kad traka ostaje neodređena** (staro klizanje): bez upisanih veličina
+  (`flutter run`), na dart2js putanji (`main.dart.js` ide `<script>` tagom,
+  ne fetchom) i kad je isti build već učitan (`localStorage['boot_wasm_size']`
+  = veličina `main.dart.wasm`). Zadnje je namjerno: omotan `Response` nema URL,
+  pa V8 za njega ne koristi cache kompiliranog wasma; na ponovljenom otvaranju
+  ionako nema što brojati.
+- Postotak stoji u zasebnom `#bi-pct` s `aria-hidden`, da čitač zaslona ne
+  čita svaki postotak (`#bi-load` je `aria-live`).
+
+Izmjereno lokalno (release, `wrangler pages dev`):
+
+| profil | traka | prvi frame |
+|---|---|---|
+| Slow 4G, mobitel | 0 % @ 1,0 s … 50 % @ 9,0 s … 100 % @ 16,2 s (~1,4 s po 10 %) | 20,05 s (prije 20,1 s) |
+| bez throttlinga, CPU 4×, median 3 | 0 → 100 % unutar ~0,2 s | 1 057 ms (bez promjene 1 079 ms) |
+
+Omotač dakle ne usporava pokretanje.
+
+**Pod „Priprema fontova…” nema ničeg drugog.** Pretpostavka je bila da se tada
+preuzimaju i JSON-ovi i thumbnailovi s CDN-a. Mjerenje kaže drukčije: u tom
+prozoru (17,6 → 20,4 s) idu samo Roboto i četiri google_fonts TTF-a, a prvi
+`cdn.domovina.ai` zahtjev (`index.json`, `home.json`) kreće 7 ms NAKON prvog
+framea, kad splasha više nema. Katalog se učitava pod skeletonima aplikacije,
+pa se u splashu ne segmentira. `measure-boot.py` sad ispisuje i
+`cdn.domovina.ai`/`api.domovina.ai` zahtjeve, pa se to može ponovno provjeriti.
+
+```bash
+flutter build web --release --wasm && ./scripts/stamp-boot-sizes.sh
+npx wrangler pages dev build/web --port 8788 &
+python3 scripts/measure-boot.py http://localhost:8788/ --profile slow4g --mobile   # redak „traka …"
+```

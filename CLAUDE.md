@@ -263,6 +263,9 @@ biblija.ks.hr, čuva `test/boot_splash_verses_test.dart`.
 je tu → Pokretanje → Priprema fontova" okida Resource Timing ili `main()`
 (`reportBootStage`, `services/boot_stage.dart`), nikad timer. Nova faza ide
 tek ako je `measure-boot.py` pokaže dovoljno dugom da se pročita (§6 doca).
+Postotak preuzimanja broji stvarne bajtove (omotan `fetch`); nazivnik upisuje
+`scripts/stamp-boot-sizes.sh` nakon builda — bez njega traka ostaje
+neodređena (§7).
 
 ### Pretraga naslovnice — tri izvora + tekst ne pod scale transformom (od 13.10.2026.)
 

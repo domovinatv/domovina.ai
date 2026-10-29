@@ -133,6 +133,8 @@ else
   # shellcheck disable=SC2086
   flutter build web --release --wasm $SUPABASE_DEFINES
 fi
+# Traka napretka u boot splashu treba veličine wasma iz OVOG builda.
+./scripts/stamp-boot-sizes.sh build/web
 
 # 3b. Kopiraj fajlove koje Flutter build ne kopira automatski (robots.txt, ...)
 #     Flutter web build kopira samo poznate fajlove iz web/ (index.html, manifest.json,
