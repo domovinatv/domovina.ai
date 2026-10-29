@@ -330,7 +330,10 @@ Fontovi se zato registriraju kroz `google_fonts` na **svim** platformama.
 DOM, prije Fluttera) i ugrije `fonts.gstatic.com`.
 
 **Rule**: novi font/težina u `lib/theme/typography.dart` mora ići i u
-`AppTypography._usedVariants`. `main()` zove `startPreload()` odmah, a
+`AppTypography._usedVariants` **i** u `packages/podcast_core/assets/google_fonts/`
+(+ pubspec paketa). Inače ta varijanta ide s fonts.gstatic.com, a varijante u
+assetima se učitavaju s našeg hosta (Inter srezan; Playfair/Lora neizmijenjeni
+zbog OFL Reserved Font Name). Vidi `docs/2026-10-09-boot-splash.md` §8. `main()` zove `startPreload()` odmah, a
 `awaitPreload()` pred `runApp` — inače se prvi frame crta fallbackom pa cijela
 stranica prelomi kad pravi font stigne.
 

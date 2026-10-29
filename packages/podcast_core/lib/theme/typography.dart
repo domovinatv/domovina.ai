@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:google_fonts/google_fonts.dart';
 
 /// Editorial typography za DOMOVINA.ai.
@@ -39,8 +41,25 @@ class AppTypography {
   static void startPreload() {
     if (_preloadStarted) return;
     _preloadStarted = true;
+    // Varijante iz _usedVariants su u assetima paketa (assets/google_fonts/),
+    // pa ih google_fonts uzima odande umjesto s fonts.gstatic.com: na webu
+    // s našeg hosta (Inter srezan, ~0,4 MB manje), na nativeu bez mreže.
+    // OFL traži da licenca putuje s fontom.
+    LicenseRegistry.addLicense(_fontLicenses);
     for (final variant in _usedVariants) {
       variant();
+    }
+  }
+
+  static Stream<LicenseEntry> _fontLicenses() async* {
+    for (final (family, file) in const [
+      ('Playfair Display', 'OFL-PlayfairDisplay.txt'),
+      ('Lora', 'OFL-Lora.txt'),
+      ('Inter', 'OFL-Inter.txt'),
+    ]) {
+      final text = await rootBundle
+          .loadString('packages/podcast_core/assets/google_fonts/$file');
+      yield LicenseEntryWithLineBreaks([family], text);
     }
   }
 

@@ -81,6 +81,18 @@ flutter:
   # Brend asseti (logo, splash) NISU ovdje — daje ih ljuska kroz BrandConfig.
   assets:
     - assets/icons/google_g_logo.png
+    # google_fonts ih uzima prije fonts.gstatic.com (ime = <Obitelj>-<Varijanta>.ttf).
+    # Popis prati AppTypography._usedVariants; vidi assets/google_fonts/README.md.
+    - assets/google_fonts/PlayfairDisplay-SemiBold.ttf
+    - assets/google_fonts/PlayfairDisplay-Bold.ttf
+    - assets/google_fonts/PlayfairDisplay-ExtraBold.ttf
+    - assets/google_fonts/Lora-Regular.ttf
+    - assets/google_fonts/Inter-Regular.ttf
+    - assets/google_fonts/Inter-Medium.ttf
+    - assets/google_fonts/Inter-SemiBold.ttf
+    - assets/google_fonts/OFL-PlayfairDisplay.txt
+    - assets/google_fonts/OFL-Lora.txt
+    - assets/google_fonts/OFL-Inter.txt
   # Generira AppLocalizations iz lib/l10n/*.arb (vidi l10n.yaml). Pokreni
   # `flutter gen-l10n` u OVOM direktoriju nakon promjene ARB-a; generirani
   # Dart je u gitu jer se paket gradi kao ovisnost ljuske.

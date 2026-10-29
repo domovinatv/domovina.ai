@@ -135,6 +135,8 @@ else
 fi
 # Traka napretka u boot splashu treba veličine wasma iz OVOG builda.
 ./scripts/stamp-boot-sizes.sh build/web
+# purchases_flutter na webu bez potrebe vuče 186 KB usred boota.
+./scripts/stub-revenuecat-web.sh build/web
 
 # 3b. Kopiraj fajlove koje Flutter build ne kopira automatski (robots.txt, ...)
 #     Flutter web build kopira samo poznate fajlove iz web/ (index.html, manifest.json,

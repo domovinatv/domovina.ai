@@ -94,7 +94,7 @@ WATCH = ["passkeys_bundle.js", "flutter_bootstrap.js", "main.dart.mjs",
          "skwasm_heavy.js", "skwasm_heavy.wasm", "canvaskit.wasm",
          "fonts.googleapis.com/css2", "beacon.min.js",
          "auth/v1/token", "rest/v1/", "fonts.gstatic.com",
-         "cdn.domovina.ai", "api.domovina.ai", "/api/"]
+         "cdn.domovina.ai", "api.domovina.ai", "/api/", "/assets/"]
 
 
 def run_once(pw, url, profile, mobile, shots=None, cpu=1):

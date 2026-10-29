@@ -242,3 +242,55 @@ flutter build web --release --wasm && ./scripts/stamp-boot-sizes.sh
 npx wrangler pages dev build/web --port 8788 &
 python3 scripts/measure-boot.py http://localhost:8788/ --profile slow4g --mobile   # redak „traka …"
 ```
+
+## 8. Fontovi s našeg hosta + RevenueCat izbačen iz boota (29.10.2026.)
+
+Na hladnoj naslovnici je bilo 12 font-datoteka, ~873 KB preko žice: 7
+`google_fonts` TTF-ova s fonts.gstatic.com (~690 KB), Roboto woff2 (62 KB,
+Flutterov engine ga uvijek povuče), Noto Color Emoji (95 KB, tek nakon prvog
+framea) i ikone (~18 KB). Woff2 fontovi iz `<link>`-a služe samo HTML splashu,
+jer skwasm ne čita `@font-face`.
+
+**Fontovi u assetima paketa** (`packages/podcast_core/assets/google_fonts/`):
+`google_fonts` prije mreže traži asset čije ime završava s
+`<Obitelj>-<Varijanta>.ttf` i ne provjerava mu hash
+(`_findFamilyWithVariantAssetPath`, google_fonts 6.3). Web ih zato vuče s
+domovina.ai (Cloudflare brotli, `immutable`), a native iz same aplikacije.
+
+| | prije (gstatic) | sada |
+|---|---|---|
+| Playfair 600/700/800, Lora 400 | ~244 KB | iste datoteke, neizmijenjene |
+| Inter 400/500/600 | ~448 KB (3 × 2 547 glifova) | ~190 KB, srezan |
+
+Playfair i Lora imaju u OFL-u *Reserved Font Name*, pa bi srezana verzija
+morala nositi drugo ime; zato su ostali cijeli. Inter je srezan
+(`pyftsubset --layout-features='*'`) na:
+
+```
+U+0000-00FF,U+0100-024F,U+0259,U+0300-036F,U+02BB-02BC,U+02C6,U+02DA,U+02DC,
+U+1E00-1EFF,U+2000-206F,U+20A0-20CF,U+2113,U+2122,U+2190-21FF,U+2212,U+2215,
+U+2318,U+2325,U+2303,U+232B,U+FEFF,U+FFFD
+```
+
+Glif izvan raspona (ćirilica, grčki) Flutter crta Noto fallbackom. Licence
+(`OFL-*.txt`) su registrirane u `LicenseRegistry` (`AppTypography`).
+
+**RevenueCat web SDK, 186 KB, bez razloga.** `purchases_flutter` pri
+registraciji web plugina (prije `main()`) bezuvjetno ubaci `<script>` s
+`purchases_js_hybrid_mappings.js` (732 KB nekomprimirano). Naš web ga ne koristi
+(`revenue_cat_service.dart` na webu uvozi stub, a web prodaje preko hosted
+checkouta), a na Slow 4G je išao u istom prozoru kao fontovi. Nakon builda ga
+`scripts/stub-revenuecat-web.sh` (zove ga `deploy.sh`) zamijeni praznim JS-om:
+skripta se uredno učita i plugin ne javlja grešku. Skripta odbije stubati ako
+web prestane uvoziti stub servisa.
+
+Lokalno (wrangler, gzip), Slow 4G, mobitel:
+
+| | `main()`→`runApp` | prvi frame |
+|---|---|---|
+| prije | 3 010 ms (timeout) | 20,05 s |
+| fontovi iz assetsa, RC još učitan | 3 014 ms (timeout) | 20,05 s |
+| + RC stub | **2 665 ms** (fontovi stigli) | **19,81 s** |
+
+Otvoreno: Noto Color Emoji (95 KB) se na naslovnici povuče nakon prvog
+framea, dakle neki znak nema glif u našim fontovima. Treba naći koji.
