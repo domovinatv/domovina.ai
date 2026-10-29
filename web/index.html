@@ -298,7 +298,7 @@
         })();
       </script>
       <div class="bi-progress" id="bi-progress" aria-hidden="true"><i></i></div>
-      <p class="bi-load"><span id="bi-load" aria-live="polite">Preuzimanje aplikacije…</span> <span id="bi-pct" aria-hidden="true"></span></p>
+      <p class="bi-load"><span id="bi-load">Dohvaćamo najnovije epizode…</span> <span id="bi-pct" aria-hidden="true"></span></p>
       <p class="bi-note" id="bi-note" hidden>Veza je spora. Aplikacija se preuzima samo prvi put; sljedeće otvaranje bit će brzo.</p>
       <button type="button" id="bi-retry" hidden onclick="location.reload()">Pokušaj ponovno</button>
     </div>
@@ -388,16 +388,23 @@
       window.addEventListener('flutter-first-frame', function () { setBar(1); }, { once: true });
       window.addEventListener('flutter-first-frame', hideWhenPainted, { once: true });
 
-      // Istinite faze (docs/2026-10-09-boot-splash.md §6). Svaka se MJERI:
-      // 1–2 iz Resource Timinga (unos stiže kad je datoteka preuzeta), 3
-      // javlja main() kroz 'app-boot-stage' (services/boot_stage.dart). Tekst
-      // ide samo naprijed — pogon i kod aplikacije stižu paralelno, pa faza 1
-      // ispada kad kod stigne prvi.
-      var STAGES = [
-        'Preuzimanje aplikacije…',
-        'Pogon za crtanje je tu, stiže ostatak…', // skwasm/canvaskit .wasm
-        'Pokretanje…',                            // main.dart.wasm / .js
-        'Priprema fontova…'                       // main() čeka google_fonts
+      // Faze (docs/2026-10-09-boot-splash.md §6) se i dalje MJERE — iz
+      // Resource Timinga i 'app-boot-stage' iz main() — ali pokreću samo
+      // traku i postotak. Redak teksta od 29.10.2026. ne imenuje tehničku fazu
+      // („Priprema fontova…" korisniku ništa ne govori), nego svake 2 s
+      // izmjenjuje rečenice o onome što aplikacija dohvaća čim se otvori.
+      // Bez emojija, „ti" registar (CLAUDE.md, i18n).
+      var LINES = [
+        'Dohvaćamo najnovije epizode…',
+        'Slažemo naslovnice razgovora…',
+        'Pripremamo sažetke i transkripte…',
+        'Učitavamo kanale i njihove podcaste…',
+        'Biramo epizodu dana…',
+        'Provjeravamo što je novo od tvog zadnjeg posjeta…',
+        'Poravnavamo titlove riječ po riječ…',
+        'Slažemo poglavlja i istaknute trenutke…',
+        'Pripremamo sličice za svaki kadar…',
+        'Bojimo zastavu: crveno, bijelo, plavo…'
       ];
       var DART_STAGES = { fonts: 3 };
       var stage = 0, swap = 0;
@@ -466,16 +473,23 @@
         if (n >= 2) { note.hidden = true; pct.textContent = ''; }
         if (n === 2) setBar(0.85);
         if (n === 3) { setBar(0.85); setTimeout(function () { setBar(0.98, 3); }, 50); }
-        if (still) { load.textContent = STAGES[n]; return; }
-        // Kratki fade; faze koje se smijene unutar njega se preskoče.
-        load.style.opacity = '0';
-        clearTimeout(swap);
-        swap = setTimeout(function () {
-          if (stage >= STAGES.length) return; // failed() je preuzeo redak
-          load.textContent = STAGES[stage];
-          load.style.opacity = '1';
-        }, 200);
       }
+      // Prva rečenica je fiksna (u HTML-u), ostale idu izmiješane.
+      var lineOrder = LINES.slice(1).sort(function () { return Math.random() - 0.5; }), linePos = 0;
+      (function rotate() {
+        setTimeout(function () {
+          if (done || stage === 99) return; // aplikacija je tu ili failed()
+          var next = lineOrder[linePos++ % lineOrder.length];
+          if (still) { load.textContent = next; rotate(); return; }
+          load.style.opacity = '0';
+          swap = setTimeout(function () {
+            if (stage === 99) return;
+            load.textContent = next;
+            load.style.opacity = '1';
+          }, 200);
+          rotate();
+        }, 2000);
+      })();
       try {
         new PerformanceObserver(function (list) {
           list.getEntries().forEach(function (e) {
@@ -505,6 +519,7 @@
         clearTimeout(swap);
         pct.textContent = '';
         load.style.opacity = '1';
+        load.setAttribute('aria-live', 'assertive');
         load.textContent = 'Učitavanje je zapelo.';
         note.hidden = true;
         retry.hidden = false;

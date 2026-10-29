@@ -157,6 +157,20 @@ ide uz fade od 0,2 s (bez njega uz `prefers-reduced-motion`).
 | 2 | Pokretanje… | Resource Timing: `main.dart.wasm`/`.js` |
 | 3 | Priprema fontova… | `main()` → `reportBootStage('fonts')` pred `AppTypography.awaitPreload` |
 
+### 6a. Izmjena 29.10.2026.: tekst više ne imenuje fazu
+
+Korisnik (vlasnik) je ocijenio „Priprema fontova…” besmislenim: korisnika ne
+zanima što se tehnički događa. Faze iz tablice se i dalje mjere i pomiču traku
+i postotak, ali redak ispod trake sada svake 2 s (fade 0,2 s; bez fadea uz
+`prefers-reduced-motion`) izmjenjuje rečenice iz `LINES` u `web/index.html`
+(„Dohvaćamo najnovije epizode…”, „Pripremamo sažetke i transkripte…”,
+„Bojimo zastavu: crveno, bijelo, plavo…” …). Prva je fiksna u HTML-u, ostale
+izmiješane. Redak više nema `aria-live` (čitač zaslona bi ga čitao svake 2 s);
+`failed()` ga postavi na `assertive` za „Učitavanje je zapelo.”
+
+Rečenice su opis aplikacije, ne izvještaj o mreži: CDN zahtjevi kreću tek
+nakon prvog framea (vidi „Pod „Priprema fontova…” nema ničeg drugog” niže).
+
 Faza 3 dolazi iz Darta kao `CustomEvent('app-boot-stage', detail: 'fonts')`
 (`lib/services/boot_stage.dart`, uvjetni import po `dart.library.js_interop`,
 na nativeu no-op). Pogon i kod aplikacije preuzimaju se paralelno; kad kod

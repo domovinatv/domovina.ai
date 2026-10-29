@@ -259,10 +259,12 @@ kreće tek kad je kod aplikacije preuzet. Mijenjaš li boje teme, mijenjaj i
 (`defaultBibleVerses` + Mt 10,26-27) — mijenja se samo uz fact-check na
 biblija.ks.hr, čuva `test/boot_splash_verses_test.dart`.
 
-**Rule (faza ispod trake se MJERI)**: tekst „Preuzimanje → Pogon za crtanje
-je tu → Pokretanje → Priprema fontova" okida Resource Timing ili `main()`
-(`reportBootStage`, `services/boot_stage.dart`), nikad timer. Nova faza ide
-tek ako je `measure-boot.py` pokaže dovoljno dugom da se pročita (§6 doca).
+**Rule (faza se MJERI, tekst je rotacija)**: faze (Resource Timing ili
+`main()`, `reportBootStage`, `services/boot_stage.dart`) pokreću samo traku i
+postotak, nikad timer. Redak ispod trake od 29.10.2026. NE imenuje tehničku
+fazu („Priprema fontova…" korisniku ništa ne govori) nego svake 2 s izmjenjuje
+rečenice o sadržaju (`LINES` u `index.html`, bez emojija, „ti"). Zastoj
+(`failed()`) i dalje preuzima redak. Doc §6a.
 Postotak preuzimanja broji stvarne bajtove (omotan `fetch`); nazivnik upisuje
 `scripts/stamp-boot-sizes.sh` nakon builda — bez njega traka ostaje
 neodređena (§7).
