@@ -143,3 +143,46 @@ Biblija, provjeren na biblija.ks.hr (`docs/splash-bible-citations-factcheck.md`)
 2. Edge cache za `main.dart.wasm` (TTFB 0,5 s → ~0,07 s) — provjeriti je li
    `CDN-Cache-Control: no-store` još nužan uz purge u deploy skripti.
 3. Preload `main.dart.wasm` samo kad preglednik ima WasmGC (inline detekcija).
+
+## 6. Više faza ispod trake (28.10.2026.)
+
+Prije su bile dvije: „Preuzimanje aplikacije…” → „Pokretanje…”. Sada su
+četiri, i svaka se **mjeri**, ne izmišlja. Redak ide samo naprijed, a promjena
+ide uz fade od 0,2 s (bez njega uz `prefers-reduced-motion`).
+
+| faza | tekst | okidač |
+|---|---|---|
+| 0 | Preuzimanje aplikacije… | početno stanje |
+| 1 | Pogon za crtanje je tu, stiže ostatak… | Resource Timing: `skwasm`/`skwasm_heavy`/`canvaskit` `.wasm` |
+| 2 | Pokretanje… | Resource Timing: `main.dart.wasm`/`.js` |
+| 3 | Priprema fontova… | `main()` → `reportBootStage('fonts')` pred `AppTypography.awaitPreload` |
+
+Faza 3 dolazi iz Darta kao `CustomEvent('app-boot-stage', detail: 'fonts')`
+(`lib/services/boot_stage.dart`, uvjetni import po `dart.library.js_interop`,
+na nativeu no-op). Pogon i kod aplikacije preuzimaju se paralelno; kad kod
+stigne prvi, faza 1 se preskače.
+
+Izmjereno lokalno (release, `wrangler pages dev`, Slow 4G, mobitel, CPU 4×):
+
+| ms | tekst |
+|---|---|
+| 0 | Preuzimanje aplikacije… |
+| 14 278 | Pogon za crtanje je tu, stiže ostatak… |
+| 16 549 | Pokretanje… |
+| 17 361 | Priprema fontova… |
+| 20 637 | splash nestaje (praznina 0 ms) |
+
+```bash
+python3 scripts/measure-boot.py http://localhost:8788/ --profile slow4g --mobile --cpu 4
+```
+
+Skripta sada ispisuje i retke `faza <ms> <tekst>`.
+
+Odbačeno nakon mjerenja: „Učitavanje tvojih postavki…” (inicijalizacija servisa
+u `main()` traje ~10 ms, pa je fade uvijek preskoči) i „Slaganje stranice…”
+(`runApp` → prvi frame ~70 ms; tekst se pojavi tek kad splash već blijedi).
+
+Otvoreno: preuzimanje je i dalje najdulja faza (~12 s na Slow 4G). Pravi
+postotak bi tražio da bajtove broji naš kod, ne Flutterov loader, jer Resource
+Timing javlja tek završenu datoteku. Postotak koji se procjenjuje iz vremena ne
+bi bio istinit.

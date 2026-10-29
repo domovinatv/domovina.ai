@@ -15,6 +15,7 @@ import '../services/analytics/analytics.dart';
 import '../services/auth_service.dart';
 import '../services/background_audio.dart';
 import '../services/background_playback.dart';
+import '../services/boot_stage.dart';
 import '../services/entitlement_service.dart';
 import '../services/locale_service.dart';
 import '../services/playback_speed.dart';
@@ -194,6 +195,7 @@ Future<void> runPodcastApp(
   };
 
   // Zadnja stanica prije prvog framea — vidi AppTypography.startPreload().
+  reportBootStage('fonts');
   await AppTypography.awaitPreload();
 
   log('runApp');

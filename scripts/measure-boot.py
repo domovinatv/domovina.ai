@@ -68,7 +68,12 @@ INIT = r"""
       if (!m.introGone && !document.getElementById('boot-intro')) m.introGone = t();
       const el = document.getElementById('boot-intro');
       if (el && el.style.opacity === '0' && !m.introFade) m.introFade = t();
-    }).observe(document.documentElement, {subtree: true, childList: true,
+      // Tekst faze ispod trake: [ms, tekst] na svaku promjenu.
+      const ld = document.getElementById('bi-load');
+      m.stages = m.stages || [];
+      const last = m.stages[m.stages.length - 1];
+      if (ld && (!last || last[1] !== ld.textContent)) m.stages.push([t(), ld.textContent]);
+    }).observe(document.documentElement, {subtree: true, childList: true, characterData: true,
                                           attributes: true, attributeFilter: ['style']});
   });
   new PerformanceObserver(l => {
@@ -153,6 +158,8 @@ def main():
                       "runApp", "firstFrame", "canvas", "painted"]:
                 v = marks.get(k)
                 print(f"  {k:<10} {('—' if v is None else str(v)):>6} ms")
+            for ms, txt in marks.get("stages") or []:
+                print(f"  faza {ms:>6} ms  {txt}")
             if marks.get("mainStart") and marks.get("runApp"):
                 print(f"  main()→runApp {marks['runApp'] - marks['mainStart']} ms")
             gap = None
