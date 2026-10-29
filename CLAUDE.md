@@ -786,6 +786,15 @@ popisu ne traži — taj 404 je izmjeren na R2, pa mu se vjeruje (za razliku od
 hero/„Nastavi slušati" u mirovanju), nikad za sve klikabilne epizode. Vidi §8
 dokumenta gore.
 
+**Rule (popis sa diska nije zadnja riječ)**: kad `episode.json` iz Cache
+Storagea kaže da datoteke nema, `_get` prvo pričeka revalidaciju
+(`CdnJsonCache.revalidation`). Promjenjive datoteke pod `data/`
+(`episode.json`, `reels*.json`) moraju biti i u trećem CF cache pravilu
+(`fetch.domovina.tv/setup_cdn_cache_rule.sh`), inače ih zonsko `/data/` pravilo
+browseru da na 3600 s, a HTTP cache JS ne briše. Skriveni gumb `?osvjezi=1`
+prepisuje HTTP cache (`cache:'reload'`) i briše Cache Storage.
+`docs/2026-10-29-zastarjeli-episode-json-i-gumb-osvjezi.md`.
+
 **Rule (listing v2 mora čitati i stari build)**: `version` ostaje **string**
 (stari build radi `as String?`), a v2 bez `pipeline` objekta ide tek kad stari
 native buildovi ispadnu iz upotrebe — inače im sve epizode izgledaju

@@ -467,3 +467,7 @@ na rotaciji. Na sporoj mreži nije izmjereno.
 Zamka pri mjerenju: u kartici koja nije vidljiva (`document.visibilityState ==
 "hidden"`) Flutter ne crta frameove, pa slike ne kreću desecima sekundi. To nije
 kvar aplikacije; tako je 9.10. izgledalo kao da produkcija drži slike 33 s.
+
+> **Dopuna 29.10.2026.:** stari `episode.json` iz Cache Storagea i CF pravilo
+> koje mu je davalo `browser_ttl` 3600 skrivali su naknadno dodani Magisterium.
+> Vidi `docs/2026-10-29-zastarjeli-episode-json-i-gumb-osvjezi.md`.
