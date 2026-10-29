@@ -1125,6 +1125,7 @@ class _PlayerTab extends StatelessWidget {
     final l = AppLocalizations.of(context);
     final info = data.info;
     final lang = EpisodeLanguageScope.of(context);
+    final timeline = data.speakerTimelineFor(lang == EpisodeLanguage.en);
     final summaryHr = data.summary?.summary;
     final summary = lang == EpisodeLanguage.en
         ? (data.summaryEn?.summary ?? summaryHr)
@@ -1168,7 +1169,7 @@ class _PlayerTab extends StatelessWidget {
                 ? EpisodeVideo(
                     player: player!,
                     controller: videoController!,
-                    speakerTimeline: data.speakerTimeline,
+                    speakerTimeline: timeline,
                     speakers: summary?.speakers ?? const [],
                     seekUndo: seekUndo,
                     sponsoredMoments: sponsoredMoments,
@@ -1238,9 +1239,9 @@ class _PlayerTab extends StatelessWidget {
               !ytMode &&
               !audioOnly &&
               player != null &&
-              data.speakerTimeline != null &&
+              timeline != null &&
               subtitlesBelowPlayer(context))
-            SubtitleStrip(player: player!, timeline: data.speakerTimeline!),
+            SubtitleStrip(player: player!, timeline: timeline),
 
           // Seek bar
           if (videoReady && !ytMode) ...[

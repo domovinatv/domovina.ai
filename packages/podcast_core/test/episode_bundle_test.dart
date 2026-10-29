@@ -64,6 +64,55 @@ void main() {
     ]);
   });
 
+  // docs/plans/2026-10-29-titlovi-na-dva-jezika.md: titl prati jezik sadržaja,
+  // `diarized.<lang>.srt` uz pad na zadani `diarized.srt`.
+  group('titl na jeziku sadržaja', () {
+    Future<EpisodeData> load(List<String> extra) => http.runWithClient(
+          () => EpisodeData.load(youtubeId: id),
+          () => MockClient((req) async {
+            final p = req.url.path;
+            if (p.endsWith('/episode.json')) {
+              return http.Response(bundle(extraFiles: extra), 200);
+            }
+            if (p.endsWith('/diarized.srt')) {
+              return http.Response(
+                  '1\n00:00:01,000 --> 00:00:02,000\n[SPEAKER_00] Dobar dan\n',
+                  200);
+            }
+            if (p.endsWith('/diarized.en.srt')) {
+              return http.Response(
+                  '1\n00:00:01,000 --> 00:00:02,000\n[SPEAKER_00] Good day\n',
+                  200);
+            }
+            if (p.endsWith('/words.en.json')) {
+              return http.Response(
+                  jsonEncode({
+                    'v': 1,
+                    'cues': [
+                      {'s': 1000, 'e': 2000, 'w': [1000, 1400, 1500, 2000]},
+                    ],
+                  }),
+                  200);
+            }
+            return http.Response('Not Found', 404);
+          }),
+        );
+
+    test('EN korisnik dobiva diarized.en.srt s words.en.json', () async {
+      final data = await load(['diarized.en.srt', 'words.en.json']);
+      final en = data.speakerTimelineFor(true)!;
+      expect(en.segments.single.text, 'Good day');
+      expect(en.hasWordTimings, isTrue);
+      expect(data.speakerTimelineFor(false)!.segments.single.text, 'Dobar dan');
+    });
+
+    test('bez diarized.en.srt EN korisnik dobiva zadani titl', () async {
+      final data = await load(const []);
+      expect(data.speakerTimelineEn, isNull);
+      expect(data.speakerTimelineFor(true)!.segments.single.text, 'Dobar dan');
+    });
+  });
+
   test('bez bundlea stari put (svaka datoteka + probe)', () async {
     var requests = 0;
     await http.runWithClient(

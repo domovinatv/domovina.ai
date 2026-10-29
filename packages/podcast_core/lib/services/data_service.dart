@@ -577,19 +577,23 @@ class DataService {
   ///
   /// Uz SRT paralelno vuče i `words.json` (vrijeme po riječi). Njega nema za
   /// starije epizode, pa njegov izostanak ili kvar samo gasi isticanje riječi.
-  Future<SpeakerTimeline?> loadSpeakerTimeline() async {
-    final wordsF = _loadWordTimings();
+  ///
+  /// [lang] učita `diarized.<lang>.srt` + `words.<lang>.json` (titl na drugom
+  /// jeziku). Datoteke koje `episode.json` ne navodi `_get` ne traži, pa je
+  /// izostanak besplatan.
+  Future<SpeakerTimeline?> loadSpeakerTimeline({String? lang}) async {
+    final wordsF = _loadWordTimings(lang);
     try {
-      final raw = await _fetch(CdnConfig.diarizedSrtUrl(youtubeId));
+      final raw = await _fetch(CdnConfig.diarizedSrtUrl(youtubeId, lang: lang));
       return _parseSrt(raw).withWordTimings(await wordsF);
     } catch (_) {
       return null;
     }
   }
 
-  Future<Map<int, List<WordTiming>>> _loadWordTimings() async {
+  Future<Map<int, List<WordTiming>>> _loadWordTimings(String? lang) async {
     try {
-      final raw = await _fetch(CdnConfig.wordsUrl(youtubeId));
+      final raw = await _fetch(CdnConfig.wordsUrl(youtubeId, lang: lang));
       return parseWordTimings(json.decode(raw));
     } catch (_) {
       return const {};
@@ -679,6 +683,10 @@ class EpisodeData {
   final String? magisteriumFullV2Prompt;
   final SpeakerTimeline? speakerTimeline;
 
+  /// Titl na engleskom (`diarized.en.srt`) uz zadani [speakerTimeline]; danas
+  /// samo za engleske kanale, čiji je zadani titl hrvatski prijevod.
+  final SpeakerTimeline? speakerTimelineEn;
+
   /// Playabilni media URI razriješen probe-om: `video_h264.mp4` / `audio.mp3` /
   /// legacy `video.mp4`. Prazan string kad nema medije ([hasMedia] == false).
   final String videoUri;
@@ -705,6 +713,7 @@ class EpisodeData {
     this.magisteriumFullV2En,
     this.magisteriumFullV2Prompt,
     this.speakerTimeline,
+    this.speakerTimelineEn,
     required this.videoUri,
   });
 
@@ -743,6 +752,10 @@ class EpisodeData {
   /// Article je core artifact — bez njega nema sto prevodi. Summary je nice-to-have
   /// ali ne kriticno (worst case summary section pokazuje HR).
   bool get hasTranslationEn => articleEn != null;
+
+  /// Titl na jeziku sadržaja, uz pad na zadani `diarized.srt`.
+  SpeakerTimeline? speakerTimelineFor(bool wantEn) =>
+      wantEn ? (speakerTimelineEn ?? speakerTimeline) : speakerTimeline;
 
   /// Vraca summary varijantu za dani jezik. EN je superset (sadrzi i HR polja),
   /// pa kad postoji koristi se i za HR-only fields. Kad EN ne postoji, fallback
@@ -832,6 +845,7 @@ class EpisodeData {
       svc.loadMagisteriumBatchEn(), // 14
       svc.loadMagisteriumFullV2En(), // 15
       svc.resolveMedia(), // 16 — video_h264 → audio.mp3 → legacy video probe
+      svc.loadSpeakerTimeline(lang: 'en'), // 17
     ]);
     final info = results[0] as PodcastInfo;
     final media = results[16] as ({String uri, EpisodeMediaKind kind});
@@ -845,6 +859,7 @@ class EpisodeData {
       magisterium: results[4] as MagisteriumData?,
       magisteriumBatch: results[5] as MagisteriumData?,
       speakerTimeline: results[6] as SpeakerTimeline?,
+      speakerTimelineEn: results[17] as SpeakerTimeline?,
       magisteriumFull: results[7] as MagisteriumFullData?,
       magisteriumFullPrompt: results[8] as String?,
       magisteriumFullV2: results[9] as MagisteriumFullV2Data?,
@@ -929,7 +944,8 @@ class EpisodeData {
       'Magisterium v2 prompt',
       svc.loadMagisteriumFullV2Prompt(),
     );
-    final srtF = trackOptional('Transkript', svc.loadSpeakerTimeline());
+    final srtHrF = trackOptional('Transkript', svc.loadSpeakerTimeline());
+    final srtF = Future.wait([srtHrF, svc.loadSpeakerTimeline(lang: 'en')]);
     var srtDone = false;
     unawaited(srtF.whenComplete(() => srtDone = true));
     // EN overlays — kreni paralelno; 404 → null kad prijevod nije producran.
@@ -964,7 +980,7 @@ class EpisodeData {
     final magFullV2En = await magFullV2EnF;
     final media = await mediaF;
 
-    EpisodeData build(SpeakerTimeline? srt) => EpisodeData(
+    EpisodeData build(List<SpeakerTimeline?>? srt) => EpisodeData(
       youtubeId: youtubeId,
       info: info,
       mediaKind: media.kind,
@@ -982,7 +998,8 @@ class EpisodeData {
       magisteriumFullV2: magFullV2,
       magisteriumFullV2En: magFullV2En,
       magisteriumFullV2Prompt: magV2Prompt,
-      speakerTimeline: srt,
+      speakerTimeline: srt?[0],
+      speakerTimelineEn: srt?[1],
       videoUri: media.uri,
     );
 
@@ -990,7 +1007,7 @@ class EpisodeData {
       // Odgoda za jedan event-loop krug: pozivatelj mora stići postaviti
       // prvi rezultat prije nego mu javimo zamjenu.
       unawaited(srtF.then((srt) => Future<void>.delayed(Duration.zero, () {
-            if (srt != null) onTimeline(build(srt));
+            if (srt[0] != null) onTimeline(build(srt));
           })));
       return build(null);
     }

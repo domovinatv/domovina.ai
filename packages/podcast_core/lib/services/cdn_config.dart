@@ -98,11 +98,16 @@ class CdnConfig {
       '$base/data/$ytId/article.magisterium_batch.en.json';
   static String magisteriumFullV2EnUrl(String ytId) =>
       '$base/data/$ytId/article.magisterium_full_v2.en.json';
-  static String diarizedSrtUrl(String ytId) => '$base/data/$ytId/diarized.srt';
+  /// Titl. [lang] traži `diarized.<lang>.srt` (titl na tom jeziku uz zadani
+  /// `diarized.srt`; docs/plans/2026-10-29-titlovi-na-dva-jezika.md).
+  static String diarizedSrtUrl(String ytId, {String? lang}) =>
+      '$base/data/$ytId/diarized${lang == null ? '' : '.$lang'}.srt';
 
   /// Vrijeme po riječi za cue-ove iz `diarized.srt` (Speechmatics, poravnato
   /// s tekstom koji je Gemini uredio). Postoji samo za novije epizode.
-  static String wordsUrl(String ytId) => '$base/data/$ytId/words.json';
+  /// [lang] je par za `diarized.<lang>.srt`.
+  static String wordsUrl(String ytId, {String? lang}) =>
+      '$base/data/$ytId/words${lang == null ? '' : '.$lang'}.json';
 
   /// Sponzori ugrađeni u snimku (KORAK 9.85) — postoji za svaku objavljenu
   /// epizodu; `sponsors: []` znači da ih nema. Vidi `SponsorsInVideo`.
