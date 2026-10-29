@@ -118,10 +118,15 @@ u e2e: v2.0.208 je prva dva učitavanja otvorila `video_h264.mp4`, treće
 
 ## Otvoreno
 
-- Epizode s fmp4 od prije 28.10. nemaju web varijantu, pa web na njima pušta
-  klasični MP4 (spor start na Slow 4G, ali bez pada). Backfill:
-  `node backfill_video_h264.js --fmp4-only --video-id …` (postojeći
-  interleavani fajl se preskače), zatim `node build_episode_bundle.js --video-id …`.
+- ~~Epizode s fmp4 od prije 28.10. nemaju web varijantu.~~ Zatvoreno 29.10.2026.:
+  backfill za svih 70 preostalih (`node backfill_video_h264.js --fmp4-only
+  --concurrency 3 --video-id …`, pa `node build_episode_bundle.js --video-id …`),
+  70/70 uspješno, `episode.json` regeneriran i purgan u obje `Vary` varijante.
+  Na R2 je sada 71 epizoda s obje varijante. Ručna provjera niza skokova u Braveu
+  na 5 nasumičnih epizoda (`sf_eM7e4XVY`, `V37T5J8nrV0`, `xI7ICdhsXWM`,
+  `ZQvL-UkAM1Y`, `-KLvgPtEGoM`) prošla je bez greške. Popis epizoda bez web
+  varijante: LIST `data/` na R2, ključevi `video_h264_fmp4.mp4` bez para
+  `video_h264_fmp4_web.mp4`.
 - Oporavak u klijentu nakon `PIPELINE_ERROR_DECODE` (ponovno otvaranje na istoj
   poziciji) nije napravljen; `episode_playback_session.dart` grešku samo
   zapiše u log.
