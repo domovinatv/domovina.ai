@@ -19,7 +19,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
 
 import '../src/log.dart' show log;
-import 'cdn_json_cache.dart';
 import 'data_service.dart';
 import 'local_prefs.dart';
 import 'update_notifier.dart';
@@ -47,13 +46,16 @@ bool refreshAllButtonVisible() {
 }
 
 /// Obriši memoriju, Cache Storage i service workere, pa učitaj istu adresu.
+/// Prije brisanja `hardReload` ponovno dohvati (`cache: 'reload'`) svaku CDN
+/// adresu iz Cache Storagea, da i HTTP cache preglednika dobije svježe kopije.
 Future<void> refreshAll() async {
   log('refreshAll: brišem spremljeno i učitavam ponovno');
   DataService.clearMemory();
   PaintingBinding.instance.imageCache
     ..clear()
     ..clearLiveImages();
-  await CdnJsonCache.instance.clear();
-  // Briše i SVE ostale Cache Storage zapise, odjavi SW i napravi reload.
+  // NE `CdnJsonCache.clear()` ovdje: hardReload prvo čita adrese iz Cache
+  // Storagea (za prepisivanje HTTP cachea), pa tek onda briše SVE zapise,
+  // odjavi SW i napravi reload.
   await hardReload(stayHere: true);
 }
