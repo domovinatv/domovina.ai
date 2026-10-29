@@ -142,11 +142,16 @@ class SummarySpeaker {
   final String role;
   final String? roleEn;
 
+  /// Prevedeno generičko ime („Sudionica iz publike" → „Audience member").
+  /// Vlastita imena pipeline ne prevodi; stari `summary.en.json` polje nema.
+  final String? suggestedNameEn;
+
   const SummarySpeaker({
     required this.id,
     required this.suggestedName,
     required this.role,
     this.roleEn,
+    this.suggestedNameEn,
   });
 
   factory SummarySpeaker.fromJson(Map<String, dynamic> json) {
@@ -155,6 +160,7 @@ class SummarySpeaker {
       suggestedName: json['suggested_name'] as String? ?? '',
       role: json['role'] as String? ?? '',
       roleEn: json['role_en'] as String?,
+      suggestedNameEn: json['suggested_name_en'] as String?,
     );
   }
 
@@ -181,4 +187,15 @@ class SummarySpeaker {
     if (raw.toLowerCase() == role.toLowerCase()) return null;
     return raw;
   }
+
+  /// [displayName] na jeziku sadržaja: na EN `suggested_name_en` kad ga ima.
+  String? displayNameFor(bool en) {
+    final name = displayName;
+    if (!en || name == null) return name;
+    final t = suggestedNameEn?.trim();
+    return (t == null || t.isEmpty) ? name : t;
+  }
+
+  /// [roleLabel] na jeziku sadržaja.
+  String roleLabelFor(bool en) => en ? roleLabelEn() : roleLabel;
 }

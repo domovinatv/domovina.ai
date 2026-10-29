@@ -937,7 +937,8 @@ class _SpeakerBadge extends StatelessWidget {
         if (speaker == null) return const SizedBox.shrink();
 
         final color = speakerColors[speakerId] ?? Colors.white;
-        final roleLabel = isEn ? speaker.roleLabelEn() : speaker.roleLabel;
+        final roleLabel = speaker.roleLabelFor(isEn);
+        final name = speaker.displayNameFor(isEn);
 
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -959,9 +960,9 @@ class _SpeakerBadge extends StatelessWidget {
               const SizedBox(width: 8),
               // Anonymous host (suggested_name == role) → samo roleLabel
               // umjesto duplog "Voditelj voditelj".
-              if (speaker.displayName != null) ...[
+              if (name != null) ...[
                 Text(
-                  speaker.displayName!,
+                  name,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 13,

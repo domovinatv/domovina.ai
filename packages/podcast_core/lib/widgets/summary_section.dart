@@ -56,7 +56,7 @@ class SummarySection extends StatelessWidget {
           ...s.speakers.map((sp) {
             // Anonymous govornik (npr. host se ne predstavi) → suggested_name
             // == role. Tada prikazi samo capitalized roleLabel umjesto duplog.
-            final name = sp.displayName;
+            final name = sp.displayNameFor(isEn);
             final roleLabel = isEn ? sp.roleLabelEn() : sp.roleLabel;
             final primary = name ?? roleLabel;
             final row = Row(
@@ -98,7 +98,9 @@ class SummarySection extends StatelessWidget {
                   : InkWell(
                       borderRadius: BorderRadius.circular(8),
                       onTap: () =>
-                          drillDown(context, '/p/${personSlug(name)}'),
+                          drillDown(context,
+                              // Profil osobe je ključan po izvornom (HR) imenu.
+                              '/p/${personSlug(sp.suggestedName.trim())}'),
                       child: row,
                     ),
             );

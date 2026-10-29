@@ -471,7 +471,8 @@ class DataService {
     }
   }
 
-  /// Istaknuti trenuci epizode (`reels.json`) — opcionalno, kao i sponzori:
+  /// Istaknuti trenuci epizode (`reels.json` + `reels.en.json`) — opcionalno,
+  /// kao i sponzori:
   /// null na svaku grešku, i sekcije nema.
   ///
   /// Traži se samo kad ga `episode.json` navodi u `files`: datoteka postoji
@@ -485,13 +486,35 @@ class DataService {
     try {
       final bundle = await _bundle();
       if (bundle == null || !bundle.has('reels.json')) return null;
+      // EN tekst (`reels.en.json`) se vuče odmah uz HR kad ga bundle navodi:
+      // ~18 KB samo za epizode s reelovima, a promjena jezika tada ne čeka
+      // mrežu. Pad EN dohvata ne ruši reelove — ostaju hrvatski.
+      final enFuture = bundle.has('reels.en.json')
+          ? CdnJsonCache.instance
+                .getMutable(
+                  CdnConfig.reelsEnUrl(youtubeId),
+                  bucket: StoreBucket.episode,
+                )
+                .then<String?>((v) => v, onError: (Object e) {
+                  log('DataService.loadReels($youtubeId) en: $e');
+                  return null;
+                })
+          : Future<String?>.value();
       final raw = await CdnJsonCache.instance.getMutable(
         CdnConfig.reelsUrl(youtubeId),
         bucket: StoreBucket.episode,
       );
       final json = jsonDecode(raw);
       if (json is! Map<String, dynamic>) return null;
-      final reels = EpisodeReels.fromJson(json);
+      final enRaw = await enFuture;
+      Map<String, dynamic>? en;
+      if (enRaw != null) {
+        try {
+          final decoded = jsonDecode(enRaw);
+          if (decoded is Map<String, dynamic>) en = decoded;
+        } catch (_) {}
+      }
+      final reels = EpisodeReels.fromJson(json, en: en);
       return reels.isEmpty ? null : reels;
     } catch (e) {
       log('DataService.loadReels($youtubeId): $e');

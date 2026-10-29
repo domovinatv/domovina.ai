@@ -47,6 +47,23 @@ const _yoln = '''
 }
 ''';
 
+/// `reels.en.json` (ugovor `fetch.domovina.tv/docs/2026-10-29-reels-en.md`):
+/// iste vrijednosti pod istim ključevima, bez `render`. #1 ima puni prijevod,
+/// #2 samo naslov, #3 nema para, #9 nema HR para.
+const _yolnEn = '''
+{
+  "version": 1, "language": "en",
+  "reels": [
+    {"rank": 1, "start_sec": 3149.91, "end_sec": 3215.67,
+     "title": "Healed at prayer, while surgery would cost 5,000 euros",
+     "hook": "She was healed at prayer.", "speaker": "Audience member"},
+    {"rank": 2, "start_sec": 907.83, "end_sec": 985.41, "title": "Second",
+     "hook": "  "},
+    {"rank": 9, "start_sec": 1, "end_sec": 2, "title": "Orphan"}
+  ]
+}
+''';
+
 EpisodeReels _parse(String raw) =>
     EpisodeReels.fromJson(jsonDecode(raw) as Map<String, dynamic>);
 
@@ -104,6 +121,33 @@ void main() {
     });
   });
 
+  group('engleski tekst (reels.en.json)', () {
+    EpisodeReels parseBoth() => EpisodeReels.fromJson(
+      jsonDecode(_yoln) as Map<String, dynamic>,
+      en: jsonDecode(_yolnEn) as Map<String, dynamic>,
+    );
+
+    test('spaja po rank, pad na HR po polju, render ostaje', () {
+      final en = parseBoth().forLanguage(true);
+      final byRank = {for (final e in en.reels) e.rank: e};
+      expect(en.reels.map((e) => e.rank), [2, 3, 5, 1]);
+      expect(byRank[1]!.title, startsWith('Healed at prayer'));
+      expect(byRank[1]!.speaker, 'Audience member');
+      expect(byRank[1]!.isRendered, isTrue, reason: 'video iz reels.json');
+      expect(byRank[1]!.isPremium, isTrue);
+      expect(byRank[2]!.title, 'Second');
+      expect(byRank[2]!.hook, isNull, reason: 'prazan EN, HR ga nema');
+      expect(byRank[3]!.title, 'Treći', reason: 'bez EN para → HR');
+    });
+
+    test('HR prikaz ne vidi prijevod; EN prikaz je stabilan objekt', () {
+      final r = parseBoth();
+      expect(r.forLanguage(false), same(r));
+      expect(r.forLanguage(false).reels.last.title, startsWith('Ozdravila'));
+      expect(r.forLanguage(true), same(r.forLanguage(true)));
+    });
+  });
+
   group('dohvat', () {
     setUp(DataService.resetMemoryForTest);
 
@@ -154,6 +198,79 @@ void main() {
               }),
               200,
             );
+          }
+          if (req.url.path.endsWith('/reels.json')) {
+            return http.Response.bytes(utf8.encode(_yoln), 200);
+          }
+          return http.Response('', 404);
+        }),
+      );
+      expect(reels?.reels.length, 4);
+    });
+
+    test('bundle navodi reels.en.json → EN tekst uz HR render', () async {
+      final reels = await load(
+        MockClient((req) async {
+          if (req.url.path.endsWith('/episode.json')) {
+            return http.Response(
+              jsonEncode({
+                'version': 1,
+                'files': ['reels.json', 'reels.en.json'],
+                'inline': {},
+              }),
+              200,
+            );
+          }
+          if (req.url.path.endsWith('/reels.en.json')) {
+            return http.Response.bytes(utf8.encode(_yolnEn), 200);
+          }
+          if (req.url.path.endsWith('/reels.json')) {
+            return http.Response.bytes(utf8.encode(_yoln), 200);
+          }
+          return http.Response('', 404);
+        }),
+      );
+      final en = reels!.forLanguage(true).reels.last;
+      expect(en.title, startsWith('Healed at prayer'));
+      expect(en.isRendered, isTrue);
+    });
+
+    test('bundle ne navodi reels.en.json → nema zahtjeva, ostaje HR', () async {
+      var asked = false;
+      final reels = await load(
+        MockClient((req) async {
+          if (req.url.path.endsWith('/episode.json')) {
+            return http.Response(
+              jsonEncode({'version': 1, 'files': ['reels.json'], 'inline': {}}),
+              200,
+            );
+          }
+          if (req.url.path.endsWith('/reels.en.json')) asked = true;
+          if (req.url.path.endsWith('/reels.json')) {
+            return http.Response.bytes(utf8.encode(_yoln), 200);
+          }
+          return http.Response('', 404);
+        }),
+      );
+      expect(asked, isFalse);
+      expect(reels!.forLanguage(true).reels.last.title, startsWith('Ozdravila'));
+    });
+
+    test('pokvaren reels.en.json ne ruši reelove', () async {
+      final reels = await load(
+        MockClient((req) async {
+          if (req.url.path.endsWith('/episode.json')) {
+            return http.Response(
+              jsonEncode({
+                'version': 1,
+                'files': ['reels.json', 'reels.en.json'],
+                'inline': {},
+              }),
+              200,
+            );
+          }
+          if (req.url.path.endsWith('/reels.en.json')) {
+            return http.Response('{nije json', 200);
           }
           if (req.url.path.endsWith('/reels.json')) {
             return http.Response.bytes(utf8.encode(_yoln), 200);

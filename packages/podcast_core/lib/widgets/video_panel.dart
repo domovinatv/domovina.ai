@@ -811,10 +811,9 @@ class _CurrentSpeakerRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final name = speaker.displayName;
-    final roleLabel = EpisodeLanguageScope.of(context) == EpisodeLanguage.en
-        ? speaker.roleLabelEn()
-        : speaker.roleLabel;
+    final isEn = EpisodeLanguageScope.of(context) == EpisodeLanguage.en;
+    final name = speaker.displayNameFor(isEn);
+    final roleLabel = speaker.roleLabelFor(isEn);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),

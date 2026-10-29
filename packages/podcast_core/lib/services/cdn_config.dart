@@ -119,6 +119,9 @@ class CdnConfig {
   /// Vidi `EpisodeReels`.
   static String reelsUrl(String ytId) => '$base/data/$ytId/reels.json';
 
+  /// Engleski tekst reelova (`fetch.domovina.tv/docs/2026-10-29-reels-en.md`).
+  static String reelsEnUrl(String ytId) => '$base/data/$ytId/reels.en.json';
+
   /// EPUB e-knjiga epizode (pipeline KORAK 9.8, `generate_ebook.js`).
   /// Postoji samo za epizode koje imaju članak; englesko izdanje samo kad
   /// postoji i `article.en.json`. Ime na CDN-u je `book.epub` / `book.en.epub`

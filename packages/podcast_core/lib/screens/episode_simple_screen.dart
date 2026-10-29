@@ -692,7 +692,7 @@ class _SimpleEpisodeContentState extends State<_SimpleEpisodeContent>
         seekUndo: _seekUndo,
         sponsoredMoments: _sponsored,
         onSponsoredListen: (m) => _seekTo(m.start),
-        reels: _reels,
+        reels: _reels?.forLanguage(_language == EpisodeLanguage.en),
         onReelJump: (r) => _seekTo(r.startSeconds),
         onReelWatch: _watchReel,
         onEnterYtMode: () {
@@ -1768,7 +1768,7 @@ class _InfoTab extends StatelessWidget {
           const SizedBox(height: 8),
           ...summary.speakers.map((s) {
             final roleLabel = isEn ? s.roleLabelEn() : s.roleLabel;
-            final name = s.displayName;
+            final name = s.displayNameFor(isEn);
             final row = Row(
               children: [
                 CircleAvatar(
