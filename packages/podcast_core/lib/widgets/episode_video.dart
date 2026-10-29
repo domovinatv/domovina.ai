@@ -32,6 +32,7 @@ import '../l10n/app_localizations.dart';
 import '../models/podcast_summary.dart';
 import '../models/speaker_timeline.dart';
 import '../services/browser_fullscreen.dart';
+import '../services/episode_language.dart';
 import '../services/player_mute.dart';
 import '../services/screen_orientation.dart';
 import '../services/seek_undo.dart';
@@ -303,11 +304,18 @@ class _EpisodeVideoState extends State<EpisodeVideo> {
   /// media_kit zamka #1), pa ide isti `_resumeAfterTransition`.
   void _pushRotatedFullscreen() {
     final wasPlaying = widget.player.state.playing;
+    final language = EpisodeLanguageScope.of(context);
+    final hasTranslationEn = EpisodeLanguageScope.hasEnOf(context);
     unawaited(
       showRotatedFullscreen(
         context: context,
         onOpened: (exit) => _closeRotated = exit,
-        builder: (_, exit) => EpisodeVideo(
+        // Nova ruta je izvan EpisodeLanguageScope-a ekrana — prenesi ga, inače
+        // uloga govornika u rotiranoj slici padne na hrvatski.
+        builder: (_, exit) => EpisodeLanguageScope(
+          language: language,
+          hasTranslationEn: hasTranslationEn,
+          child: EpisodeVideo(
           player: widget.player,
           controller: widget.controller,
           speakerTimeline: widget.speakerTimeline,
@@ -316,6 +324,7 @@ class _EpisodeVideoState extends State<EpisodeVideo> {
           seekUndo: widget.seekUndo,
           onExitRotatedFullscreen: exit,
           sponsoredMoments: widget.sponsoredMoments,
+          ),
         ),
         onClosed: _onRotatedFullscreenClosed,
       ),
@@ -507,6 +516,7 @@ class _EpisodeVideoState extends State<EpisodeVideo> {
           speakerTimeline: timeline,
           speakers: widget.speakers,
           speakerColors: colors,
+          isEn: EpisodeLanguageScope.of(context) == EpisodeLanguage.en,
         ),
     ];
 
@@ -896,11 +906,16 @@ class _SpeakerBadge extends StatelessWidget {
   final List<SummarySpeaker> speakers;
   final Map<String, Color> speakerColors;
 
+  /// Jezik se čita u `EpisodeVideo.build` i predaje ovamo: media_kitova
+  /// fullscreen ruta crta badge izvan `EpisodeLanguageScope`-a ekrana.
+  final bool isEn;
+
   const _SpeakerBadge({
     required this.player,
     required this.speakerTimeline,
     required this.speakers,
     required this.speakerColors,
+    required this.isEn,
   });
 
   @override
@@ -922,6 +937,7 @@ class _SpeakerBadge extends StatelessWidget {
         if (speaker == null) return const SizedBox.shrink();
 
         final color = speakerColors[speakerId] ?? Colors.white;
+        final roleLabel = isEn ? speaker.roleLabelEn() : speaker.roleLabel;
 
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -952,10 +968,10 @@ class _SpeakerBadge extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                if (speaker.roleLabel.isNotEmpty) ...[
+                if (roleLabel.isNotEmpty) ...[
                   const SizedBox(width: 6),
                   Text(
-                    '· ${speaker.roleLabel}',
+                    '· $roleLabel',
                     style: const TextStyle(
                       color: Colors.white70,
                       fontSize: 12,
@@ -964,7 +980,7 @@ class _SpeakerBadge extends StatelessWidget {
                 ],
               ] else
                 Text(
-                  speaker.roleLabel,
+                  roleLabel,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 13,

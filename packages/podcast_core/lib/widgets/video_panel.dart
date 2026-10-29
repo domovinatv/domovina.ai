@@ -11,6 +11,7 @@ import '../models/sponsored_moment.dart';
 import '../models/sponsors_in_video.dart';
 import '../services/sponsored_moments_controller.dart';
 import '../models/podcast_summary.dart';
+import '../services/episode_language.dart';
 import '../services/seek_undo.dart';
 import '../theme/app_theme.dart';
 import 'audio_poster.dart';
@@ -811,7 +812,9 @@ class _CurrentSpeakerRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final name = speaker.displayName;
-    final roleLabel = speaker.roleLabel;
+    final roleLabel = EpisodeLanguageScope.of(context) == EpisodeLanguage.en
+        ? speaker.roleLabelEn()
+        : speaker.roleLabel;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
