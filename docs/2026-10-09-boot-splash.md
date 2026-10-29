@@ -206,12 +206,17 @@ ne procijenjen.
   dekomprimirano). `scripts/stamp-boot-sizes.sh` ih nakon `flutter build web`
   upiše u `build/web/index.html` umjesto `/*BOOT_SIZES*/`; `deploy.sh` ga zove.
   `skwasm.wasm` s gstatic.com je ista datoteka kao `build/web/canvaskit/skwasm.wasm`.
-- **Kad traka ostaje neodređena** (staro klizanje): bez upisanih veličina
-  (`flutter run`), na dart2js putanji (`main.dart.js` ide `<script>` tagom,
-  ne fetchom) i kad je isti build već učitan (`localStorage['boot_wasm_size']`
-  = veličina `main.dart.wasm`). Zadnje je namjerno: omotan `Response` nema URL,
-  pa V8 za njega ne koristi cache kompiliranog wasma; na ponovljenom otvaranju
-  ionako nema što brojati.
+- **Broji se klon odgovora** (`res.clone().body`), a Flutter dobiva originalni
+  `Response` s URL-om, pa V8 zadrži cache kompiliranog wasma. Prva izvedba
+  (v2.0.210) je predavala novi `Response` bez URL-a i zato brojanje gasila na
+  ponovnom posjetu istog builda (`localStorage['boot_wasm_size']`). Prijava
+  29.10. (Brave, Windows): „traka je stalno na 100 %”. Na ponovnom posjetu
+  traka je bila neodređena, a uz `prefers-reduced-motion` (Windows „Animation
+  effects” isključen) neodređena traka je crtana PUNA na pola prozirnosti.
+  Od v2.0.211 se broji i na ponovnom posjetu, a neodređena traka bez
+  animacije je prazna.
+- **Kad traka ostaje neodređena**: bez upisanih veličina (`flutter run`) i na
+  dart2js putanji (`main.dart.js` ide `<script>` tagom, ne fetchom).
 - Postotak stoji u zasebnom `#bi-pct` s `aria-hidden`, da čitač zaslona ne
   čita svaki postotak (`#bi-load` je `aria-live`).
 

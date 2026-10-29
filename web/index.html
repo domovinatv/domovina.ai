@@ -137,7 +137,8 @@
       #boot-intro .bi-progress{width:min(240px,60vw);height:3px;margin:32px auto 0;border-radius:3px;background:var(--boot-track);overflow:hidden;position:relative;}
       #boot-intro .bi-progress i{position:absolute;top:0;bottom:0;left:0;width:35%;border-radius:3px;background:#FF0000;animation:bi-slide 1.4s ease-in-out infinite;}
       @keyframes bi-slide{0%{transform:translateX(-100%)}100%{transform:translateX(290%)}}
-      @media (prefers-reduced-motion:reduce){#boot-intro .bi-progress i{animation:none;width:100%;opacity:.5;}}
+      /* Bez animacije neodređena traka ostaje prazna: puna bi se čitala kao 100 %. */
+      @media (prefers-reduced-motion:reduce){#boot-intro .bi-progress i{animation:none;width:0;}}
       /* Određena traka (bajtovi se broje): širina = napredak, bez klizanja. */
       #boot-intro .bi-progress.det i{animation:none;transform:none;opacity:1;width:0;transition:width .3s linear;}
       #boot-intro .bi-load{margin:12px 0 0;font-size:13px;color:var(--boot-dim);min-height:1.5em;}
@@ -384,10 +385,7 @@
           });
         })();
       }
-      window.addEventListener('flutter-first-frame', function () {
-        setBar(1);
-        try { if (SIZES['main.dart.wasm']) localStorage.setItem('boot_wasm_size', String(SIZES['main.dart.wasm'])); } catch (_) {}
-      }, { once: true });
+      window.addEventListener('flutter-first-frame', function () { setBar(1); }, { once: true });
       window.addEventListener('flutter-first-frame', hideWhenPainted, { once: true });
 
       // Istinite faze (docs/2026-10-09-boot-splash.md §6). Svaka se MJERI:
@@ -407,13 +405,14 @@
 
       // Traka 0–100 %. Preuzimanje (0–80 %) broji STVARNE bajtove: Flutterov
       // loader dohvaća main.dart.wasm i skwasm.wasm kroz globalni fetch
-      // (compileStreaming(fetch(…))), pa ga omotamo i brojimo dekomprimirane
-      // bajtove tijela. Nazivnik su veličine iz builda, koje deploy upiše
+      // (compileStreaming(fetch(…))), pa ga omotamo i čitamo KLON odgovora.
+      // Flutter dobije originalni Response (s URL-om, pa V8 zadrži cache
+      // kompiliranog wasma). Nazivnik su veličine iz builda, koje deploy upiše
       // umjesto komentara ispod (scripts/stamp-boot-sizes.sh). Faza fontova
       // puni 85 → 98 % kroz 3 s jer awaitPreload ima timeout od 3 s — to je
-      // gornja granica, ne pogađanje. Bez veličina, na dart2js putanji
-      // (main.dart.js ide <script> tagom) ili kad je kod već u cacheu traka
-      // ostaje neodređena. docs/2026-10-09-boot-splash.md §7.
+      // gornja granica, ne pogađanje. Bez veličina ili na dart2js putanji
+      // (main.dart.js ide <script> tagom) traka ostaje neodređena.
+      // docs/2026-10-09-boot-splash.md §7.
       var SIZES = {/*BOOT_SIZES*/};
       var bar = document.getElementById('bi-progress'), fill = bar.firstChild, pct = document.getElementById('bi-pct');
       var got = {}, renderer = 'skwasm.wasm', shown = -1;
@@ -430,12 +429,7 @@
         setBar(f * 0.8);
       }
       try {
-        var seen = null;
-        try { seen = localStorage.getItem('boot_wasm_size'); } catch (_) {}
-        // Isti build kao prošli put → kod je u HTTP cacheu, nema se što brojati,
-        // a omotan Response bi V8-u uzeo cache kompiliranog wasma.
-        if (SIZES['main.dart.wasm'] && SIZES[renderer] && String(SIZES['main.dart.wasm']) !== seen &&
-            window.fetch && typeof ReadableStream === 'function' && typeof Response === 'function') {
+        if (SIZES['main.dart.wasm'] && SIZES[renderer] && window.fetch && typeof Response === 'function') {
           var origFetch = window.fetch;
           window.fetch = function (input) {
             var url = typeof input === 'string' ? input : (input && input.url) || String(input);
@@ -445,21 +439,22 @@
             var name = m[1];
             if (name !== 'main.dart.wasm') renderer = name;
             got[name] = 0;
-            bar.className += ' det';
             return p.then(function (res) {
-              if (!res.ok || !res.body) return res;
-              var reader = res.body.getReader();
-              return new Response(new ReadableStream({
-                pull: function (ctl) {
-                  return reader.read().then(function (r) {
-                    if (r.done) { ctl.close(); return; }
+              try {
+                if (!res.ok || !res.body) return res;
+                var reader = res.clone().body.getReader();
+                if (bar.className.indexOf('det') < 0) bar.className += ' det';
+                (function pump() {
+                  reader.read().then(function (r) {
+                    if (r.done) return;
+                    if (done) { reader.cancel(); return; }
                     got[name] += r.value.byteLength;
                     counted();
-                    ctl.enqueue(r.value);
-                  });
-                },
-                cancel: function (why) { return reader.cancel(why); }
-              }), { status: res.status, statusText: res.statusText, headers: res.headers });
+                    pump();
+                  }, function () {});
+                })();
+              } catch (_) {}
+              return res;
             });
           };
         }
