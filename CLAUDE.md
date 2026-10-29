@@ -259,6 +259,11 @@ kreće tek kad je kod aplikacije preuzet. Mijenjaš li boje teme, mijenjaj i
 (`defaultBibleVerses` + Mt 10,26-27) — mijenja se samo uz fact-check na
 biblija.ks.hr, čuva `test/boot_splash_verses_test.dart`.
 
+**Rule (faza ispod trake se MJERI)**: tekst „Preuzimanje → Pogon za crtanje
+je tu → Pokretanje → Priprema fontova" okida Resource Timing ili `main()`
+(`reportBootStage`, `services/boot_stage.dart`), nikad timer. Nova faza ide
+tek ako je `measure-boot.py` pokaže dovoljno dugom da se pročita (§6 doca).
+
 ### Pretraga naslovnice — tri izvora + tekst ne pod scale transformom (od 13.10.2026.)
 
 Paleta (`search_overlay.dart`) spaja lokalni sloj, Meili `episodes` i
