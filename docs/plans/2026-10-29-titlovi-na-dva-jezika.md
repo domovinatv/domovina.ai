@@ -67,6 +67,30 @@ Tako `SPEAKER_xx` znači istu osobu u oba fajla, pa imena iz članka vrijede za 
 
 Pilot: `catholic_futurist` (21 ep.), pa provjera u pregledniku, pa ostale.
 
+**Stanje 29.10.2026.: koraci 1–4 gotovi za sva tri kanala, 325/325.**
+`catholic_futurist` 21 (4,7 min), `launched` + `subclub` 304 (74 min, Modal
+~$2,6–3,8 po ispisu batcha), 0 grešaka. Usidrenost `words.en.json` 100 % na
+svakoj epizodi (tekst i vremena iz istog prolaza). Govornici na uzorku
+`bHfYZHbqCns`: vrijeme po govorniku ±3 % od HR titla. CDN: `diarized.en.srt`
+200 i `episode.json` navodi `words.en.json` za svih 325. Klijent (faza 2) je
+u v2.0.211. Korak 5 (pipeline) NIJE napravljen, vidi nalaz niže.
+
+**Nalaz: novije epizode su obrnute.** Od ~9.9.2026. (Soniox + pyannote →
+Gemini promote) kanonski `diarized.srt` engleskog kanala je već **engleski**,
+s `words.json`: `launched` 17, `subclub` 12, `catholic_futurist` 6 (35 od 325).
+Njima EN korisnik ima sve i bez ovog posla (`diarized.en.srt` je duplikat), a
+**HR korisnik dobiva engleski titl**. HR tekst postoji lokalno kao
+`{base}.wav.canary.srt` (Canary en→hr, KORAK 2.6), ali ne ide na CDN.
+Sljedeće:
+
+1. `build_original_subs.js` za smjer HR: ulaz `.wav.canary.srt`, govornici iz
+   kanonskog (engleskog) titla → `{base}.diarized.hr.srt` → `data/<id>/diarized.hr.srt`
+   (bez `words.hr.json`; prijevod nema vremena izgovorenih riječi).
+2. Klijent: `EpisodeData.speakerTimelineHr` i pad za HR na `diarized.hr.srt`.
+3. Korak u `run_pipeline.sh` iza 9.87: za epizodu kanala s `=en` napravi
+   onaj smjer koji fali: kanonski HR → `diarized.en.srt` (traži Canary en→en,
+   `--out-tag en`), kanonski EN → `diarized.hr.srt` (iz postojećeg `.wav.canary.srt`).
+
 ## Faza 2 — klijent (domovina.ai)
 
 - `CdnConfig.diarizedSrtUrl(id, lang:)` / `wordsUrl(id, lang:)`.

@@ -148,3 +148,14 @@ Neizmjereno, prije punog backfilla:
 - Frontend je LIVE od v2.0.168 (6.10.2026.); isticanje čeka prvi `words.json` na CDN-u.
 - Audio-only epizode nemaju titl ni prije ni sada (nema `EpisodeVideo`).
 - Isticanje u članku/transkriptu (isti `words.json`) nije rađeno.
+
+## Titl na dva jezika (29.10.2026.)
+
+Titl sada prati jezik sadržaja: `diarized.<lang>.srt` + `words.<lang>.json`
+uz pad na `diarized.srt`. Engleski kanali (325 epizoda) imaju izvorni engleski
+titl s isticanjem riječi. Ugovor, mjerenja i otvoreno (HR titl za novije
+engleske epizode, pipeline korak): `docs/plans/2026-10-29-titlovi-na-dva-jezika.md`.
+
+Uzrok preskočenog `words.json` na engleskim ad-hoc epizodama (`_unlisted`) bio
+je jezik ASR-a: kanal bez unosa u `channel_languages.conf` išao je kao `hr`.
+Popravljeno u fetchu 29.10. (`info.json` `language` kao pad).
