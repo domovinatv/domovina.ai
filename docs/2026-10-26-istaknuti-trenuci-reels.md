@@ -148,3 +148,43 @@ Vezani dokumenti: `docs/2026-09-15-ebook-epub-na-frontendu.md` (isti
 obrazac dijeljenja datoteke), `docs/2026-09-24-sponzori-u-snimci-frontend.md` (isti
 obrazac trake i oznaka), `docs/2026-10-08-brzina-ucitavanja-naslovnice.md` §8
 (`episode.json`).
+
+## Engleski tekst — `reels.en.json` (v2.0.214, 29.10.2026.)
+
+Do v2.0.214 su na `/v/<id>/en` reelsi bili jedini hrvatski tekst u playeru.
+Pipeline od 29.10. objavljuje `data/<id>/reels.en.json` (ugovor:
+`fetch.domovina.tv/docs/2026-10-29-reels-en.md`): **ista shema, prevedene
+vrijednosti pod istim ključevima**, bez `render` bloka i bez `rejected`.
+
+- `DataService.loadReels` vuče EN fajl **uz** HR, ali samo kad ga
+  `episode.json` navodi. Vuče ga i HR korisniku (~18 KB, samo epizode s
+  reelovima), da promjena jezika ne čeka mrežu i da `_reels` ne treba
+  ponovno učitavanje po jeziku.
+- `EpisodeReels.fromJson(json, en: …)` spaja po `rank`; EN zapis bez HR para
+  nema učinka. `forLanguage(en)` vraća **isti objekt** pri svakom pozivu
+  (`late final`), jer ga ekrani zovu u buildu — nova lista na svakom buildu
+  bi `didUpdateWidget` ispod čitao kao promjenu.
+- Pad na HR je **po polju** (`titleEn ?? title`), a video, poster i
+  režiranost uvijek iz `reels.json`. Pokvaren ili nedostupan EN fajl ostavlja
+  reelove hrvatskima, ne ruši ih.
+- `cards[].anchor` u EN fajlu ostaje HR (sidro na `words.json`); klijent
+  kartice ionako ne čita.
+
+Govornici: `summary.en.json` → `speakers[].suggested_name_en` (generička imena
+poput „Sudionica iz publike”). `SummarySpeaker.displayNameFor(en)` /
+`roleLabelFor(en)` koriste bedž preko videa, panel playera, sažetak i
+jednostavni prikaz. Link na `/p/<slug>` ostaje po **izvornom** imenu. Bedž
+govornika jezik dobiva kao parametar iz `EpisodeVideo.build`, jer media_kitova
+fullscreen ruta crta isti widget izvan `EpisodeLanguageScope`-a; rotacijska
+fullscreen ruta scope dobiva eksplicitno (v2.0.213).
+
+Otvoreno:
+
+- Epizode prevedene prije 29.10. nemaju `suggested_name_en` (na
+  `QkcpHsj43rE` piše „Sudionica iz publike · Interlocutor”) dok fetch strana
+  ne prevede sažetak ponovno s `--force`.
+- EN 9:16 video ne postoji (kartice i titl su upisani u sliku); na EN
+  stranici se pušta HR video uz EN tekst. Odluka je u ugovoru iznad.
+- Jednom (prvo otvaranje `/v/QkcpHsj43rE/t/3342/en`, 29.10.) stranica je
+  pala na HR i URL je izgubio `/en`; drugi pokušaj istog URL-a radio je.
+  Nije reproducirano ni istraženo.

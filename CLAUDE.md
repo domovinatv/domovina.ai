@@ -916,6 +916,12 @@ osigurač — osim ako je korisnik u međuvremenu pauzirao (`PlaybackIntent`).
 navodi, i ide kroz `CdnJsonCache.getMutable`, NE kroz `_get` (cache-first na
 disku) — pipeline ga prepisuje. CDN ga zato servira `max-age=60` + ETag.
 
+**Rule (EN tekst reelova je zaseban fajl, video nije)**: `reels.en.json` nosi
+iste ključeve s prevedenim vrijednostima i nema `render`; spaja se po `rank`
+uz pad na HR po polju (`EpisodeReels.forLanguage`), a video/poster uvijek
+dolaze iz `reels.json`. Ekrani reelove predaju kao
+`_reels?.forLanguage(_language == EpisodeLanguage.en)`, nikad goli `_reels`.
+
 **Rule (markeri prate uvlaku Slidera)**: track je uvučen za radijus overlaya s
 obje strane; marker crtan preko pune širine odstupa do 14 px (~5 min u 2 h).
 
