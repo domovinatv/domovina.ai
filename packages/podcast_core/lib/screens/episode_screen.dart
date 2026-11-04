@@ -1386,10 +1386,90 @@ class _EpisodeContentState extends State<_EpisodeContent>
   /// Toggle handler — sticky pref + URL sync + setState rebuild kroz scope.
   void _onLanguageChanged(EpisodeLanguage lang) {
     if (lang == _language) return;
+    final anchor = _captureLanguageAnchor();
     setState(() => _language = lang);
     savePreferredLanguage(lang);
     _syncLanguageUrl(lang);
     _syncPageMeta();
+    if (anchor != null) _holdLanguageAnchor(anchor);
+  }
+
+  /// Sidro za promjenu jezika sadržaja. HR i EN tekst iste sekcije nisu
+  /// jednako dugi, pa bi isti `pixels` nakon prebacivanja pokazivao na drugo
+  /// mjesto — sve sekcije iznad ekrana su promijenile visinu. Sidro je
+  /// sekcija koja je na vrhu vidljivog dijela članka (ispod app bara):
+  ///
+  /// - naslov joj je na ekranu → `dy` = koliko je naslov ispod ruba; nakon
+  ///   prebacivanja stoji na istom pikselu (toggle HR ↔ EN ne pomiče ga);
+  /// - naslov je iznad ruba (čita se usred duge sekcije) → `dy == null`,
+  ///   pa vrijedi `fraction`: koliko je rub prošao kroz sekciju (0–1).
+  ({String ts, double? dy, double fraction})? _captureLanguageAnchor() {
+    if (_mobileTab != 0 || !_scrollController.hasClients) return null;
+    final edge = _pinnedTop();
+    String? bestTs;
+    ({double top, double height})? best;
+    for (final ts in _sectionKeys.keys) {
+      final b = _sectionBox(ts);
+      if (b == null || b.height <= 0) continue;
+      // Sekcija koja seže ispod ruba, a najbliža mu je odozgo — ili prva
+      // ispod njega ako je rub u razmaku između dvije sekcije.
+      if (b.top + b.height <= edge) continue;
+      if (best == null || b.top < best.top) {
+        best = b;
+        bestTs = ts;
+      }
+    }
+    if (best == null || bestTs == null) return null;
+    final dy = best.top - edge;
+    return (
+      ts: bestTs,
+      dy: dy >= -1 ? dy : null,
+      fraction: dy >= 0 ? 0.0 : -dy / best.height,
+    );
+  }
+
+  /// Drži sidro nekoliko frameova: tekst novog jezika se prelama u prvom
+  /// layoutu, ali slike i fontovi znaju dodati visinu i frame-dva kasnije.
+  /// Odustaje čim korisnik sam scrolla.
+  void _holdLanguageAnchor(({String ts, double? dy, double fraction}) anchor) {
+    _stopCredits();
+    _readingAnchor = null;
+    // Korak špice koji upravo animira bi poništio sidro — zaustavi ga.
+    final stepUntil = _creditsAnimatingUntil;
+    if (stepUntil != null && DateTime.now().isBefore(stepUntil)) {
+      _creditsAnimatingUntil = null;
+      _scrollController.jumpTo(_scrollController.position.pixels);
+    }
+    final until = DateTime.now().add(const Duration(milliseconds: 600));
+    void apply(Duration _) {
+      if (!mounted || !_scrollController.hasClients) return;
+      final pos = _scrollController.position;
+      final b = _sectionBox(anchor.ts);
+      if (b != null && !pos.isScrollingNotifier.value) {
+        final edge = _pinnedTop();
+        final dy = anchor.dy;
+        final delta = dy != null
+            ? b.top - (edge + dy)
+            : b.top + anchor.fraction * b.height - edge;
+        if (delta.abs() >= 1) {
+          _scrollLock = DateTime.now();
+          _scrollController.jumpTo(
+            (pos.pixels + delta).clamp(
+              pos.minScrollExtent,
+              pos.maxScrollExtent,
+            ),
+          );
+        }
+      } else if (pos.isScrollingNotifier.value) {
+        return; // korisnik je preuzeo scroll
+      }
+      if (DateTime.now().isBefore(until)) {
+        WidgetsBinding.instance.addPostFrameCallback(apply);
+        WidgetsBinding.instance.scheduleFrame();
+      }
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback(apply);
   }
 
   /// Naslov epizode na trenutnom jeziku sadržaja (vidi `EpisodeData.titleFor`).
