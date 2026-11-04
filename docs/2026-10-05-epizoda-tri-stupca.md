@@ -118,6 +118,29 @@ position stream fira ~5×/s.
   `episode_screen.dart` pisan i preformatira cijeli fajl (diff 360 → 912).
   Formatiraj kopiju izvan repoa ili samo nove fajlove.
 
+## Promjena jezika HR ↔ EN drži poglavlje (v2.0.218, 4.11.2026.)
+
+HR i EN tekst iste sekcije nisu jednako dugi, pa je isti `pixels` nakon
+prebacivanja pokazivao drugo mjesto u članku (sve sekcije iznad ekrana promijene
+visinu). `_onLanguageChanged` prije `setState` zove `_captureLanguageAnchor`:
+sekcija na vrhu vidljivog članka (rub = `_pinnedTop()`).
+
+- naslov sekcije je na ekranu → nakon promjene stoji na **istom pikselu**
+  (HR→EN→HR vraća identičan prikaz);
+- naslov je iznad ruba → drži se **udio** prijeđene sekcije (0–1).
+
+`_holdLanguageAnchor` ponavlja korekciju svaki frame ~600 ms (reflow, slike),
+odustaje čim `isScrollingNotifier` kaže da korisnik scrolla, i prvo zaustavi
+korak odjavne špice koji bi upravo animirao. Postojeće `_readingAnchor` (reflow
+širine) se namjerno ne koristi: gasi ga `onCenterReflowEnd`, a mjeri liniju na
+30 % viewporta, ne naslov.
+
+Provjereno lokalnim `--wasm` buildom na `3GGuSVt4Q4Y` uz reprodukciju (desktop
+1300 px): poglavlje 13:14 ostaje na mjestu, usred sekcije „Prema gostu…“ ↔
+„According to the guest…“. **Neprovjereno**: mobitel (portrait/landscape s
+floating headerom), paralelni prikaz s Magisteriumom. Mobilni tab Magisterium
+sidro namjerno preskače (svoj scroll).
+
 ## Otvoreno (nije provjereno na uređaju)
 
 - **Android, pozadinsko slušanje**: `Video` je sad uvijek montiran (prije:
