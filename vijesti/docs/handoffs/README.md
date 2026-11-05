@@ -30,7 +30,7 @@ Handoff se mijenja samo prema naprijed: gotovi `SN` se ne prepisuju, služe kao 
 
 | Sesija | Paket | Stanje | Commit | Testovi | Napomena |
 |---|---|---|---|---|---|
-| S0 | Plan, TODO, handoffi | gotovo | | — | 2026-11-05; odluke 1–8 |
+| S0 | Plan, TODO, handoffi | gotovo | 5e5c652 | — | 2026-11-05; odluke 1–8 |
 | S1 | Kostur, loader, shema, LlmClient | otvoreno | | | |
 | S2 | Trenuci + provjera citata | | | | |
 | S3 | Ocjena vijesti + mjerenje | | | | vrata: korisnik |
