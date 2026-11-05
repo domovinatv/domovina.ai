@@ -11,11 +11,11 @@ Legenda: `[x]` gotovo · `[ ]` otvoreno · `[~]` u radu · `(!)` traži korisnik
 
 ## F0 — temelj i mjerenje (ništa javno)
 
-- [ ] `vijesti/package.json`, TypeScript strict, eslint, vitest, `npm run check` → S1
-- [ ] CDN loader s tipovima za `info.json`, `summary.json`, `article.json`, `episode.json`, `diarized.srt`, `words.json`, channel listing → S1
-- [ ] Fixturei: 5 stvarnih epizoda (jedna bez `words.json`, jedna engleska, jedna s više od 3 govornika), skraćeni na ≤ 200 kB po epizodi → S1
-- [ ] Shema `vijesti` (moments, stories, articles, article_versions, article_sources, corrections, runs) + migracije, testovi na PGlite → S1
-- [ ] `LlmClient` sučelje, Gemini klijent, lažni klijent za testove; brojač poziva i tokena po `run` → S1
+- [x] `vijesti/package.json`, TypeScript strict, eslint, vitest, `npm run check` → S1
+- [x] CDN loader s tipovima za `info.json`, `summary.json`, `article.json`, `episode.json`, `diarized.srt`, `words.json`, channel listing → S1
+- [x] Fixturei: 5 stvarnih epizoda (jedna bez `words.json`, jedna engleska, jedna s više od 3 govornika), skraćeni na ≤ 200 kB po epizodi → S1
+- [x] Shema `vijesti` (moments, stories, articles, article_versions, article_sources, corrections, runs) + migracije, testovi na PGlite → S1
+- [x] `LlmClient` sučelje, Gemini klijent, lažni klijent za testove; brojač poziva i tokena po `run` → S1
 - [ ] Izvlačenje trenutaka (prompt + JSON shema izlaza) → S2
 - [ ] Provjera citata prema `words.json`: normalizacija (dijakritika, interpunkcija, razmaci), dopušteno odstupanje, SRT fallback s oznakom niže sigurnosti → S2
 - [ ] Odbačeni trenuci zapisani s razlogom, ne izgubljeni → S2
