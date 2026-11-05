@@ -16,10 +16,10 @@ Legenda: `[x]` gotovo · `[ ]` otvoreno · `[~]` u radu · `(!)` traži korisnik
 - [x] Fixturei: 5 stvarnih epizoda (jedna bez `words.json`, jedna engleska, jedna s više od 3 govornika), skraćeni na ≤ 200 kB po epizodi → S1
 - [x] Shema `vijesti` (moments, stories, articles, article_versions, article_sources, corrections, runs) + migracije, testovi na PGlite → S1
 - [x] `LlmClient` sučelje, Gemini klijent, lažni klijent za testove; brojač poziva i tokena po `run` → S1
-- [ ] Izvlačenje trenutaka (prompt + JSON shema izlaza) → S2
-- [ ] Provjera citata prema `words.json`: normalizacija (dijakritika, interpunkcija, razmaci), dopušteno odstupanje, SRT fallback s oznakom niže sigurnosti → S2
-- [ ] Odbačeni trenuci zapisani s razlogom, ne izgubljeni → S2
-- [ ] `vijesti extract <id>` CLI → S2
+- [x] Izvlačenje trenutaka (prompt + JSON shema izlaza) → S2
+- [x] Provjera citata prema `words.json`: normalizacija (dijakritika, interpunkcija, razmaci), dopušteno odstupanje, SRT fallback s oznakom niže sigurnosti → S2
+- [x] Odbačeni trenuci zapisani s razlogom, ne izgubljeni → S2
+- [x] `vijesti extract <id>` CLI → S2
 - [ ] Ocjena vijesti (novost, tko govori, konkretna tvrdnja) → S3
 - [ ] (!) Mjerenje na uzorku: koliko epizoda, procjena poziva prije pokretanja → S3
 <!-- doc-refs:ignore-start -->

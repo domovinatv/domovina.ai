@@ -116,4 +116,5 @@ je udio vijesti premali za portal). Zato S3 mjeri prije nego išta ide javno.
 
 S0 (2026-11-05): plan, TODO, handoffi.
 S1 (2026-11-05): kostur, CDN loader, 5 fixturea, shema, `LlmClient` — `4b9f74d`, 86 testova.
-Sljedeće: S2.
+S2 (2026-11-05): trenuci, provjera citata, `vijesti extract` — `336426f`, 167 testova.
+Sljedeće: S3 (vrata).
