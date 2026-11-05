@@ -31,7 +31,7 @@ Handoff se mijenja samo prema naprijed: gotovi `SN` se ne prepisuju, služe kao 
 
 | Sesija | Paket | Stanje | Commit | Testovi | Napomena |
 |---|---|---|---|---|---|
-| S0 | Plan, TODO, handoffi | gotovo | | — | 2026-11-05; odluke 1–11 |
+| S0 | Plan, TODO, handoffi | gotovo | 5c44d7d | — | 2026-11-05; odluke 1–11 |
 | S1 | Kostur, migracije, parseri, fixturei | otvoreno | | | |
 | S2 | Uvoznik Tier 1 + Tier 2 | | | | |
 | S3 | API v1 + ugovor + cache | | | | |
