@@ -21,4 +21,13 @@ export default tseslint.config(
     files: ["eslint.config.js"],
     ...tseslint.configs.disableTypeChecked,
   },
+  {
+    // Node skripte (izvan tsconfig projekta): bez provjere tipova, Node globali.
+    files: ["scripts/**/*.mjs"],
+    ...tseslint.configs.disableTypeChecked,
+    languageOptions: {
+      ...tseslint.configs.disableTypeChecked.languageOptions,
+      globals: { process: "readonly", console: "readonly", fetch: "readonly", Buffer: "readonly" },
+    },
+  },
 );

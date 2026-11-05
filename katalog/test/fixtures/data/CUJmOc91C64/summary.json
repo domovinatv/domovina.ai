@@ -1,0 +1,20 @@
+{
+  "version": "1.0",
+  "generated_at": "2026-07-24T09:23:23.412Z",
+  "model": "gemini-3.5-flash",
+  "source": {
+    "filename": "20260716_unlisted_yt_CUJmOc91C64",
+    "channel": "_unlisted",
+    "youtube_id": "CUJmOc91C64",
+    "title": "Hobba 🟢 - Meet the CEO of Hobba, @IgorJerkovic  Hobba is the future of borrowin...",
+    "upload_date": "2026-07-16",
+    "duration_seconds": 245.295
+  },
+  "summary": {
+    "title_hr": "Upoznajte Hobba-u: Budućnost posuđivanja na Solani s Igorom Jerkovićem",
+    "abstract_hr": "Igor Jerković, izvršni direktor platforme Hobba, predstavlja inovativni DeFi protokol za posuđivanje na Solana mreži. Hobba omogućuje korisnicima da ulažu SOL ili cbBTC kao jamstvo te posuđuju USDC, dok sustav aktivno upravlja pozicijama radi ostvarivanja prinosa koji može smanjiti dug. Ključni dio platforme je Sonar, napredni sustav za upravljanje rizikom koji 24 sata dnevno prati i prilagođava pozicije kako bi spriječio likvidaciju.",
+    "language": "hr",
+    "content_type": "podcast",
+    "sentiment": "positive"
+  }
+}

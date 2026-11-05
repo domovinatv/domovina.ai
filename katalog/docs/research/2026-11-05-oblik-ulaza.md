@@ -97,3 +97,45 @@ channel_id?, handle?, playlist_id?, parent_channel?}, tracking: {enabled}, tier,
   listingom vs. `_unlisted`). U D1 `tier` znači samo naše; registry tier se ne uvozi pod
   tim imenom.
 - `channel_id` postoji u 571/588 unosa.
+
+## Dopuna (S1, parseri i fixturei)
+
+Izmjereno pri pisanju parsera (`src/input/`), ista sesija.
+
+- **„`null`” u `info.json` je zapravo ključ koji NEDOSTAJE.** `CUJmOc91C64` nema ključ
+  `channel`, `hmM9f_3Mqm4` nema ključ `duration` (na disku i na CDN-u). Ostalih 230/231
+  ima ključ. `language` nema nijedan od 5 provjerenih `info.json`.
+- **Registry slug ≠ CDN slug.** 46 od 52 sluga iz `index.json` ne postoji u registryju;
+  svih 46 se nađe nakon `_` → `-` (`40_dana_za_zivot` ↔ `40-dana-za-zivot`). I ime se
+  razlikuje: index `Nanovo rođeni`, registry `display_name` `Na novo rođeni`.
+- **Registry `channel_id` nije jedinstven ni približno**: 32 `channel_id`-a imaju više
+  unosa, najviše 20 (`UCjTiZ9ebMJumhPMsciuevxg`, `tribina` umbrella + playliste). Kanal
+  epizode `kYwKrihe2K0` (`UCrfV3uhCoHNBaqiva1wCB4Q`, HKM) ima 10 unosa: umbrella `hkm`
+  (`youtube.type: "umbrella"`) i 9 playlista, svi `tracking.enabled: false`.
+  Razrješavanje Tier 2 kanala po `channel_id` mora birati među njima.
+- Registry: 17 unosa nema `youtube.channel_id`, 1 ga ima kao `null`
+  (`duhovno-duhoviti-poziv`); `tier` je `null` u 3 unosa (1: 27, 2: 29, 3: 490, 4: 39).
+  `dijalog` ima `youtube: {url: null, handle: null, type: "audio-only"}` i
+  `source_type: "audio-direct"`.
+- `index.json` unos nema `latest_video_date` (samo `latest_video.date`); listing ga ima.
+  `youtube_playlist_url` je `null` u svih 52 kanala.
+- Listinzi (svih 52, 3412 epizoda): ID uvijek 11 znakova, `pipeline` uvijek s točno 9
+  ključeva, `duration_seconds` uvijek `int`, svi datumi valjani, nijedan prazan
+  `title`/`title_hr`, nijedan ID se ne ponavlja ni preko listinga. `magisterium_score`:
+  363 cijela broja, 3049 `null`. `likes` zna biti `null` (`nanovoroeni` 11).
+- `summary.json` `source.channel` je `"_unlisted"` i za `KLPD-Meu4e8` (Tier 1 kanal), pa
+  kanal epizode iz njega ne slijedi. `summary.version` je string `"1.0"`, `episode.json`
+  `version` broj `1`. `episode.json` `generated_at` je bez milisekundi
+  (`2026-10-09T18:56:16Z`), `index.json`/listing s milisekundama.
+
+```bash
+# slug razlika i nejedinstven channel_id (registry iz fetch repoa, index s CDN-a)
+curl -s https://cdn.domovina.ai/channels/data/index.json > /tmp/index.json
+python3 -c "
+import json,collections
+reg=json.load(open('../fetch.domovina.tv/data/podcasts_registry.json'))['podcasts']
+rs={e['slug'] for e in reg}; idx=[c['id'] for c in json.load(open('/tmp/index.json'))['channels']]
+miss=[s for s in idx if s not in rs]; print(len(miss), sum(s.replace('_','-') in rs for s in miss))
+c=collections.Counter(e['youtube'].get('channel_id') for e in reg if e['youtube'].get('channel_id'))
+print(sum(n>1 for n in c.values()), c.most_common(1))"
+```

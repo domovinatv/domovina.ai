@@ -1,0 +1,114 @@
+{
+  "version": "1.0",
+  "generated_at": "2026-11-05T18:39:03.171Z",
+  "channel_count": 52,
+  "channels": [
+    {
+      "id": "40_dana_za_zivot",
+      "name": "40 dana za život - Hrvatska za Život",
+      "avatar_square": "https://cdn.domovina.ai/channels/images/40_dana_za_zivot/avatar_square.jpg",
+      "avatar_square_dimensions": null,
+      "avatar_cover": "https://cdn.domovina.ai/channels/images/40_dana_za_zivot/avatar_cover.jpg",
+      "avatar_cover_dimensions": {
+        "width": 1060,
+        "height": 175
+      },
+      "youtube_channel_url": "https://www.youtube.com/channel/UChgVPEqmTeG0na3u8VfY3PQ",
+      "youtube_playlist_url": null,
+      "follower_count": 10000,
+      "video_count": 81,
+      "total_duration_seconds": 280270,
+      "avg_magisterium_score": 92,
+      "latest_video": {
+        "id": "-KLvgPtEGoM",
+        "date": "2026-10-15",
+        "title": "2. Obiteljski koncert duhovne glazbe u Čakovcu – cijela snimka"
+      }
+    },
+    {
+      "id": "dijalog",
+      "name": "DijaLOG - Logopedski podcast",
+      "avatar_square": "https://cdn.domovina.ai/channels/images/dijalog/avatar_square.jpg",
+      "avatar_square_dimensions": null,
+      "avatar_cover": "https://cdn.domovina.ai/channels/images/dijalog/avatar_cover.jpg",
+      "avatar_cover_dimensions": null,
+      "youtube_channel_url": "https://open.spotify.com/show/1uLNzddcxKWG5Qz8LDWXD6",
+      "youtube_playlist_url": null,
+      "follower_count": 0,
+      "video_count": 55,
+      "total_duration_seconds": 172601,
+      "avg_magisterium_score": null,
+      "latest_video": {
+        "id": "f898a3f0774",
+        "date": "2026-03-11",
+        "title": "Epizoda 54 - Anja Delić - Imposter sindrom"
+      }
+    },
+    {
+      "id": "nanovoroeni",
+      "name": "Nanovo rođeni",
+      "avatar_square": "https://cdn.domovina.ai/channels/images/nanovoroeni/avatar_square.jpg",
+      "avatar_square_dimensions": null,
+      "avatar_cover": "https://cdn.domovina.ai/channels/images/nanovoroeni/avatar_cover.jpg",
+      "avatar_cover_dimensions": {
+        "width": 1060,
+        "height": 175
+      },
+      "youtube_channel_url": "https://www.youtube.com/channel/UCiXXRMlzoA-MKPHVe5V7YdQ",
+      "youtube_playlist_url": null,
+      "follower_count": 50100,
+      "video_count": 320,
+      "total_duration_seconds": 1100163,
+      "avg_magisterium_score": 80,
+      "latest_video": {
+        "id": "NHqYXf_xg6o",
+        "date": "2026-11-02",
+        "title": "Kevin Monette - Svjedočanstvo"
+      }
+    },
+    {
+      "id": "slijedi_svoj_poziv_1",
+      "name": "Slijedi svoj poziv — 1. konferencija o liderstvu",
+      "avatar_square": "https://cdn.domovina.ai/channels/images/slijedi_svoj_poziv_1/avatar_square.jpg",
+      "avatar_square_dimensions": null,
+      "avatar_cover": "https://cdn.domovina.ai/channels/images/slijedi_svoj_poziv_1/avatar_cover.jpg",
+      "avatar_cover_dimensions": {
+        "width": 900,
+        "height": 900
+      },
+      "youtube_channel_url": "https://www.youtube.com/channel/UCuk9D5H9mx7birJ1-S22nyQ",
+      "youtube_playlist_url": null,
+      "follower_count": 506,
+      "video_count": 10,
+      "total_duration_seconds": 16399,
+      "avg_magisterium_score": 90,
+      "latest_video": {
+        "id": "TfMw-f2vRhc",
+        "date": "2025-03-18",
+        "title": "Stožerne kreposti i demistifikacija istinske solidarnosti | Andrej Grubišić | SSP"
+      }
+    },
+    {
+      "id": "slijedi_svoj_poziv_2",
+      "name": "Slijedi svoj poziv — 2. konferencija o liderstvu",
+      "avatar_square": "https://cdn.domovina.ai/channels/images/slijedi_svoj_poziv_2/avatar_square.jpg",
+      "avatar_square_dimensions": null,
+      "avatar_cover": "https://cdn.domovina.ai/channels/images/slijedi_svoj_poziv_2/avatar_cover.jpg",
+      "avatar_cover_dimensions": {
+        "width": 900,
+        "height": 900
+      },
+      "youtube_channel_url": "https://www.youtube.com/channel/UCuk9D5H9mx7birJ1-S22nyQ",
+      "youtube_playlist_url": null,
+      "follower_count": 506,
+      "video_count": 9,
+      "total_duration_seconds": 15034,
+      "avg_magisterium_score": 84,
+      "latest_video": {
+        "id": "E_ohJLD26ec",
+        "date": "2026-02-13",
+        "title": "Duhovna dimenzija vodstva - mistično vodstvo | Sebastian Šujević | SSP"
+      }
+    }
+  ]
+}

@@ -11,3 +11,7 @@ linearno s korpusom. Datoteke po epizodi (`data/<id>/*`) ostaju na R2 kako jesu.
 
 Provjera: `cd katalog && npm install && npm run check` (tsc + eslint + vitest u
 Workers runtimeu s lokalnim D1). Lokalne migracije: `npm run migrate:local`.
+
+Parseri ulaza (`index.json`, listinzi, `data/<id>/*.json`, registry) su u `src/input/`;
+fixturei u `test/fixtures/` (stvarni, skraćeni) osvježava `npm run fixtures:refresh`
+(Node 24+, čita CDN i `../../fetch.domovina.tv/data/podcasts_registry.json`).

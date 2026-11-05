@@ -1,0 +1,866 @@
+{
+  "version": "1.0",
+  "generated_at": "2026-10-09T02:20:49.247Z",
+  "id": "dijalog",
+  "name": "DijaLOG - Logopedski podcast",
+  "avatar_square": "https://cdn.domovina.ai/channels/images/dijalog/avatar_square.jpg",
+  "avatar_square_dimensions": null,
+  "avatar_cover": "https://cdn.domovina.ai/channels/images/dijalog/avatar_cover.jpg",
+  "avatar_cover_dimensions": null,
+  "youtube_channel_url": "https://open.spotify.com/show/1uLNzddcxKWG5Qz8LDWXD6",
+  "youtube_playlist_url": null,
+  "description": "Pridružite se DijaLOGu!\n\nLogopedski podcast - DijaLOG nastao je iz želje da o logopediji razgovaramo na malo drugačiji način. Kako o logopediji razmišlja istraž…",
+  "tags": [],
+  "follower_count": 0,
+  "video_count": 55,
+  "total_duration_seconds": 172601,
+  "avg_magisterium_score": null,
+  "latest_video_date": "2026-03-11",
+  "videos": [
+    {
+      "id": "f898a3f0774",
+      "title": "Epizoda 54 - Anja Delić - Imposter sindrom",
+      "title_hr": "Epizoda 54 - Anja Delić - Imposter sindrom",
+      "date": "2026-03-11",
+      "duration_seconds": 2204,
+      "duration_display": "36:44",
+      "views": 0,
+      "likes": 0,
+      "thumbnail": "https://cdn.domovina.ai/images/f898a3f0774/thumbnail.png",
+      "youtube_url": "https://podcasters.spotify.com/pod/show/laura3363/episodes/Epizoda-54---Anja-Deli---Imposter-sindrom-e3g9o92",
+      "abstract": "U ovoj epizodi podcasta DijaLOG psihologinja i sistemska obiteljska terapeutkinja Anja Delić razgovara s voditeljicom Laurom o fenomenu imposter sindroma. Sugov…",
+      "topics": [
+        "imposter sindrom",
+        "perfekcionizam",
+        "pomagačke profesije"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Anja Delić",
+          "role": "gost"
+        },
+        {
+          "id": "SPEAKER_02",
+          "suggested_name": "Laura",
+          "role": "voditelj"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "1f168b50162",
+      "title": "Epizoda 53 - Iva Čukelj - Nadarenost i disleksija",
+      "title_hr": "Epizoda 53 - Iva Čukelj - Nadarenost i disleksija",
+      "date": "2026-03-04",
+      "duration_seconds": 2717,
+      "duration_display": "45:17",
+      "views": 0,
+      "likes": 0,
+      "thumbnail": "https://cdn.domovina.ai/images/1f168b50162/thumbnail.png",
+      "youtube_url": "https://podcasters.spotify.com/pod/show/laura3363/episodes/Epizoda-53---Iva-ukelj---Nadarenost-i-disleksija-e3fu8mt",
+      "abstract": "U ovoj epizodi podcasta DijaLOG gostuje diplomirana likovna umjetnica i edukatorica Iva Čukelj, koja govori o terapijskom učinku umjetnosti i radu s djecom s te…",
+      "topics": [
+        "disleksija",
+        "kreativnost",
+        "likovna kultura"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Iva Čukelj",
+          "role": "gost"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Voditeljica",
+          "role": "voditelj"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "b01e2bcc3a4",
+      "title": "Epizoda 52 - Ana Matić - Jezik i starenje",
+      "title_hr": "Epizoda 52 - Ana Matić - Jezik i starenje",
+      "date": "2026-02-25",
+      "duration_seconds": 2161,
+      "duration_display": "36:01",
+      "views": 0,
+      "likes": 0,
+      "thumbnail": "https://cdn.domovina.ai/images/b01e2bcc3a4/thumbnail.png",
+      "youtube_url": "https://podcasters.spotify.com/pod/show/laura3363/episodes/Epizoda-52---Ana-Mati---Jezik-i-starenje-e3fjd81",
+      "abstract": "U 52. epizodi podcasta DijaLOG voditeljica Laura ugošćuje docenticu Anu Matić s Edukacijsko-rehabilitacijskog fakulteta u Zagrebu kako bi razgovarale o procesim…",
+      "topics": [
+        "jezik i starenje",
+        "psiholingvistika",
+        "mentalni leksikon"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Laura",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Ana Matić",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "fb80fa7ab38",
+      "title": "Epizoda 51 - Ana Stipić Lihić - Ekranizam: što zapravo znamo?",
+      "title_hr": "Epizoda 51 - Ana Stipić Lihić - Ekranizam: što zapravo znamo?",
+      "date": "2025-12-11",
+      "duration_seconds": 4354,
+      "duration_display": "1:12:34",
+      "views": 0,
+      "likes": 0,
+      "thumbnail": "https://cdn.domovina.ai/images/fb80fa7ab38/thumbnail.png",
+      "youtube_url": "https://podcasters.spotify.com/pod/show/laura3363/episodes/Epizoda-51---Ana-Stipi-Lihi---Ekranizam-to-zapravo-znamo-e3c7bq9",
+      "abstract": "U ovoj epizodi podcasta DijaLOG logopedinja i doktorandica Ana Stipić Lihić govori o utjecaju ekrana na razvoj jezika, govora i komunikacije kod djece predškols…",
+      "topics": [
+        "ekranizam",
+        "razvoj jezika i govora",
+        "tehnoferencija"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Laura",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_02",
+          "suggested_name": "Ana Stipić Lihić",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "459c8df8718",
+      "title": "Epizoda 50 - Nadija Lovreković - CODA - Odrastanje i život djeteta Gluhih roditelja",
+      "title_hr": "Epizoda 50 - Nadija Lovreković - CODA - Odrastanje i život djeteta Gluhih roditelja",
+      "date": "2025-12-03",
+      "duration_seconds": 4665,
+      "duration_display": "1:17:45",
+      "views": 0,
+      "likes": 0,
+      "thumbnail": "https://cdn.domovina.ai/images/459c8df8718/thumbnail.png",
+      "youtube_url": "https://podcasters.spotify.com/pod/show/laura3363/episodes/Epizoda-50---Nadija-Lovrekovi---CODA---Odrastanje-i-ivot-djeteta-Gluhih-roditelja-e3bqurd",
+      "abstract": "U pedesetoj epizodi podcasta DijaLOG voditeljica Laura ugošćuje Nadiju Lovreković, prevoditeljicu hrvatskog znakovnog jezika i dijete gluhih roditelja (CODA). N…",
+      "topics": [
+        "coda",
+        "hrvatski znakovni jezik",
+        "kultura gluhih"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Laura",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Nadija Lovreković",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "410835aea64",
+      "title": "Epizoda 49 - Laura Knezović - Sam svoj šef: Kako preživjeti otvaranje privatnog kabineta",
+      "title_hr": "Epizoda 49 - Laura Knezović - Sam svoj šef: Kako preživjeti otvaranje privatnog kabineta",
+      "date": "2025-11-26",
+      "duration_seconds": 6356,
+      "duration_display": "1:45:56",
+      "views": 0,
+      "likes": 0,
+      "thumbnail": "https://cdn.domovina.ai/images/410835aea64/thumbnail.png",
+      "youtube_url": "https://podcasters.spotify.com/pod/show/laura3363/episodes/Epizoda-49---Laura-Knezovi---Sam-svoj-ef-Kako-preivjeti-otvaranje-privatnog-kabineta-e3bg6v0",
+      "abstract": "U ovoj epizodi podcasta DijaLOG logopedinja Laura Knezović, vlasnica privatnog kabineta Logoratio u Zaprešiću, dijeli svoje iskustvo pokretanja vlastitog posla.…",
+      "topics": [
+        "privatna logopedska praksa",
+        "poduzetništvo u zdravstvu",
+        "poticaji za samozapošljavanje"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Laura",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Laura Knezović",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "d1f50f049e7",
+      "title": "Epizoda 48 - Iris Martinović - Burnout ili profesionalno sagorijevanje",
+      "title_hr": "Epizoda 48 - Iris Martinović - Burnout ili profesionalno sagorijevanje",
+      "date": "2025-08-06",
+      "duration_seconds": 3861,
+      "duration_display": "1:04:21",
+      "views": 0,
+      "likes": 0,
+      "thumbnail": "https://cdn.domovina.ai/images/d1f50f049e7/thumbnail.png",
+      "youtube_url": "https://podcasters.spotify.com/pod/show/laura3363/episodes/Epizoda-48---Iris-Martinovi---Burnout-ili-profesionalno-sagorijevanje-e3a5pjs",
+      "abstract": "U ovoj epizodi podcasta DijaLOG voditeljica Laura razgovara s Iris Martinović, magistrom farmacije i edukanticom tjelesne psihoterapije iz udruge Sentinel uma, …",
+      "topics": [
+        "burnout",
+        "profesionalno sagorijevanje",
+        "tjelesna psihoterapija"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Iris Martinović",
+          "role": "gost"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Laura",
+          "role": "voditelj"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "52629405b70",
+      "title": "Epizoda 47 - Ivana Srebačić Lončar - Mama logopedinja: izazovi i prednosti",
+      "title_hr": "Epizoda 47 - Ivana Srebačić Lončar - Mama logopedinja: izazovi i prednosti",
+      "date": "2025-07-30",
+      "duration_seconds": 2131,
+      "duration_display": "35:31",
+      "views": 0,
+      "likes": 0,
+      "thumbnail": "https://cdn.domovina.ai/images/52629405b70/thumbnail.png",
+      "youtube_url": "https://podcasters.spotify.com/pod/show/laura3363/episodes/Epizoda-47---Ivana-Srebai-Lonar---Mama-logopedinja-izazovi-i-prednosti-e3a5pjb",
+      "abstract": "Magistra logopedije Ivana Srebačić Lončar govori o preplitanju majčinstva i logopedske prakse te o tome kako joj je rođenje djeteta promijenilo profesionalnu pe…",
+      "topics": [
+        "majčinstvo i struka",
+        "logopedska terapija",
+        "razvojni miljokazi"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Ivana Srebačić Lončar",
+          "role": "gost"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Laura",
+          "role": "voditelj"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "1d3fbe0a338",
+      "title": "Epizoda 46 - Petar Sušac - Kako je FER-ovac razvio uređaj za detekciju mucanja",
+      "title_hr": "Epizoda 46 - Petar Sušac - Kako je FER-ovac razvio uređaj za detekciju mucanja",
+      "date": "2025-07-23",
+      "duration_seconds": 1704,
+      "duration_display": "28:24",
+      "views": 0,
+      "likes": 0,
+      "thumbnail": "https://cdn.domovina.ai/images/1d3fbe0a338/thumbnail.png",
+      "youtube_url": "https://podcasters.spotify.com/pod/show/laura3363/episodes/Epizoda-46---Petar-Suac---Kako-je-FER-ovac-razvio-ureaj-za-detekciju-mucanja-e3a5pie",
+      "abstract": "U ovoj epizodi podcasta DijaLOG gostuje Petar Sušac, istraživač i doktorand na Fakultetu elektrotehnike i računarstva (FER) u Zagrebu, koji otvoreno govori o sv…",
+      "topics": [
+        "mucanje",
+        "logopedija",
+        "umjetna inteligencija"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Laura",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Petar Sušac",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "a1ef32c4885",
+      "title": "Epizoda 45 - Sanja Laštro - Klijent i terapeut - Jesmo li kliknuli?",
+      "title_hr": "Epizoda 45 - Sanja Laštro - Klijent i terapeut - Jesmo li kliknuli?",
+      "date": "2025-07-16",
+      "duration_seconds": 1960,
+      "duration_display": "32:40",
+      "views": 0,
+      "likes": 0,
+      "thumbnail": "https://cdn.domovina.ai/images/a1ef32c4885/thumbnail.png",
+      "youtube_url": "https://podcasters.spotify.com/pod/show/laura3363/episodes/Epizoda-45---Sanja-Latro---Klijent-i-terapeut---Jesmo-li-kliknuli-e3a5pi9",
+      "abstract": "U ovoj epizodi podcasta DijaLOG logopedinja Sanja Laštro govori o pojmu terapijske kompatibilnosti u logopedskoj praksi, odnosno o tome što učiniti kada terapeu…",
+      "topics": [
+        "terapijska kompatibilnost",
+        "logopedija",
+        "odnos terapeuta i klijenta"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Laura",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Sanja Laštro",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "9a69dfa45fb",
+      "title": "Epizoda 44 - Petra Pinezić - Greške koje radi svaki logoped početnik",
+      "title_hr": "Epizoda 44 - Petra Pinezić - Greške koje radi svaki logoped početnik",
+      "date": "2025-07-09",
+      "duration_seconds": 3772,
+      "duration_display": "1:02:52",
+      "views": 0,
+      "likes": 0,
+      "thumbnail": "https://cdn.domovina.ai/images/9a69dfa45fb/thumbnail.png",
+      "youtube_url": "https://podcasters.spotify.com/pod/show/laura3363/episodes/Epizoda-44---Petra-Pinezi---Greke-koje-radi-svaki-logoped-poetnik-e3a5pjk",
+      "abstract": "U ovoj epizodi podcasta DijaLOG logopedinja Petra Pinezić s voditeljicom Laurom otvoreno razgovara o profesionalnim izazovima, nesigurnostima i greškama s kojim…",
+      "topics": [
+        "početničke greške u logopediji",
+        "komunikacija s roditeljima",
+        "planiranje i prilagodba terapije"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Laura",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Petra Pinezić",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "3393248aacd",
+      "title": "Epizoda 43 - Ivana Vuk Parag - Disleksija u odrasloj dobi: misija (ne)moguća?",
+      "title_hr": "Epizoda 43 - Ivana Vuk Parag - Disleksija u odrasloj dobi: misija (ne)moguća?",
+      "date": "2025-03-12",
+      "duration_seconds": 3970,
+      "duration_display": "1:06:10",
+      "views": 0,
+      "likes": 0,
+      "thumbnail": "https://cdn.domovina.ai/images/3393248aacd/thumbnail.png",
+      "youtube_url": "https://podcasters.spotify.com/pod/show/laura3363/episodes/Epizoda-43---Ivana-Vuk-Parag---Disleksija-u-odrasloj-dobi-misija-nemogua-e3a5pjm",
+      "abstract": "U ovoj epizodi podcasta DijaLOG logopedinja Ivana Vuk Parag govori o specifičnostima dijagnostike i terapije disleksije kod adolescenata i odraslih osoba. Objaš…",
+      "topics": [
+        "disleksija kod odraslih",
+        "logopedska dijagnostika",
+        "logopedska terapija"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Laura",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Ivana Vuk Parag",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "f7a7e3e1c68",
+      "title": "Epizoda 42 - Lidija Čilić Burušić i Gabi: Što radi terapijski pas u Poliklinici SUVAG?",
+      "title_hr": "Epizoda 42 - Lidija Čilić Burušić i Gabi: Što radi terapijski pas u Poliklinici SUVAG?",
+      "date": "2025-03-05",
+      "duration_seconds": 2393,
+      "duration_display": "39:53",
+      "views": 0,
+      "likes": 0,
+      "thumbnail": "https://cdn.domovina.ai/images/f7a7e3e1c68/thumbnail.png",
+      "youtube_url": "https://podcasters.spotify.com/pod/show/laura3363/episodes/Epizoda-42---Lidija-Cilic-Burusic-i-Gabi-to-radi-terapijski-pas-u-Poliklinici-SUVAG-e3a5pic",
+      "abstract": "U ovoj epizodi podcasta DijaLOG psihologinja Lidija Čilić Burušić predstavlja svoju suradnju s terapijskim psom Gabi u Poliklinici SUVAG. Govori o svojem iskust…",
+      "topics": [
+        "terapijski psi",
+        "poliklinika suvag",
+        "psihološka podrška djeci"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Lidija Čilić Burušić",
+          "role": "gost"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Laura",
+          "role": "voditelj"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "90cddb14f29",
+      "title": "Epizoda 41 - Marta Blagović - O umjetnoj pužnici, upornosti i tangu",
+      "title_hr": "Epizoda 41 - Marta Blagović - O umjetnoj pužnici, upornosti i tangu",
+      "date": "2025-02-26",
+      "duration_seconds": 2537,
+      "duration_display": "42:17",
+      "views": 0,
+      "likes": 0,
+      "thumbnail": "https://cdn.domovina.ai/images/90cddb14f29/thumbnail.png",
+      "youtube_url": "https://podcasters.spotify.com/pod/show/laura3363/episodes/Epizoda-41---Marta-Blagovi---O-umjetnoj-punici--upornosti-i-tangu-e3a5pib",
+      "abstract": "Marta Blagović dijeli svoje iskustvo odrastanja s teškim oštećenjem sluha, ranom rehabilitacijom u SUVAG-u te operacijom i ugradnjom umjetne pužnice u dobi od d…",
+      "topics": [
+        "oštećenje sluha",
+        "umjetna pužnica",
+        "rehabilitacija slušanja i govora"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Laura",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Marta Blagović",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "90478817d72",
+      "title": "Epizoda 40 - Zrinko Maloseja - Tinitus i kako se nositi s njime",
+      "title_hr": "Epizoda 40 - Zrinko Maloseja - Tinitus i kako se nositi s njime",
+      "date": "2025-02-19",
+      "duration_seconds": 3272,
+      "duration_display": "54:32",
+      "views": 0,
+      "likes": 0,
+      "thumbnail": "https://cdn.domovina.ai/images/90478817d72/thumbnail.png",
+      "youtube_url": "https://podcasters.spotify.com/pod/show/laura3363/episodes/Epizoda-40---Zrinko-Maloseja---Tinitus-i-kako-se-nositi-s-njime-e3a5pir",
+      "abstract": "U ovoj epizodi podcasta DijaLOG gostuje Zrinko Maloseja koji otvoreno progovara o svojem višegodišnjem iskustvu borbe s tinitusom i teškim posljedicama koje je …",
+      "topics": [
+        "tinitus",
+        "mentalno zdravlje",
+        "anksioznost"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Laura",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Zrinko Maloseja",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "9639b9f0899",
+      "title": "Epizoda 39 - Jan Kovačić - Što glas znači glumcu?",
+      "title_hr": "Epizoda 39 - Jan Kovačić - Što glas znači glumcu?",
+      "date": "2025-02-12",
+      "duration_seconds": 6246,
+      "duration_display": "1:44:06",
+      "views": 0,
+      "likes": 0,
+      "thumbnail": "https://cdn.domovina.ai/images/9639b9f0899/thumbnail.png",
+      "youtube_url": "https://podcasters.spotify.com/pod/show/laura3363/episodes/Epizoda-39---Jan-Kovai---to-glas-znai-glumcu-e3a5pk2",
+      "abstract": "U novoj epizodi logopedskog podcasta DijaLOG gostuje glumac i lutkar Jan Kovačić, član ansambla Zagrebačkog gradskog kazališta Komedija. Kovačić opisuje svoj gl…",
+      "topics": [
+        "gluma",
+        "lutkarstvo",
+        "glas i vokalne tehnike"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Laura",
+          "role": "voditeljica"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Jan Kovačić",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "fe5789f6a76",
+      "title": "Epizoda 38 - Ana Došen - Tko se boji afazija još?",
+      "title_hr": "Epizoda 38 - Ana Došen - Tko se boji afazija još?",
+      "date": "2025-02-07",
+      "duration_seconds": 2859,
+      "duration_display": "47:39",
+      "views": 0,
+      "likes": 0,
+      "thumbnail": "https://cdn.domovina.ai/images/fe5789f6a76/thumbnail.png",
+      "youtube_url": "https://podcasters.spotify.com/pod/show/laura3363/episodes/Epizoda-38---Ana-Doen---Tko-se-boji-afazija-jo-e3a5pj2",
+      "abstract": "U ovoj epizodi podcasta DijaLOG gošća Ana Došen, asistentica na Edukacijsko-rehabilitacijskom fakultetu, govori o afazijama, stečenom jezičnom poremećaju koji n…",
+      "topics": [
+        "afazija",
+        "logopedija",
+        "moždani udar"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Ana Došen",
+          "role": "gost"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Laura",
+          "role": "voditelj"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "f18d39ffe3c",
+      "title": "Epizoda 37 - Magdalena Ivanko - Diskalkulija? Računaj na logopede!",
+      "title_hr": "Epizoda 37 - Magdalena Ivanko - Diskalkulija? Računaj na logopede!",
+      "date": "2024-10-23",
+      "duration_seconds": 2609,
+      "duration_display": "43:29",
+      "views": 0,
+      "likes": 0,
+      "thumbnail": "https://cdn.domovina.ai/images/f18d39ffe3c/thumbnail.png",
+      "youtube_url": "https://podcasters.spotify.com/pod/show/laura3363/episodes/Epizoda-37---Magdalena-Ivanko---Diskalkulija--Raunaj-na-logopede-e3a5pis",
+      "abstract": "U ovoj epizodi podcasta DijaLOG voditeljica Laura ugošćuje magistru logopedije Magdalenu Ivanko, čije je uže područje interesa matematika i diskalkulija. Razgov…",
+      "topics": [
+        "diskalkulija",
+        "logopedija",
+        "teškoće u matematici"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Magdalena Ivanko",
+          "role": "gost"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Laura",
+          "role": "voditelj"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "9b32be0df12",
+      "title": "Epizoda 36 - Školska posla: Lucija Petračić - Izazovi današnjice u razredu",
+      "title_hr": "Epizoda 36 - Školska posla: Lucija Petračić - Izazovi današnjice u razredu",
+      "date": "2024-10-16",
+      "duration_seconds": 3037,
+      "duration_display": "50:37",
+      "views": 0,
+      "likes": 0,
+      "thumbnail": "https://cdn.domovina.ai/images/9b32be0df12/thumbnail.png",
+      "youtube_url": "https://podcasters.spotify.com/pod/show/laura3363/episodes/Epizoda-36---kolska-posla-Lucija-Petrai---Izazovi-dananjice-u-razredu-e3a5pid",
+      "abstract": "U ovoj epizodi podcasta DijaLOG gostuje učiteljica razredne nastave Lucija Petračić, autorica projekta i podcasta Školska posla. Lucija otvoreno govori o stvarn…",
+      "topics": [
+        "razredna nastava",
+        "produženi boravak",
+        "inkluzivno obrazovanje"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Voditeljica",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Lucija Petračić",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "da8381c6116",
+      "title": "Epizoda 35 - Omoguru - Kako tim IT-evaca i logopeda pomaže onima s disleksijom",
+      "title_hr": "Epizoda 35 - Omoguru - Kako tim IT-evaca i logopeda pomaže onima s disleksijom",
+      "date": "2024-10-09",
+      "duration_seconds": 2340,
+      "duration_display": "39:00",
+      "views": 0,
+      "likes": 0,
+      "thumbnail": "https://cdn.domovina.ai/images/da8381c6116/thumbnail.png",
+      "youtube_url": "https://podcasters.spotify.com/pod/show/laura3363/episodes/Epizoda-35---Omoguru---Kako-tim-IT-evaca-i-logopeda-pomae-onima-s-disleksijom-e3a5pj1",
+      "abstract": "U povodu Međunarodnog tjedna disleksije, u podcastu DijaLOG gostuju osnivač startupa Omoguru Petar Rejčić i logopedinja Maja Hmelina. Razgovaraju o razvoju OmoT…",
+      "topics": [
+        "disleksija",
+        "omoguru",
+        "omotype font"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_02",
+          "suggested_name": "Laura",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Petar Rejčić",
+          "role": "gost"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Maja Hmelina",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    }
+  ]
+}

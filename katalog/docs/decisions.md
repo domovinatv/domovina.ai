@@ -115,3 +115,33 @@ paralelni worktreeji ne sudare. Odluka se ne briše: zamijeni je novom koja je p
      import, `import x from "./f.json?raw"` i `import.meta.glob(…, {query: "?raw",
      import: "default", eager: true})`. Za parsere `?raw`: parser dobiva string kao u
      produkciji, a JSON import bi ga već parsirao.
+118. **Parseri se pokreću i u Nodeu bez builda.** `src/input/` uvozi s `.ts` nastavkom
+     (`allowImportingTsExtensions`, uz `noEmit`) i koristi samo brisivu TS sintaksu
+     (`erasableSyntaxOnly`), pa ih Node 24 učita izravno (type stripping); isti moduli
+     idu u Worker kroz esbuild i u vitest. Uvoznik S2 i `fixtures:refresh` ih uvoze iz
+     `.mjs`. `engines.node >= 24`. Izmjereno (Node 24.16): parseri prođu cijeli stvarni
+     ulaz, 52 listinga / 3412 epizoda, 232 `_unlisted` `info.json` s diska i 588
+     registry unosa, bez greške. Revizija: ako S2 treba stariji Node.
+119. **Pravila parsera.** Opcionalno polje koje nedostaje ili je `null` → `null`.
+     Obavezno → `InputError`: identitet i ono što je u D1 `NOT NULL` (`id`, `title`,
+     `name`, registry `slug`/`display_name`/`tracking.enabled`, `episode.json`
+     `version`/`files`). Krivi tip → greška, nikad pretvorba. Prazan string → greška i u
+     opcionalnom polju (D1 ga odbija `CHECK length > 0`, ovdje dobije putanju).
+     Nepoznati ključevi se ignoriraju. Putanja greške koristi izvorna imena ključeva,
+     korijen je `$`. Ponovljen kanal u indexu, epizoda u listingu ili slug u registryju →
+     greška (izmjereno: 0 ponavljanja u svih 52 listinga, ni unutar ni preko listinga).
+120. **Pipeline zastavice.** Zastavica koja nedostaje = nije podignuta; listing bez
+     `pipeline` objekta → `pipeline: null`, `flags: 0`; vrijednost koja nije boolean →
+     greška (strože od `pipelineBits()` u fetch repou, koji gleda truthiness). Nepoznata
+     zastavica se preskače (ugovor se nadopunjuje na kraju). `fixtures:refresh` regexom
+     uspoređuje `PIPELINE_BITS` s `generate_channel_index.js` i pada na razlici.
+121. **`episode.json` verzija mora biti 1** (kao `EpisodeBundle.supportedVersion`);
+     druga verzija je greška, ne pokušaj čitanja.
+122. **`youtubeChannelId` samo iz `https://(www.|m.)youtube.com/channel/UC…{22}`.** Strože
+     od Dartovog `canonicalUcId` (ondje bilo koji URL s `/channel/UC…`). `index.json`
+     nema polje `youtube_channel_id`, pa Dartova „eksplicitna” grana ovdje ne postoji.
+123. **Fixturei su generirani, testovi tvrde stvarne vrijednosti.** Izbor i skraćivanje
+     u `test/fixtures/README.md`; upis u izvornom redoslijedu ključeva (ne sortirano: bliže
+     onome što parser dobiva u produkciji), deterministički (dvaput = isti bajtovi,
+     provjereno). Promjena izvora (reobrada epizode) obara test s konkretnom vrijednošću;
+     to je namjerno.

@@ -1,0 +1,20 @@
+{
+  "version": "1.0",
+  "generated_at": "2026-08-26T09:49:41.241Z",
+  "model": "claude-code:opus",
+  "source": {
+    "filename": "20210113_uzivo_drazen_lucanin_yt_7N0gyXAfA4M",
+    "channel": "_unlisted",
+    "youtube_id": "7N0gyXAfA4M",
+    "title": "[UŽIVO] Dražen Lučanin",
+    "upload_date": "2021-01-13",
+    "duration_seconds": 4232
+  },
+  "summary": {
+    "title_hr": "[UŽIVO] Dražen Lučanin — od freelancera do poduzetnika i pametni solarni sustavi",
+    "abstract_hr": "U razgovoru u sklopu IT zajednice Rijeka gost je Dražen Lučanin, osnivač indie web development agencije Punk Rock Dev i doktor znanosti koji je radio kao asistent na tehničkom sveučilištu u Beču. Glavnina razgovora posvećena je projektu Craftstrom — plug-and-play sklopivim solarnim panelima i baterijama koje se jednostavno ukopčaju u kućnu utičnicu, a čija kampanja teče na Kickstarteru. Dražen govori i o svom putu iz akademske karijere u freelancing 2015. godine u Beču, o važnosti mentora, meetupova i zajednice te o izgradnji tima kroz mrežu suradnika umjesto klasičnog zapošljavanja. Dotiču se i poreznih sustava u Hrvatskoj i Austriji, birokratskih prepreka za digitalne nomade, open sourcea, aktivističkih projekata poput Otvorenih akata te pitanja zaštite patenata. Ton razgovora je optimističan, s porukom da su ključni sastojci za uspješno poduzetništvo u Hrvatskoj već prisutni.",
+    "language": "hr",
+    "content_type": "podcast",
+    "sentiment": "positive"
+  }
+}

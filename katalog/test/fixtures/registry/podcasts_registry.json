@@ -1,0 +1,821 @@
+{
+  "version": "1.2",
+  "podcasts": [
+    {
+      "slug": "40-dana-za-zivot",
+      "display_name": "40 dana za život - Hrvatska za Život",
+      "youtube": {
+        "url": "https://www.youtube.com/@40danaza%C5%BEivot-Hrvatskaza%C5%BDivot/videos",
+        "handle": "@40danazaživot-HrvatskazaŽivot",
+        "type": "channel",
+        "channel_id": "UChgVPEqmTeG0na3u8VfY3PQ"
+      },
+      "tags": [
+        "pro-life",
+        "religious-catholic"
+      ],
+      "voditelji": [],
+      "metadata": {
+        "status": "unknown",
+        "subscribers": 10000
+      },
+      "tracking": {
+        "enabled": true
+      },
+      "tier": 3,
+      "data_quality": "partial",
+      "activity": {
+        "source": "pipeline+backfill",
+        "checked_at": "2026-11-05",
+        "last_original_upload": "20261104",
+        "originals_60d": 11,
+        "originals_90d": 11,
+        "originals_365d": 34,
+        "episodes_on_disk": 81
+      }
+    },
+    {
+      "slug": "na-kavi-sa-svetim-ignacijem",
+      "display_name": "Na kavi sa svetim Ignacijem",
+      "youtube": {
+        "url": "https://www.youtube.com/playlist?list=PLxkKGjCBwZTIHoy-VRgCjF7rgSyOJVeNm",
+        "playlist_id": "PLxkKGjCBwZTIHoy-VRgCjF7rgSyOJVeNm",
+        "handle": "@ignacijehr",
+        "type": "playlist",
+        "parent_channel": "Centar Ignacije",
+        "channel_id": "UCuk9D5H9mx7birJ1-S22nyQ"
+      },
+      "tags": [
+        "religious-catholic",
+        "theology",
+        "evangelization"
+      ],
+      "voditelji": [],
+      "metadata": {
+        "first_episode": "2025-10",
+        "last_episode": "2026-02",
+        "average_duration_minutes": 49,
+        "status": "active",
+        "subscribers": 506
+      },
+      "tracking": {
+        "enabled": true
+      },
+      "tier": 4,
+      "data_quality": "partial",
+      "activity": {
+        "source": "pipeline",
+        "checked_at": "2026-11-05",
+        "last_original_upload": "20260216",
+        "originals_60d": 0,
+        "originals_90d": 0,
+        "originals_365d": 4,
+        "episodes_on_disk": 5
+      }
+    },
+    {
+      "slug": "nanovoroeni",
+      "display_name": "Na novo rođeni",
+      "youtube": {
+        "url": "https://www.youtube.com/@nanovoroeni3392/videos",
+        "handle": "@nanovoroeni3392",
+        "type": "channel"
+      },
+      "tags": [
+        "religious-catholic",
+        "testimonies"
+      ],
+      "voditelji": [],
+      "metadata": {
+        "status": "unknown",
+        "subscribers": 50100
+      },
+      "tracking": {
+        "enabled": true
+      },
+      "tier": 3,
+      "data_quality": "partial",
+      "youtube_alternatives": [
+        {
+          "url": "https://www.youtube.com/channel/UCiXXRMlzoA-MKPHVe5V7YdQ/videos",
+          "type": "channel",
+          "key": "UCiXXRMlzoA-MKPHVe5V7YdQ",
+          "originals_30min": 33,
+          "last_original": "20260625",
+          "run": "2026-09-24"
+        }
+      ],
+      "activity": {
+        "source": "pipeline+backfill",
+        "checked_at": "2026-11-05",
+        "last_original_upload": "20261102",
+        "originals_60d": 3,
+        "originals_90d": 3,
+        "originals_365d": 37,
+        "episodes_on_disk": 320
+      }
+    },
+    {
+      "slug": "slijedi-svoj-poziv-1",
+      "display_name": "Slijedi svoj poziv — 1. konferencija o liderstvu",
+      "youtube": {
+        "url": "https://www.youtube.com/playlist?list=PLxkKGjCBwZTLDpoGBjfrRG8v3rfWmLqdm",
+        "playlist_id": "PLxkKGjCBwZTLDpoGBjfrRG8v3rfWmLqdm",
+        "handle": "@ignacijehr",
+        "type": "playlist",
+        "parent_channel": "Centar Ignacije",
+        "channel_id": "UCuk9D5H9mx7birJ1-S22nyQ"
+      },
+      "tags": [
+        "leadership",
+        "business",
+        "religious-catholic"
+      ],
+      "voditelji": [],
+      "metadata": {
+        "first_episode": "2025-03",
+        "last_episode": "2025-03",
+        "average_duration_minutes": 27,
+        "status": "concluded",
+        "subscribers": 506
+      },
+      "tracking": {
+        "enabled": true
+      },
+      "tier": 4,
+      "data_quality": "partial",
+      "activity": {
+        "source": "pipeline",
+        "checked_at": "2026-11-05",
+        "last_original_upload": "20250318",
+        "originals_60d": 0,
+        "originals_90d": 0,
+        "originals_365d": 0,
+        "episodes_on_disk": 10
+      }
+    },
+    {
+      "slug": "slijedi-svoj-poziv-2",
+      "display_name": "Slijedi svoj poziv — 2. konferencija o liderstvu",
+      "youtube": {
+        "url": "https://www.youtube.com/playlist?list=PLxkKGjCBwZTInOr1JKcIZVD_a0H0SHytY",
+        "playlist_id": "PLxkKGjCBwZTInOr1JKcIZVD_a0H0SHytY",
+        "handle": "@ignacijehr",
+        "type": "playlist",
+        "parent_channel": "Centar Ignacije",
+        "channel_id": "UCuk9D5H9mx7birJ1-S22nyQ"
+      },
+      "tags": [
+        "leadership",
+        "business",
+        "religious-catholic"
+      ],
+      "voditelji": [],
+      "metadata": {
+        "first_episode": "2025-10",
+        "last_episode": "2026-02",
+        "average_duration_minutes": 27,
+        "status": "concluded",
+        "subscribers": 506
+      },
+      "tracking": {
+        "enabled": true
+      },
+      "tier": 4,
+      "data_quality": "partial",
+      "activity": {
+        "source": "pipeline",
+        "checked_at": "2026-11-05",
+        "last_original_upload": "20260213",
+        "originals_60d": 0,
+        "originals_90d": 0,
+        "originals_365d": 8,
+        "episodes_on_disk": 9
+      }
+    },
+    {
+      "slug": "tech-cakula-it-zajednica-rijeka",
+      "display_name": "Tech Ćakula (IT zajednica Rijeka)",
+      "youtube": {
+        "url": "https://www.youtube.com/channel/UC_m1oUYrvCWDmGJRM3TYLpQ/videos",
+        "channel_id": "UC_m1oUYrvCWDmGJRM3TYLpQ",
+        "type": "channel"
+      },
+      "tags": [
+        "technology",
+        "talk-show"
+      ],
+      "voditelji": [],
+      "metadata": {
+        "last_episode": "2024-11",
+        "average_duration_minutes": 59,
+        "episodes_sampled": 90,
+        "episodes_over_30min_sampled": 34,
+        "subscribers": 208,
+        "status": "inactive",
+        "last_episode_date": "2024-11-29",
+        "last_episode_video": "yKFHJKDpQXs"
+      },
+      "tracking": {
+        "enabled": false,
+        "reason_disabled": "Kandidat iz registry discovery prolaza 2026-09-24 — verificiran format (34/90 originala ≥30 min), čeka editorial odluku o praćenju.",
+        "candidate_phase": 1
+      },
+      "tier": 3,
+      "data_quality": "partial",
+      "activity": {
+        "source": "watch",
+        "checked_at": "2026-11-05",
+        "last_original_upload": "20241129",
+        "originals_60d": 0,
+        "originals_90d": 0,
+        "originals_365d": 0,
+        "new_originals_since_baseline": 0,
+        "derivative_ratio": 0.47,
+        "min_duration_sec": 1818,
+        "no_originals": false,
+        "error": null
+      }
+    },
+    {
+      "slug": "aktualno-hkm",
+      "display_name": "Aktualno (HKM)",
+      "youtube": {
+        "url": "https://www.youtube.com/playlist?list=PLVDKMx1rtcg_KKobxbAsGKLe0cJhbywuU",
+        "channel_id": "UCrfV3uhCoHNBaqiva1wCB4Q",
+        "type": "playlist",
+        "playlist_id": "PLVDKMx1rtcg_KKobxbAsGKLe0cJhbywuU",
+        "parent_channel": "Hrvatska katolička mreža"
+      },
+      "tags": [
+        "religious-catholic",
+        "society",
+        "talk-show"
+      ],
+      "voditelji": [],
+      "metadata": {
+        "last_episode": "2026-09",
+        "average_duration_minutes": 34,
+        "episodes_sampled": 46,
+        "episodes_over_30min_sampled": 26,
+        "subscribers": null,
+        "status": "active",
+        "last_episode_date": "2026-09-22",
+        "last_episode_video": "SJ4GAVDMurg"
+      },
+      "tracking": {
+        "enabled": false,
+        "reason_disabled": "Kandidat iz registry discovery prolaza 2026-09-24 — verificiran format (26/46 originala ≥30 min), čeka editorial odluku o praćenju.",
+        "candidate_phase": 1
+      },
+      "tier": 3,
+      "data_quality": "partial",
+      "activity": {
+        "source": "watch+backfill",
+        "checked_at": "2026-11-05",
+        "last_original_upload": "20260922",
+        "originals_60d": 1,
+        "originals_90d": 1,
+        "originals_365d": 1,
+        "new_originals_since_baseline": 0,
+        "derivative_ratio": 0.04,
+        "min_duration_sec": 901,
+        "no_originals": false,
+        "error": null
+      },
+      "previous_display_name": "Aktualno",
+      "parent_slug": "hkm"
+    },
+    {
+      "slug": "razgovori-s-nadbiskupima",
+      "display_name": "Razgovori s (nad)biskupima (HKM)",
+      "youtube": {
+        "url": "https://www.youtube.com/playlist?list=PLVDKMx1rtcg_gWhrtYNlWcuFajfTQaqw-",
+        "channel_id": "UCrfV3uhCoHNBaqiva1wCB4Q",
+        "type": "playlist",
+        "playlist_id": "PLVDKMx1rtcg_gWhrtYNlWcuFajfTQaqw-",
+        "parent_channel": "Hrvatska katolička mreža"
+      },
+      "tags": [
+        "religious-catholic",
+        "talk-show"
+      ],
+      "voditelji": [],
+      "metadata": {
+        "last_episode": "2025-10",
+        "average_duration_minutes": 43,
+        "episodes_sampled": 25,
+        "episodes_over_30min_sampled": 23,
+        "subscribers": null,
+        "status": "inactive",
+        "last_episode_date": "2025-10-29",
+        "last_episode_video": "QgzOHDDgHBY"
+      },
+      "tracking": {
+        "enabled": false,
+        "reason_disabled": "Kandidat iz registry discovery prolaza 2026-09-24 — verificiran format (23/25 originala ≥30 min), čeka editorial odluku o praćenju.",
+        "candidate_phase": 1
+      },
+      "tier": 3,
+      "data_quality": "partial",
+      "activity": {
+        "source": "watch+backfill",
+        "checked_at": "2026-11-05",
+        "last_original_upload": "20251029",
+        "originals_60d": 0,
+        "originals_90d": 0,
+        "originals_365d": 0,
+        "new_originals_since_baseline": 0,
+        "derivative_ratio": 0,
+        "min_duration_sec": 1006,
+        "no_originals": false,
+        "error": null
+      },
+      "previous_display_name": "Razgovori s (nad)biskupima",
+      "parent_slug": "hkm"
+    },
+    {
+      "slug": "argumenti-sezona-7",
+      "display_name": "Argumenti (7. sezona, HKM)",
+      "youtube": {
+        "url": "https://www.youtube.com/playlist?list=PLVDKMx1rtcg8WI8twkrEvAP-JMlspLEn7",
+        "channel_id": "UCrfV3uhCoHNBaqiva1wCB4Q",
+        "type": "playlist",
+        "playlist_id": "PLVDKMx1rtcg8WI8twkrEvAP-JMlspLEn7",
+        "parent_channel": "Hrvatska katolička mreža"
+      },
+      "tags": [
+        "religious-catholic",
+        "society",
+        "talk-show"
+      ],
+      "voditelji": [],
+      "metadata": {
+        "last_episode": "2025-06",
+        "average_duration_minutes": 41,
+        "episodes_sampled": 60,
+        "episodes_over_30min_sampled": 60,
+        "subscribers": null,
+        "status": "inactive",
+        "last_episode_date": "2025-06-12",
+        "last_episode_video": "gTbgGvCYS74"
+      },
+      "tracking": {
+        "enabled": false,
+        "reason_disabled": "Kandidat iz registry discovery prolaza 2026-09-24 — verificiran format (60/60 originala ≥30 min), čeka editorial odluku o praćenju.",
+        "candidate_phase": 1
+      },
+      "tier": 3,
+      "data_quality": "partial",
+      "youtube_alternatives": [
+        {
+          "url": "https://www.youtube.com/playlist?list=PLVDKMx1rtcg9Yd_ylLFUv6aePWtUNMsI2",
+          "type": "playlist",
+          "key": "PLVDKMx1rtcg9Yd_ylLFUv6aePWtUNMsI2",
+          "originals_30min": 60,
+          "last_original": "20240925",
+          "run": "2026-09-24"
+        },
+        {
+          "url": "https://www.youtube.com/playlist?list=PLVDKMx1rtcg9KmiEsoXK1JriC-XRBGn9V",
+          "type": "playlist",
+          "key": "PLVDKMx1rtcg9KmiEsoXK1JriC-XRBGn9V",
+          "originals_30min": 60,
+          "last_original": "20230925",
+          "run": "2026-09-24"
+        },
+        {
+          "url": "https://www.youtube.com/playlist?list=PLVDKMx1rtcg_twxXSsRgHUk8aZzlV12MX",
+          "type": "playlist",
+          "key": "PLVDKMx1rtcg_twxXSsRgHUk8aZzlV12MX",
+          "originals_30min": 60,
+          "last_original": "20220925",
+          "run": "2026-09-24"
+        },
+        {
+          "url": "https://www.youtube.com/playlist?list=PLVDKMx1rtcg8fqNs5LTL80nq8PEVwkGk6",
+          "type": "playlist",
+          "key": "PLVDKMx1rtcg8fqNs5LTL80nq8PEVwkGk6",
+          "originals_30min": 60,
+          "last_original": "20190925",
+          "run": "2026-09-24"
+        },
+        {
+          "url": "https://www.youtube.com/playlist?list=PLVDKMx1rtcg965vY6sHX0lId-5p6J3gQo",
+          "type": "playlist",
+          "key": "PLVDKMx1rtcg965vY6sHX0lId-5p6J3gQo",
+          "originals_30min": 60,
+          "last_original": "20210925",
+          "run": "2026-09-24"
+        },
+        {
+          "url": "https://www.youtube.com/playlist?list=PLVDKMx1rtcg8OkmZUpQEBdDC5dGG86tqX",
+          "type": "playlist",
+          "key": "PLVDKMx1rtcg8OkmZUpQEBdDC5dGG86tqX",
+          "originals_30min": 60,
+          "last_original": "20200925",
+          "run": "2026-09-24"
+        }
+      ],
+      "activity": {
+        "source": "watch+backfill",
+        "checked_at": "2026-11-05",
+        "last_original_upload": "20250612",
+        "originals_60d": 0,
+        "originals_90d": 0,
+        "originals_365d": 0,
+        "new_originals_since_baseline": 0,
+        "derivative_ratio": 0,
+        "min_duration_sec": 901,
+        "no_originals": false,
+        "error": null
+      },
+      "previous_display_name": "Argumenti (7. sezona)",
+      "parent_slug": "hkm"
+    },
+    {
+      "slug": "pod-krizem",
+      "display_name": "Pod križem (HKM)",
+      "youtube": {
+        "url": "https://www.youtube.com/playlist?list=PLVDKMx1rtcg8HyCuHfyp-MItrAdCt32WR",
+        "channel_id": "UCrfV3uhCoHNBaqiva1wCB4Q",
+        "type": "playlist",
+        "playlist_id": "PLVDKMx1rtcg8HyCuHfyp-MItrAdCt32WR",
+        "parent_channel": "Hrvatska katolička mreža"
+      },
+      "tags": [
+        "religious-catholic",
+        "theology"
+      ],
+      "voditelji": [],
+      "metadata": {
+        "last_episode": "2025-06",
+        "average_duration_minutes": 38,
+        "episodes_sampled": 60,
+        "episodes_over_30min_sampled": 53,
+        "subscribers": null,
+        "status": "inactive",
+        "last_episode_date": "2025-06-11",
+        "last_episode_video": "1bcHnbBgdQA"
+      },
+      "tracking": {
+        "enabled": false,
+        "reason_disabled": "Kandidat iz registry discovery prolaza 2026-09-24 — verificiran format (53/60 originala ≥30 min), čeka editorial odluku o praćenju.",
+        "candidate_phase": 1
+      },
+      "tier": 3,
+      "data_quality": "partial",
+      "activity": {
+        "source": "watch+backfill",
+        "checked_at": "2026-11-05",
+        "last_original_upload": "20250611",
+        "originals_60d": 0,
+        "originals_90d": 0,
+        "originals_365d": 0,
+        "new_originals_since_baseline": 0,
+        "derivative_ratio": 0,
+        "min_duration_sec": 901,
+        "no_originals": false,
+        "error": null
+      },
+      "previous_display_name": "Pod križem",
+      "parent_slug": "hkm"
+    },
+    {
+      "slug": "s-druge-strane-ogledala",
+      "display_name": "S druge strane ogledala (HKM)",
+      "youtube": {
+        "url": "https://www.youtube.com/playlist?list=PLVDKMx1rtcg__oVIvOswWNXt0264kqzCc",
+        "channel_id": "UCrfV3uhCoHNBaqiva1wCB4Q",
+        "type": "playlist",
+        "playlist_id": "PLVDKMx1rtcg__oVIvOswWNXt0264kqzCc",
+        "parent_channel": "Hrvatska katolička mreža"
+      },
+      "tags": [
+        "religious-catholic",
+        "personal-development"
+      ],
+      "voditelji": [],
+      "metadata": {
+        "last_episode": "2025-06",
+        "average_duration_minutes": 40,
+        "episodes_sampled": 28,
+        "episodes_over_30min_sampled": 28,
+        "subscribers": null,
+        "status": "inactive",
+        "last_episode_date": "2025-06-02",
+        "last_episode_video": "b96KLEe1ryU"
+      },
+      "tracking": {
+        "enabled": false,
+        "reason_disabled": "Kandidat iz registry discovery prolaza 2026-09-24 — verificiran format (28/28 originala ≥30 min), čeka editorial odluku o praćenju.",
+        "candidate_phase": 1
+      },
+      "tier": 3,
+      "data_quality": "partial",
+      "activity": {
+        "source": "watch+backfill",
+        "checked_at": "2026-11-05",
+        "last_original_upload": "20250602",
+        "originals_60d": 0,
+        "originals_90d": 0,
+        "originals_365d": 0,
+        "new_originals_since_baseline": 0,
+        "derivative_ratio": 0,
+        "min_duration_sec": 901,
+        "no_originals": false,
+        "error": null
+      },
+      "previous_display_name": "S druge strane ogledala",
+      "parent_slug": "hkm"
+    },
+    {
+      "slug": "duhovno-duhovite-veceri",
+      "display_name": "Duhovno duhovita večer (HKM)",
+      "youtube": {
+        "url": "https://www.youtube.com/playlist?list=PLVDKMx1rtcg-Y31hy0ENjJn8yQAIMy64o",
+        "channel_id": "UCrfV3uhCoHNBaqiva1wCB4Q",
+        "type": "playlist",
+        "playlist_id": "PLVDKMx1rtcg-Y31hy0ENjJn8yQAIMy64o",
+        "parent_channel": "Hrvatska katolička mreža"
+      },
+      "tags": [
+        "religious-catholic",
+        "comedy"
+      ],
+      "voditelji": [],
+      "metadata": {
+        "last_episode": "2022-11",
+        "average_duration_minutes": 51,
+        "episodes_sampled": 34,
+        "episodes_over_30min_sampled": 33,
+        "subscribers": null,
+        "status": "inactive",
+        "last_episode_date": "2022-11-23",
+        "last_episode_video": "eV0cwcnZuHI"
+      },
+      "tracking": {
+        "enabled": false,
+        "reason_disabled": "Kandidat iz registry discovery prolaza 2026-09-24 — verificiran format (33/34 originala ≥30 min), čeka editorial odluku o praćenju.",
+        "candidate_phase": 1
+      },
+      "tier": 3,
+      "data_quality": "partial",
+      "activity": {
+        "source": "watch+backfill",
+        "checked_at": "2026-11-05",
+        "last_original_upload": "20221123",
+        "originals_60d": 0,
+        "originals_90d": 0,
+        "originals_365d": 0,
+        "new_originals_since_baseline": 0,
+        "derivative_ratio": 0,
+        "min_duration_sec": 1196,
+        "no_originals": false,
+        "error": null
+      },
+      "previous_display_name": "Duhovno duhovita večer",
+      "parent_slug": "hkm"
+    },
+    {
+      "slug": "dijalog",
+      "display_name": "DijaLOG - Logopedski podcast",
+      "source_type": "audio-direct",
+      "source": {
+        "provider": "rss",
+        "feed": "https://anchor.fm/s/10b00353c/podcast/rss",
+        "homepage": "https://open.spotify.com/show/1uLNzddcxKWG5Qz8LDWXD6",
+        "ingest": "ingest_rss.mjs"
+      },
+      "youtube": {
+        "url": null,
+        "handle": null,
+        "type": "audio-only"
+      },
+      "platforms": {
+        "spotify": "https://open.spotify.com/show/1uLNzddcxKWG5Qz8LDWXD6",
+        "apple": "https://podcasts.apple.com/hr/podcast/dijalog-logopedski-podcast/id1724226805",
+        "rss": "https://anchor.fm/s/10b00353c/podcast/rss",
+        "instagram": "https://www.instagram.com/podcastdijalog/"
+      },
+      "tags": [
+        "speech-therapy",
+        "education",
+        "health"
+      ],
+      "voditelji": [
+        "Laura Marinović",
+        "Ines Perović",
+        "Tamara Vlahović",
+        "Angela Peršun"
+      ],
+      "metadata": {
+        "status": "active-slowing",
+        "language": "hr",
+        "first_episode": "2022-11",
+        "last_episode": "2026-03",
+        "last_episode_date": "2026-03-11",
+        "episodes_estimate": 54,
+        "average_duration_minutes": 52,
+        "subscribers": 0
+      },
+      "tracking": {
+        "enabled": true
+      },
+      "tier": 3,
+      "data_quality": "verified",
+      "activity": {
+        "source": "pipeline",
+        "checked_at": "2026-11-05",
+        "last_original_upload": "20260311",
+        "originals_60d": 0,
+        "originals_90d": 0,
+        "originals_365d": 6,
+        "episodes_on_disk": 55
+      }
+    },
+    {
+      "slug": "argumenti-sezona-8",
+      "display_name": "Argumenti (8. sezona, HKM)",
+      "youtube": {
+        "url": "https://www.youtube.com/playlist?list=PLWPfXSJsO6Wk",
+        "channel_id": "UCrfV3uhCoHNBaqiva1wCB4Q",
+        "type": "playlist",
+        "playlist_id": "PLWPfXSJsO6Wk",
+        "parent_channel": "Hrvatska katolička mreža"
+      },
+      "tags": [
+        "religious-catholic",
+        "society",
+        "talk-show"
+      ],
+      "voditelji": [
+        "Ana Dagelić",
+        "Ivica Zadro"
+      ],
+      "metadata": {
+        "first_episode": "2026-09",
+        "last_episode": "2026-11",
+        "average_duration_minutes": 42,
+        "subscribers": null,
+        "status": "active",
+        "last_episode_date": "2026-11-04",
+        "last_episode_video": "7d3MpFWfk1M"
+      },
+      "tracking": {
+        "enabled": false,
+        "reason_disabled": "Dodano 14.10.2026. na prijedlog (WhatsApp) — kandidat za praćenje; čeka editorial odluku.",
+        "candidate_phase": 1
+      },
+      "tier": 3,
+      "data_quality": "partial",
+      "parent_slug": "hkm",
+      "activity": {
+        "source": "watch+backfill",
+        "checked_at": "2026-11-05",
+        "last_original_upload": "20261104",
+        "originals_60d": 7,
+        "originals_90d": 7,
+        "originals_365d": 7,
+        "new_originals_since_baseline": 4,
+        "derivative_ratio": 0.13,
+        "min_duration_sec": 901,
+        "no_originals": false,
+        "error": null
+      }
+    },
+    {
+      "slug": "hkm-zivjeti-evandelje",
+      "display_name": "Živjeti Evanđelje (HKM)",
+      "youtube": {
+        "url": "https://www.youtube.com/playlist?list=PLKpvODpM6LBs",
+        "channel_id": "UCrfV3uhCoHNBaqiva1wCB4Q",
+        "type": "playlist",
+        "playlist_id": "PLKpvODpM6LBs",
+        "parent_channel": "Hrvatska katolička mreža"
+      },
+      "tags": [
+        "religious-catholic",
+        "theology",
+        "evangelization"
+      ],
+      "voditelji": [],
+      "metadata": {
+        "first_episode": "2026-09",
+        "last_episode": "2026-10",
+        "average_duration_minutes": 50,
+        "subscribers": null,
+        "status": "active",
+        "last_episode_date": "2026-10-31",
+        "last_episode_video": "QKH1vDclcXs"
+      },
+      "tracking": {
+        "enabled": false,
+        "reason_disabled": "Dodano 14.10.2026. — nova jesenska emisija HKM-a, kandidat; čeka editorial odluku.",
+        "candidate_phase": 1
+      },
+      "tier": 3,
+      "data_quality": "partial",
+      "parent_slug": "hkm",
+      "activity": {
+        "source": "watch+backfill",
+        "checked_at": "2026-11-05",
+        "last_original_upload": "20261031",
+        "originals_60d": 6,
+        "originals_90d": 6,
+        "originals_365d": 6,
+        "new_originals_since_baseline": 3,
+        "derivative_ratio": 0,
+        "min_duration_sec": 901,
+        "no_originals": false,
+        "error": null
+      }
+    },
+    {
+      "slug": "hkm-u-zdravlju-i-bolesti",
+      "display_name": "U zdravlju i bolesti (HKM)",
+      "youtube": {
+        "url": "https://www.youtube.com/playlist?list=PLWbD7ok_IvCU",
+        "channel_id": "UCrfV3uhCoHNBaqiva1wCB4Q",
+        "type": "playlist",
+        "playlist_id": "PLWbD7ok_IvCU",
+        "parent_channel": "Hrvatska katolička mreža"
+      },
+      "tags": [
+        "religious-catholic",
+        "health"
+      ],
+      "voditelji": [],
+      "metadata": {
+        "first_episode": "2026-09",
+        "last_episode": "2026-11",
+        "average_duration_minutes": 42,
+        "subscribers": null,
+        "status": "active",
+        "last_episode_date": "2026-11-04",
+        "last_episode_video": "jCh-JcdhZJ4"
+      },
+      "tracking": {
+        "enabled": false,
+        "reason_disabled": "Dodano 14.10.2026. — nova jesenska emisija HKM-a, kandidat; čeka editorial odluku.",
+        "candidate_phase": 1
+      },
+      "tier": 3,
+      "data_quality": "partial",
+      "parent_slug": "hkm",
+      "activity": {
+        "source": "watch+backfill",
+        "checked_at": "2026-11-05",
+        "last_original_upload": "20261104",
+        "originals_60d": 7,
+        "originals_90d": 7,
+        "originals_365d": 7,
+        "new_originals_since_baseline": 4,
+        "derivative_ratio": 0,
+        "min_duration_sec": 901,
+        "no_originals": false,
+        "error": null
+      }
+    },
+    {
+      "slug": "hkm",
+      "display_name": "Hrvatska katolička mreža (HKM / HKR)",
+      "youtube": {
+        "url": "https://www.youtube.com/@hrvatskakatolickamreza",
+        "handle": "@hrvatskakatolickamreza",
+        "type": "umbrella",
+        "channel_id": "UCrfV3uhCoHNBaqiva1wCB4Q"
+      },
+      "tags": [
+        "religious-catholic",
+        "society",
+        "media",
+        "institutional"
+      ],
+      "voditelji": [],
+      "metadata": {
+        "subscribers": 11700,
+        "subscribers_as_of": "2026-10",
+        "status": "active",
+        "children_count": 9
+      },
+      "tracking": {
+        "enabled": false,
+        "reason_disabled": "Umbrella entry — sadržaj se prati per-playlist child entries, ne direktno preko kanala (kanal miješa krunice, najave, isječke i koncerte)."
+      },
+      "tier": 3,
+      "data_quality": "partial",
+      "child_slugs": [
+        "argumenti-sezona-8",
+        "hkm-zivjeti-evandelje",
+        "hkm-u-zdravlju-i-bolesti",
+        "aktualno-hkm",
+        "argumenti-sezona-7",
+        "razgovori-s-nadbiskupima",
+        "pod-krizem",
+        "s-druge-strane-ogledala",
+        "duhovno-duhovite-veceri"
+      ]
+    }
+  ]
+}

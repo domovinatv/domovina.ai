@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-09T18:51:11Z",
+  "files": [
+    "article.json",
+    "article.magisterium.json",
+    "book.epub",
+    "diarized.srt",
+    "info.json",
+    "outline.json",
+    "sponsors_in_video.json",
+    "summary.json",
+    "video_h264.mp4"
+  ]
+}

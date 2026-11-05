@@ -1,0 +1,920 @@
+{
+  "version": "1.0",
+  "generated_at": "2026-10-21T09:47:12.087Z",
+  "id": "40_dana_za_zivot",
+  "name": "40 dana za život - Hrvatska za Život",
+  "avatar_square": "https://cdn.domovina.ai/channels/images/40_dana_za_zivot/avatar_square.jpg",
+  "avatar_square_dimensions": null,
+  "avatar_cover": "https://cdn.domovina.ai/channels/images/40_dana_za_zivot/avatar_cover.jpg",
+  "avatar_cover_dimensions": {
+    "width": 1060,
+    "height": 175
+  },
+  "youtube_channel_url": "https://www.youtube.com/channel/UChgVPEqmTeG0na3u8VfY3PQ",
+  "youtube_playlist_url": null,
+  "description": "Inicijativa „40 dana za život“ je ekumenska molitvena pro-life inicijativa za život, a posredno i inicijativa za zaustavljanje abortusa. Pokrenuta je 2007. godi…",
+  "tags": [
+    "40",
+    "40dana",
+    "40danazazivot",
+    "40danazaživot",
+    "duhovnost"
+  ],
+  "follower_count": 10000,
+  "video_count": 81,
+  "total_duration_seconds": 280270,
+  "avg_magisterium_score": 92,
+  "latest_video_date": "2026-10-15",
+  "videos": [
+    {
+      "id": "-KLvgPtEGoM",
+      "title": "2. Obiteljski koncert duhovne glazbe u Čakovcu - cijela snimka",
+      "title_hr": "2. Obiteljski koncert duhovne glazbe u Čakovcu – cijela snimka",
+      "date": "2026-10-15",
+      "duration_seconds": 3790,
+      "duration_display": "1:03:10",
+      "views": 46,
+      "likes": 4,
+      "thumbnail": "https://cdn.domovina.ai/images/-KLvgPtEGoM/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=-KLvgPtEGoM",
+      "abstract": "Snimka donosi 2. Obiteljski koncert duhovne glazbe u Čakovcu, koji je organizirala udruga Hrvatska za Život. Njime je započela jesenska molitvena kampanja inici…",
+      "topics": [
+        "obiteljski koncert duhovne glazbe",
+        "kampanja 40 dana za život",
+        "zaštita nerođenog života"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Nepoznati govornik",
+          "role": "sugovornik"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Izvođači (više glasova)",
+          "role": "gost"
+        },
+        {
+          "id": "SPEAKER_02",
+          "suggested_name": "Voditeljica",
+          "role": "voditelj"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "35Oq01CmGWE",
+      "title": "SVJEDOČANSTVO - Petar Buljan: Današnji proroci brane život",
+      "title_hr": "SVJEDOČANSTVO - Petar Buljan: Današnji proroci brane život",
+      "date": "2026-10-02",
+      "duration_seconds": 3708,
+      "duration_display": "1:01:48",
+      "views": 810,
+      "likes": 31,
+      "thumbnail": "https://cdn.domovina.ai/images/35Oq01CmGWE/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=35Oq01CmGWE",
+      "abstract": "Ante Čaljkušić, predsjednik udruge Hrvatska za Život, u šaljivo insceniranom 'prepadu' razgovara s Petrom Buljanom, voditeljem slavljeničke službe zajednice Bož…",
+      "topics": [
+        "obraćenje i osobno svjedočanstvo",
+        "zajednica božja pobjeda i slavljenje",
+        "evangelizacija na koncertima"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Ante Čaljkušić",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Petar Buljan",
+          "role": "gost"
+        },
+        {
+          "id": "SPEAKER_02",
+          "suggested_name": "Matija",
+          "role": "sugovornik"
+        }
+      ],
+      "magisterium_score": 87,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": true,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "Frxwm6MI8zY",
+      "title": "Straža sv. Josipa (30. rujna 2026.)",
+      "title_hr": "Straža sv. Josipa (30. rujna 2026.)",
+      "date": "2026-10-01",
+      "duration_seconds": 3254,
+      "duration_display": "54:14",
+      "views": 92,
+      "likes": 9,
+      "thumbnail": "https://cdn.domovina.ai/images/Frxwm6MI8zY/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=Frxwm6MI8zY",
+      "abstract": "Snimka je javnog molitvenog bdjenja Straža sv. Josipa, održanog ispred KBC-a Sestara milosrdnica na Vinogradskoj cesti u Zagrebu. Okupljeni su na početku naveli…",
+      "topics": [
+        "molitva krunice svetom josipu",
+        "zaštita nerođenog života",
+        "sveti josip kao zaštitnik hrvatske"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Voditelj",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Sudionik 1",
+          "role": "sugovornik"
+        },
+        {
+          "id": "SPEAKER_02",
+          "suggested_name": "Sudionik 2",
+          "role": "sugovornik"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "O4TArTY954o",
+      "title": "SVJEDOČANSTVO: Svećenik - dijete Marijine legije (vlč. Marijan Štingl)",
+      "title_hr": "SVJEDOČANSTVO: Svećenik - dijete Marijine legije (vlč. Marijan Štingl)",
+      "date": "2026-09-15",
+      "duration_seconds": 2163,
+      "duration_display": "36:03",
+      "views": 68,
+      "likes": 11,
+      "thumbnail": "https://cdn.domovina.ai/images/O4TArTY954o/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=O4TArTY954o",
+      "abstract": "Voditelj Marko Bartulović iz Centra za život u Sisku posjećuje kamp mladih uz rijeku Kupu, koji na prvi pogled izgleda kao migrantsko naselje, no zapravo je rij…",
+      "topics": [
+        "svećenički poziv",
+        "međugorje i mladifest",
+        "marijina legija"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Marko Bartulović",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "vlč. Marijan Štingl",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "4cpxioHdQDs",
+      "title": "Tri stupa inicijative „40 dana za život“",
+      "title_hr": "Tri stupa inicijative „40 dana za život“",
+      "date": "2026-09-08",
+      "duration_seconds": 1215,
+      "duration_display": "20:15",
+      "views": 22,
+      "likes": 9,
+      "thumbnail": "https://cdn.domovina.ai/images/4cpxioHdQDs/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=4cpxioHdQDs",
+      "abstract": "Predavanje s regionalnog susreta inicijative „40 dana za život“ za središnju i sjevernu Hrvatsku, održanog u Krapini. Izlagač predstavlja rezultate inicijative …",
+      "topics": [
+        "40 dana za život",
+        "molitva i post",
+        "miroljubivo bdijenje"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Mario Tomić",
+          "role": "izlagač"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "nOCD7LosCxc",
+      "title": "Zašto ne idete moliti ispred tvornice oružja?",
+      "title_hr": "Zašto ne idete moliti ispred tvornice oružja?",
+      "date": "2026-06-25",
+      "duration_seconds": 2648,
+      "duration_display": "44:08",
+      "views": 78,
+      "likes": 9,
+      "thumbnail": "https://cdn.domovina.ai/images/nOCD7LosCxc/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=nOCD7LosCxc",
+      "abstract": "Umirovljeni časnik američkih zračnih snaga i pro-life aktivist William Haag održao je predavanje u dvorani Župe Gospe Lurdske u Zagrebu o usklađivanju javne slu…",
+      "topics": [
+        "pro-life",
+        "vojna služba",
+        "pobačaj"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "William Haag",
+          "role": "gost"
+        },
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Prevoditelj",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_02",
+          "suggested_name": "Svećenik",
+          "role": "sugovornik"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "vq65cKlbMjs",
+      "title": "Koncert Thompsona i vodećih pjevača duhovne glazbe",
+      "title_hr": "Koncert Thompsona i vodećih pjevača duhovne glazbe",
+      "date": "2026-05-28",
+      "duration_seconds": 1632,
+      "duration_display": "27:12",
+      "views": 2138,
+      "likes": 188,
+      "thumbnail": "https://cdn.domovina.ai/images/vq65cKlbMjs/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=vq65cKlbMjs",
+      "abstract": "Humanitarni koncert \"Hrvatska za Život\" u Sisku okupio je brojne izvođače i publiku u svrhu podrške trudnicama, majkama i kulturi života. Događaj je istaknut ka…",
+      "topics": [
+        "humanitarni koncert",
+        "podrška životu",
+        "duhovna glazba"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_05",
+          "suggested_name": "Izvođač",
+          "role": "gost"
+        },
+        {
+          "id": "SPEAKER_04",
+          "suggested_name": "Organizator/Sudionik",
+          "role": "sugovornik"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Marko Bartulović",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": 95,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": true,
+        "has_translation_en": true,
+        "has_summary_en": true,
+        "has_article_en": true,
+        "has_magisterium_en": true
+      }
+    },
+    {
+      "id": "JccjeqqlqaA",
+      "title": "SVJEDOČANSTVO - Marko Bartulović: Susreo sam Isusa u ispovijedi",
+      "title_hr": "SVJEDOČANSTVO - Marko Bartulović: Susreo sam Isusa u ispovijedi",
+      "date": "2026-05-07",
+      "duration_seconds": 2592,
+      "duration_display": "43:12",
+      "views": 937,
+      "likes": 88,
+      "thumbnail": "https://cdn.domovina.ai/images/JccjeqqlqaA/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=JccjeqqlqaA",
+      "abstract": "U ovom podcastu, Marko Bartulović, voditelj Centra za život u Sisku, dijeli svoje dirljivo svjedočanstvo o životnom putu od problematične mladosti ispunjene nas…",
+      "topics": [
+        "osobno svjedočanstvo",
+        "obraćenje",
+        "vjera i duhovnost"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Ante Čaljkušić",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Marko Bartulović",
+          "role": "gost"
+        },
+        {
+          "id": "SPEAKER_02",
+          "suggested_name": "Pjevač",
+          "role": "sugovornik"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "DR9rrCDpnTA",
+      "title": "Vanessa i Thompson nastupaju na humanitarnom koncertu",
+      "title_hr": "Vanessa i Thompson nastupaju na humanitarnom koncertu",
+      "date": "2026-04-24",
+      "duration_seconds": 2374,
+      "duration_display": "39:34",
+      "views": 8132,
+      "likes": 455,
+      "thumbnail": "https://cdn.domovina.ai/images/DR9rrCDpnTA/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=DR9rrCDpnTA",
+      "abstract": "Ovaj podcast donosi razgovor s Vanessom Mioč, izvođačicom duhovne glazbe, uoči humanitarnog koncerta \"Hrvatska za Život\" u Sisku. Koncert, na kojem će nastupiti…",
+      "topics": [
+        "humanitarni koncert",
+        "duhovna glazba",
+        "pro-life pokret"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Voditelj",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Vanessa Mioč",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": 95,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": true,
+        "has_translation_en": true,
+        "has_summary_en": true,
+        "has_article_en": true,
+        "has_magisterium_en": true
+      }
+    },
+    {
+      "id": "j2HPdxj0n_o",
+      "title": "SVJEDOČANSTVO: Iva Kraljević - Nježna i odvažna",
+      "title_hr": "SVJEDOČANSTVO: Iva Kraljević - Nježna i odvažna",
+      "date": "2026-03-19",
+      "duration_seconds": 2661,
+      "duration_display": "44:21",
+      "views": 1604,
+      "likes": 160,
+      "thumbnail": "https://cdn.domovina.ai/images/j2HPdxj0n_o/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=j2HPdxj0n_o",
+      "abstract": "U ovom podcastu, influencerica i podcasterica Iva Kraljević dijeli svoje osobno svjedočanstvo vjere, put do upoznavanja supruga i motivaciju za aktivno sudjelov…",
+      "topics": [
+        "pro-life pokret",
+        "osobno svjedočanstvo vjere",
+        "uloga medija i podcasta"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Ante Čaljkušić",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Iva Kraljević",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "teizYqpVFzc",
+      "title": "SVJEDOČANSTVO - fra Ivan Matić: Doživio sam Isusov pogled",
+      "title_hr": "SVJEDOČANSTVO - fra Ivan Matić: Doživio sam Isusov pogled",
+      "date": "2026-03-12",
+      "duration_seconds": 4445,
+      "duration_display": "1:14:05",
+      "views": 15701,
+      "likes": 772,
+      "thumbnail": "https://cdn.domovina.ai/images/teizYqpVFzc/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=teizYqpVFzc",
+      "abstract": "U ovoj epizodi, fra Ivan Matić, voditelj Kuće susreta Tabor, dijeli svoje svjedočanstvo i iskustva iz misionarskog rada diljem svijeta, uključujući Brazil, Kinu…",
+      "topics": [
+        "duhovna obnova",
+        "pro-life pokret",
+        "evangelizacija"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_02",
+          "suggested_name": "Ante Čaljkušić",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "fra Ivan Matić",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "EnNn5o1RAfs",
+      "title": "SVJEDOČANSTVO - Matija Ricov: Hrvatski narod je POMAZAN za posljednja vremena, ako...",
+      "title_hr": "SVJEDOČANSTVO - Matija Ricov: Hrvatski narod je POMAZAN za posljednja vremena, ako...",
+      "date": "2026-02-28",
+      "duration_seconds": 4298,
+      "duration_display": "1:11:38",
+      "views": 12151,
+      "likes": 646,
+      "thumbnail": "https://cdn.domovina.ai/images/EnNn5o1RAfs/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=EnNn5o1RAfs",
+      "abstract": "U ovom podcastu, Matija Ricov, utemeljitelj zajednice Nanovo rođeni, dijeli svoje duboko svjedočanstvo o pro-life aktivizmu, duhovnom pozivu i filmskoj produkci…",
+      "topics": [
+        "pro-life aktivizam",
+        "karizmatska obnova",
+        "duhovni poziv"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_04",
+          "suggested_name": "Ante Čaljkušić",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Matija Ricov",
+          "role": "gost"
+        },
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Mašenka Nadinko",
+          "role": "sugovornik"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "rwBCWTqllMw",
+      "title": "SVJEDOČANSTVO - Fra Miljenko Hontić: Važnije je slušati, nego govoriti Bogu",
+      "title_hr": "SVJEDOČANSTVO - Fra Miljenko Hontić: Važnije je slušati, nego govoriti Bogu",
+      "date": "2026-01-21",
+      "duration_seconds": 2664,
+      "duration_display": "44:24",
+      "views": 2561,
+      "likes": 126,
+      "thumbnail": "https://cdn.domovina.ai/images/rwBCWTqllMw/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=rwBCWTqllMw",
+      "abstract": "U ovom podcastu, fra Miljenko Hontić, provincijal franjevaca konventualaca, razgovara s Antom Čaljkušićem iz udruge \"Hrvatska za Život\" o važnosti radosti kao p…",
+      "topics": [
+        "radost kao propovijed",
+        "služenje marginaliziranima",
+        "važnost Božje Riječi"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_02",
+          "suggested_name": "Ante Čaljkušić",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Fra Miljenko Hontić",
+          "role": "gost"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Sugovornik",
+          "role": "sugovornik"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "Y3sgavGxSws",
+      "title": "SVJEDOČANSTVO - don Damir Stojić: Otjerao sam tu dvojicu studenata!",
+      "title_hr": "SVJEDOČANSTVO - don Damir Stojić: Otjerao sam tu dvojicu studenata!",
+      "date": "2026-01-15",
+      "duration_seconds": 2203,
+      "duration_display": "36:43",
+      "views": 43268,
+      "likes": 1499,
+      "thumbnail": "https://cdn.domovina.ai/images/Y3sgavGxSws/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=Y3sgavGxSws",
+      "abstract": "U ovom podcastu, don Damir Stojić dijeli svoje iskustvo kao svećenik i studentski kapelan, suočavajući se s problematikom neplanirane trudnoće i posljedicama po…",
+      "topics": [
+        "posljedice pobačaja",
+        "uloga muškaraca u neplaniranoj trudnoći",
+        "pro-life pokret u Hrvatskoj"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Ante Čaljkušić",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_02",
+          "suggested_name": "Don Damir Stojić",
+          "role": "gost"
+        },
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Narator",
+          "role": "sugovornik"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "5HvGA54xXDU",
+      "title": "Lidija Grabić: To nije Božja kazna, to je biblijska zakonitost",
+      "title_hr": "Lidija Grabić: To nije Božja kazna, to je biblijska zakonitost",
+      "date": "2026-01-12",
+      "duration_seconds": 1329,
+      "duration_display": "22:09",
+      "views": 1342,
+      "likes": 112,
+      "thumbnail": "https://cdn.domovina.ai/images/5HvGA54xXDU/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=5HvGA54xXDU",
+      "abstract": "Lidija Grabić dijeli svoje osobno svjedočanstvo i put od traume Domovinskog rata i osobnih brodoloma do pokretanja inicijative \"40 dana za život\" u Vukovaru. Po…",
+      "topics": [
+        "osobno svjedočanstvo",
+        "inicijativa 40 dana za život",
+        "program Oprostom oslobođene"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Lidija Grabić",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "fG8-98giqnk",
+      "title": "Knjiga \"Argumentirano\" na testu kod đavoljeg odvjetnika",
+      "title_hr": "Knjiga \"Argumentirano\" na testu kod đavoljeg odvjetnika",
+      "date": "2025-12-16",
+      "duration_seconds": 1358,
+      "duration_display": "22:38",
+      "views": 219,
+      "likes": 27,
+      "thumbnail": "https://cdn.domovina.ai/images/fG8-98giqnk/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=fG8-98giqnk",
+      "abstract": "Ova epizoda prikazuje promociju knjige \"Argumentirano za Život\" autora dr. sc. Krunoslava Puškara, gdje novinar Luka Tripalo preuzima ulogu \"đavoljeg odvjetnika…",
+      "topics": [
+        "pobačaj",
+        "pravo na život",
+        "uloga roditelja"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Krunoslav Puškar",
+          "role": "gost/autor"
+        },
+        {
+          "id": "SPEAKER_02",
+          "suggested_name": "Luka Tripalo",
+          "role": "voditelj/đavolji odvjetnik"
+        },
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Sugovornik",
+          "role": "sugovornik"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "VvEFjvs7mpE",
+      "title": "Svečanost otvorenja i blagoslova Centra za život u Sisku",
+      "title_hr": "Svečanost otvorenja i blagoslova Centra za život u Sisku",
+      "date": "2025-12-04",
+      "duration_seconds": 1377,
+      "duration_display": "22:57",
+      "views": 211,
+      "likes": 26,
+      "thumbnail": "https://cdn.domovina.ai/images/VvEFjvs7mpE/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=VvEFjvs7mpE",
+      "abstract": "Podcast donosi snimku svečanog otvorenja i blagoslova Centra za život – Doma svete Majke Terezije u Sisku, prvog takvog centra u Sisačkoj biskupiji. Centar je p…",
+      "topics": [
+        "otvorenje centra za život",
+        "zaštita života",
+        "pomoć trudnicama u nevolji"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_05",
+          "suggested_name": "Govornik 1",
+          "role": "sugovornik"
+        },
+        {
+          "id": "SPEAKER_07",
+          "suggested_name": "Ante Čaljkušić",
+          "role": "gost"
+        },
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Martina Bartulović",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "SOKfUBgW7KQ",
+      "title": "s. Ljilja Marić: Biraj život",
+      "title_hr": "s. Ljilja Marić: Biraj život",
+      "date": "2025-12-01",
+      "duration_seconds": 3717,
+      "duration_display": "1:01:57",
+      "views": 5316,
+      "likes": 281,
+      "thumbnail": "https://cdn.domovina.ai/images/SOKfUBgW7KQ/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=SOKfUBgW7KQ",
+      "abstract": "Sestra Ljilja Marić u svom predavanju naglašava da je život dar od Boga i poziva na odabir života umjesto životarenja, kritizirajući 'kulturu smrti' prisutnu u …",
+      "topics": [
+        "kultura života i smrti",
+        "biblijska tumačenja života",
+        "grijeh i njegove posljedice"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "s. Ljilja Marić",
+          "role": "gost"
+        },
+        {
+          "id": "SPEAKER_02",
+          "suggested_name": "Sudionik",
+          "role": "sugovornik"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "fVtKFYHJyU8",
+      "title": "Promocija knjige BOŽIĆNE PRIČE na ovogodišnjem Interliberu",
+      "title_hr": "Promocija knjige BOŽIĆNE PRIČE na ovogodišnjem Interliberu",
+      "date": "2025-11-19",
+      "duration_seconds": 1515,
+      "duration_display": "25:15",
+      "views": 249,
+      "likes": 22,
+      "thumbnail": "https://cdn.domovina.ai/images/fVtKFYHJyU8/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=fVtKFYHJyU8",
+      "abstract": "Na ovogodišnjem Interliberu održana je promocija knjiga \"Božićne priče\" i \"Divno dijete Isus\" autorica Sanje Pešorde i Dessislave Morić, u izdanju Lilium Knjige…",
+      "topics": [
+        "promocija knjiga",
+        "božićne priče",
+        "vrijednost života"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Luka Tripalo",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_02",
+          "suggested_name": "Anita Pavlović",
+          "role": "gost"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Brankica Kunštek",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "jFqH_EUFR6c",
+      "title": "Podcast ŽIVOT #33 – Josip Milković:  Moj se duh nikad nije gasio",
+      "title_hr": "Podcast ŽIVOT #33 – Josip Milković: Moj se duh nikad nije gasio",
+      "date": "2025-11-05",
+      "duration_seconds": 5174,
+      "duration_display": "1:26:14",
+      "views": 2363,
+      "likes": 106,
+      "thumbnail": "https://cdn.domovina.ai/images/jFqH_EUFR6c/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=jFqH_EUFR6c",
+      "abstract": "Josip Milković, koji je 2016. godine teško stradao u vojnoj vježbi izgubivši vid, sluh, nogu i šake, dijeli svoju inspirativnu priču o oporavku i duhovnom rastu…",
+      "topics": [
+        "tragedija i oporavak",
+        "život s invaliditetom",
+        "studij psihologije"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Voditeljica",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Josip Milković",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    }
+  ]
+}

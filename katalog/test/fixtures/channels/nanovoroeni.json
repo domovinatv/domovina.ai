@@ -1,0 +1,834 @@
+{
+  "version": "1.0",
+  "generated_at": "2026-11-04T02:57:47.169Z",
+  "id": "nanovoroeni",
+  "name": "Nanovo rođeni",
+  "avatar_square": "https://cdn.domovina.ai/channels/images/nanovoroeni/avatar_square.jpg",
+  "avatar_square_dimensions": null,
+  "avatar_cover": "https://cdn.domovina.ai/channels/images/nanovoroeni/avatar_cover.jpg",
+  "avatar_cover_dimensions": {
+    "width": 1060,
+    "height": 175
+  },
+  "youtube_channel_url": "https://www.youtube.com/channel/UCiXXRMlzoA-MKPHVe5V7YdQ",
+  "youtube_playlist_url": null,
+  "description": "Youtube kanal zajednice Nanovo rođeni\n\n\nZajednica je osnovana 2012. godine\nVoditelj zajednice Mišo Lukenda\n\nPrimatelj donacije Zaklade Rhema",
+  "tags": [],
+  "follower_count": 50100,
+  "video_count": 320,
+  "total_duration_seconds": 1100163,
+  "avg_magisterium_score": 80,
+  "latest_video_date": "2026-11-02",
+  "videos": [
+    {
+      "id": "NHqYXf_xg6o",
+      "title": "Kevin Monette - Svjedočanstvo",
+      "title_hr": "Kevin Monette - Svjedočanstvo",
+      "date": "2026-11-02",
+      "duration_seconds": 6198,
+      "duration_display": "1:43:18",
+      "views": 4345,
+      "likes": 103,
+      "thumbnail": "https://cdn.domovina.ai/images/NHqYXf_xg6o/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=NHqYXf_xg6o",
+      "abstract": "Kevin Monette iz Encounter Ministries u Hrvatskoj drži predavanje o ozdravljenju u braku, a prevoditelj ga simultano prevodi na hrvatski. Kroz odlomak iz Prve p…",
+      "topics": [
+        "ozdravljenje u braku",
+        "neispunjena očekivanja",
+        "1. poslanica korinćanima 13"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Kevin Monette",
+          "role": "gost"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Prevoditelj",
+          "role": "sugovornik"
+        },
+        {
+          "id": "SPEAKER_02",
+          "suggested_name": "Sudionik iz publike",
+          "role": "sugovornik"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": true,
+        "has_summary_en": true,
+        "has_article_en": true,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "c2vZO7dHBTE",
+      "title": "David Pölhe - Apologetika",
+      "title_hr": "David Pölhe - Apologetika",
+      "date": "2026-10-21",
+      "duration_seconds": 4648,
+      "duration_display": "1:17:28",
+      "views": 1280,
+      "likes": 37,
+      "thumbnail": "https://cdn.domovina.ai/images/c2vZO7dHBTE/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=c2vZO7dHBTE",
+      "abstract": "David Pölhe drži nagovor na apologetiku i naglašava da to nije predavanje s nizom argumenata, nego poticaj katolicima, osobito u karizmatskom pokretu, da se otv…",
+      "topics": [
+        "apologetika i obrana vjere",
+        "povezanost apologetike i evangelizacije",
+        "biblijsko utemeljenje apologetike"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "David Pölhe",
+          "role": "gost"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Sugovornik 1",
+          "role": "sugovornik"
+        },
+        {
+          "id": "SPEAKER_02",
+          "suggested_name": "Sugovornik 2",
+          "role": "sugovornik"
+        }
+      ],
+      "magisterium_score": 83,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": true,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "UTgOBOwITmc",
+      "title": "Josip Bilandžija - Krist i odnosi",
+      "title_hr": "Josip Bilandžija - Krist i odnosi",
+      "date": "2026-10-14",
+      "duration_seconds": 3107,
+      "duration_display": "51:47",
+      "views": 1694,
+      "likes": 56,
+      "thumbnail": "https://cdn.domovina.ai/images/UTgOBOwITmc/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=UTgOBOwITmc",
+      "abstract": "U ovom nagovoru Josip Bilandžija govori o prijateljstvu kao posebnoj vrsti odnosa na koju nas Krist poziva. Upozorava da se u zajednicama i karizmatskoj obnovi …",
+      "topics": [
+        "prijateljstvo i bratska ljubav",
+        "odnosi u kršćanskoj zajednici",
+        "kriza prijateljstava u suvremenom društvu"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Josip Bilandžija",
+          "role": "govornik"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Sugovornik 1",
+          "role": "sugovornik"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "aOx3ZawPX7Q",
+      "title": "Sestra Zrinka Vuković - Božje očinstvo",
+      "title_hr": "Sestra Zrinka Vuković - Božje očinstvo",
+      "date": "2026-06-16",
+      "duration_seconds": 3041,
+      "duration_display": "50:41",
+      "views": 1150,
+      "likes": 65,
+      "thumbnail": "https://cdn.domovina.ai/images/aOx3ZawPX7Q/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=aOx3ZawPX7Q",
+      "abstract": "Sestra Zrinka Vuković govori o Božjem očinstvu, naglašavajući kako naše iskustvo zemaljskog oca utječe na percepciju Boga. Kroz primjer Blažene Marije Petković,…",
+      "topics": [
+        "božje očinstvo",
+        "iskustvo zemaljskog oca",
+        "blažena marija petković"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "sestra Zrinka Vuković",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "4X3LCOkJU44",
+      "title": "Prof. dr. sc. Igor Kanižaj - Odgoj djece u digitalno doba",
+      "title_hr": "Prof. dr. sc. Igor Kanižaj - Odgoj djece u digitalno doba",
+      "date": "2026-05-29",
+      "duration_seconds": 3720,
+      "duration_display": "1:02:00",
+      "views": 288,
+      "likes": 30,
+      "thumbnail": "https://cdn.domovina.ai/images/4X3LCOkJU44/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=4X3LCOkJU44",
+      "abstract": "Predavanje profesora Kanižaja ističe ključnu ulogu roditelja u odgoju djece za sigurno snalaženje u digitalnom okruženju. Analizira štetne posljedice prekomjern…",
+      "topics": [
+        "digitalni odgoj",
+        "utjecaj ekrana na djecu",
+        "medijska pismenost"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Prof. dr. sc. Igor Kanižaj",
+          "role": "predavač"
+        },
+        {
+          "id": "SPEAKER_04",
+          "suggested_name": "Sudionik 1",
+          "role": "sugovornik"
+        },
+        {
+          "id": "SPEAKER_05",
+          "suggested_name": "Sudionik 2",
+          "role": "sugovornik"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "pkJUelpjj_4",
+      "title": "Jeevan i Lolita Castelino - Svjedočanstvo",
+      "title_hr": "Jeevan i Lolita Castelino - Svjedočanstvo",
+      "date": "2026-05-16",
+      "duration_seconds": 3962,
+      "duration_display": "1:06:02",
+      "views": 1030,
+      "likes": 65,
+      "thumbnail": "https://cdn.domovina.ai/images/pkJUelpjj_4/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=pkJUelpjj_4",
+      "abstract": "Ova epizoda podcasta \"Nanovo rođeni\" donosi svjedočanstvo bračnog para Jeevana i Lolite Castelino iz Indije, koji trenutno djeluju u Latviji. Kroz osobne priče …",
+      "topics": [
+        "svjedočanstvo vjere",
+        "božja ljubav",
+        "predanje bogu"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_02",
+          "suggested_name": "Jeevan Castelino",
+          "role": "gost"
+        },
+        {
+          "id": "SPEAKER_03",
+          "suggested_name": "Jeevan Castelino",
+          "role": "gost"
+        },
+        {
+          "id": "SPEAKER_05",
+          "suggested_name": "Jeevan Castelino",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "9NUOK1wzmLw",
+      "title": "Stana Pehar - Zabrinutost",
+      "title_hr": "Stana Pehar - Zabrinutost",
+      "date": "2026-04-30",
+      "duration_seconds": 2899,
+      "duration_display": "48:19",
+      "views": 5348,
+      "likes": 248,
+      "thumbnail": "https://cdn.domovina.ai/images/9NUOK1wzmLw/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=9NUOK1wzmLw",
+      "abstract": "Epizoda istražuje razliku između zdrave brige i destruktivne zabrinutosti, naglašavajući da je zabrinutost duhovna raspršenost i slabost koja udaljava od Boga. …",
+      "topics": [
+        "zabrinutost",
+        "duhovna stvarnost",
+        "povjerenje u Boga"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Stana Pehar",
+          "role": "predavač"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "8S6htDXab8o",
+      "title": "Ivica Kraljević - Svjedočanstvo",
+      "title_hr": "Ivica Kraljević - Svjedočanstvo",
+      "date": "2026-04-23",
+      "duration_seconds": 3384,
+      "duration_display": "56:24",
+      "views": 15393,
+      "likes": 635,
+      "thumbnail": "https://cdn.domovina.ai/images/8S6htDXab8o/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=8S6htDXab8o",
+      "abstract": "Ivica Kraljević, voditelj zajednice Mlado Sunce, dijeli svoje duboko osobno svjedočanstvo o obraćenju i služenju. Opisuje kako je od života ispunjenog tradicijo…",
+      "topics": [
+        "osobno svjedočanstvo",
+        "obraćenje",
+        "očeva ljubav"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Ivica Kraljević",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "Zf8OCWEssK4",
+      "title": "Serafina Lauš - Svjedočanstvo",
+      "title_hr": "Serafina Lauš - Svjedočanstvo",
+      "date": "2026-04-20",
+      "duration_seconds": 2730,
+      "duration_display": "45:30",
+      "views": 7180,
+      "likes": 370,
+      "thumbnail": "https://cdn.domovina.ai/images/Zf8OCWEssK4/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=Zf8OCWEssK4",
+      "abstract": "Serafina Lauš, Hrvatica iz Travnika, svjedoči o strašnim gubicima u Domovinskom ratu, gdje je izgubila supruga Ivicu i tri sina (Dragun, Fabijan, Miroslav), te …",
+      "topics": [
+        "domovinski rat u središnjoj bosni",
+        "stradanje hrvata u travniku",
+        "gubitak obitelji"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Voditelj",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Serafina Lauš",
+          "role": "gost"
+        },
+        {
+          "id": "SPEAKER_02",
+          "suggested_name": "Serafina Lauš",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "u5UVaFPVBCs",
+      "title": "Tomislav Jerković - Poniznost | Put oslobođenja",
+      "title_hr": "Tomislav Jerković - Poniznost | Put oslobođenja",
+      "date": "2026-04-01",
+      "duration_seconds": 3285,
+      "duration_display": "54:45",
+      "views": 3861,
+      "likes": 182,
+      "thumbnail": "https://cdn.domovina.ai/images/u5UVaFPVBCs/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=u5UVaFPVBCs",
+      "abstract": "Tomislav Jerković, voditelj zajednice Šum s neba, održao je nagovor na temu 'Poniznost – put oslobođenja', temeljen na knjizi opata Michaela Davida Semerare i s…",
+      "topics": [
+        "poniznost",
+        "duhovni rast",
+        "sveti benedikt"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Tomislav Jerković",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "762s5HcBrxU",
+      "title": "Josip Bilandžija - Online evangelizacija",
+      "title_hr": "Josip Bilandžija - Online evangelizacija",
+      "date": "2026-03-25",
+      "duration_seconds": 3801,
+      "duration_display": "1:03:21",
+      "views": 87,
+      "likes": 18,
+      "thumbnail": "https://cdn.domovina.ai/images/762s5HcBrxU/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=762s5HcBrxU",
+      "abstract": "Epizoda podcasta \"Nanovo rođeni\" bavi se temom online evangelizacije iz perspektive Katoličke crkve. Predavač Josip Bilandžija analizira crkvene dokumente i pri…",
+      "topics": [
+        "online evangelizacija",
+        "crkveni dokumenti o medijima",
+        "sveti pavao u ateni"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Josip Bilandžija",
+          "role": "predavač"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Kristijan",
+          "role": "gost/svjedok"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "2AkpXhaWzHk",
+      "title": "Zvonko Jambrešić - Svjedočanstvo",
+      "title_hr": "Zvonko Jambrešić - Svjedočanstvo",
+      "date": "2026-03-18",
+      "duration_seconds": 3342,
+      "duration_display": "55:42",
+      "views": 371,
+      "likes": 36,
+      "thumbnail": "https://cdn.domovina.ai/images/2AkpXhaWzHk/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=2AkpXhaWzHk",
+      "abstract": "Zvonko Jambrešić, predsjednik udruge „Savao”, dijeli svoje osobno svjedočanstvo o teškom životnom putu obilježenom ratnim stradavanjima, ovisnostima i komom, …",
+      "topics": [
+        "osobno obraćenje",
+        "ratne traume",
+        "duhovni put"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Zvonko Jambrešić",
+          "role": "gost"
+        },
+        {
+          "id": "SPEAKER_02",
+          "suggested_name": "Voditelj",
+          "role": "voditelj"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "UVfvCiuIPOU",
+      "title": "Niko Rončević - Božja Riječ",
+      "title_hr": "Niko Rončević - Božja Riječ",
+      "date": "2026-03-11",
+      "duration_seconds": 4451,
+      "duration_display": "1:14:11",
+      "views": 1140,
+      "likes": 83,
+      "thumbnail": "https://cdn.domovina.ai/images/UVfvCiuIPOU/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=UVfvCiuIPOU",
+      "abstract": "Niko Rončević u ovom podcastu dijeli osobno svjedočanstvo o transformativnoj moći Božje Riječi u njegovom životu. Naglašava da je Božja Riječ živa, djelotvorna …",
+      "topics": [
+        "božja riječ",
+        "osobno svjedočanstvo",
+        "duhovni rast"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Niko Rončević",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "V37T5J8nrV0",
+      "title": "Fra Ivan Slišković - Sveti Franjo | Obnovitelj Crkve",
+      "title_hr": "Fra Ivan Slišković – Sveti Franjo | Obnovitelj Crkve",
+      "date": "2026-03-04",
+      "duration_seconds": 2820,
+      "duration_display": "47:00",
+      "views": 3715,
+      "likes": 161,
+      "thumbnail": "https://cdn.domovina.ai/images/V37T5J8nrV0/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=V37T5J8nrV0",
+      "abstract": "U nagovoru povodom 800. obljetnice smrti svetoga Franje Asiškog, zbog koje je papa Lav 2026. proglasio Godinom svetoga Franje, fra Ivan Slišković iz zajednice O…",
+      "topics": [
+        "sveti franjo asiški",
+        "obnova crkve",
+        "razvlaštenje i siromaštvo duhom"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Fra Ivan Slišković",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "D6Eqsq0aZYs",
+      "title": "Matija Kopić - Jesmo li ovisni o tehnologiji?",
+      "title_hr": "Matija Kopić - Jesmo li ovisni o tehnologiji?",
+      "date": "2026-02-26",
+      "duration_seconds": 4207,
+      "duration_display": "1:10:07",
+      "views": 1237,
+      "likes": null,
+      "thumbnail": "https://cdn.domovina.ai/images/D6Eqsq0aZYs/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=D6Eqsq0aZYs",
+      "abstract": "Matija Kopić u ovom predavanju analizira duhovne implikacije ubrzanog tehnološkog napretka, s posebnim naglaskom na umjetnu inteligenciju i društvene mreže. Tv…",
+      "topics": [
+        "digitalna ovisnost",
+        "umjetna inteligencija",
+        "društvene mreže"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Matija Kopić",
+          "role": "predavač"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "10gqEnjKwSg",
+      "title": "Don Mario Bobić - Disciplina i rigidnost",
+      "title_hr": "Don Mario Bobić - Disciplina i rigidnost",
+      "date": "2026-02-21",
+      "duration_seconds": 3156,
+      "duration_display": "52:36",
+      "views": 6259,
+      "likes": null,
+      "thumbnail": "https://cdn.domovina.ai/images/10gqEnjKwSg/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=10gqEnjKwSg",
+      "abstract": "Don Mario Bobić u ovom predavanju detaljno razlaže razliku između discipline i rigidnosti, ističući disciplinu kao krepost koja vodi do slobode, radosti i auten…",
+      "topics": [
+        "disciplina i sloboda",
+        "rigidnost i strah",
+        "duhovni rast"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Don Mario Bobić",
+          "role": "predavač"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "_qpYcMS7V_w",
+      "title": "Nikola Stanić - Acedija",
+      "title_hr": "Nikola Stanić - Acedija",
+      "date": "2026-02-19",
+      "duration_seconds": 4812,
+      "duration_display": "1:20:12",
+      "views": 6975,
+      "likes": null,
+      "thumbnail": "https://cdn.domovina.ai/images/_qpYcMS7V_w/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=_qpYcMS7V_w",
+      "abstract": "Ovaj nagovor Nikole Stanića detaljno obrađuje temu acedije, definirajući je kao duhovnu malodušnost i unutarnje odustajanje od smisla, što se razlikuje od običn…",
+      "topics": [
+        "acedija",
+        "duhovna malodušnost",
+        "simptomi acedije"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Nikola Stanić",
+          "role": "predavač"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "Ut4ndrsALwQ",
+      "title": "Ante Bilaver - Duhovni plodovi posta",
+      "title_hr": "Ante Bilaver - Duhovni plodovi posta",
+      "date": "2026-02-11",
+      "duration_seconds": 3401,
+      "duration_display": "56:41",
+      "views": 29023,
+      "likes": 1131,
+      "thumbnail": "https://cdn.domovina.ai/images/Ut4ndrsALwQ/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=Ut4ndrsALwQ",
+      "abstract": "Ante Bilaver dijeli svoje osobno iskustvo s Danielovim postom, naglašavajući kako ga je Bog pozvao na ovaj post kako bi se suočio s neumjerenošću i produbio svo…",
+      "topics": [
+        "duhovni post",
+        "Danielov post",
+        "umjerenost i disciplina"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Ante Bilaver",
+          "role": "predavač"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "rjmEkvZWBM4",
+      "title": "Antun Požgaj - Živjeti slobodno (Teen H Spirit)",
+      "title_hr": "Antun Požgaj - Živjeti slobodno (Teen H Spirit)",
+      "date": "2026-02-07",
+      "duration_seconds": 1959,
+      "duration_display": "32:39",
+      "views": 1221,
+      "likes": 61,
+      "thumbnail": "https://cdn.domovina.ai/images/rjmEkvZWBM4/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=rjmEkvZWBM4",
+      "abstract": "Antun Požgaj dijeli svoje osobno svjedočanstvo o pronalasku dubljeg smisla života kroz vjeru, unatoč početnom materijalnom uspjehu. Detaljno opisuje svoju borbu…",
+      "topics": [
+        "svjedočanstvo vjere",
+        "ovisnost o mobitelu",
+        "digitalni detoks"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Antun Požgaj",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "KLPD-Meu4e8",
+      "title": "Goran Ćurković | Svjedočanstvo/Testimony (Eng. sub)",
+      "title_hr": "Goran Ćurković – svjedočanstvo",
+      "date": "2020-02-08",
+      "duration_seconds": 4179,
+      "duration_display": "1:09:39",
+      "views": 2206250,
+      "likes": 23143,
+      "thumbnail": "https://cdn.domovina.ai/images/KLPD-Meu4e8/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=KLPD-Meu4e8",
+      "abstract": "Na susretu molitvene zajednice Nanovo rođeni Goran Ćurković iznosi svoje životno svjedočanstvo, koje dijeli na život bez Boga i život s Bogom. Opisuje djetinjst…",
+      "topics": [
+        "obraćenje i vjera",
+        "ovisnost o drogi i alkoholu",
+        "obiteljski odnosi i pomirenje"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Goran Ćurković",
+          "role": "gost"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Voditelj",
+          "role": "voditelj"
+        }
+      ],
+      "magisterium_score": 76,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": true,
+        "has_translation_en": true,
+        "has_summary_en": true,
+        "has_article_en": true,
+        "has_magisterium_en": true
+      }
+    }
+  ]
+}
