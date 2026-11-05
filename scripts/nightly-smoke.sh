@@ -14,6 +14,9 @@
 # play-promote.sh. `pass` traži: nijedan pad I bar jedan Android i jedan iOS
 # uređaj koji je prošao oba testa. Stdout = retci za Telegram.
 #
+# Uređaji: svi koje vidi `flutter devices`, osim ako je u .env postavljen
+# SMOKE_DEVICES (id-evi odvojeni razmakom/zarezom) — tada samo oni.
+#
 # Exit: 0 pass, 1 fail, 2 unknown (nema uređaja, sve „ne mogu provjeriti”).
 # Plan: docs/plans/2026-10-13-smoke-testovi-na-uredajima.md
 set -uo pipefail
@@ -32,7 +35,10 @@ mapfile -t DEVICES < <(flutter devices --machine --device-timeout 30 2>/dev/null
   | ruby -rjson -e 'JSON.parse(STDIN.read).each { |d|
       p = d["targetPlatform"].to_s
       kind = p.start_with?("android") ? "android" : (p == "ios" ? "ios" : nil)
-      puts "#{kind}|#{d["id"]}|#{d["name"]}" if kind }')
+      next unless kind
+      allow = ENV["SMOKE_DEVICES"].to_s.split(/[\s,]+/).reject(&:empty?)
+      next unless allow.empty? || allow.include?(d["id"])
+      puts "#{kind}|#{d["id"]}|#{d["name"]}" }')
 
 LINES=(); FAIL=0; PASS_ANDROID=0; PASS_IOS=0
 label() { case $1 in 0) echo "ok" ;; 1) echo "PAO" ;; *) echo "nije provjereno" ;; esac; }

@@ -38,7 +38,7 @@ if adb -s "$DEVICE" get-state >/dev/null 2>&1; then
   # hostname”), dok `adb shell ping` s istog uređaja radi. Izmjereno
   # 13.10.2026. na moto g86 (Android 16). Zato: probudi, makni keyguard,
   # i ako je zaključavanje zaštićeno (PIN/uzorak) — exit 2.
-  adb -s "$DEVICE" shell svc power stayon usb || true
+  adb -s "$DEVICE" shell svc power stayon true || true
   adb -s "$DEVICE" shell input keyevent KEYCODE_WAKEUP || true
   adb -s "$DEVICE" shell wm dismiss-keyguard || true
   sleep 2

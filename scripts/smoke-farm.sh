@@ -4,6 +4,7 @@
 # istom projektu dijele build/ i ruše jedni druge.
 #
 #   ./scripts/smoke-farm.sh
+#   SMOKE_DEVICES="<id> <id>" ./scripts/smoke-farm.sh   # samo ti uređaji
 #
 # Exit: 0 = svi prošli, 1 = bar jedan pao, 2 = nijedan pad, ali bar jedan
 # uređaj nije provjeren. Ishod po uređaju: .nightly/smoke/last.txt
@@ -18,6 +19,8 @@ mkdir -p "$OUT"
 mapfile -t DEVICES < <(flutter devices --machine --device-timeout 30 2>/dev/null \
   | ruby -rjson -e 'JSON.parse(STDIN.read).each { |d|
       next unless %w[android ios].include?(d["targetPlatform"].to_s.split("-").first) || d["targetPlatform"] == "ios"
+      allow = ENV["SMOKE_DEVICES"].to_s.split(/[\s,]+/).reject(&:empty?)
+      next unless allow.empty? || allow.include?(d["id"])
       puts "#{d["name"]}|#{d["id"]}" }')
 
 [[ ${#DEVICES[@]} -gt 0 ]] || { echo "nijedan mobilni uređaj"; exit 2; }

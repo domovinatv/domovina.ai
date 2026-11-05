@@ -68,7 +68,7 @@ if [[ -n "$AAB" ]]; then
   [[ -f "$AAB" ]] || { echo "GRESKA: nema $AAB"; exit 2; }
   "${A[@]}" shell ping -c1 -W5 cdn.domovina.ai >/dev/null 2>&1 \
     || { echo "GRESKA: $DEVICE nema mrežu"; exit 2; }
-  "${A[@]}" shell svc power stayon usb
+  "${A[@]}" shell svc power stayon true
   "${A[@]}" shell input keyevent KEYCODE_WAKEUP
   "${A[@]}" shell wm dismiss-keyguard; sleep 2
   if "${A[@]}" shell dumpsys window | grep -q 'isKeyguardShowing=true'; then
