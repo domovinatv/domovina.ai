@@ -190,3 +190,16 @@ flowchart TD
   - `ITSAppUsesNonExemptEncryption=false` u Info.plist → nema export-compliance prompta.
 | `scripts/asc-token.rb` | mint ASC API JWT (ES256) |
 | `scripts/asc-upload-screenshot.rb <locId> <displayType> <png>` | upload iOS screenshota |
+
+
+## Zamke promocije izmjerene 5. 11. 2026. (2.0.182 → 2.0.218)
+
+- **Privatnosne oznake su console-only** i moraju pratiti nove obrade PRIJE
+  promocije: 2.0.218 je prvi mobilni build s vlastitom analitikom i pushom. Odgovori
+  i stanje upisa: `docs/compliance/store-privacy-labels.md`. Apple oznake se
+  objavljuju odmah (dijalog nudi samo „Publish"); Google ih sprema u Publishing
+  overview i traži „Submit change for review".
+- **Apple novi upitnik dobne ocjene (7 koraka)** blokira `asc-submit.rb --submit`
+  s „appStoreVersions … is not in valid state". Skripta do tada već stvori verziju,
+  whatsNew, build i phased release, pa nakon ispunjenog upitnika (App Information →
+  Age Ratings) treba samo ponovno pokrenuti isti `--submit`.

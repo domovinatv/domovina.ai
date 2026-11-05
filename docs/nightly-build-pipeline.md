@@ -269,5 +269,22 @@ Nije još provjereno pod launchd-om: iOS ui smoke treba mDNS prema iPhoneu
 (macOS „Local Network” dozvola), a vožen je samo iz iTerma. Ako prva noć
 javi iOS ui „nije provjereno”, to je prvi osumnjičenik.
 
+### Izbor uređaja i budan ekran (5. 11. 2026.)
+
+- **`SMOKE_DEVICES` u `.env`** (id-evi iz `flutter devices`, odvojeni razmakom)
+  ograničava `nightly-smoke.sh` i `smoke-farm.sh`. Prazno = svi spojeni. Uveden
+  jer je smoke išao na SVE što `flutter devices` vidi, uključujući osobni iPhone
+  koji je slučajno bio na kabelu. Id-evi nisu u gitu jer je repo javan.
+- **`svc power stayon true`, ne `usb`.** `stayon usb` je pri svakom smokeu
+  prepisivao `stay_on_while_plugged_in` na 2 (samo USB); edge 30 ultra se
+  prijavljuje kao **AC** punjenje (`dumpsys battery`), pa mu se ekran gasio.
+  `true` = 15 (AC|USB|wireless|dock).
+- **Uzrok pada nije uvijek uređaj.** Prvi ručni smoke na iPhoneu 12 mini javio je
+  „build/pokretanje nije uspjelo", a u logu je bilo `No space left on device`
+  (boot disk 156 MB). Prije sumnje na telefon: `df -h /System/Volumes/Data`.
+- iPhone ne može dobiti Auto-Lock „Nikad" preko kabela bez supervizije (Apple
+  Configurator, briše uređaj); postavlja se ručno. Bez šifre Power tipka ne smeta:
+  smoke ga probudi, a `devicectl … lockState` javlja `passcodeRequired`.
+
 Vezani dokumenti: `docs/plans/2026-10-13-smoke-testovi-na-uredajima.md`
 (skripte, mjerenja, zamke uređaja).

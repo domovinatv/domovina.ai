@@ -6,7 +6,7 @@ se zajedno s Obradom E u [`data-protection.md`](data-protection.md) i s
 politikom privatnosti (`legalPrivacyAnalytics*`), kad god se mijenjaju
 događaji analitike.
 
-_Stanje: 15. 10. 2026., v2.0.188. Upisano u konzole: ‹datum, tko›._
+_Stanje: 15. 10. 2026., v2.0.188. Upisano u konzole: 5. 11. 2026. (Claude Code, pregled Matija): Apple objavljeno (+ Search History, Coarse Location; Advertising Data NIJE upisan dok se ne naplaćuje po prikazu); Google spremljeno u Publishing overview (+ User IDs, Approximate location, In-app search history; Analytics dodan uz App interactions i Device IDs)._
 
 Nacrt kao i ostatak direktorija (vidi [`README.md`](README.md)). Redovi
 označeni ‹provjeriti› ne dolaze iz analitike nego iz drugih obrada.
