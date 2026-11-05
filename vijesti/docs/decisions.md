@@ -109,3 +109,95 @@ paralelni worktreeji ne sudare. Odluka se ne briše: zamijeni je novom koja je p
      nego greška ide dalje, kako odluka 107 traži („HTTP, prekid, shema”). Isti prolaz
      (S1, drugi agent) u loaderu: inline `null` u `episode.json` nije „ima” (`has()` i
      `file()` se slažu), a neuspjela revalidacija popisa se ne pamti u memoizaciji.
+
+## S2 (2026-11-05)
+
+200. **Jezik citata: `--lang` → izvorni par iz `episode.json` → jezik kanala → `hr`,
+     pa provjera teksta.** Par je `diarized.<xx>.srt` + `words.<xx>.json` (xx ≠ hr): vrijeme
+     po riječi ima samo titl nastao iz zvuka, a prijevod (`diarized.en.srt` hrvatske
+     epizode u fazi 3 plana 2026-10-29) ga nema, pa goli `diarized.<xx>.srt` nije znak
+     izvornika. `--lang` koji proturječi paru je greška (`x3w2BVZJ9vQ --lang hr` bi citirao
+     prijevod), kao i više parova te goli `diarized.srt` bez `words.json` uz titl drugog
+     jezika (ne zna se koji je izvornik). Listing kanala jezik ne nosi (`schemas.ts`,
+     fixturei), pa je „jezik kanala” parametar za popis dopuštenih (odluka 8), zasad
+     prazan. Zatim heuristika nad CIJELIM odabranim titlom: funkcijske riječi hr/en bez
+     riječi koje postoje u oba jezika; traži ≥ 30 pogodaka i udio traženog jezika ≥ 0,8,
+     inače epizoda se ne obrađuje (prije ijednog poziva modela). Na fixtureima (15 min)
+     HR titlovi imaju 498/1, 626/4, 597/2, 459/0 (hr/en), HR prijevod `x3w2BVZJ9vQ` 569/0,
+     EN izvornik 0/906 (`engine/extract/lang.test.ts`). Jezici osim hr/en se odbijaju
+     dok ne dobiju popis riječi. Revizija: kad popis dopuštenih dobije jezik kanala, ili
+     kad tehnička epizoda s puno engleskih termina padne ispod 0,8.
+201. **Dijelovi za prompt su sekcije SVIH iteracija članka**, ne zadnje: iteracija je
+     vremenski odsječak (~40 min, `b-nls1ck8EE` ih ima 4), ne verzija, pa bi zadnja
+     izostavila sve prije nje. Sekcija = [njen `screenshot_timestamp`, početak sljedeće),
+     zadnja do kraja titla; prva počinje od 0 (uvod prije prvog podnaslova nije
+     izgubljen); cue pripada sekciji u kojoj mu je početak; prazne sekcije nemaju poziv.
+     Bez članka fiksni prozori od 10 min. Test: `engine/extract/extract.test.ts`
+     („sekcije i prompt”: `pIx_7N-6HJ4` 10 sekcija, svaki cue točno jednom). Revizija:
+     ako sekcije budu predugačke za kontekst modela (S3 mjeri).
+202. **Normalizacija za usporedbu:** mala slova, `đ → d` eksplicitno (NFD ga ne rastavlja),
+     NFD + brisanje kombinirajućih znakova, apostrofi se brišu (`don't → dont`), sve ostalo
+     što nije slovo/znamenka je razmak. Ista funkcija ide na citat i na svaku riječ titla,
+     pa svaki normalizirani token pamti cue i indeks riječi (za vrijeme). Test:
+     `engine/verify/quote.test.ts` („normalizacija”).
+203. **Prozor pretrage W = 5 s** oko [početak `cue_from`, kraj `cue_to`]: pretražuju se
+     cueovi koji se s njim preklapaju. Citat izvan prozora je `failed: outside_window`;
+     globalna pretraga postoji samo da razlikuje taj razlog od `not_found`. Kad se niz
+     pojavi više puta, uzima se prvo točno pojavljivanje s ispravnim govornikom, pa tek
+     onda prvo fuzzy. Revizija: ako na pravim odgovorima modela `outside_window` bude
+     česta za citate koji su očito točni (pomak cue id-a za više od prozora).
+204. **`fuzzy` dopušta samo dvije stvari.** (a) Brisanje iz titla, usred citata, tokena s
+     ZATVORENOG popisa glasova oklijevanja: `hm hmm hmmm mm mmm eh ehm ee eee eem aa aaa ah
+     uh uhm um umm erm`. Namjerno nisu na popisu: `ovaj`, `ono` (pokazne zamjenice),
+     `dakle`, `znači`, `mislim` (ograda), `kao`, `mhm`/`aha` (= da), `em` (em… em), `er`
+     (= jer), `e` (`e-pošta`), `a`, `i`, `ne`. (b) Razliku jednog znaka (zamjena, umetanje
+     ili brisanje) u ZADNJA 3 znaka riječi kojoj su obje strane ≥ 6 znakova i bez
+     znamenaka, najviše `floor(n / 10)` takvih riječi za citat od n tokena (citat ispod 10
+     tokena mora biti točan na razini znaka). Prolazi: „ja sam hm rekao” → „ja sam rekao”;
+     `napravili`/`napravila`, `milijun`/`milijuna` u citatu od ≥ 10 riječi. Ne prolazi:
+     izostavljen `ovaj` ili `ne`, umetnuta riječ, zamjena riječi (`nisam` → `sam`),
+     `legalno`/`ilegalno` (početak), `prodati`/`predati` (sredina), `1000000`/`1000001`,
+     dvije izmjene u 10 riječi. Sve u `quote.test.ts`. Prvo se traži točno poklapanje.
+     Revizija: popis i pravilo se mijenjaju samo s primjerom iz stvarnog odgovora modela
+     i testom koji pokazuje da značenje ostaje.
+205. **Razlozi odbijanja** (`failed`, uvijek se zapisuju): `bad_cue_ref` (nepostojeći ili
+     obrnut raspon), `span_too_long` (`cue_from..cue_to` > 120 s, da model ne „pokrije”
+     cijelu sekciju i time ugasi prozor), `too_short` (< 4 tokena bez poštapalica),
+     `not_found`, `outside_window`, `speaker_mismatch` (svaki cue u nađenom spanu mora
+     imati SRT oznaku = `speaker` modela), `ellipsis` (citat ima više „…”/„...” od titla
+     u tom spanu). Tri točke se ne zabranjuju naslijepo: titlovi ih imaju za prekinut
+     govor (`grep -c '\.\.\.\|…' engine/test/fixtures/*/diarized*.srt`: `pIx_7N-6HJ4` 5,
+     `MGLq9v3AtvE` 6, `b-nls1ck8EE` 1, ostali 0),
+     a prva izvedba je zato odbijala doslovne citate (2 od 70 na `--fake`). Revizija: S3.
+206. **Vrijeme citata je iz titla, nikad iz modela.** Model ne vraća ms, samo `cue_from`/
+     `cue_to`. `start_ms`/`end_ms` = početak prve i kraj zadnje riječi spana iz
+     `words.json` (indeks riječi unutar cuea). `srt_only` kad epizoda nema words za taj
+     jezik, kad ijedan cue u spanu nema vremena (`count_mismatch`/`missing`) ili kad bi
+     riječi dale kraj ≤ početak; tada su granice prvog i zadnjeg cuea, a cue od 0 ms
+     dobiva kraj = početak + 1 (CHECK `end_ms > start_ms`). Test: `quote.test.ts`.
+207. **Migracija 002: `claim`, `reject_reason`, `quote_match`, `cue_from`, `cue_to`.**
+     CHECK `(quote_check = 'failed') = (reject_reason IS NOT NULL)` i `quote_match`
+     (exact/fuzzy) koji za `exact`/`fuzzy` mora biti jednak `quote_check`, za `srt_only`
+     postoji (da se ne izgubi je li tekst bio točan), za `failed` je NULL. Odbačen
+     trenutak ima raspon cueova koje je model naveo; uz `bad_cue_ref` raspon sekcije u
+     kojoj je model odgovarao (uvijek valjan). `cue_from`/`cue_to` se pišu kakve je model
+     dao, i kad su nevaljane. Ponovno izvlačenje u jednoj transakciji briše trenutke tog
+     videa na koje se NE poziva ni `article_sources` ni `story_moments` (priča iz S3 ne
+     smije izgubiti trenutak tiho) i upisuje nove uz `ON CONFLICT DO NOTHING`; dva
+     pokretanja daju isti broj redaka i citirani trenutak ostaje (`extract.test.ts`,
+     CLI test). Testovi gore/dolje: `db/migrate.test.ts`.
+208. **Jedan `runs` zapis po izvlačenju, jedan poziv po sekciji** (`step = extract`,
+     `prompt_version = extract-moments/1`, `temperature 0`, `name = extract-moments`).
+     Izlaz koji ne prolazi shemu (`LlmSchemaError`) preskače tu sekciju, ostale se
+     zapisuju, a run završava kao `failed` s brojem takvih sekcija; svaka druga greška
+     prekida prolaz bez zapisa trenutaka. Jezik i titl se provjeravaju prije `startRun`,
+     pa odbijena epizoda nema ni run ni poziv. Revizija: S3, ako ponovni pokušaj sekcije
+     bude jeftiniji od gubitka.
+209. **`--fake`: lažni LLM sastavlja odgovor iz redaka u promptu**, deterministički: cueovi
+     s oznakom govornika i ≥ 4 riječi, najdulji prvi (kod iste duljine raniji), 2 ako ih
+     sekcija ima ≥ 6, inače 1; citat je doslovan tekst cuea, trošak 0. Prolazi istu shemu
+     i brojanje poziva kao Gemini. ID iz `FIXTURES` čita lažni CDN (bez mreže), ostali
+     pravi CDN. Na 5 fixturea (`npm run vijesti -- extract <id> --fake --db <tmp>`,
+     `extract.test.ts`): `pIx_7N-6HJ4` 10 sekcija / 20 exact, `P9sLks-f2mQ` 5 / 10
+     srt_only, `x3w2BVZJ9vQ` 9 / 18 exact (en), `MGLq9v3AtvE` 6 / 12 exact, `b-nls1ck8EE`
+     5 / 10 exact; 0 failed. To dokazuje lanac, ne kvalitetu izbora.

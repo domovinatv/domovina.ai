@@ -36,11 +36,11 @@ describe('migracije na PGlite', () => {
   });
 
   it('gore → dolje → gore', async () => {
-    expect(await migrateUp(db)).toEqual([1]);
+    expect(await migrateUp(db)).toEqual([1, 2]);
     expect(await tables(db)).toEqual(TABLES);
     expect(await migrateUp(db)).toEqual([]);
 
-    expect(await migrateDown(db, { steps: Infinity })).toEqual([1]);
+    expect(await migrateDown(db, { steps: Infinity })).toEqual([2, 1]);
     expect(await tables(db)).toEqual(['schema_migrations']);
     // Odluka 108: nakon „dolje” u shemi ostaje samo knjigovodstvo runnera, bez
     // ijednog drugog objekta (sekvence, indeksi, tipovi).
@@ -59,23 +59,23 @@ describe('migracije na PGlite', () => {
     expect(types.rows).toHaveLength(0);
     expect(await appliedVersions(db)).toEqual([]);
 
-    expect(await migrateUp(db)).toEqual([1]);
+    expect(await migrateUp(db)).toEqual([1, 2]);
     expect(await tables(db)).toEqual(TABLES);
-    expect(await appliedVersions(db)).toEqual([1]);
+    expect(await appliedVersions(db)).toEqual([1, 2]);
   });
 
   it('migracija koja padne ne ostavlja ništa (transakcija)', async () => {
     const migrations = [
       ...(await loadMigrations()),
       {
-        version: 2,
+        version: 99,
         name: 'pokvarena',
         up: 'CREATE TABLE vijesti.privremena (id int); SELECT nepostojeci_stupac FROM vijesti.runs;',
         down: 'DROP TABLE vijesti.privremena;',
       },
     ];
     await expect(migrateUp(db, { migrations })).rejects.toThrow(/nepostojeci_stupac/);
-    expect(await appliedVersions(db)).toEqual([1]);
+    expect(await appliedVersions(db)).toEqual([1, 2]);
     expect(await tables(db)).not.toContain('privremena');
   });
 
@@ -94,10 +94,22 @@ describe('migracije na PGlite', () => {
         quote_check: 'exact',
         ...over,
       };
+      // Migracija 002: quote_match i reject_reason moraju pratiti quote_check.
+      const check = m.quote_check;
+      const match =
+        'quote_match' in over
+          ? over.quote_match
+          : check === 'exact' || check === 'fuzzy'
+            ? check
+            : check === 'srt_only'
+              ? 'exact'
+              : null;
+      const reason = 'reject_reason' in over ? over.reject_reason : check === 'failed' ? 'not_found' : null;
       return db.query<{ id: number }>(
-        `INSERT INTO vijesti.moments (video_id, start_ms, end_ms, speaker, quote, quote_check)
-         VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
-        [m.video_id, m.start_ms, m.end_ms, m.speaker, m.quote, m.quote_check],
+        `INSERT INTO vijesti.moments
+           (video_id, start_ms, end_ms, speaker, quote, quote_check, quote_match, reject_reason)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`,
+        [m.video_id, m.start_ms, m.end_ms, m.speaker, m.quote, m.quote_check, match, reason],
       );
     };
 
@@ -169,6 +181,53 @@ describe('migracije na PGlite', () => {
 
     it('quote_check NULL se odbija (NOT NULL uz CHECK)', async () => {
       await expect(moment({ quote_check: null })).rejects.toThrow(/null/i);
+    });
+
+    it('002: failed ⇔ reject_reason; quote_match prati quote_check', async () => {
+      await moment({ quote_check: 'failed', start_ms: 1, end_ms: 2 });
+      await expect(
+        moment({ quote_check: 'failed', reject_reason: null, start_ms: 3, end_ms: 4 }),
+      ).rejects.toThrow(/moments_reject_reason_consistent/);
+      await expect(
+        moment({ quote_check: 'exact', reject_reason: 'not_found', start_ms: 5, end_ms: 6 }),
+      ).rejects.toThrow(/moments_reject_reason_consistent/);
+      await expect(
+        moment({ quote_check: 'failed', reject_reason: '  ', start_ms: 7, end_ms: 8 }),
+      ).rejects.toThrow(/moments_reject_reason_check/);
+      await expect(
+        moment({ quote_check: 'exact', quote_match: 'fuzzy', start_ms: 9, end_ms: 10 }),
+      ).rejects.toThrow(/moments_quote_match_consistent/);
+      await expect(
+        moment({ quote_check: 'srt_only', quote_match: null, start_ms: 11, end_ms: 12 }),
+      ).rejects.toThrow(/moments_quote_match_consistent/);
+      await expect(
+        moment({ quote_check: 'failed', quote_match: 'exact', start_ms: 13, end_ms: 14 }),
+      ).rejects.toThrow(/moments_quote_match_consistent/);
+      await moment({ quote_check: 'srt_only', quote_match: 'fuzzy', start_ms: 15, end_ms: 16 });
+    });
+
+    it('002 dolje vraća shemu iz 001, gore je opet stavlja', async () => {
+      const cols = async () =>
+        (
+          await db.query<{ column_name: string }>(
+            `SELECT column_name FROM information_schema.columns
+             WHERE table_schema = 'vijesti' AND table_name = 'moments' ORDER BY column_name`,
+          )
+        ).rows.map((r) => r.column_name);
+      const withS2 = await cols();
+      expect(withS2).toEqual(expect.arrayContaining(['claim', 'reject_reason', 'quote_match', 'cue_from', 'cue_to']));
+      expect(await migrateDown(db)).toEqual([2]);
+      const without = await cols();
+      expect(without.filter((c) => !withS2.includes(c))).toEqual([]);
+      expect(withS2.filter((c) => !without.includes(c)).sort()).toEqual(
+        ['claim', 'cue_from', 'cue_to', 'quote_match', 'reject_reason'],
+      );
+      const cons = await db.query(
+        `SELECT 1 FROM pg_constraint WHERE conname LIKE 'moments_%consistent'`,
+      );
+      expect(cons.rows).toHaveLength(0);
+      expect(await migrateUp(db)).toEqual([2]);
+      expect(await cols()).toEqual(withS2);
     });
 
     it('runs: failed_calls ne može biti veći od calls', async () => {

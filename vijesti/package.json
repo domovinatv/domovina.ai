@@ -13,7 +13,8 @@
     "lint": "eslint .",
     "test": "vitest run",
     "fixtures:refresh": "tsx engine/test/fixtures-refresh.ts",
-    "cdn:stats": "tsx engine/cdn/stats-cli.ts"
+    "cdn:stats": "tsx engine/cdn/stats-cli.ts",
+    "vijesti": "tsx engine/cli.ts"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.5.15",
