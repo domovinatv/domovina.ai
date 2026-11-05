@@ -7,8 +7,9 @@ odobrava, a objavljuju se na `domovina.ai/vijesti`.
 Samostalna aplikacija: vlastiti `package.json`, lockfile i `npm run check`. Ne dira
 Flutter aplikaciju ni pipeline.
 
-**Stanje (2026-11-05, S1):** kostur, CDN loader, fixturei 5 stvarnih epizoda, shema baze
-s migracijama, `LlmClient` (Gemini + lažni). Izvlačenja trenutaka još nema (S2).
+**Stanje (2026-11-05, S3a):** kostur, CDN loader, fixturei 5 stvarnih epizoda, shema baze
+s migracijama, `LlmClient` (Gemini na Vertexu ili AI Studiju + lažni), izvlačenje trenutaka
+s provjerom citata (S2) i ocjena vijesti (S3). Pravi model još nije pozvan.
 
 ## Pokretanje
 
@@ -18,7 +19,12 @@ npm ci
 npm run check              # tsc --noEmit + eslint + vitest (bez mreže i bez LLM-a)
 npm run fixtures:refresh   # ponovno izvuče fixturee s CDN-a (mreža, nije dio check-a)
 npm run cdn:stats -- <id>  # oblik titla i poklapanje words.json za cijelu epizodu (mreža)
+npm run vijesti -- extract <id> --fake --db /tmp/v   # trenuci + provjera citata (lažni LLM)
+npm run vijesti -- score <id> --fake --db /tmp/v     # ocjena prihvaćenih trenutaka (lažni LLM)
 ```
+
+Bez `--fake` ide pravi Gemini (zadano Vertex AI s `gcloud` tokenom, vidi `.env.example`)
+i troši kvotu; mjerenje ide samo kroz `npm run eval` s procjenom prije pokretanja.
 
 Ključevi idu u `vijesti/.env` (vidi `.env.example`), nikad u git.
 
@@ -26,7 +32,10 @@ Ključevi idu u `vijesti/.env` (vidi `.env.example`), nikad u git.
 
 - `engine/cdn/`: loader, sheme (zod), SRT parser, spoj SRT + `words.json`, disk cache
   (`.cache/cdn/`)
-- `engine/llm/`: `LlmClient`, Gemini klijent, lažni klijent, brojanje poziva (`runs`)
+- `engine/llm/`: `LlmClient`, Gemini klijent (Vertex/Studio), gcloud token, konfiguracija,
+  procjena tokena, lažni klijent, brojanje poziva (`runs`)
+- `engine/extract/`, `engine/verify/`: trenuci iz titla i provjera citata
+- `engine/score/`: ocjena vijesti (novost, govornik, konkretnost), popis osoba
 - `engine/test/`: fixturei (`fixtures/README.md`), lažni CDN, setup koji gasi mrežu
 - `db/`: migracije (`db/migrations/`), runner, `runs` nad Postgresom (PGlite u testovima)
 

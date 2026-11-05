@@ -26,3 +26,10 @@ Veličine po epizodi i vrijeme izvlačenja su u `manifest.json` (sve ispod 200 k
 Ako epizoda više ne zadovoljava kriterij (npr. dobije `words.json` backfillom),
 skripta pada s porukom i treba izabrati drugu epizodu u `FIXTURES`. Tiha zamjena bi
 promijenila što test dokazuje.
+
+`persons.json` je snimka `https://mcp.domovina.ai/api/persons` (domovina-rag) od
+5.11.2026., 83 osobe, neizmijenjena (formatirana s uvlakom). Čitaju je testovi ocjene
+(`engine/score/`) i `vijesti score --fake`; pravi rad ide kroz `loadPersons` i disk cache
+`vijesti/.cache/persons/` (odluka 314). Osvježavanje je ručno:
+`curl -s https://mcp.domovina.ai/api/persons | node -e 'process.stdout.write(JSON.stringify(JSON.parse(require("fs").readFileSync(0,"utf8")),null,1)+"\n")' > engine/test/fixtures/persons.json`
+(brojke u `persons.test.ts` tada treba provjeriti).

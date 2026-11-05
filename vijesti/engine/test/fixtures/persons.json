@@ -1,0 +1,1417 @@
+{
+ "version": "1.0",
+ "person_count": 83,
+ "persons": [
+  {
+   "slug": "marko-matijasevic",
+   "name": "Marko Matijašević",
+   "avatar_url": null,
+   "episode_count": 22,
+   "channel_count": 9,
+   "total_duration_seconds": 74821,
+   "avg_magisterium_score": null,
+   "first_year": 2020,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "WC5K32qbTd0",
+    "date": "2026-07-07",
+    "title": "8. Mladifest Hrvatska | Marko Matijašević"
+   }
+  },
+  {
+   "slug": "don-damir-stojic",
+   "name": "Don Damir Stojić",
+   "avatar_url": null,
+   "episode_count": 21,
+   "channel_count": 12,
+   "total_duration_seconds": 86217,
+   "avg_magisterium_score": null,
+   "first_year": 2019,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "j061ZGe9aME",
+    "date": "2026-10-03",
+    "title": "DON DAMIR STOJIĆ - Biti svećenik za mene je izazovno i lijepo PODCAST ČUŠPAJZ #160"
+   }
+  },
+  {
+   "slug": "ante-bilaver",
+   "name": "Ante Bilaver",
+   "avatar_url": null,
+   "episode_count": 14,
+   "channel_count": 4,
+   "total_duration_seconds": 64473,
+   "avg_magisterium_score": null,
+   "first_year": 2020,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "2E36ly0TIck",
+    "date": "2026-06-18",
+    "title": "BP PODCAST #37: Ana Buljan i Ante Bilaver - Kako čuti Božji glas?"
+   }
+  },
+  {
+   "slug": "luka-goles-babic",
+   "name": "Luka Goleš Babić",
+   "avatar_url": null,
+   "episode_count": 13,
+   "channel_count": 6,
+   "total_duration_seconds": 68430,
+   "avg_magisterium_score": null,
+   "first_year": 2025,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "zZaW8UTn8as",
+    "date": "2026-06-25",
+    "title": "Komentar enciklike: Gradimo li Babilonsku kulu ili Novi Jeruzalem - Luka Goleš Babić | PODCAST #110"
+   }
+  },
+  {
+   "slug": "dan-dakovic",
+   "name": "Dan Đaković",
+   "avatar_url": null,
+   "episode_count": 12,
+   "channel_count": 4,
+   "total_duration_seconds": 59884,
+   "avg_magisterium_score": null,
+   "first_year": 2019,
+   "last_year": 2025,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "YnuPaw-EC_c",
+    "date": "2025-12-06",
+    "title": "Daj Bogu ono što je Božje, Cezaru ono što je Cezaru, Crkvi ono što je Crkve, a meni ono što je moje | Dan Đaković"
+   }
+  },
+  {
+   "slug": "andrej-grubisic",
+   "name": "Andrej Grubišić",
+   "avatar_url": null,
+   "episode_count": 11,
+   "channel_count": 6,
+   "total_duration_seconds": 38245,
+   "avg_magisterium_score": null,
+   "first_year": 2020,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "i9hs3plDgOc",
+    "date": "2026-07-03",
+    "title": "O tajni Modrićeva truda, ofsajdu ega i blagoslovu u biznisu | Andrej Grubišić u PSP podcastu | EP14"
+   }
+  },
+  {
+   "slug": "matija-stahan",
+   "name": "Matija Štahan",
+   "avatar_url": null,
+   "episode_count": 10,
+   "channel_count": 5,
+   "total_duration_seconds": 46163,
+   "avg_magisterium_score": null,
+   "first_year": 2019,
+   "last_year": 2025,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "NkBSmiUApvM",
+    "date": "2025-10-23",
+    "title": "BK podcast #12 - Samomržnja, nametanje fašistoidnosti i opće stanje duha u Hrvatskoj"
+   }
+  },
+  {
+   "slug": "trpimir-vedris",
+   "name": "Trpimir Vedriš",
+   "avatar_url": null,
+   "episode_count": 9,
+   "channel_count": 3,
+   "total_duration_seconds": 31849,
+   "avg_magisterium_score": null,
+   "first_year": 2019,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "98_N6iZ7WaQ",
+    "date": "2026-04-01",
+    "title": "Inkvizicija NIJE ono što mislite! - Razbijanje PROTUCRKVENIH MITOVA"
+   }
+  },
+  {
+   "slug": "stjepo-bartulica",
+   "name": "Stjepo Bartulica",
+   "avatar_url": null,
+   "episode_count": 8,
+   "channel_count": 3,
+   "total_duration_seconds": 29929,
+   "avg_magisterium_score": null,
+   "first_year": 2020,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "K_Uh2Xd4wOU",
+    "date": "2026-02-24",
+    "title": "Željka Markić & Narod.hr #141 - Stjepo Bartulica"
+   }
+  },
+  {
+   "slug": "karolina-vidovic-kristo",
+   "name": "Karolina Vidović Krišto",
+   "avatar_url": null,
+   "episode_count": 7,
+   "channel_count": 4,
+   "total_duration_seconds": 26415,
+   "avg_magisterium_score": null,
+   "first_year": 2020,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "3eh-QoW6ty0",
+    "date": "2026-08-26",
+    "title": "Karolina Vidović Krišto: A narod plaća ceh i trpi — Podcast Čušpajz #133 (repriza)"
+   }
+  },
+  {
+   "slug": "krunoslav-puskar",
+   "name": "Krunoslav Puškar",
+   "avatar_url": null,
+   "episode_count": 7,
+   "channel_count": 5,
+   "total_duration_seconds": 26452,
+   "avg_magisterium_score": null,
+   "first_year": 2020,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "n1lPlEjIQaY",
+    "date": "2026-01-17",
+    "title": "TRIBINA ZAGREB O kršćanskom djelovanju u javnom i političkom životu"
+   }
+  },
+  {
+   "slug": "niko-roncevic",
+   "name": "Niko Rončević",
+   "avatar_url": null,
+   "episode_count": 7,
+   "channel_count": 6,
+   "total_duration_seconds": 22489,
+   "avg_magisterium_score": null,
+   "first_year": 2023,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "ii5O14jb3Y0",
+    "date": "2026-10-10",
+    "title": "Panel diskusija: Kakva nam formacija muškaraca treba"
+   }
+  },
+  {
+   "slug": "nino-raspudic",
+   "name": "Nino Raspudić",
+   "avatar_url": null,
+   "episode_count": 7,
+   "channel_count": 3,
+   "total_duration_seconds": 22601,
+   "avg_magisterium_score": null,
+   "first_year": 2020,
+   "last_year": 2025,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "tuUz6OsuS1o",
+    "date": "2025-12-06",
+    "title": "Nino Raspudić: Problem je kad kroz tamburanje istroše domoljubni naboj"
+   }
+  },
+  {
+   "slug": "tomislav-belavic",
+   "name": "Tomislav Belavić",
+   "avatar_url": null,
+   "episode_count": 7,
+   "channel_count": 7,
+   "total_duration_seconds": 27700,
+   "avg_magisterium_score": null,
+   "first_year": 2023,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "pZ0ZC83zUYI",
+    "date": "2026-10-16",
+    "title": "Na putu života 12. 10. 2026. – Tomislav Belavić, predsjednik Katoličke udruge „Prilika za Susret“"
+   }
+  },
+  {
+   "slug": "tomislav-jonjic",
+   "name": "Tomislav Jonjić",
+   "avatar_url": null,
+   "episode_count": 7,
+   "channel_count": 3,
+   "total_duration_seconds": 25817,
+   "avg_magisterium_score": null,
+   "first_year": 2024,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "hHaajhpugrY",
+    "date": "2026-09-05",
+    "title": "Tomislav Jonjić otvoreno o požarima i aferama s otpadom — Podcast Čušpajz #154"
+   }
+  },
+  {
+   "slug": "diana-tikvic",
+   "name": "Diana Tikvić",
+   "avatar_url": null,
+   "episode_count": 6,
+   "channel_count": 4,
+   "total_duration_seconds": 14875,
+   "avg_magisterium_score": null,
+   "first_year": 2022,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "QKH1vDclcXs",
+    "date": "2026-10-31",
+    "title": "Živjeti Evanđelje - Zašto Isus blaženima naziva baš one kojima je najteže?"
+   }
+  },
+  {
+   "slug": "matej-culjak",
+   "name": "Matej Čuljak",
+   "avatar_url": null,
+   "episode_count": 6,
+   "channel_count": 5,
+   "total_duration_seconds": 30651,
+   "avg_magisterium_score": null,
+   "first_year": 2024,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "TNl60lYSn8E",
+    "date": "2026-06-12",
+    "title": "Ono što nam roditelji nisu dali... i kako danas utječe na nas"
+   }
+  },
+  {
+   "slug": "simona-mijokovic",
+   "name": "Simona Mijoković",
+   "avatar_url": null,
+   "episode_count": 6,
+   "channel_count": 6,
+   "total_duration_seconds": 22066,
+   "avg_magisterium_score": null,
+   "first_year": 2025,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "FfzleguzGUo",
+    "date": "2026-03-01",
+    "title": "“BILA SAM JOŠ GORA NEGO ŠTO MISLITE” – Simona Mijoković | PODCAST #98"
+   }
+  },
+  {
+   "slug": "tea-perovic",
+   "name": "Tea Perović",
+   "avatar_url": null,
+   "episode_count": 6,
+   "channel_count": 4,
+   "total_duration_seconds": 20001,
+   "avg_magisterium_score": null,
+   "first_year": 2024,
+   "last_year": 2025,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "xTOfd4KpL64",
+    "date": "2025-03-14",
+    "title": "Preminula Tea Perović (41), ovo je svjedočila u Popcast by Darko Pavičić"
+   }
+  },
+  {
+   "slug": "borna-marinic",
+   "name": "Borna Marinić",
+   "avatar_url": null,
+   "episode_count": 5,
+   "channel_count": 5,
+   "total_duration_seconds": 19270,
+   "avg_magisterium_score": null,
+   "first_year": 2024,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "c5KTzxlZ4U4",
+    "date": "2026-07-21",
+    "title": "Željka Markić & Narod.hr #162 - Borna Marinić"
+   }
+  },
+  {
+   "slug": "dijana-brozovic",
+   "name": "Dijana Brozović",
+   "avatar_url": null,
+   "episode_count": 5,
+   "channel_count": 4,
+   "total_duration_seconds": 18893,
+   "avg_magisterium_score": null,
+   "first_year": 2020,
+   "last_year": 2024,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "5J9GQ0sFe3M",
+    "date": "2024-10-10",
+    "title": "BP PODCAST #24: Dijana Brozović i Ante Čaljkušić - Malo drugačiji podcast o nerođenima"
+   }
+  },
+  {
+   "slug": "don-josip-muzic",
+   "name": "Don Josip Mužić",
+   "avatar_url": null,
+   "episode_count": 5,
+   "channel_count": 5,
+   "total_duration_seconds": 16154,
+   "avg_magisterium_score": null,
+   "first_year": 2023,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "Gn78w0wVjuc",
+    "date": "2026-03-19",
+    "title": "„U ovim stvarima NEMA KOMPROMISA U POLITICI”- don Josip Mužić | PODCAST #102"
+   }
+  },
+  {
+   "slug": "fra-jozo-grbes",
+   "name": "fra Jozo Grbeš",
+   "avatar_url": null,
+   "episode_count": 5,
+   "channel_count": 4,
+   "total_duration_seconds": 9826,
+   "avg_magisterium_score": null,
+   "first_year": 2024,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "8Php54O2M-Y",
+    "date": "2026-10-03",
+    "title": "Franjo je otkrio tajnu veličine: Kad zaboraviš na sebe, počinje pravi život"
+   }
+  },
+  {
+   "slug": "fra-mario-knezovic",
+   "name": "fra Mario Knezović",
+   "avatar_url": null,
+   "episode_count": 5,
+   "channel_count": 3,
+   "total_duration_seconds": 14322,
+   "avg_magisterium_score": null,
+   "first_year": 2022,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "sywDaYpbBig",
+    "date": "2026-08-19",
+    "title": "RETRO – fra Mario Knezović: „Ono Božje uvijek ima posljednju riječ\" | Podcast ČUŠPAJZ #120"
+   }
+  },
+  {
+   "slug": "ivan-dzanko",
+   "name": "Ivan Džanko",
+   "avatar_url": null,
+   "episode_count": 5,
+   "channel_count": 4,
+   "total_duration_seconds": 16988,
+   "avg_magisterium_score": null,
+   "first_year": 2023,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "3u0RmP0qAS4",
+    "date": "2026-08-01",
+    "title": "Ivan Džanko: Muškarac kao lider"
+   }
+  },
+  {
+   "slug": "kresimir-rotim",
+   "name": "Krešimir Rotim",
+   "avatar_url": null,
+   "episode_count": 5,
+   "channel_count": 4,
+   "total_duration_seconds": 24413,
+   "avg_magisterium_score": null,
+   "first_year": 2025,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "qpZtJqPD_wc",
+    "date": "2026-07-04",
+    "title": "KREŠIMIR ROTIM - Snimanje \"predstave\" u Istri je bila moralna obaveza - PODCAST ČUŠPAJZ #141"
+   }
+  },
+  {
+   "slug": "matija-kopic",
+   "name": "Matija Kopić",
+   "avatar_url": null,
+   "episode_count": 5,
+   "channel_count": 5,
+   "total_duration_seconds": 16774,
+   "avg_magisterium_score": null,
+   "first_year": 2024,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "RWgSVp8MR5U",
+    "date": "2026-04-10",
+    "title": "TRIBINA VINKOVCI Može li novi preporod krenuti s hrvatskoga istoka?"
+   }
+  },
+  {
+   "slug": "nepoznati-govornik",
+   "name": "Nepoznati govornik",
+   "avatar_url": null,
+   "episode_count": 5,
+   "channel_count": 3,
+   "total_duration_seconds": 13970,
+   "avg_magisterium_score": null,
+   "first_year": 2025,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "-KLvgPtEGoM",
+    "date": "2026-10-15",
+    "title": "2. Obiteljski koncert duhovne glazbe u Čakovcu – cijela snimka"
+   }
+  },
+  {
+   "slug": "nikola-grmoja",
+   "name": "Nikola Grmoja",
+   "avatar_url": null,
+   "episode_count": 5,
+   "channel_count": 4,
+   "total_duration_seconds": 22382,
+   "avg_magisterium_score": null,
+   "first_year": 2023,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "31yHO8nr-7s",
+    "date": "2026-10-07",
+    "title": "Je li Most populistička stranka? | Nikola Grmoja PODCAST#114"
+   }
+  },
+  {
+   "slug": "ratko-martinovic",
+   "name": "Ratko Martinović",
+   "avatar_url": null,
+   "episode_count": 5,
+   "channel_count": 4,
+   "total_duration_seconds": 19598,
+   "avg_magisterium_score": null,
+   "first_year": 2022,
+   "last_year": 2025,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "6my0krzEZ7c",
+    "date": "2025-05-24",
+    "title": "PODCAST ČUŠPAJZ #69 - Ratko Martinović -Caparapa...Sinke ,koji je broj ?"
+   }
+  },
+  {
+   "slug": "tanja-hrvatin-simicic",
+   "name": "Tanja Hrvatin Šimičić",
+   "avatar_url": null,
+   "episode_count": 5,
+   "channel_count": 4,
+   "total_duration_seconds": 31014,
+   "avg_magisterium_score": null,
+   "first_year": 2022,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "uisNOi50vp8",
+    "date": "2026-05-05",
+    "title": "Tanja Hrvatin Šimičić: Od vlastitih rana do mirnog roditeljstva"
+   }
+  },
+  {
+   "slug": "tomislav-sunic",
+   "name": "Tomislav Sunić",
+   "avatar_url": null,
+   "episode_count": 5,
+   "channel_count": 4,
+   "total_duration_seconds": 23319,
+   "avg_magisterium_score": null,
+   "first_year": 2024,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "DrX44qW8ZTk",
+    "date": "2026-04-11",
+    "title": "Prosvjed za spas hrvatske kulture i zamjeni stanovništva. U Zadru 11.4.2026"
+   }
+  },
+  {
+   "slug": "vlc-ivan-grbesic",
+   "name": "Vlč. Ivan Grbešić",
+   "avatar_url": null,
+   "episode_count": 5,
+   "channel_count": 3,
+   "total_duration_seconds": 13381,
+   "avg_magisterium_score": null,
+   "first_year": 2019,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "54dp1u4ZbcE",
+    "date": "2026-07-18",
+    "title": "8. Mladifest Hrvatska | vlč. Ivan Grbešić"
+   }
+  },
+  {
+   "slug": "zlatko-krznaric",
+   "name": "Zlatko Krznarić",
+   "avatar_url": null,
+   "episode_count": 5,
+   "channel_count": 3,
+   "total_duration_seconds": 12274,
+   "avg_magisterium_score": null,
+   "first_year": 2021,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "f2HIRJPHHK4",
+    "date": "2026-09-12",
+    "title": "[re:DEFINICIJA] Zlatko Krznarić: Fatalna nesreća bila je moj novi početak (ep. 9)"
+   }
+  },
+  {
+   "slug": "andelko-milardovic",
+   "name": "Anđelko Milardović",
+   "avatar_url": null,
+   "episode_count": 4,
+   "channel_count": 3,
+   "total_duration_seconds": 15477,
+   "avg_magisterium_score": null,
+   "first_year": 2021,
+   "last_year": 2025,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "ZyQXMo7SBK4",
+    "date": "2025-06-28",
+    "title": "PODCAST HERCEGOVINA –Anđelko Milardović: Hrvatska upala u jednostranačje, Europa gubi identitet"
+   }
+  },
+  {
+   "slug": "ante-cash",
+   "name": "Ante Cash",
+   "avatar_url": null,
+   "episode_count": 4,
+   "channel_count": 3,
+   "total_duration_seconds": 14304,
+   "avg_magisterium_score": null,
+   "first_year": 2020,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "QY_ZaFbpTeM",
+    "date": "2026-07-13",
+    "title": "Ante Cash iskreno: Odrastao sam uz razvod roditelja, zato danas ovako gledam na brak i obitelj"
+   }
+  },
+  {
+   "slug": "carla-konta",
+   "name": "Carla Konta",
+   "avatar_url": null,
+   "episode_count": 4,
+   "channel_count": 4,
+   "total_duration_seconds": 12346,
+   "avg_magisterium_score": null,
+   "first_year": 2020,
+   "last_year": 2025,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "7db0JE6uMTE",
+    "date": "2025-12-05",
+    "title": "Roditeljstvo kao vodstvo: izgradnjom karaktera do istinskog lidera | Carla Konta | SSP"
+   }
+  },
+  {
+   "slug": "danijel-katanovic",
+   "name": "Danijel Katanović",
+   "avatar_url": null,
+   "episode_count": 4,
+   "channel_count": 3,
+   "total_duration_seconds": 11361,
+   "avg_magisterium_score": null,
+   "first_year": 2021,
+   "last_year": 2025,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "k_6wWSbz_Jc",
+    "date": "2025-01-15",
+    "title": "Danijel Katanović: Ljubav i poštovanje u vezi i braku"
+   }
+  },
+  {
+   "slug": "eva-vukina",
+   "name": "Eva Vukina",
+   "avatar_url": null,
+   "episode_count": 4,
+   "channel_count": 4,
+   "total_duration_seconds": 14410,
+   "avg_magisterium_score": null,
+   "first_year": 2023,
+   "last_year": 2024,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "TMTE52iM07o",
+    "date": "2024-11-19",
+    "title": "PSP PODCAST 02: Eva Vukina - Kad se spoji Božji dar i poduzetništvo"
+   }
+  },
+  {
+   "slug": "filip-celikovic",
+   "name": "Filip Čeliković",
+   "avatar_url": null,
+   "episode_count": 4,
+   "channel_count": 3,
+   "total_duration_seconds": 18869,
+   "avg_magisterium_score": null,
+   "first_year": 2025,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "IsFXK0VJKAU",
+    "date": "2026-10-15",
+    "title": "BP PODCAST #38: Filip Čeliković - 7 sakramenata, a 0 ideja čemu služe?"
+   }
+  },
+  {
+   "slug": "herman-vukusic",
+   "name": "Herman Vukušić",
+   "avatar_url": null,
+   "episode_count": 4,
+   "channel_count": 3,
+   "total_duration_seconds": 22292,
+   "avg_magisterium_score": null,
+   "first_year": 2021,
+   "last_year": 2025,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "1O4ySY9jaMw",
+    "date": "2025-10-15",
+    "title": "Seksualna edukacija kao moralna i odgojna kriza"
+   }
+  },
+  {
+   "slug": "ivan-dordic",
+   "name": "Ivan Đordić",
+   "avatar_url": null,
+   "episode_count": 4,
+   "channel_count": 3,
+   "total_duration_seconds": 14555,
+   "avg_magisterium_score": null,
+   "first_year": 2020,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "e4aPRlJ04fc",
+    "date": "2026-02-14",
+    "title": "Ivan Đordić i Iva Konjevod - Isus ozdravlja i danas | EP9 - ABBACAST"
+   }
+  },
+  {
+   "slug": "ivan-pokupec",
+   "name": "Ivan Pokupec",
+   "avatar_url": null,
+   "episode_count": 4,
+   "channel_count": 3,
+   "total_duration_seconds": 15221,
+   "avg_magisterium_score": null,
+   "first_year": 2021,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "-bOmDXC7rlA",
+    "date": "2026-02-07",
+    "title": "Ivan Pokupec: Apsolutno netipičan vjeroučitelj (ep. 2)"
+   }
+  },
+  {
+   "slug": "ivona-zgrabljic",
+   "name": "Ivona Zgrabljić",
+   "avatar_url": null,
+   "episode_count": 4,
+   "channel_count": 4,
+   "total_duration_seconds": 16092,
+   "avg_magisterium_score": null,
+   "first_year": 2024,
+   "last_year": 2025,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "LRci7pibY5Q",
+    "date": "2025-12-14",
+    "title": "TKO SAM, KAMO IDEM I ZAŠTO ŽIVIM? | Ivona Zgrabljić | PODCAST #85"
+   }
+  },
+  {
+   "slug": "luka-popov",
+   "name": "Luka Popov",
+   "avatar_url": null,
+   "episode_count": 4,
+   "channel_count": 3,
+   "total_duration_seconds": 19353,
+   "avg_magisterium_score": null,
+   "first_year": 2021,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "b8rijVHPpIs",
+    "date": "2026-04-12",
+    "title": "Što mladi ZAISTA misle o politici? - 3V OTVORENI SUSRET"
+   }
+  },
+  {
+   "slug": "marija-selak-raspudic",
+   "name": "Marija Selak Raspudić",
+   "avatar_url": null,
+   "episode_count": 4,
+   "channel_count": 3,
+   "total_duration_seconds": 14930,
+   "avg_magisterium_score": null,
+   "first_year": 2021,
+   "last_year": 2024,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "WzbHupOQuMw",
+    "date": "2024-11-26",
+    "title": "Marija Selak Raspudić OTVORENO o pobačaju: „Ja sam ZA život!\""
+   }
+  },
+  {
+   "slug": "marina-katinic-pleic",
+   "name": "Marina Katinić Pleić",
+   "avatar_url": null,
+   "episode_count": 4,
+   "channel_count": 4,
+   "total_duration_seconds": 20924,
+   "avg_magisterium_score": null,
+   "first_year": 2025,
+   "last_year": 2025,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "HDnct2LpC1o",
+    "date": "2025-11-26",
+    "title": "Dokazi o štetnom i ne znanstvenom \"zdravstvenom\" odgoju!"
+   }
+  },
+  {
+   "slug": "mato-topic",
+   "name": "Mato Topić",
+   "avatar_url": null,
+   "episode_count": 4,
+   "channel_count": 4,
+   "total_duration_seconds": 13992,
+   "avg_magisterium_score": null,
+   "first_year": 2022,
+   "last_year": 2025,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "uYwB5_f2Wog",
+    "date": "2025-12-27",
+    "title": "Mato Topić - Svjedočanstvo"
+   }
+  },
+  {
+   "slug": "p-stjepan-ivan-horvat",
+   "name": "p. Stjepan Ivan Horvat",
+   "avatar_url": null,
+   "episode_count": 4,
+   "channel_count": 3,
+   "total_duration_seconds": 11720,
+   "avg_magisterium_score": null,
+   "first_year": 2021,
+   "last_year": 2025,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "nw6rHHHrpFc",
+    "date": "2025-01-10",
+    "title": "P. Stjepan Ivan Horvat: Bio sam na Ultri, molili smo s ljudima, a neke je molitva izula iz cipela"
+   }
+  },
+  {
+   "slug": "pere-eranovic",
+   "name": "Pere Eranović",
+   "avatar_url": null,
+   "episode_count": 4,
+   "channel_count": 4,
+   "total_duration_seconds": 16335,
+   "avg_magisterium_score": null,
+   "first_year": 2023,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "tIUwvVfbPbI",
+    "date": "2026-07-11",
+    "title": "Pere Eranović: Brak kao podvig?"
+   }
+  },
+  {
+   "slug": "stijepo-gled-markos",
+   "name": "Stijepo Gleđ Markos",
+   "avatar_url": null,
+   "episode_count": 4,
+   "channel_count": 3,
+   "total_duration_seconds": 15537,
+   "avg_magisterium_score": null,
+   "first_year": 2022,
+   "last_year": 2022,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "EGL9F9wQVaI",
+    "date": "2022-11-02",
+    "title": "Stijepo Gleđ Markos - Svjedočanstvo"
+   }
+  },
+  {
+   "slug": "vlatka-kalinic",
+   "name": "Vlatka Kalinić",
+   "avatar_url": null,
+   "episode_count": 4,
+   "channel_count": 4,
+   "total_duration_seconds": 20648,
+   "avg_magisterium_score": null,
+   "first_year": 2025,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "u1zEGtr6mw4",
+    "date": "2026-10-16",
+    "title": "Femicid, nasilje u školi i skandali u Crkvi / Vlatka Kalinić"
+   }
+  },
+  {
+   "slug": "vlc-tomislav-sagud",
+   "name": "vlč. Tomislav Šagud",
+   "avatar_url": null,
+   "episode_count": 4,
+   "channel_count": 4,
+   "total_duration_seconds": 11254,
+   "avg_magisterium_score": null,
+   "first_year": 2022,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "Tt0FN_oPLsQ",
+    "date": "2026-04-25",
+    "title": "vlč. Tomislav Šagud: Crkveno učiteljstvo o pornografiji"
+   }
+  },
+  {
+   "slug": "zlatko-dalic",
+   "name": "Zlatko Dalić",
+   "avatar_url": null,
+   "episode_count": 4,
+   "channel_count": 4,
+   "total_duration_seconds": 10651,
+   "avg_magisterium_score": null,
+   "first_year": 2023,
+   "last_year": 2025,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "QBVkaorXCIU",
+    "date": "2025-12-24",
+    "title": "Svjedočanstvo: “Bog me stavio na pravo mjesto” - Zlatko Dalić"
+   }
+  },
+  {
+   "slug": "albina-grcic",
+   "name": "Albina Grčić",
+   "avatar_url": null,
+   "episode_count": 3,
+   "channel_count": 3,
+   "total_duration_seconds": 12473,
+   "avg_magisterium_score": null,
+   "first_year": 2026,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "dbWQx3srKRE",
+    "date": "2026-10-20",
+    "title": "[DDV KATEHEZE] Možeš li vjerovati u Boga, a da ga zapravo ne poznaješ? - Albina Grčić"
+   }
+  },
+  {
+   "slug": "aleksandar-stankovic",
+   "name": "Aleksandar Stanković",
+   "avatar_url": null,
+   "episode_count": 3,
+   "channel_count": 3,
+   "total_duration_seconds": 9968,
+   "avg_magisterium_score": null,
+   "first_year": 2025,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "pNSblshqEuU",
+    "date": "2026-09-14",
+    "title": "Nedjeljom u 2: Damir Sabol"
+   }
+  },
+  {
+   "slug": "anja-mihanovic",
+   "name": "Anja Mihanović",
+   "avatar_url": null,
+   "episode_count": 3,
+   "channel_count": 3,
+   "total_duration_seconds": 12018,
+   "avg_magisterium_score": null,
+   "first_year": 2022,
+   "last_year": 2025,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "XLoFDZHUaJM",
+    "date": "2025-01-09",
+    "title": "BP PODCAST #27: Martina, Anja i Kristijan - Izazovi roditeljstva"
+   }
+  },
+  {
+   "slug": "bozo-skoko",
+   "name": "Božo Skoko",
+   "avatar_url": null,
+   "episode_count": 3,
+   "channel_count": 3,
+   "total_duration_seconds": 12512,
+   "avg_magisterium_score": null,
+   "first_year": 2023,
+   "last_year": 2025,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "LT5hVmrLMjQ",
+    "date": "2025-03-11",
+    "title": "Ponosno i ponizno kroz uspjehe (i neuspjehe) | Zlatko Dalić | SSP (w/ Božo Skoko)"
+   }
+  },
+  {
+   "slug": "bruno-penava",
+   "name": "Bruno Penava",
+   "avatar_url": null,
+   "episode_count": 3,
+   "channel_count": 3,
+   "total_duration_seconds": 12672,
+   "avg_magisterium_score": null,
+   "first_year": 2024,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "G0ar7TRuwzY",
+    "date": "2026-05-17",
+    "title": "POLITIČARI bi morali više VOLONTIRATI! - 3V OTVORENI SUSRET"
+   }
+  },
+  {
+   "slug": "dario-kordic",
+   "name": "Dario Kordić",
+   "avatar_url": null,
+   "episode_count": 3,
+   "channel_count": 3,
+   "total_duration_seconds": 13675,
+   "avg_magisterium_score": null,
+   "first_year": 2016,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "h_6vqQEL2uc",
+    "date": "2026-08-15",
+    "title": "[re:DEFINICIJA] Dario Kordić: Susreo sam Isusa u haaškoj tamnici (ep. 8)"
+   }
+  },
+  {
+   "slug": "davor-dijanovic",
+   "name": "Davor Dijanović",
+   "avatar_url": null,
+   "episode_count": 3,
+   "channel_count": 3,
+   "total_duration_seconds": 9671,
+   "avg_magisterium_score": null,
+   "first_year": 2021,
+   "last_year": 2025,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "uN-wQK_422E",
+    "date": "2025-02-17",
+    "title": "PODCAST MREŽNICA - Dijanović: Hrvatska nije spremna za rat i lom! Red za minhensku bojnu bio bi duži"
+   }
+  },
+  {
+   "slug": "davor-ivo-stier",
+   "name": "Davor Ivo Stier",
+   "avatar_url": null,
+   "episode_count": 3,
+   "channel_count": 3,
+   "total_duration_seconds": 14312,
+   "avg_magisterium_score": null,
+   "first_year": 2020,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "9-sAflNJG5s",
+    "date": "2026-04-24",
+    "title": "DAVOR IVO STIER -Bez kršćanstva nema demokracije - PODCAST ČUŠPAJZ #128"
+   }
+  },
+  {
+   "slug": "don-roko-kastelan",
+   "name": "Don Roko Kaštelan",
+   "avatar_url": null,
+   "episode_count": 3,
+   "channel_count": 3,
+   "total_duration_seconds": 14258,
+   "avg_magisterium_score": null,
+   "first_year": 2024,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "h7BaJ4HwM-s",
+    "date": "2026-01-31",
+    "title": "don Roko Kaštelan: Božji klošar - svjedočanstvo"
+   }
+  },
+  {
+   "slug": "don-tomislav-lukac",
+   "name": "Don Tomislav Lukač",
+   "avatar_url": null,
+   "episode_count": 3,
+   "channel_count": 3,
+   "total_duration_seconds": 19407,
+   "avg_magisterium_score": null,
+   "first_year": 2024,
+   "last_year": 2025,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "itkHwGmV2e4",
+    "date": "2025-10-04",
+    "title": "PODCAST MREŽNICA - don Lukač:Da bismo preživjeli dolazeći val sekularizma treba iskustvo živog Boga!"
+   }
+  },
+  {
+   "slug": "fra-ivan-matic",
+   "name": "fra Ivan Matić",
+   "avatar_url": null,
+   "episode_count": 3,
+   "channel_count": 3,
+   "total_duration_seconds": 9633,
+   "avg_magisterium_score": null,
+   "first_year": 2024,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "Ry-4jhCvzMM",
+    "date": "2026-10-10",
+    "title": "Živjeti Evanđelje - Sve je pripravljeno. Hoćeš li doći?"
+   }
+  },
+  {
+   "slug": "fra-mario-berisic",
+   "name": "fra Mario Berišić",
+   "avatar_url": null,
+   "episode_count": 3,
+   "channel_count": 3,
+   "total_duration_seconds": 7707,
+   "avg_magisterium_score": null,
+   "first_year": 2023,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "ZQvL-UkAM1Y",
+    "date": "2026-10-27",
+    "title": "[DDV KATEHEZE] Kako se nositi s mislima koje ne možeš zaustaviti? - fra Mario Berišić"
+   }
+  },
+  {
+   "slug": "fra-mate-kolak",
+   "name": "fra Mate Kolak",
+   "avatar_url": null,
+   "episode_count": 3,
+   "channel_count": 3,
+   "total_duration_seconds": 11036,
+   "avg_magisterium_score": null,
+   "first_year": 2023,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "Ya7G_HL2hTc",
+    "date": "2026-04-04",
+    "title": "fra Mate Kolak: Bog i muškarci"
+   }
+  },
+  {
+   "slug": "iva-brcic",
+   "name": "Iva Brčić",
+   "avatar_url": null,
+   "episode_count": 3,
+   "channel_count": 3,
+   "total_duration_seconds": 10349,
+   "avg_magisterium_score": null,
+   "first_year": 2023,
+   "last_year": 2025,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "MiTlA1RIuj8",
+    "date": "2025-11-06",
+    "title": "PSP PODCAST E07: Iva Brčić - \"Od svjetskih modnih pista do poduzetništva i ženskog pastorala\""
+   }
+  },
+  {
+   "slug": "josip-milkovic",
+   "name": "Josip Milković",
+   "avatar_url": null,
+   "episode_count": 3,
+   "channel_count": 3,
+   "total_duration_seconds": 9585,
+   "avg_magisterium_score": null,
+   "first_year": 2025,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "-OKU0UM6TIk",
+    "date": "2026-10-24",
+    "title": "Josip Milković: Zašto vjerujem? - svjedočanstvo"
+   }
+  },
+  {
+   "slug": "marijana-mikulic",
+   "name": "Marijana Mikulić",
+   "avatar_url": null,
+   "episode_count": 3,
+   "channel_count": 3,
+   "total_duration_seconds": 12931,
+   "avg_magisterium_score": null,
+   "first_year": 2025,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "dh8oaj6Q3qI",
+    "date": "2026-02-20",
+    "title": "Marijana Mikulić: Majčinstvo je predivno. Sve ostalo je teško."
+   }
+  },
+  {
+   "slug": "marin-cilic",
+   "name": "Marin Čilić",
+   "avatar_url": null,
+   "episode_count": 3,
+   "channel_count": 3,
+   "total_duration_seconds": 9053,
+   "avg_magisterium_score": null,
+   "first_year": 2023,
+   "last_year": 2025,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "d23Cp25Su94",
+    "date": "2025-12-09",
+    "title": "[SVJEDOČANSTVO] Vjera, brak i žrtva u vrhunskom sportu - Kristina i Marin Čilić"
+   }
+  },
+  {
+   "slug": "marko-juric",
+   "name": "Marko Jurić",
+   "avatar_url": null,
+   "episode_count": 3,
+   "channel_count": 3,
+   "total_duration_seconds": 13373,
+   "avg_magisterium_score": null,
+   "first_year": 2021,
+   "last_year": 2024,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "MV5nUO43HNA",
+    "date": "2024-10-04",
+    "title": "PODCAST MREŽNICA - Jurič: Na pragu smo velike pretumbacije, sljedeća godina bit će ekspanzija ludila"
+   }
+  },
+  {
+   "slug": "matej-zivkovic",
+   "name": "Matej Živković",
+   "avatar_url": null,
+   "episode_count": 3,
+   "channel_count": 3,
+   "total_duration_seconds": 15634,
+   "avg_magisterium_score": null,
+   "first_year": 2023,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "3HD52pfHtTI",
+    "date": "2026-04-07",
+    "title": "PODCAST MREŽNICA - Živković: Dok Trump prijeti, Iran drži jače adute - prava moć se seli!"
+   }
+  },
+  {
+   "slug": "mladenka-majeric",
+   "name": "Mladenka Majerić",
+   "avatar_url": null,
+   "episode_count": 3,
+   "channel_count": 3,
+   "total_duration_seconds": 6661,
+   "avg_magisterium_score": null,
+   "first_year": 2025,
+   "last_year": 2025,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "1mRu8yg4-BQ",
+    "date": "2025-10-30",
+    "title": "Vođenje neprofitnih organizacija - privilegija ili teret?"
+   }
+  },
+  {
+   "slug": "odilon-singbo",
+   "name": "Odilon Singbo",
+   "avatar_url": null,
+   "episode_count": 3,
+   "channel_count": 3,
+   "total_duration_seconds": 10188,
+   "avg_magisterium_score": null,
+   "first_year": 2020,
+   "last_year": 2021,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "ExIq7CIu9GU",
+    "date": "2021-11-02",
+    "title": "Podcast Bitno.net-a - vlč. Odilon: Transhumanizam je raspamećeno kršćanstvo - obećava lažnu vječnost"
+   }
+  },
+  {
+   "slug": "p-sebastian-sujevic",
+   "name": "p. Sebastian Šujević",
+   "avatar_url": null,
+   "episode_count": 3,
+   "channel_count": 3,
+   "total_duration_seconds": 6098,
+   "avg_magisterium_score": null,
+   "first_year": 2024,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "Ieglkne475k",
+    "date": "2026-01-29",
+    "title": "p. Sebastian Šujević - Razlikovanje glasova"
+   }
+  },
+  {
+   "slug": "pater-bozidar-nagy",
+   "name": "Pater Božidar Nagy",
+   "avatar_url": null,
+   "episode_count": 3,
+   "channel_count": 3,
+   "total_duration_seconds": 9843,
+   "avg_magisterium_score": null,
+   "first_year": 2020,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "wJkoUXMgs20",
+    "date": "2026-05-05",
+    "title": "Merzfest 2025. | p. Božidar Nagy: Život bl. Ivana Merza"
+   }
+  },
+  {
+   "slug": "pater-ike-manduric",
+   "name": "Pater Ike Mandurić",
+   "avatar_url": null,
+   "episode_count": 3,
+   "channel_count": 3,
+   "total_duration_seconds": 12567,
+   "avg_magisterium_score": null,
+   "first_year": 2020,
+   "last_year": 2025,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "d-sZ4hYZj4o",
+    "date": "2025-05-30",
+    "title": "pater Ike Mandurić | Branitelje žele marginalizirati, ali HEROJE trebamo u HRVATSKOJ! - PODCAST #76"
+   }
+  },
+  {
+   "slug": "pater-stjepan-ivan-horvat",
+   "name": "Pater Stjepan Ivan Horvat",
+   "avatar_url": null,
+   "episode_count": 3,
+   "channel_count": 3,
+   "total_duration_seconds": 16370,
+   "avg_magisterium_score": null,
+   "first_year": 2023,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "9EaTAuCrhNI",
+    "date": "2026-03-26",
+    "title": "PODCAST MREŽNICA - Horvat: Vlada duh: Što mogu dobiti, koju korist imam? Mnogi žele u nebo bez križa"
+   }
+  },
+  {
+   "slug": "stipo-mlinaric-cipe",
+   "name": "Stipo Mlinarić Ćipe",
+   "avatar_url": null,
+   "episode_count": 3,
+   "channel_count": 3,
+   "total_duration_seconds": 13157,
+   "avg_magisterium_score": null,
+   "first_year": 2021,
+   "last_year": 2024,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "DxLRhgvMNYo",
+    "date": "2024-02-02",
+    "title": "PODCAST MREŽNICA - Mlinarić Ćipe: Bojim se da sam se najviše razočarao u naš hrvatski narod"
+   }
+  },
+  {
+   "slug": "stjepan-sterc",
+   "name": "Stjepan Šterc",
+   "avatar_url": null,
+   "episode_count": 3,
+   "channel_count": 3,
+   "total_duration_seconds": 11305,
+   "avg_magisterium_score": null,
+   "first_year": 2021,
+   "last_year": 2025,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "Qo0ljmGRZr0",
+    "date": "2025-07-16",
+    "title": "PODCAST ČUŠPAJZ #78 - Hrvatska je među vodećim zemljama po demografskoj destrukciji - STJEPAN ŠTERC"
+   }
+  },
+  {
+   "slug": "vanessa-mioc",
+   "name": "Vanessa Mioč",
+   "avatar_url": null,
+   "episode_count": 3,
+   "channel_count": 3,
+   "total_duration_seconds": 7964,
+   "avg_magisterium_score": null,
+   "first_year": 2023,
+   "last_year": 2026,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "DR9rrCDpnTA",
+    "date": "2026-04-24",
+    "title": "Vanessa i Thompson nastupaju na humanitarnom koncertu"
+   }
+  },
+  {
+   "slug": "vera-zefic",
+   "name": "Vera Zefić",
+   "avatar_url": null,
+   "episode_count": 3,
+   "channel_count": 3,
+   "total_duration_seconds": 7821,
+   "avg_magisterium_score": null,
+   "first_year": 2024,
+   "last_year": 2025,
+   "is_virtual_channel": true,
+   "latest_episode": {
+    "youtube_id": "Rqhhh84Ql_I",
+    "date": "2025-10-15",
+    "title": "Vera Zefić - Svjedočanstvo"
+   }
+  }
+ ]
+}

@@ -177,7 +177,7 @@ describe('Gemini klijent (lažni fetch)', () => {
     const recorder = new MemoryRunRecorder();
     const runId = await recorder.startRun({ step: 'x', model: 'm' });
     const client = (status: number, body: unknown) =>
-      createGeminiClient({ fetch: geminiFetch(status, body, []), apiKey: 'k', model: 'm', recorder });
+      createGeminiClient({ fetch: geminiFetch(status, body, []), apiKey: 'k', model: 'm', recorder, retry: { retries: 0 } });
     const gen = (status: number, body: unknown) =>
       client(status, body).generate({ prompt: 'p', schema: MomentsSchema, runId });
     await expect(gen(429, { error: { message: 'quota' } })).rejects.toThrow(/HTTP 429/);
@@ -208,6 +208,7 @@ describe('Gemini klijent (lažni fetch)', () => {
       apiKey: 'tajni-kljuc',
       model: 'm',
       recorder,
+      retry: { retries: 0 },
     });
     const err = await llm.generate({ prompt: 'p', schema: MomentsSchema, runId }).catch((e: unknown) => e);
     expect(err).toBeInstanceOf(LlmResponseError);
@@ -264,7 +265,14 @@ describe('Gemini klijent (lažni fetch)', () => {
 
 describe('konfiguracija', () => {
   it('zadani model, ključ i cijena iz okoline', () => {
-    expect(llmConfigFromEnv({})).toEqual({ apiKey: '', model: DEFAULT_GEMINI_MODEL, pricing: null });
+    expect(DEFAULT_GEMINI_MODEL).toBe('gemini-3.8-flash');
+    expect(llmConfigFromEnv({}, Date.UTC(2026, 10, 5))).toMatchObject({
+      backend: 'vertex',
+      apiKey: '',
+      model: DEFAULT_GEMINI_MODEL,
+      pricing: { inPerMTok: 0.75, outPerMTok: 3.75 },
+      pricingSource: 'default',
+    });
     expect(
       llmConfigFromEnv({
         GEMINI_API_KEY: ' k ',
@@ -272,7 +280,15 @@ describe('konfiguracija', () => {
         VIJESTI_GEMINI_PRICE_IN_PER_MTOK: '0.3',
         VIJESTI_GEMINI_PRICE_OUT_PER_MTOK: '2.5',
       }),
-    ).toEqual({ apiKey: 'k', model: 'gemini-x', pricing: { inPerMTok: 0.3, outPerMTok: 2.5 } });
+    ).toMatchObject({
+      backend: 'studio',
+      apiKey: 'k',
+      model: 'gemini-x',
+      pricing: { inPerMTok: 0.3, outPerMTok: 2.5 },
+      pricingSource: 'env',
+    });
+    // AI Studio bez cijene u okolini: trošak nepoznat (odluka 107), ne izmišljen.
+    expect(llmConfigFromEnv({ GEMINI_API_KEY: 'k' })).toMatchObject({ pricing: null, pricingSource: null });
   });
 
   it('pola cijene ili neispravan broj je greška', () => {

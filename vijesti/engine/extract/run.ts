@@ -1,7 +1,7 @@
 // `vijesti extract`: jezik snimke → titl → sekcije → model → provjera
 // citata → baza. Svaki poziv modela ide u jedan `runs` zapis.
 import type { SqlDb } from '../../db/sql.js';
-import type { CdnClient } from '../cdn/loader.js';
+import type { CdnClient, LoadedEpisode } from '../cdn/loader.js';
 import type { RunRecorder } from '../llm/runs.js';
 import { LlmSchemaError, type LlmClient } from '../llm/types.js';
 import { verifyQuote, type QuoteCheck, type VerifyOptions } from '../verify/quote.js';
@@ -13,7 +13,7 @@ import {
   PROMPT_VERSION,
   SYSTEM_PROMPT,
 } from './prompt.js';
-import { splitSections } from './sections.js';
+import { splitSections, type TranscriptSection } from './sections.js';
 import { saveMoments, type MomentRow } from './store.js';
 
 export interface ExtractDeps {
@@ -51,8 +51,22 @@ export interface ExtractReport {
   skipped: number;
 }
 
-export async function runExtract(deps: ExtractDeps, opts: ExtractOptions): Promise<ExtractReport> {
-  const { cdn, llm, recorder, db } = deps;
+export interface PreparedExtract {
+  videoId: string;
+  lang: string;
+  langSource: LangSource;
+  episode: LoadedEpisode;
+  sections: TranscriptSection[];
+  /** Jedan prompt po sekciji, redom (bez poziva modela; i za procjenu u `npm run eval`). */
+  prompts: { section: TranscriptSection; prompt: string }[];
+  system: string;
+}
+
+/** Jezik, titl, sekcije i promptovi, bez poziva modela i bez zapisa u bazu. */
+export async function prepareExtract(
+  cdn: CdnClient,
+  opts: Pick<ExtractOptions, 'videoId' | 'lang' | 'channelLang'>,
+): Promise<PreparedExtract> {
   const { videoId } = opts;
   const bundle = await cdn.bundle(videoId);
   const decision = decideQuoteLang({ bundle, explicit: opts.lang, channelLang: opts.channelLang });
@@ -62,8 +76,29 @@ export async function runExtract(deps: ExtractDeps, opts: ExtractOptions): Promi
   }
   // Prije ijednog poziva: tekst titla mora biti na jeziku snimke.
   assertTextLang(ep.cues.map((c) => c.text).join(' '), decision.lang);
-
   const sections = splitSections(ep.cues, ep.article);
+  const title = ep.info?.title ?? ep.summary?.source.title ?? null;
+  return {
+    videoId,
+    lang: decision.lang,
+    langSource: decision.source,
+    episode: ep,
+    sections,
+    prompts: sections.map((section) => ({
+      section,
+      prompt: buildExtractPrompt({ cues: ep.cues, section, lang: decision.lang, title }),
+    })),
+    system: SYSTEM_PROMPT,
+  };
+}
+
+export async function runExtract(deps: ExtractDeps, opts: ExtractOptions): Promise<ExtractReport> {
+  const { cdn, llm, recorder, db } = deps;
+  const { videoId } = opts;
+  const prep = await prepareExtract(cdn, opts);
+  const ep = prep.episode;
+  const decision = { lang: prep.lang, source: prep.langSource };
+  const sections = prep.sections;
   const runId = await recorder.startRun({
     step: 'extract',
     model: llm.model,
@@ -74,19 +109,13 @@ export async function runExtract(deps: ExtractDeps, opts: ExtractOptions): Promi
   let calls = 0;
   let failedSections = 0;
   try {
-    for (const section of sections) {
-      const prompt = buildExtractPrompt({
-        cues: ep.cues,
-        section,
-        lang: decision.lang,
-        title: ep.info?.title ?? ep.summary?.source.title ?? null,
-      });
+    for (const { section, prompt } of prep.prompts) {
       calls++;
       let out;
       try {
         out = await llm.generate({
           prompt,
-          system: SYSTEM_PROMPT,
+          system: prep.system,
           schema: ExtractOutputSchema,
           runId,
           name: PROMPT_NAME,

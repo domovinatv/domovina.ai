@@ -36,11 +36,11 @@ describe('migracije na PGlite', () => {
   });
 
   it('gore → dolje → gore', async () => {
-    expect(await migrateUp(db)).toEqual([1, 2]);
+    expect(await migrateUp(db)).toEqual([1, 2, 3]);
     expect(await tables(db)).toEqual(TABLES);
     expect(await migrateUp(db)).toEqual([]);
 
-    expect(await migrateDown(db, { steps: Infinity })).toEqual([2, 1]);
+    expect(await migrateDown(db, { steps: Infinity })).toEqual([3, 2, 1]);
     expect(await tables(db)).toEqual(['schema_migrations']);
     // Odluka 108: nakon „dolje” u shemi ostaje samo knjigovodstvo runnera, bez
     // ijednog drugog objekta (sekvence, indeksi, tipovi).
@@ -59,9 +59,9 @@ describe('migracije na PGlite', () => {
     expect(types.rows).toHaveLength(0);
     expect(await appliedVersions(db)).toEqual([]);
 
-    expect(await migrateUp(db)).toEqual([1, 2]);
+    expect(await migrateUp(db)).toEqual([1, 2, 3]);
     expect(await tables(db)).toEqual(TABLES);
-    expect(await appliedVersions(db)).toEqual([1, 2]);
+    expect(await appliedVersions(db)).toEqual([1, 2, 3]);
   });
 
   it('migracija koja padne ne ostavlja ništa (transakcija)', async () => {
@@ -75,7 +75,7 @@ describe('migracije na PGlite', () => {
       },
     ];
     await expect(migrateUp(db, { migrations })).rejects.toThrow(/nepostojeci_stupac/);
-    expect(await appliedVersions(db)).toEqual([1, 2]);
+    expect(await appliedVersions(db)).toEqual([1, 2, 3]);
     expect(await tables(db)).not.toContain('privremena');
   });
 
@@ -207,6 +207,7 @@ describe('migracije na PGlite', () => {
     });
 
     it('002 dolje vraća shemu iz 001, gore je opet stavlja', async () => {
+      expect(await migrateDown(db)).toEqual([3]);
       const cols = async () =>
         (
           await db.query<{ column_name: string }>(
@@ -226,15 +227,16 @@ describe('migracije na PGlite', () => {
         `SELECT 1 FROM pg_constraint WHERE conname LIKE 'moments_%consistent'`,
       );
       expect(cons.rows).toHaveLength(0);
-      expect(await migrateUp(db)).toEqual([2]);
+      expect(await migrateUp(db, { to: 2 })).toEqual([2]);
       expect(await cols()).toEqual(withS2);
     });
 
     it('002 dolje → gore s podacima: exact/fuzzy se vraćaju, failed/srt_only ruše migraciju bez traga', async () => {
+      expect(await migrateDown(db)).toEqual([3]);
       await moment({ quote_check: 'exact', start_ms: 1, end_ms: 2 });
       await moment({ quote_check: 'fuzzy', start_ms: 3, end_ms: 4 });
       expect(await migrateDown(db)).toEqual([2]);
-      expect(await migrateUp(db)).toEqual([2]);
+      expect(await migrateUp(db, { to: 2 })).toEqual([2]);
       const got = await db.query<{ quote_check: string; quote_match: string }>(
         'SELECT quote_check, quote_match FROM vijesti.moments ORDER BY start_ms',
       );
@@ -245,8 +247,75 @@ describe('migracije na PGlite', () => {
       // srt_only nakon 002 dolje više ne zna je li tekst bio točan: ne izmišlja se.
       await moment({ quote_check: 'srt_only', start_ms: 5, end_ms: 6 });
       expect(await migrateDown(db)).toEqual([2]);
-      await expect(migrateUp(db)).rejects.toThrow(/moments_quote_match_consistent/);
+      await expect(migrateUp(db, { to: 2 })).rejects.toThrow(/moments_quote_match_consistent/);
       expect(await appliedVersions(db)).toEqual([1]);
+    });
+
+    const scoreCols = async () =>
+      (
+        await db.query<{ column_name: string }>(
+          `SELECT column_name FROM information_schema.columns
+           WHERE table_schema = 'vijesti' AND table_name = 'moments' AND column_name LIKE 'score%'
+           ORDER BY column_name`,
+        )
+      ).rows.map((r) => r.column_name);
+    const setScore = (id: number, score: number | null, over: Record<string, unknown> = {}) =>
+      db.query(
+        `UPDATE vijesti.moments SET score = $2, score_parts = $3::jsonb, score_reasons = $4::jsonb,
+           score_version = $5, scored_at = $6 WHERE id = $1`,
+        [
+          id,
+          score,
+          'parts' in over ? over.parts : score === null ? null : '{"novelty":0.5}',
+          'reasons' in over ? over.reasons : score === null ? null : '{"novelty":"x"}',
+          'version' in over ? over.version : score === null ? null : 'score-moments/1+f1',
+          'at' in over ? over.at : score === null ? null : new Date().toISOString(),
+        ],
+      );
+
+    it('003: ocjena 0–1, s verzijom, sastavnicama i razlozima, nikad za odbačen citat', async () => {
+      expect(await scoreCols()).toEqual([
+        'score',
+        'score_parts',
+        'score_reasons',
+        'score_run_id',
+        'score_version',
+        'scored_at',
+      ]);
+      const ok = Number((await moment({ start_ms: 1, end_ms: 2 })).rows[0]?.id);
+      const failed = Number((await moment({ quote_check: 'failed', start_ms: 3, end_ms: 4 })).rows[0]?.id);
+      await setScore(ok, 0);
+      await setScore(ok, 1);
+      await setScore(ok, 0.42);
+      await expect(setScore(ok, 1.01)).rejects.toThrow(/moments_score_range/);
+      await expect(setScore(ok, -0.01)).rejects.toThrow(/moments_score_range/);
+      await expect(setScore(ok, 0.5, { version: null })).rejects.toThrow(/moments_score_consistent/);
+      await expect(setScore(ok, 0.5, { parts: null })).rejects.toThrow(/moments_score_consistent/);
+      await expect(setScore(ok, 0.5, { reasons: null })).rejects.toThrow(/moments_score_consistent/);
+      await expect(setScore(ok, 0.5, { at: null })).rejects.toThrow(/moments_score_consistent/);
+      await expect(setScore(ok, null, { version: 'v' })).rejects.toThrow(/moments_score_consistent/);
+      await expect(setScore(ok, 0.5, { version: ' ' })).rejects.toThrow(/moments_score_version_check/);
+      await expect(setScore(failed, 0.5)).rejects.toThrow(/moments_score_not_failed/);
+      await setScore(ok, null);
+    });
+
+    it('003 dolje briše stupce i ocjene, gore ih vraća prazne; 001 score bez skale se briše', async () => {
+      const id = Number((await moment({ start_ms: 1, end_ms: 2 })).rows[0]?.id);
+      await setScore(id, 0.7);
+      expect(await migrateDown(db)).toEqual([3]);
+      expect(await scoreCols()).toEqual(['score']);
+      const after = await db.query<{ score: number | null }>('SELECT score FROM vijesti.moments WHERE id = $1', [id]);
+      expect(after.rows[0]?.score).toBeNull();
+      // Bez skale (001/002) score može biti bilo što; 003 gore to briše jer nema verziju.
+      await db.query('UPDATE vijesti.moments SET score = 7 WHERE id = $1', [id]);
+      expect(await migrateUp(db)).toEqual([3]);
+      const back = await db.query<{ score: number | null; score_version: string | null }>(
+        'SELECT score, score_version FROM vijesti.moments WHERE id = $1',
+        [id],
+      );
+      expect(back.rows[0]).toEqual({ score: null, score_version: null });
+      const idx = await db.query(`SELECT 1 FROM pg_indexes WHERE indexname = 'moments_score_idx'`);
+      expect(idx.rows).toHaveLength(1);
     });
 
     it('runs: failed_calls ne može biti veći od calls', async () => {

@@ -262,3 +262,137 @@ paralelni worktreeji ne sudare. Odluka se ne briše: zamijeni je novom koja je p
      Provjereno bez promjene: prazan citat i citat od same interpunkcije su `too_short`,
      citat preko cijelog prozora prolazi, cue od 0 ms daje `srt_only` s krajem +1 ms, citat
      preko granice sekcije prolazi s rasponom u sljedećoj sekciji (`extract.test.ts`).
+
+## S3 (2026-11-05)
+
+300. **Vertex AI je zadani backend; AI Studio ostaje kao `studio`.** Isto tijelo
+     `generateContent`, drugi URL (`…/v1/projects/<p>/locations/<l>/publishers/google/models/<m>:generateContent`;
+     `global` → `aiplatform.googleapis.com`, `eu`/`us` → `aiplatform.<l>.rep.googleapis.com`,
+     regija → `<r>-aiplatform.googleapis.com`, kao `fetch.domovina.tv/lib/vertex_auth.js`) i
+     `Authorization: Bearer`. Razlog: `GEMINI_API_KEY` ne postoji nigdje, free-trial krediti
+     pokrivaju Vertex, ne AI Studio. Token daje ubrizgan `AccessTokenProvider`; u produkciji
+     `execFile('gcloud', ['auth', 'print-access-token', '--account=…'])` (bez ljuske), keš 50 min,
+     istodobni pozivi dijele jedan proces, 401 poništava keš. Token se ne logira: greška
+     gcloud-a nosi samo stderr, poruka HTTP greške prolazi kroz `redact` (i ključ AI Studija),
+     `describeLlmConfig` ispisuje projekt/lokaciju/account bez tajni. Neuspjelo dobivanje tokena
+     nije poziv (zahtjev nije poslan) i ne broji se. Izbor: `VIJESTI_LLM_BACKEND`, zadano
+     `vertex` bez `GEMINI_API_KEY`, `studio` s njim; `VIJESTI_VERTEX_PROJECT` (obavezan),
+     `VIJESTI_VERTEX_ACCOUNT` (preporučen: aktivni gcloud account zna biti drugi SA → 403),
+     `VIJESTI_VERTEX_LOCATION` (zadano `global`). Testovi: `engine/llm/vertex.test.ts`.
+     **Rizik (pročitano 5.11. u `fetch.domovina.tv`):** pipeline je Vertex isključio 28.10. i
+     proglasio ga DEPRECATED 29.10. (`docs/2026-10-28-vertex-iskljucen-agy-jedini-gemini.md`):
+     28.10. je pipelineov Vertex projekt za svaki model i regiju vraćao `403 Request rejected in
+     accordance with our terms of use and policies`; pipeline od tada Gemini zove samo kroz
+     `agy`. Tvrdnja da „pipeline koristi Vertex” vrijedi do 28.10. Revizija: prvi pravi poziv
+     (`npm run eval -- --max-calls 1`). Ako vrati 403 terms-of-use, Vertex na tom projektu ne
+     radi i odluka o putu (drugi projekt, AI Studio ključ) je korisnikova.
+301. **Zadani model `gemini-3.8-flash`** (zamjenjuje model iz 110). Pipeline je na njega prešao
+     15.9.2026. (`gemini.conf`), global-only za 3.x flash. Napomena iz pipelinea: 3.8 nije prošao
+     kontrolirani A/B kao 3.7; ako kvaliteta trenutaka padne, prvi osumnjičeni je model.
+     `VIJESTI_GEMINI_MODEL` ga mijenja.
+302. **429 i 5xx: dva ponovna pokušaja, čekanje 2 s pa 4 s.** Pipeline je dobivao 429 iz global
+     bazena. Svaki pokušaj je zaseban neuspio poziv u `runs` (odluke 107, 117), jer je zahtjev
+     poslan. Ne ponavljaju se 4xx (osim 429) ni prekid veze (`fetch` baci): 400 znači da tijelo
+     ne valja (npr. shema, odluka 303) i ponavljanje samo troši kvotu. `sleep` je ubrizgan, test
+     ne čeka. Test: „429 i 5xx…”, „nakon iscrpljenih pokušaja…”. Revizija: ako eval vidi više od
+     ~5 % poziva s 429, dulji backoff ili lokacija `eu` (zaseban bazen kvote, +10 %).
+303. **Polje sheme je opcija: `responseJsonSchema` (zadano) ili `responseSchema`.** Odluka 110
+     nije potvrđena na Vertexu. `VIJESTI_GEMINI_SCHEMA_FIELD=responseSchema` šalje istu zod shemu
+     pretvorenu u OpenAPI podskup (`toOpenApiSchema`): tip velikim slovima, `null` u tipu ili
+     `anyOf` → `nullable`, `const` → `enum`, `propertyOrdering` po redu svojstava, izbačeni
+     `additionalProperties`, `exclusiveMinimum`, `default`, `$schema`. Izlaz se u oba slučaja
+     validira istim zodom, pa izbačeno ograničenje ne prolazi tiho. Prvi pravi poziv koji vrati
+     400 na `responseJsonSchema` prelazi bez novog koda. Testovi: „shema: responseJsonSchema ili
+     responseSchema” (oba tijela, isti klijent, odbijanje izlaza izvan sheme u oba).
+304. **Zadana cijena u kodu za Vertex `gemini-3.8-flash`** (revizija 107). 107 je tražila da se
+     broj ne upisuje bez izvora; izvor sada postoji: cjenik Vertexa prepisan i provjeren u
+     `fetch.domovina.tv/gemini.conf` 28.9.2026.: `global` $0,75 ulaz / $3,75 izlaz po M tokena
+     PROMOTIVNO do 31.12.2026., od 1.1.2027. $1,50 / $7,50; `eu`/`us` +10 % ($0,825 / $4,125).
+     Bez zadane cijene svaki run imao bi `cost_usd = NULL` i S3 ne bi mogao dati trošak po
+     epizodi. Tablica nosi datum udvostručenja (`promoUntilUtc`, granica u UTC; Google je
+     možda na pacifičkom vremenu, razlika je nekoliko sati), pa se cijena mijenja sama, bez
+     koda. `VIJESTI_GEMINI_PRICE_*` i dalje pobjeđuje; AI Studio i nepoznat model nemaju zadanu
+     cijenu (NULL). Test: „cijena se sama udvostručuje 1.1.2027.”. Revizija: novi model ili
+     promjena cjenika (`cloud.google.com/vertex-ai/generative-ai/pricing`).
+305. **Procjena bez poziva iz izgrađenih promptova.** `prepareExtract(cdn, {videoId, lang?})` i
+     `prepareScore({cdn, db, persons}, {videoId, channel?})` rade sve do poziva modela (jezik,
+     titl, sekcije, kontekst, osobe) i vraćaju promptove; `runExtract`/`runScore` ih koriste, pa
+     procjena i pravi prolaz grade isti tekst. `estimateTokens` = ⌈znakova / 3⌉ (pretpostavka:
+     Gemini tokenizator nije dostupan offline, hrvatski s dijakritikom troši više od ~4 znaka po
+     tokenu engleskog), `estimatePrompts(prompts, outTokensPerCall, pricing)` daje pozive,
+     tokene i trošak. Izlazni tokeni (uz „thinking”) nisu procjenjivi iz prompta i zadaje ih
+     pozivatelj. Test: „deterministički, prolazi shemu…” (11 promptova za `pIx_7N-6HJ4`).
+     Revizija: prvi eval usporedi procjenu s `usageMetadata.promptTokenCount` i ispravi omjer.
+306. **Ocjena: jedan poziv po epizodi nad svim prihvaćenim trenucima** (`step = score`,
+     `name = score-moments`, `PROMPT_VERSION = score-moments/1`, temperatura 0). Model vidi
+     sve trenutke odjednom, pa novost može usporediti i unutar epizode, a epizoda je jedan
+     poziv umjesto desetaka. Trenuci su u promptu `t1…tn` redom snimke (ne ID iz baze: kraće,
+     i prompt se gradi isto za procjenu). Prihvaćen = `quote_check ≠ failed`; odbačen se ne
+     šalje i ne ocjenjuje. Bez prihvaćenih trenutaka nema poziva ni `runs` zapisa. Izlaz po
+     trenutku: `novelty`, `concreteness`, `speaker` (0–1, zod `min/max`), `public_role` ili
+     null, i po jedna rečenica razloga za svaku sastavnicu. Revizija: epizoda s vrlo mnogo
+     trenutaka (izlaz > ~8k tokena) dijeli se na dijelove.
+307. **Novost: kontekst je kanal, ne cijeli katalog.** Zadnjih 8 epizoda istog kanala sa
+     STROGO ranijim datumom iz listinga (isti dan nije „ranije”, epizoda bez datuma nema
+     ranijih), najnovije prvo, s `summary.json` naslovom i do 6 ključnih točaka; bez
+     `summary.json` naslov i `abstract` iz listinga (do 400 znakova). Uz to do 40 već izdvojenih
+     tvrdnji (`claim`) prihvaćenih trenutaka iz SVIH ranijih epizoda kanala u bazi. Kanal iz
+     listinga (odluka 112): `--channel` ga zadaje, inače pretraga po svim listinzima (52
+     dohvata na pravom CDN-u, keširani 5 min). Testovi: „kontekst novosti”, prvi test runScore
+     (`b-nls1ck8EE` dobiva `MGLq9v3AtvE` i njegovih 12 tvrdnji).
+308. **Govornik: ime iz `summary.json`, osoba iz `/api/persons`, uparivanje determinističko.**
+     `speakers[].suggested_name` po oznaci SPEAKER_XX daje ime (upisuje se i u
+     `moments.speaker_name`); ime se normalizira (mala slova, bez dijakritike, `đ → d`, bez
+     zagrada, interpunkcije i titula `don fra dr sc p pater vlč fr mons…`) i mora se poklopiti
+     CIJELO s normaliziranim imenom osobe. Samo ime ili samo prezime (`single_token`), oznake
+     bez imena („Gost 6 (odvjetnica)”, „Nepoznati govornik”, SPEAKER_01: `placeholder`) i isto
+     prezime druge osobe („Stanko Stojić” ≠ „Don Damir Stojić”) nisu pogodak. Dva zapisa istog
+     imena („p.” i „Pater Stjepan Ivan Horvat”) daju onaj s više epizoda i drugi kao alternativu.
+     LLM ne bira osobu; daje samo `speaker` sud i `public_role` iz konteksta, uz uputu da ne
+     nagađa funkcije. Na 5 fixturea nijedan govornik nije u katalogu (voditelji i gosti bez
+     profila). Test: `persons.test.ts`. Revizija: kad katalog dobije uloge (ministar, zastupnik),
+     uloga ide iz kataloga, ne iz modela.
+309. **Konkretnost: zatvoreni popisi obilježja uz sud modela.** Brojka (token sa znamenkom,
+     godina 1900–2099 se broji kao datum), broj riječima (bez „jedan/jedna/one”: „jedan od”),
+     datum (godina, mjesec hr/en u svim padežima, `12. 3.`; „studeni” ne hvata „student”,
+     „siječanj” ne hvata „siječe”, bez engleskog „may”), entiteti iz izvlačenja (bez
+     duplikata), najava/odluka (osnove `najav odluč zakon uredb ostavk…`, engleske kratke
+     riječi u cijelosti: „ban” ne hvata „banka”). Ocjena obilježja: 0,35 broj + 0,25 datum +
+     0,2 × min(entiteti, 2)/2 + 0,2 najava. Test: „konkretnost: obilježja”.
+310. **Konačna ocjena je formula u kodu, `score-moments/1+f1`** (`moments.score_version`).
+     novost = model; konkretnost = 0,6 model + 0,4 obilježja; govornik = 0,5 model + 0,5
+     katalog (uparena osoba 0,5 + 0,5 × min(1, kanala/5), inače 0); ocjena = 0,45 novost +
+     0,40 konkretnost + 0,15 govornik, na tri decimale. Novost i konkretnost nose 85 %:
+     vijest je nova tvrdnja s provjerljivim sadržajem; poznat govornik je bonus, ne uvjet.
+     Sastavnica izvan 0–1 baca i iza sheme. Test: „formula” (primjer 0,551). Revizija: S3
+     mjerenje (10 najboljih / 10 najlošijih na pravom izlazu) i prag iz S4; promjena težina =
+     `f2`.
+311. **Migracija 003: skala i objašnjenje ocjene.** `moments.score` dobiva CHECK 0–1;
+     novi `score_parts jsonb` (sastavnice, odgovori modela, obilježja, osoba, težine),
+     `score_reasons jsonb`, `score_version`, `score_run_id`, `scored_at`; CHECK da su ocjena,
+     verzija, sastavnice, razlozi i vrijeme ili svi postavljeni ili svi NULL i da `failed`
+     trenutak nema ocjenu; indeks po ocjeni. 003 gore briše stare vrijednosti `score` (bez
+     skale nemaju značenje), dolje briše stupce i ocjene. Ponovno ocjenjivanje u jednoj
+     transakciji prvo briše ocjene svih trenutaka videa pa piše nove: dva pokretanja daju
+     iste ocjene i isti broj redaka, novi `runs` zapis. Ponovno izvlačenje (207) briše
+     trenutke, pa i njihove ocjene: nakon `extract` ide `score`. Testovi: `db/migrate.test.ts`
+     („003…”), „ponovno ocjenjivanje je idempotentno”.
+312. **Izlaz koji ne odgovara trenucima se nikad ne popravlja tiho.** Nepostojeći (`t13` uz 12
+     trenutaka) ili ponovljen broj → `ScoreMismatchError`, ništa se ne upisuje (prethodne
+     ocjene ostaju), run `failed`: pomak brojeva znači da nijednom paru ne možemo vjerovati.
+     Izostavljen trenutak → ostali se upisuju, izostavljeni ostaje BEZ ocjene (i bez stare),
+     run `failed` s popisom (`1 trenutaka bez ocjene: t4`). Izlaz izvan sheme (ocjena 1,5,
+     prazan razlog) → `LlmSchemaError`, poziv neuspio uz plaćene tokene, ništa upisano.
+     Testovi: tri testa u „runScore nad fixtureima”.
+313. **`score --fake`: lažni LLM iz prompta, deterministički.** Novost = 1 − udio riječi citata
+     (≥ 5 slova) koje se pojavljuju u kontekstu ranijih epizoda, konkretnost 0,8 sa znamenkom
+     inače 0,3, govornik 0,6 ako je u katalogu inače 0,2. Prolazi istu shemu i brojanje poziva
+     (trošak 0). `--fake` čita osobe iz fixturea (bez mreže). Tok:
+     `npm run vijesti -- extract <id> --fake --db <d>` pa `npm run vijesti -- score <id> --fake --db <d>`.
+     Dokazuje lanac, ne kvalitetu (kao 209).
+314. **Popis osoba: snimka u fixtureu, disk cache u radu.** `engine/test/fixtures/persons.json`
+     je `GET https://mcp.domovina.ai/api/persons` od 5.11.2026. (83 osobe, 82 različita imena,
+     81 u indeksu bez „Nepoznati govornik”). `loadPersons` čita svjež cache
+     (`vijesti/.cache/persons/persons.json`, rok 24 h), zatim mrežu (spremi samo odgovor koji
+     prolazi shemu), zatim zastario cache; bez ičega baca, jer bi ocjena bez popisa svakom
+     govorniku tiho dala nulu. Test: „loadPersons: disk cache i zastario cache”.
