@@ -5,7 +5,7 @@ import {
   parseEpisodeManifest,
   parseEpisodeSummary,
 } from "../../src/input/index.ts";
-import { clone, fixtures, UNLISTED_IDS, inputError } from "./fixtures.ts";
+import { clone, fixtures, NO_INFO_IDS, UNLISTED_IDS, inputError } from "./fixtures.ts";
 
 function raw(map: Map<string, unknown>, id: string): Record<string, unknown> {
   const v = map.get(id);
@@ -31,6 +31,7 @@ describe("parseEpisodeInfo", () => {
       title: "Argumenti - 01.10.2018.",
       channel: "Hrvatska katolička mreža",
       channelId: "UCrfV3uhCoHNBaqiva1wCB4Q",
+      uploader: "Hrvatska katolička mreža",
       uploadDate: "2018-10-01",
       durationSeconds: 2017,
       extractor: "youtube",
@@ -105,8 +106,8 @@ describe("parseEpisodeInfo", () => {
 describe("parseEpisodeSummary", () => {
   const summaries = new Map([...fixtures.summaries()].map(([id, r]) => [id, parseEpisodeSummary(r)]));
 
-  it("čita svih 5; jezik hr, naslov iz source.title", () => {
-    expect([...summaries.keys()].sort()).toEqual(UNLISTED_IDS);
+  it("čita svih 9; jezik hr, naslov iz source.title", () => {
+    expect([...summaries.keys()].sort()).toEqual([...UNLISTED_IDS, ...NO_INFO_IDS].sort());
     for (const s of summaries.values()) {
       expect(s.language).toBe("hr");
       expect(s.title).not.toBeNull();
@@ -128,6 +129,7 @@ describe("parseEpisodeSummary", () => {
   it("naslov u summary.json = title u info.json", () => {
     const infos = fixtures.infos();
     for (const [id, s] of summaries) {
+      if (NO_INFO_IDS.includes(id)) continue;
       expect(s.title).toBe(parseEpisodeInfo(infos.get(id)).title);
     }
   });
@@ -139,6 +141,8 @@ describe("parseEpisodeSummary", () => {
       abstractHr: null,
       language: null,
       durationSeconds: null,
+      uploadDate: null,
+      sourceChannel: null,
     });
   });
 

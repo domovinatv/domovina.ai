@@ -159,6 +159,16 @@ export function optCompactDate(o: JsonObject, key: string, path: string): string
   return v === null ? null : checkDate(v, COMPACT_DATE, at(path, key));
 }
 
+/**
+ * `YYYY-MM-DD` ili `YYYYMMDD` → `YYYY-MM-DD`. Samo za `summary.json`
+ * `source.upload_date`, koji izmjereno nosi oba oblika (odluka 206).
+ */
+export function optIsoOrCompactDate(o: JsonObject, key: string, path: string): string | null {
+  const v = optString(o, key, path);
+  if (v === null) return null;
+  return checkDate(v, COMPACT_DATE.test(v) ? COMPACT_DATE : ISO_DATE, at(path, key));
+}
+
 const ISO_TIMESTAMP = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/;
 
 /** ISO 8601 vrijeme s vremenskom zonom (`generated_at`). */

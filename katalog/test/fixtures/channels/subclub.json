@@ -1,0 +1,906 @@
+{
+  "version": "1.0",
+  "generated_at": "2026-10-31T03:32:06.302Z",
+  "id": "subclub",
+  "name": "Sub Club by RevenueCat",
+  "avatar_square": "https://cdn.domovina.ai/channels/images/subclub/avatar_square.jpg",
+  "avatar_square_dimensions": null,
+  "avatar_cover": "https://cdn.domovina.ai/channels/images/subclub/avatar_cover.jpg",
+  "avatar_cover_dimensions": null,
+  "youtube_channel_url": "https://subclub.com",
+  "youtube_playlist_url": null,
+  "description": null,
+  "tags": [],
+  "follower_count": 0,
+  "video_count": 185,
+  "total_duration_seconds": 570933,
+  "avg_magisterium_score": 79,
+  "latest_video_date": "2026-10-28",
+  "videos": [
+    {
+      "id": "g6RoPxoCqLA",
+      "title": "How Praktika Built a Profitable $50M ARR AI Business — Adam Turaev, Praktika",
+      "title_hr": "Kako je Praktika izgradila profitabilan AI posao s 50 milijuna dolara ARR-a — Adam Turaev, Praktika",
+      "date": "2026-10-28",
+      "duration_seconds": 3686,
+      "duration_display": "1:01:26",
+      "views": 0,
+      "likes": 0,
+      "thumbnail": "https://cdn.domovina.ai/images/g6RoPxoCqLA/thumbnail.png",
+      "youtube_url": "https://subclub.com/episode/how-praktika-built-a-profitable-50m-arr-ai-business-adam-turaev-praktika",
+      "abstract": "U epizodi podcasta Sub Club, koji izdaje RevenueCat, voditelji David i Jacob razgovaraju s Adamom Turaevim, suosnivačem aplikacije Praktika za učenje engleskog …",
+      "topics": [
+        "prelazak s korporativnih chatbotova na učenje jezika",
+        "konverzacijska umjetna inteligencija i ai avatari",
+        "fokus na brazilsko tržište i karijerni engleski"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "David",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Adam Turaev",
+          "role": "gost"
+        },
+        {
+          "id": "SPEAKER_02",
+          "suggested_name": "Jacob",
+          "role": "suvoditelj (izvršni direktor RevenueCata)"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": true,
+        "has_summary_en": true,
+        "has_article_en": true,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "22wFjjVyXUI",
+      "title": "How Cal AI turned creators into a growth machine — Jake Castillo, Cal AI",
+      "title_hr": "Kako je Cal AI pretvorio kreatore sadržaja u stroj za rast — Jake Castillo, Cal AI",
+      "date": "2026-10-14",
+      "duration_seconds": 4196,
+      "duration_display": "1:09:56",
+      "views": 0,
+      "likes": 0,
+      "thumbnail": "https://cdn.domovina.ai/images/22wFjjVyXUI/thumbnail.png",
+      "youtube_url": "https://subclub.com/episode/how-cal-ai-turned-creators-into-a-growth-machine-jake-castillo-cal-ai",
+      "abstract": "U epizodi podcasta Sub Club voditelj David Bernard razgovara s Jakeom Castillom, suosnivačem aplikacije za praćenje kalorija Cal AI, koja ima više od 15 milijun…",
+      "topics": [
+        "influencer marketing",
+        "ugc sadržaj",
+        "rast mobilnih aplikacija"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "David Bernard",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Jake Castillo",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "Q_9DVdKR8xw",
+      "title": "How WeWard Hit 20M Users Without Paid Ads — Yves Benchimol, WeWard",
+      "title_hr": "Kako je WeWard dosegnuo 20 milijuna korisnika bez plaćenih oglasa — Yves Benchimol, WeWard",
+      "date": "2026-09-30",
+      "duration_seconds": 3953,
+      "duration_display": "1:05:53",
+      "views": 0,
+      "likes": 0,
+      "thumbnail": "https://cdn.domovina.ai/images/Q_9DVdKR8xw/thumbnail.png",
+      "youtube_url": "https://share.transistor.fm/s/550f72aa",
+      "abstract": "U ovoj epizodi podcasta Sub Club voditelj David Bernard i izvršni direktor RevenueCata Jacob Heiting razgovaraju s Yvesom Benchimolom, suosnivačem i izvršnim di…",
+      "topics": [
+        "zaokret poslovnog modela",
+        "organski rast i odnosi s medijima",
+        "affiliate marketing kao izvor prihoda"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "David Bernard",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Yves Benchimol",
+          "role": "gost"
+        },
+        {
+          "id": "SPEAKER_02",
+          "suggested_name": "Jacob Heiting",
+          "role": "suvoditelj"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "-5zgc14t2gc",
+      "title": "Why BoldVoice Charged From Day 1 and Ignored the Duolingo Freemium Playbook — Anada Lakra",
+      "title_hr": "Zašto je BoldVoice naplaćivao od prvog dana i zanemario Duolingov freemium model — Anada Lakra",
+      "date": "2026-09-16",
+      "duration_seconds": 3878,
+      "duration_display": "1:04:38",
+      "views": 0,
+      "likes": 0,
+      "thumbnail": "https://cdn.domovina.ai/images/-5zgc14t2gc/thumbnail.png",
+      "youtube_url": "https://subclub.com/episode/why-boldvoice-charged-from-day-1-and-ignored-the-duolingo-freemium-playbook-anada-lakra",
+      "abstract": "U epizodi podcasta Sub Club voditelj David Barnard razgovara s Anadom Lakrom, suosnivačicom i izvršnom direktoricom aplikacije BoldVoice, koja pomoću umjetne in…",
+      "topics": [
+        "naplata od prvog dana i odabir idealnog korisnika",
+        "optimizacija paywalla i povrati novca",
+        "freemium model naspram probnog razdoblja"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "David Barnard",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Anada Lakra",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "c9db521037e",
+      "title": "Scaling Meta Ads from zero to $100K a month — Ethan Ethier, Built With Science",
+      "title_hr": "Skaliranje Meta oglasa od nule do 100.000 dolara mjesečno — Ethan Ethier, Built With Science",
+      "date": "2026-09-02",
+      "duration_seconds": 3603,
+      "duration_display": "1:00:03",
+      "views": 0,
+      "likes": 0,
+      "thumbnail": "https://cdn.domovina.ai/images/c9db521037e/thumbnail.png",
+      "youtube_url": "https://subclub.com/episode/scaling-meta-ads-from-zero-to-100k-a-month-ethan-ethier-built-with-science",
+      "abstract": "U epizodi podcasta Sub Club voditelj David Barnard razgovara s Ethanom Ethierom, voditeljem rasta i poslovanja u fitness tvrtki Built With Science, koju vodi s …",
+      "topics": [
+        "meta oglasi",
+        "rast aplikacija",
+        "youtube marketing"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "David Barnard",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Ethan Ethier",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "DnzG2OvRflI",
+      "title": "$10M ARR Without Ever Testing A Paywall — Luke Martin-Fuller, Visible",
+      "title_hr": "10 milijuna dolara ARR-a bez ijednog testiranja paywalla — Luke Martin-Fuller, Visible",
+      "date": "2026-08-19",
+      "duration_seconds": 4336,
+      "duration_display": "1:12:16",
+      "views": 0,
+      "likes": 0,
+      "thumbnail": "https://cdn.domovina.ai/images/DnzG2OvRflI/thumbnail.png",
+      "youtube_url": "https://subclub.com/episode/10m-arr-without-ever-testing-a-paywall-luke-martin-fuller-visible",
+      "abstract": "U ovoj epizodi podcasta Sub Club voditelj David Bernard razgovara s Lukeom Martin-Fullerom, suosnivačem Visiblea, nosivog uređaja i aplikacije za praćenje aktiv…",
+      "topics": [
+        "kronične bolesti i digitalno zdravlje",
+        "nosivi uređaji i pretplatnički model",
+        "izgradnja povjerenja kroz znanstvena istraživanja"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "David Bernard",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Luke Martin-Fuller",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "sKonOtcJFTU",
+      "title": "Why he crowdfunded millions instead of raising VC — Jelte Liebrand, Savvy Navvy",
+      "title_hr": "Zašto je prikupio milijune putem crowdfundinga umjesto VC kapitala — Jelte Liebrand, Savvy Navvy",
+      "date": "2026-08-05",
+      "duration_seconds": 4048,
+      "duration_display": "1:07:28",
+      "views": 0,
+      "likes": 0,
+      "thumbnail": "https://cdn.domovina.ai/images/sKonOtcJFTU/thumbnail.png",
+      "youtube_url": "https://subclub.com/episode/why-he-crowdfunded-millions-instead-of-raising-vc-jelte-liebrand-savvy-navvy",
+      "abstract": "David Barnard u podcastu Sub Club razgovara s Jelteom Liebrandom, osnivačem i direktorom tvrtke Savvy Navvy, aplikacije koju opisuje kao \"Google Maps za brodove…",
+      "topics": [
+        "equity crowdfunding",
+        "rizični kapital i anđeoski investitori",
+        "pomorska navigacija i aplikacije"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "David Barnard",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Jelte Liebrand",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "jzlPf100vy4",
+      "title": "Make Ugly Ads to Grow Your App – Yuliya Lennox (Solid Starts)",
+      "title_hr": "Pravite 'ružne' oglase da biste razvili svoju aplikaciju – Yuliya Lennox (Solid Starts)",
+      "date": "2026-07-22",
+      "duration_seconds": 4639,
+      "duration_display": "1:17:19",
+      "views": 0,
+      "likes": 0,
+      "thumbnail": "https://cdn.domovina.ai/images/jzlPf100vy4/thumbnail.png",
+      "youtube_url": "https://subclub.com/episode/make-ugly-ads-to-grow-your-app-yuliya-lennox-solid-starts",
+      "abstract": "U epizodi podcasta Sub Club domaćin David Barnard razgovara s Yuliyom Lennox, marketinškom stručnjakinjom koja je desetak godina radila na rastu mobilnih aplika…",
+      "topics": [
+        "marketing aplikacija",
+        "ružni oglasi i kreativno testiranje",
+        "uloga osnivača u marketingu"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_02",
+          "suggested_name": "David Barnard",
+          "role": "voditelj (uvod i odjava emisije)"
+        },
+        {
+          "id": "SPEAKER_03",
+          "suggested_name": "David Barnard",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Yuliya Lennox",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "1R1_ZbmLyJI",
+      "title": "The Bootstrapper's Path to $10M ARR – Andrew Maguire, Volo Ventures",
+      "title_hr": "Bootstrapperov put do 10 milijuna dolara ARR-a – Andrew Maguire, Volo Ventures",
+      "date": "2026-07-08",
+      "duration_seconds": 3890,
+      "duration_display": "1:04:50",
+      "views": 0,
+      "likes": 0,
+      "thumbnail": "https://cdn.domovina.ai/images/1R1_ZbmLyJI/thumbnail.png",
+      "youtube_url": "https://subclub.com/episode/the-bootstrappers-path-to-10m-arr-andrew-maguire-volo-ventures",
+      "abstract": "U ovoj epizodi podcasta Sub Club voditelj David Barnard i CEO RevenueCata Jacob Eiting razgovaraju s Andrewom Maguireom, upravnim partnerom fonda Volo Ventures,…",
+      "topics": [
+        "umjetna inteligencija i razvoj aplikacija",
+        "ukus i prosudba proizvoda",
+        "rizični kapital i bootstrapping"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Najavljivač",
+          "role": "narator/najava emisije"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "David Barnard",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_02",
+          "suggested_name": "Jacob Eiting",
+          "role": "suvoditelj (CEO RevenueCata)"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "Xv04J1cr16Q",
+      "title": "How Simply Finally Cracked Facebook Ads with Web Funnels – Yoav Sharon, Simply",
+      "title_hr": "Kako je Simply konačno uspio s Facebook oglasima putem web lijevka – Yoav Sharon, Simply",
+      "date": "2026-06-24",
+      "duration_seconds": 3992,
+      "duration_display": "1:06:32",
+      "views": 0,
+      "likes": 0,
+      "thumbnail": "https://cdn.domovina.ai/images/Xv04J1cr16Q/thumbnail.png",
+      "youtube_url": "https://subclub.com/episode/how-simply-finally-cracked-facebook-ads-with-web-funnels-yoav-sharon-simply",
+      "abstract": "U ovoj epizodi podcasta Sub Club, voditelji David Bernard i Jacob Iting razgovaraju s Yoavom Sharonom, voditeljem odjela za rast i proizvod u tvrtki Simply. Raz…",
+      "topics": [
+        "web lijevci",
+        "pretplate",
+        "lokalizacija"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "David Bernard",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Jacob Iting",
+          "role": "sugovornik"
+        },
+        {
+          "id": "SPEAKER_02",
+          "suggested_name": "Yoav Sharon",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "52442b1807a",
+      "title": "WWDC 2026: What Subscription Apps Need To Know",
+      "title_hr": "WWDC 2026: Što aplikacije s pretplatom trebaju znati",
+      "date": "2026-06-15",
+      "duration_seconds": 6601,
+      "duration_display": "1:50:01",
+      "views": 0,
+      "likes": 0,
+      "thumbnail": "https://cdn.domovina.ai/images/52442b1807a/thumbnail.png",
+      "youtube_url": "https://share.transistor.fm/s/e992b936",
+      "abstract": "Ova posebna epizoda podcasta SubClub Live donosi pregled ključnih najava s Appleove Worldwide Developers Conference (WWDC), s fokusom na njihov utjecaj na aplik…",
+      "topics": [
+        "WWDC pregled",
+        "Apple Intelligence (Siri AI)",
+        "App Store Connect"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "David Barnard",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_02",
+          "suggested_name": "Charlie Chapman",
+          "role": "gost"
+        },
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Thomas Petit",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": 72,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": true,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "029f40c8ee9",
+      "title": "How Removing the Free Trial Grew Monthly Subs 2000% – Nancy Anderson, Natal",
+      "title_hr": "Kako je uklanjanje besplatne probe povećalo mjesečne pretplate za 2000% – Nancy Anderson, Natal",
+      "date": "2026-05-27",
+      "duration_seconds": 3886,
+      "duration_display": "1:04:46",
+      "views": 0,
+      "likes": 0,
+      "thumbnail": "https://cdn.domovina.ai/images/029f40c8ee9/thumbnail.png",
+      "youtube_url": "https://subclub.com/episode/how-removing-the-free-trial-grew-monthly-subs-2000-nancy-anderson-natal",
+      "abstract": "Epizoda podcasta SubClub istražuje put Nancy Anderson, osnivačice aplikacije Natal, koja se fokusira na fitness za žene. Razgovor naglašava važnost autentičnog …",
+      "topics": [
+        "fitness aplikacije",
+        "autentični sadržaj",
+        "izgradnja zajednice"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "David Bernard",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_02",
+          "suggested_name": "David Bernard",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Nancy Anderson",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": 87,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": true,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "hPwt12zZMCY",
+      "title": "Freemium at Scale: Why Life360 Protects its Free Users – Giordano Contestabile",
+      "title_hr": "Freemium u velikom opsegu: Zašto Life360 štiti svoje besplatne korisnike – Giordano Contestabile",
+      "date": "2026-05-13",
+      "duration_seconds": 3299,
+      "duration_display": "54:59",
+      "views": 0,
+      "likes": 0,
+      "thumbnail": "https://cdn.domovina.ai/images/hPwt12zZMCY/thumbnail.png",
+      "youtube_url": "https://subclub.com/episode/freemium-at-scale-why-life360-protects-its-free-users-giordano-contestabile",
+      "abstract": "U ovoj epizodi podcasta, David Barnard razgovara s Giom Contestabileom, potpredsjednikom proizvoda u Life360, o strategijama rasta i freemium modelu. Gio objašn…",
+      "topics": [
+        "freemium model",
+        "strategija rasta",
+        "eksperimentiranje i AI"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "David Barnard",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Gio Contestable",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": 82,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": true,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "tJnJflSXaE4",
+      "title": "Why Opal Stopped Chasing Revenue – Kenneth Schlenker, Opal",
+      "title_hr": "Zašto je Opal prestao juriti za prihodima – Kenneth Schlenker, Opal",
+      "date": "2026-04-29",
+      "duration_seconds": 3320,
+      "duration_display": "55:20",
+      "views": 0,
+      "likes": 0,
+      "thumbnail": "https://cdn.domovina.ai/images/tJnJflSXaE4/thumbnail.png",
+      "youtube_url": "https://subclub.com/episode/why-opal-stopped-chasing-revenue-kenneth-schlenker-opal",
+      "abstract": "U ovoj epizodi podcasta, Kenneth Schlenker, suosnivač i izvršni direktor tvrtke Opal, razgovara o putu rasta tvrtke od 5 do 10 milijuna dolara godišnjeg prihoda…",
+      "topics": [
+        "rast aplikacija",
+        "freemium model",
+        "zadržavanje korisnika"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "David Bernard",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Kenneth Schlenker",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": 81,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": true,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "UYIgu02h8cs",
+      "title": "12 AI Growth Lessons for Subscription Apps – Phil Carter, Elemental Growth",
+      "title_hr": "12 lekcija o rastu uz AI za pretplatničke aplikacije – Phil Carter, Elemental Growth",
+      "date": "2026-04-15",
+      "duration_seconds": 4041,
+      "duration_display": "1:07:21",
+      "views": 0,
+      "likes": 0,
+      "thumbnail": "https://cdn.domovina.ai/images/UYIgu02h8cs/thumbnail.png",
+      "youtube_url": "https://subclub.com/episode/12-ai-growth-lessons-for-subscription-apps-phil-carter-elemental-growth",
+      "abstract": "Ova epizoda podcasta SubClub istražuje kako umjetna inteligencija transformira pretplatničke aplikacije, fokusirajući se na Phil Carterov okvir vrijednosti pret…",
+      "topics": [
+        "umjetna inteligencija",
+        "pretplatničke aplikacije",
+        "rast proizvoda"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "David Bernard",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Phil Carter",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": 77,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": true,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "Y16aBkMc6hk",
+      "title": "How the World's #1 VPN App Reached 1 Billion Downloads – Tanuj Chatterjee, Super Unlimited",
+      "title_hr": "Kako je vodeća VPN aplikacija na svijetu dosegla milijardu preuzimanja – Tanuj Chatterjee, Super Unlimited",
+      "date": "2026-04-01",
+      "duration_seconds": 2972,
+      "duration_display": "49:32",
+      "views": 0,
+      "likes": 0,
+      "thumbnail": "https://cdn.domovina.ai/images/Y16aBkMc6hk/thumbnail.png",
+      "youtube_url": "https://subclub.com/episode/how-the-worlds-1-vpn-app-reached-1-billion-downloads-tanuj-chatterjee-super-unlimited",
+      "abstract": "Podcast istražuje uspjeh aplikacije Super Unlimited VPN, koja je dosegla milijardu preuzimanja, fokusirajući se na njen model rasta vođen proizvodom. Razgovor p…",
+      "topics": [
+        "rast vođen proizvodom",
+        "freemium model",
+        "optimizacija trgovine aplikacijama (ASO)"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "David Bernard",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_02",
+          "suggested_name": "Jacob Iting",
+          "role": "sugovornik"
+        },
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Tanuj Chatterjee",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": 80,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": true,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "Wg70HlO-5gY",
+      "title": "Bootstrapped to $6.7M ARR and an Exit to Quizlet in 2 Years – Brett Bauman & Zack Hargett, Coconote",
+      "title_hr": "Coconote: Od bootstrapped startupa do 6,7 milijuna dolara ARR-a i akvizicije od strane Quizleta u 2 godine",
+      "date": "2026-03-18",
+      "duration_seconds": 3944,
+      "duration_display": "1:05:44",
+      "views": 0,
+      "likes": 0,
+      "thumbnail": "https://cdn.domovina.ai/images/Wg70HlO-5gY/thumbnail.png",
+      "youtube_url": "https://subclub.com/episode/bootstrapped-to-6-7m-arr-and-an-exit-to-quizlet-in-2-years-brett-bauman-zack-hargett-coconote",
+      "abstract": "U ovoj epizodi podcasta SubClub, suosnivači CocoNotea, Brett Bauman i Zach Hargett, dijele svoju priču o uspjehu. Objašnjavaju kako su u samo dvije godine doseg…",
+      "topics": [
+        "rast startupa",
+        "akvizicija tvrtke",
+        "monetizacija aplikacija"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "David Bernard",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Jacob Biding",
+          "role": "gost"
+        },
+        {
+          "id": "SPEAKER_02",
+          "suggested_name": "Zach Hargett",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": 78,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": true,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "fp_ld0mrNMg",
+      "title": "How ElevenLabs Turns Feature Launches Into a Growth Engine – Luke Harries",
+      "title_hr": "Kako ElevenLabs pretvara lansiranje značajki u motor rasta – Luke Harries",
+      "date": "2026-03-09",
+      "duration_seconds": 1017,
+      "duration_display": "16:57",
+      "views": 0,
+      "likes": 0,
+      "thumbnail": "https://cdn.domovina.ai/images/fp_ld0mrNMg/thumbnail.png",
+      "youtube_url": "https://subclub.com/episode/how-elevenlabs-turns-feature-launches-into-a-growth-engine-luke-harries",
+      "abstract": "Ova epizoda podcasta SubClub, koju donosi RevenueCat, istražuje najbolje prakse za rast aplikacijskih tvrtki. Voditelj David Barnard razgovara s Lukeom Harrieso…",
+      "topics": [
+        "rast aplikacija",
+        "lansiranje značajki",
+        "umjetna inteligencija u marketingu"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "David Barnard",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Luke Harries",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": 74,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": true,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "eKVHg2z3E_8",
+      "title": "Why App Economy Disruption Won’t Happen As Fast As Everyone Thinks – Eric Seufert",
+      "title_hr": "Zašto se poremećaji u ekonomiji aplikacija neće dogoditi tako brzo kao što svi misle – Eric Seufert",
+      "date": "2026-03-08",
+      "duration_seconds": 1183,
+      "duration_display": "19:43",
+      "views": 0,
+      "likes": 0,
+      "thumbnail": "https://cdn.domovina.ai/images/eKVHg2z3E_8/thumbnail.png",
+      "youtube_url": "https://subclub.com/episode/why-app-economy-disruption-wont-happen-as-fast-as-everyone-thinks-eric-seufert",
+      "abstract": "Ova epizoda podcasta SubClub istražuje budućnost ekonomije aplikacija u kontekstu umjetne inteligencije. Gost Eric Seufert raspravlja o tome kako, unatoč lakšem…",
+      "topics": [
+        "ekonomija aplikacija",
+        "umjetna inteligencija (AI)",
+        "distribucija aplikacija"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "David Bernard",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Eric Seufert",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": 80,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": true,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "UCiGz2aBUhU",
+      "title": "The Art of Driving Retention Through Product – Ben Gammon, Ladder",
+      "title_hr": "Umijeće poticanja zadržavanja kroz proizvod – Ben Gammon, Ladder",
+      "date": "2026-03-07",
+      "duration_seconds": 1299,
+      "duration_display": "21:39",
+      "views": 0,
+      "likes": 0,
+      "thumbnail": "https://cdn.domovina.ai/images/UCiGz2aBUhU/thumbnail.png",
+      "youtube_url": "https://subclub.com/episode/the-art-of-driving-retention-through-product-ben-gammon-ladder",
+      "abstract": "Ova epizoda podcasta SubClub istražuje važnost zadržavanja korisnika kroz razvoj proizvoda, s fokusom na strategije tvrtke Ladder. Ben Gammon, potpredsjednik za…",
+      "topics": [
+        "zadržavanje korisnika",
+        "razvoj proizvoda",
+        "povratne informacije korisnika"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "David Bernard",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Ben Gammon",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": 78,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": true,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    }
+  ]
+}

@@ -1,20 +1,21 @@
 import { describe, expect, it } from "vitest";
-import { allFixtures, fixtures, LISTING_SLUGS, UNLISTED_IDS } from "./fixtures.ts";
+import { allFixtures, fixtures, LISTING_SLUGS, NO_INFO_IDS, UNLISTED_IDS } from "./fixtures.ts";
 
 // Glob koji ništa ne nađe vrati `{}` bez greške, pa bi svaki test „po svim
 // fixtureima” tiho prošao nad nulom. Brojke su ovdje izričite.
 describe("fixturei", () => {
-  it("ima ih točno 20 (index, 3 listinga, 5 × 3 po epizodi, registry)", () => {
-    expect(Object.keys(allFixtures)).toHaveLength(20);
+  it("ima ih točno 35 (index, 7 listinga, 8 × 3 po epizodi, 1 summary bez info, registry, key cache)", () => {
+    expect(Object.keys(allFixtures)).toHaveLength(35);
   });
 
   it("svaka skupina ima očekivane ključeve", () => {
     expect([...fixtures.listings().keys()].sort()).toEqual(LISTING_SLUGS);
     expect([...fixtures.infos().keys()].sort()).toEqual(UNLISTED_IDS);
-    expect([...fixtures.summaries().keys()].sort()).toEqual(UNLISTED_IDS);
+    expect([...fixtures.summaries().keys()].sort()).toEqual([...UNLISTED_IDS, ...NO_INFO_IDS].sort());
     expect([...fixtures.manifests().keys()].sort()).toEqual(UNLISTED_IDS);
     expect(fixtures.index()).toBeTypeOf("object");
     expect(fixtures.registry()).toBeTypeOf("object");
+    expect(fixtures.keyCache()).toBeTypeOf("object");
   });
 
   it("svaki završava s jednim \\n (deterministički upis)", () => {

@@ -1,0 +1,875 @@
+{
+  "version": "1.0",
+  "generated_at": "2026-11-05T09:20:55.146Z",
+  "id": "podcast_cuspajz",
+  "name": "PODCAST  ČUŠPAJZ OFFICIAL",
+  "avatar_square": "https://cdn.domovina.ai/channels/images/podcast_cuspajz/avatar_square.jpg",
+  "avatar_square_dimensions": null,
+  "avatar_cover": "https://cdn.domovina.ai/channels/images/podcast_cuspajz/avatar_cover.jpg",
+  "avatar_cover_dimensions": {
+    "width": 900,
+    "height": 900
+  },
+  "youtube_channel_url": "https://www.youtube.com/channel/UCaqCX-pMk_RXhs4EQnP4VuQ",
+  "youtube_playlist_url": null,
+  "description": null,
+  "tags": [
+    "#politics",
+    "#humor",
+    "#war",
+    "#love",
+    "#čušpajz"
+  ],
+  "follower_count": 7080,
+  "video_count": 174,
+  "total_duration_seconds": 620064,
+  "avg_magisterium_score": 69,
+  "latest_video_date": "2026-11-04",
+  "videos": [
+    {
+      "id": "qFOD-W0-GvU",
+      "title": "DAMIR OMERBEGOVIĆ- O BiH nakon izbora o političkom islamizmu - PODCAST ČUŠPAJZ #169",
+      "title_hr": "DAMIR OMERBEGOVIĆ – O BiH nakon izbora, o političkom islamizmu – PODCAST ČUŠPAJZ #169",
+      "date": "2026-11-04",
+      "duration_seconds": 2891,
+      "duration_display": "48:11",
+      "views": 285,
+      "likes": 7,
+      "thumbnail": "https://cdn.domovina.ai/images/qFOD-W0-GvU/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=qFOD-W0-GvU",
+      "abstract": "U ovoj epizodi podcasta Čušpajz gost je Damir Omerbegović, društveno-politički komentator rođen u Tuzli koji živi u Pragu. Razgovor počinje izborima u Srbiji, n…",
+      "topics": [
+        "izbori u srbiji i studentski pokret",
+        "izbori u bosni i hercegovini i formiranje vlasti",
+        "odnosi bošnjaka, hrvata i srba"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Voditelj",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Damir Omerbegović",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": true,
+        "has_summary_en": true,
+        "has_article_en": true,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "-RhxbJ7JA80",
+      "title": "KUSONJE -Potresna priča",
+      "title_hr": "KUSONJE - Potresna priča",
+      "date": "2026-11-02",
+      "duration_seconds": 957,
+      "duration_display": "15:57",
+      "views": 1880,
+      "likes": 31,
+      "thumbnail": "https://cdn.domovina.ai/images/-RhxbJ7JA80/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=-RhxbJ7JA80",
+      "abstract": "Marijan u podcastu Čušpajz govori o starijem bratu, dragovoljcu A satnije 105. bjelovarske brigade, koji je s prijateljem Stipom Gadžom poginuo 8. rujna (1991.)…",
+      "topics": [
+        "domovinski rat",
+        "kusonje",
+        "105. bjelovarska brigada"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Marijan",
+          "role": "gost"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Voditelj",
+          "role": "voditelj"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": true,
+        "has_summary_en": true,
+        "has_article_en": true,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "pXR-lJAtWpM",
+      "title": "STEPHAN LUPINO -Najljepše žene na svijetu su susjede - PODCAST ČUŠPAJZ#168 #lupinizam #lupino",
+      "title_hr": "STEPHAN LUPINO – Najljepše žene na svijetu su susjede – PODCAST ČUŠPAJZ #168",
+      "date": "2026-10-31",
+      "duration_seconds": 2980,
+      "duration_display": "49:40",
+      "views": 450,
+      "likes": 16,
+      "thumbnail": "https://cdn.domovina.ai/images/pXR-lJAtWpM/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=pXR-lJAtWpM",
+      "abstract": "U 168. epizodi Podcasta Čušpajz gost je fotograf i umjetnik Stephan Lupino. Govori o svom putu iz Rima preko Londona do New Yorka, o suradnji s fotografkinjom D…",
+      "topics": [
+        "život u new yorku osamdesetih",
+        "fotografija nekad i danas",
+        "lupinizam i skulpture"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Voditelj",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Stephan Lupino",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": true,
+        "has_summary_en": true,
+        "has_article_en": true,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "tNLy_egxdjk",
+      "title": "TONINO PICULA - O Srbiji nakon izbora ,tko stoji iza studenata PODCAST ČUŠPAJZ#167",
+      "title_hr": "Tonino Picula – O Srbiji nakon izbora, tko stoji iza studenata (Podcast Čušpajz #167)",
+      "date": "2026-10-28",
+      "duration_seconds": 3212,
+      "duration_display": "53:32",
+      "views": 1627,
+      "likes": 46,
+      "thumbnail": "https://cdn.domovina.ai/images/tNLy_egxdjk/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=tNLy_egxdjk",
+      "abstract": "U ovoj epizodi podcasta Čušpajz voditelj razgovara s Toninom Piculom, zastupnikom u Europskom parlamentu i stalnim izvjestiteljem za Srbiju, o parlamentarnim iz…",
+      "topics": [
+        "parlamentarni izbori u srbiji",
+        "studentski pokret i studentska lista",
+        "odnosi srbije s hrvatskom i regijom"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Voditelj",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Tonino Picula",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": true,
+        "has_summary_en": true,
+        "has_article_en": true,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "YulrqRAiQi8",
+      "title": "NEMANJA OBLAKOVIĆ - Nekome je susret sa AI prvi susret sa intelegencijom -  PODCAST ČUŠPAJZ #166",
+      "title_hr": "Nemanja Oblaković – Nekome je susret s umjetnom inteligencijom prvi susret s inteligencijom – Podcast Čušpajz #166",
+      "date": "2026-10-24",
+      "duration_seconds": 3850,
+      "duration_display": "1:04:10",
+      "views": 734,
+      "likes": 31,
+      "thumbnail": "https://cdn.domovina.ai/images/YulrqRAiQi8/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=YulrqRAiQi8",
+      "abstract": "U epizodi podcasta Čušpajz gost je Nemanja Oblaković, kojega voditelj predstavlja kao novinara kanala Balkan Info, magistra književnosti i savjetnika za psiholo…",
+      "topics": [
+        "izbori u srbiji",
+        "psihologija mase i manipulacija",
+        "društvene mreže i gubitak koncentracije"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Alen (voditelj)",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Nemanja Oblaković",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "iumB4G5dV5s",
+      "title": "ŠIME ŠOLJO -Zapad se uvijek nekome ispričava,prijeti li Hrvatskoj \"brazilizacija\" ČUŠPAJZ  #165",
+      "title_hr": "ŠIME ŠOLJO – Zapad se uvijek nekome ispričava, prijeti li Hrvatskoj \"brazilizacija\" (ČUŠPAJZ #165)",
+      "date": "2026-10-21",
+      "duration_seconds": 4755,
+      "duration_display": "1:19:15",
+      "views": 2682,
+      "likes": 67,
+      "thumbnail": "https://cdn.domovina.ai/images/iumB4G5dV5s/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=iumB4G5dV5s",
+      "abstract": "U epizodi podcasta Čušpajz voditelj razgovara sa Šimom Šoljom, studentom teologije i filozofije i autorom podcasta Šime Show, koji je trenutačno u stanci. Razgo…",
+      "topics": [
+        "demografska kriza i natalitet",
+        "religioznost i obitelj",
+        "katolička crkva i grkokatolici"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Voditelj",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Šime Šoljo",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "k35v9cufGq8",
+      "title": "DALIJA  OREŠKOVIĆ  - Antifašizam nije lijeva vrijednost  PODCAST ČUŠPAJZ #164",
+      "title_hr": "DALIJA OREŠKOVIĆ - Antifašizam nije lijeva vrijednost | PODCAST ČUŠPAJZ #164",
+      "date": "2026-10-17",
+      "duration_seconds": 4678,
+      "duration_display": "1:17:58",
+      "views": 742,
+      "likes": 22,
+      "thumbnail": "https://cdn.domovina.ai/images/k35v9cufGq8/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=k35v9cufGq8",
+      "abstract": "U 164. epizodi podcasta Čušpajz gostuje saborska zastupnica Dalija Orešković. Govori o aferi s ilegalnim otpadom u Gospiću, ulozi SOA-e i odgovornosti državnog …",
+      "topics": [
+        "afera s ilegalnim otpadom u gospiću",
+        "slabljenje državnih institucija",
+        "teritorijalni preustroj i reforma izbornog sustava"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Voditelj",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Dalija Orešković",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "WtHYHeAuh28",
+      "title": "MARKO MILANOVIĆ- LITRE - Ujedinjenje desnice je tema od izbora do izbora  - PODCAST ČUŠPAJZ  #163",
+      "title_hr": "Marko Milanović Litre – Ujedinjenje desnice je tema od izbora do izbora (Podcast Čušpajz #163)",
+      "date": "2026-10-14",
+      "duration_seconds": 4630,
+      "duration_display": "1:17:10",
+      "views": 923,
+      "likes": 24,
+      "thumbnail": "https://cdn.domovina.ai/images/WtHYHeAuh28/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=WtHYHeAuh28",
+      "abstract": "U 163. epizodi podcasta Čušpajz gostuje Marko Milanović Litre, bivši saborski zastupnik, član Hrvatskih suverenista i predsjednik Hrvatsko-ukrajinskog društva. …",
+      "topics": [
+        "ujedinjenje hrvatske desnice",
+        "rat u ukrajini i hrvatsko-ukrajinsko društvo",
+        "pravaštvo i ante starčević"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Voditelj",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Marko Milanović Litre",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "UM2MWlNUpqg",
+      "title": "EDO PEZZI -Danas se prebrzo postaje trener ,ja ih zovem \"laptop treneri\" PODCAST ČUŠPAJZ #162",
+      "title_hr": "EDO PEZZI – Danas se prebrzo postaje trener, ja ih zovem „laptop treneri“ (Podcast Čušpajz #162)",
+      "date": "2026-10-10",
+      "duration_seconds": 4320,
+      "duration_display": "1:12:00",
+      "views": 2208,
+      "likes": 36,
+      "thumbnail": "https://cdn.domovina.ai/images/UM2MWlNUpqg/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=UM2MWlNUpqg",
+      "abstract": "U epizodi podcasta Čušpajz gostuje Edo Pezzi, dugogodišnji sportski novinar i radijski reporter. Razgovor polazi od mini ciklusa Lige nacija i poraza Hrvatske o…",
+      "topics": [
+        "hrvatska nogometna reprezentacija i liga nacija",
+        "poraz od engleske 0:7 i izbornik slaven bilić",
+        "medijski napadi i govor mržnje na portalima"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Voditelj",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Edo Pezzi",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "wdQnJKQnyfw",
+      "title": "ALMIR ŠETA - Kako da spustim gard kad ste mi Vi najvažniji PODCAST ČUŠPAJZ #161",
+      "title_hr": "Almir Šeta – Kako da spustim gard kad ste mi Vi najvažniji (Podcast Čušpajz #161)",
+      "date": "2026-10-07",
+      "duration_seconds": 5162,
+      "duration_display": "1:26:02",
+      "views": 996,
+      "likes": 10,
+      "thumbnail": "https://cdn.domovina.ai/images/wdQnJKQnyfw/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=wdQnJKQnyfw",
+      "abstract": "Gost podcasta Čušpajz je Almir Šeta – Šole, bivši djelatnik MUP-a, SIPA-e i Direkcije za koordinaciju policijskih tijela Bosne i Hercegovine koji je gotovo 28 g…",
+      "topics": [
+        "rat u dobrinji i opsada sarajeva",
+        "policijska karijera i osobna zaštita",
+        "ustroj policijskih agencija u bih"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Alen",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Almir Šeta – Šole",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "j061ZGe9aME",
+      "title": "DON DAMIR STOJIĆ - Biti svećenik za mene je izazovno i lijepo PODCAST ČUŠPAJZ  #160",
+      "title_hr": "DON DAMIR STOJIĆ - Biti svećenik za mene je izazovno i lijepo PODCAST ČUŠPAJZ #160",
+      "date": "2026-10-03",
+      "duration_seconds": 3448,
+      "duration_display": "57:28",
+      "views": 3788,
+      "likes": 91,
+      "thumbnail": "https://cdn.domovina.ai/images/j061ZGe9aME/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=j061ZGe9aME",
+      "abstract": "U ovoj epizodi podcasta gostuje don Damir Stojić koji s voditeljem razgovara o položaju Katoličke Crkve u suvremenom društvu, radu s mladima i duhovnim obnovama…",
+      "topics": [
+        "duhovne obnove i rad s mladima",
+        "položaj katoličke crkve u modernom društvu",
+        "brak i obitelj"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Voditelj",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Don Damir Stojić",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": 81,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": true,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "bq6GYHQWrzo",
+      "title": "DENIS ŠEŠELJ -Bez dlake na jeziku analizira političku scenu u Hrvatskoj PODCAST ČUŠPAJZ #159",
+      "title_hr": "Denis Šešelj – Bez dlake na jeziku analizira političku scenu u Hrvatskoj (Podcast Čušpajz #159)",
+      "date": "2026-09-30",
+      "duration_seconds": 5422,
+      "duration_display": "1:30:22",
+      "views": 9723,
+      "likes": 148,
+      "thumbnail": "https://cdn.domovina.ai/images/bq6GYHQWrzo/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=bq6GYHQWrzo",
+      "abstract": "U ovoj epizodi podcasta Čušpajz gost je Denis Šešelj iz Opuzena, dugogodišnji pravaš i bivši dužnosnik HSP-a u Dubrovačko-neretvanskoj županiji. Govori o propas…",
+      "topics": [
+        "pravaštvo i propast hsp-a",
+        "korupcija i izborni sustav",
+        "nastanak mosta i hrvatska politička scena"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Voditelj",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Denis Šešelj",
+          "role": "gost"
+        },
+        {
+          "id": "SPEAKER_02",
+          "suggested_name": "Sugovornik 1 (vjerojatno član produkcije)",
+          "role": "sugovornik"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "dz_pMZJTwSw",
+      "title": "ROMAN LELJAK - Uvijek ću zagovarati političku samostalnost država PODCAST ČUŠPAJZ #158",
+      "title_hr": "Roman Leljak – Uvijek ću zagovarati političku samostalnost država (Podcast Čušpajz #158)",
+      "date": "2026-09-26",
+      "duration_seconds": 2900,
+      "duration_display": "48:20",
+      "views": 5985,
+      "likes": 209,
+      "thumbnail": "https://cdn.domovina.ai/images/dz_pMZJTwSw/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=dz_pMZJTwSw",
+      "abstract": "U epizodi podcasta Čušpajz gost je Roman Leljak, publicist, istraživač komunističkih zločina, bivši djelatnik KOS-a i gradonačelnik Radenaca u Sloveniji. Povod …",
+      "topics": [
+        "poslijeratne likvidacije i križni put",
+        "masovne grobnice i ekshumacije",
+        "huda jama i tunel u vojniću"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Voditelj",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Roman Leljak",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "DLxtSLvXhGg",
+      "title": "LUCIJAN CARIĆ -Otvoreno o robotaksijima ,umjetnoj intelegenciji PODCAST ČUŠPAJZ #157",
+      "title_hr": "Lucijan Carić – Otvoreno o robotaksijima i umjetnoj inteligenciji (Podcast Čušpajz #157)",
+      "date": "2026-09-23",
+      "duration_seconds": 4305,
+      "duration_display": "1:11:45",
+      "views": 2283,
+      "likes": 44,
+      "thumbnail": "https://cdn.domovina.ai/images/DLxtSLvXhGg/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=DLxtSLvXhGg",
+      "abstract": "U ovoj epizodi podcasta Čušpajz gost je Lucijan Carić, stručnjak za kibernetičku sigurnost, bivši distributer Sophosa i investitor u tvrtku DefenseCode, koji je…",
+      "topics": [
+        "robotaksiji i rimčev projekt",
+        "autonomna vožnja",
+        "javni novac i transparentnost"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Voditelj",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Lucijan Carić",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "Y9BWTDMNH8w",
+      "title": "MARCEL HOLJEVAC-Oporba je uzdrmala premijera ,Most ima odličan PR a Europa bi Kanadu ČUŠPAJZ #156",
+      "title_hr": "MARCEL HOLJEVAC – Oporba je uzdrmala premijera, Most ima odličan PR, a Europa bi Kanadu | Čušpajz #156",
+      "date": "2026-09-19",
+      "duration_seconds": 4740,
+      "duration_display": "1:19:00",
+      "views": 9202,
+      "likes": 219,
+      "thumbnail": "https://cdn.domovina.ai/images/Y9BWTDMNH8w/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=Y9BWTDMNH8w",
+      "abstract": "Voditelj podcasta Čušpajz razgovara s kolumnistom Marcelom Holjevcem o političkim posljedicama afere s otpadom u Gospiću i prosvjeda u Zagrebu. Gost tvrdi da je…",
+      "topics": [
+        "afera s otpadom u gospiću",
+        "andrej plenković i hdz",
+        "oporba i politički pr"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Voditelj (Čušpajz)",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Marcel Holjevac",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "OM2-bHffihg",
+      "title": "TONČI TADIĆ- Rusija će na kraju postati vazal ili Europske Unije ili Kine - PODCAST ČUŠPAJZ #155",
+      "title_hr": "TONČI TADIĆ – Rusija će na kraju postati vazal ili Europske unije ili Kine – Podcast Čušpajz #155",
+      "date": "2026-09-12",
+      "duration_seconds": 4150,
+      "duration_display": "1:09:10",
+      "views": 32904,
+      "likes": 622,
+      "thumbnail": "https://cdn.domovina.ai/images/OM2-bHffihg/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=OM2-bHffihg",
+      "abstract": "U 155. epizodi podcasta Čušpajz voditelj razgovara s Tončijem Tadićem, doktorom nuklearne fizike i bivšim saborskim zastupnikom, o ratu u Ukrajini, pregovorima …",
+      "topics": [
+        "rat u ukrajini",
+        "ruska hibridna propaganda",
+        "nuklearno oružje i nuklearna sigurnost"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Voditelj podcasta Čušpajz",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Tonči Tadić",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "hHaajhpugrY",
+      "title": "TOMISLAV JONJIĆ -Otvoreno o požarima i aferama sa otpadom PODCAST ČUŠPAJZ #154",
+      "title_hr": "Tomislav Jonjić otvoreno o požarima i aferama s otpadom — Podcast Čušpajz #154",
+      "date": "2026-09-05",
+      "duration_seconds": 3502,
+      "duration_display": "58:22",
+      "views": 8479,
+      "likes": 277,
+      "thumbnail": "https://cdn.domovina.ai/images/hHaajhpugrY/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=hHaajhpugrY",
+      "abstract": "U 154. epizodi podcasta Čušpajz voditelj Alen Kristović ugostio je odvjetnika, povjesničara i političara Tomislava Jonjića. Razgovor započinje predstavljanjem n…",
+      "topics": [
+        "požari u hrvatskoj",
+        "afera s opasnim otpadom",
+        "knjiga o ndh i ustaškom pokretu"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Alen Kristović",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Tomislav Jonjić",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "-_z27sNDZxw",
+      "title": "LOVRO ROGULJ - Školski sustav sporo prati globalne trendove PODCAST ČUŠPAJZ#153",
+      "title_hr": "LOVRO ROGULJ – Školski sustav sporo prati globalne trendove (Podcast Čušpajz #153)",
+      "date": "2026-08-29",
+      "duration_seconds": 3031,
+      "duration_display": "50:31",
+      "views": 460,
+      "likes": 8,
+      "thumbnail": "https://cdn.domovina.ai/images/-_z27sNDZxw/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=-_z27sNDZxw",
+      "abstract": "U 153. epizodi podcasta Čušpajz voditelj razgovara s Lovrom Roguljem, poduzetnikom, poslovnim konzultantom, edukatorom i sveučilišnim magistrom ekonomije, o sta…",
+      "topics": [
+        "obrazovni sustav",
+        "poduzetništvo",
+        "generacija z"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Voditelj (Čušpajz)",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Lovro Rogulj",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "FiPEqviVNYg",
+      "title": "FATMIR ALISPAHIĆ- Bošnjačka kleropolitika tjera Hrvate iz Sarajeva PODCAST ČUŠPAJZ #136",
+      "title_hr": "FATMIR ALISPAHIĆ- Bošnjačka kleropolitika tjera Hrvate iz Sarajeva PODCAST ČUŠPAJZ #136",
+      "date": "2026-06-06",
+      "duration_seconds": 3565,
+      "duration_display": "59:25",
+      "views": 21673,
+      "likes": 660,
+      "thumbnail": "https://cdn.domovina.ai/images/FiPEqviVNYg/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=FiPEqviVNYg",
+      "abstract": "U ovoj epizodi podcasta Čušpajz, novinar i publicist Fatmir Alispahić objašnjava razloge svog odlaska iz Bosne i Hercegovine, navodeći prijetnje, napade i insti…",
+      "topics": [
+        "politički progon i prijetnje novinarima",
+        "bošnjačka kleropolitika i islamizam",
+        "korupcija u pravosuđu BiH"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Voditelj",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Fatmir Alispahić",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": 52,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": true,
+        "has_translation_en": true,
+        "has_summary_en": true,
+        "has_article_en": true,
+        "has_magisterium_en": true
+      }
+    },
+    {
+      "id": "amb13GCsapw",
+      "title": "DOMAGOJ DELAČ-Uopće nisam skužio Ed Sheerana.Ti ćeš meni ručat! PODCAST ČUŠPAJZ #135",
+      "title_hr": "DOMAGOJ DELAČ-Uopće nisam skužio Ed Sheerana.Ti ćeš meni ručat! PODCAST ČUŠPAJZ #135",
+      "date": "2026-06-02",
+      "duration_seconds": 3930,
+      "duration_display": "1:05:30",
+      "views": 305,
+      "likes": 20,
+      "thumbnail": "https://cdn.domovina.ai/images/amb13GCsapw/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=amb13GCsapw",
+      "abstract": "Domagoj Delač, poduzetnik i 'gastro ambasador', dijeli svoje bogato iskustvo od marketinga i ugostiteljstva do stvaranja viralnog fenomena 'Mljevenika' i platfo…",
+      "topics": [
+        "poduzetništvo",
+        "gastronomija",
+        "marketing"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Voditelj",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Domagoj Delač",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": 73,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": true,
+        "has_translation_en": true,
+        "has_summary_en": true,
+        "has_article_en": true,
+        "has_magisterium_en": true
+      }
+    }
+  ]
+}

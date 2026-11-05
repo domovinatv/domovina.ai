@@ -116,6 +116,86 @@
       }
     },
     {
+      "slug": "nova-eva",
+      "display_name": "Nova Eva",
+      "youtube": {
+        "url": "https://www.youtube.com/@NovaEva",
+        "handle": "@NovaEva",
+        "type": "channel",
+        "channel_id": "UCU_HxRUP9Ta1NJp6cjXx_0w"
+      },
+      "tags": [
+        "religious-catholic",
+        "evangelization"
+      ],
+      "voditelji": [],
+      "metadata": {
+        "status": "not-podcast",
+        "last_episode": "2026-09",
+        "average_duration_minutes": 58,
+        "last_episode_date": "2026-09-15",
+        "last_episode_video": "qNajeDHuJBM"
+      },
+      "tracking": {
+        "enabled": false,
+        "reason_disabled": "Kandidat za dodavanje u pipeline. URL je poznat, treba verifikacija metapodataka i odluka o uključivanju."
+      },
+      "tier": 3,
+      "data_quality": "unverified",
+      "activity": {
+        "source": "watch",
+        "checked_at": "2026-09-24",
+        "last_original_upload": "20260915",
+        "originals_60d": 3,
+        "originals_90d": 8,
+        "originals_365d": 30,
+        "new_originals_since_baseline": 0,
+        "derivative_ratio": 0.43,
+        "min_duration_sec": 901,
+        "no_originals": false,
+        "error": null
+      }
+    },
+    {
+      "slug": "podcast-cuspajz",
+      "display_name": "Podcast Čušpajz",
+      "youtube": {
+        "url": "https://www.youtube.com/@podcastcuspajz/videos",
+        "handle": "@podcastcuspajz",
+        "type": "channel",
+        "channel_id": "UCaqCX-pMk_RXhs4EQnP4VuQ"
+      },
+      "tags": [
+        "political",
+        "society"
+      ],
+      "voditelji": [
+        "Alen Kristović"
+      ],
+      "metadata": {
+        "subscribers": 7080,
+        "subscribers_as_of": "2026-03",
+        "episodes_estimate": 920,
+        "last_episode": "2026-03",
+        "average_duration_minutes": 60,
+        "status": "active"
+      },
+      "tracking": {
+        "enabled": true
+      },
+      "tier": 1,
+      "data_quality": "verified",
+      "activity": {
+        "source": "pipeline",
+        "checked_at": "2026-11-05",
+        "last_original_upload": "20261104",
+        "originals_60d": 16,
+        "originals_90d": 24,
+        "originals_365d": 77,
+        "episodes_on_disk": 174
+      }
+    },
+    {
       "slug": "slijedi-svoj-poziv-1",
       "display_name": "Slijedi svoj poziv — 1. konferencija o liderstvu",
       "youtube": {
@@ -233,6 +313,53 @@
         "new_originals_since_baseline": 0,
         "derivative_ratio": 0.47,
         "min_duration_sec": 1818,
+        "no_originals": false,
+        "error": null
+      }
+    },
+    {
+      "slug": "teologija-tijela",
+      "display_name": "Teologija Tijela",
+      "youtube": {
+        "url": "https://www.youtube.com/playlist?list=PLmqB3SO5C_QZRg1Ja5mXgtlc7Qn8YrJhj",
+        "channel_id": "UCU_HxRUP9Ta1NJp6cjXx_0w",
+        "type": "playlist",
+        "playlist_id": "PLmqB3SO5C_QZRg1Ja5mXgtlc7Qn8YrJhj",
+        "parent_channel": "Nova Eva"
+      },
+      "tags": [
+        "theology",
+        "religious-catholic",
+        "evangelization"
+      ],
+      "voditelji": [],
+      "metadata": {
+        "last_episode": "2021-05",
+        "average_duration_minutes": 39,
+        "episodes_sampled": 37,
+        "episodes_over_30min_sampled": 35,
+        "subscribers": null,
+        "status": "inactive",
+        "last_episode_date": "2021-05-12",
+        "last_episode_video": "SHkiOw96-Z4"
+      },
+      "tracking": {
+        "enabled": false,
+        "reason_disabled": "Kandidat iz registry discovery prolaza 2026-09-24 — verificiran format (35/37 originala ≥30 min), čeka editorial odluku o praćenju.",
+        "candidate_phase": 1
+      },
+      "tier": 3,
+      "data_quality": "partial",
+      "activity": {
+        "source": "watch+backfill",
+        "checked_at": "2026-11-05",
+        "last_original_upload": "20210512",
+        "originals_60d": 0,
+        "originals_90d": 0,
+        "originals_365d": 0,
+        "new_originals_since_baseline": 0,
+        "derivative_ratio": 0.03,
+        "min_duration_sec": 901,
         "no_originals": false,
         "error": null
       }
@@ -576,6 +703,144 @@
       },
       "previous_display_name": "Duhovno duhovita večer",
       "parent_slug": "hkm"
+    },
+    {
+      "slug": "razgovori-vtv",
+      "display_name": "Razgovori",
+      "youtube": {
+        "url": "https://www.youtube.com/playlist?list=PLFSB3SakI85fOcko8Plmw0HGNvjNJsg6L",
+        "channel_id": "UCVfz6I7XISePfuN02Hx4bCA",
+        "type": "playlist",
+        "playlist_id": "PLFSB3SakI85fOcko8Plmw0HGNvjNJsg6L",
+        "parent_channel": "VTV Televizija"
+      },
+      "tags": [
+        "culture",
+        "talk-show"
+      ],
+      "voditelji": [],
+      "metadata": {
+        "last_episode": "2025-12",
+        "average_duration_minutes": 52,
+        "episodes_sampled": 9,
+        "episodes_over_30min_sampled": 8,
+        "subscribers": null,
+        "status": "active-slowing",
+        "last_episode_date": "2025-12-16",
+        "last_episode_video": "WLme7aTbRYI"
+      },
+      "tracking": {
+        "enabled": false,
+        "reason_disabled": "Kandidat iz registry discovery prolaza 2026-09-24 — verificiran format (8/9 originala ≥30 min), čeka editorial odluku o praćenju.",
+        "candidate_phase": 1
+      },
+      "tier": 3,
+      "data_quality": "partial",
+      "activity": {
+        "source": "watch+backfill",
+        "checked_at": "2026-11-05",
+        "last_original_upload": "20251216",
+        "originals_60d": 0,
+        "originals_90d": 0,
+        "originals_365d": 1,
+        "new_originals_since_baseline": 0,
+        "derivative_ratio": 0,
+        "min_duration_sec": 1234,
+        "no_originals": false,
+        "error": null
+      }
+    },
+    {
+      "slug": "pravi-smjer",
+      "display_name": "Pravi smjer",
+      "youtube": {
+        "url": "https://www.youtube.com/playlist?list=PLFSB3SakI85dY-C7gq3sQhRpv3c2HfQU9",
+        "channel_id": "UCVfz6I7XISePfuN02Hx4bCA",
+        "type": "playlist",
+        "playlist_id": "PLFSB3SakI85dY-C7gq3sQhRpv3c2HfQU9",
+        "parent_channel": "VTV Televizija"
+      },
+      "tags": [
+        "talk-show",
+        "regional-media"
+      ],
+      "voditelji": [],
+      "metadata": {
+        "last_episode": "2026-11",
+        "average_duration_minutes": 34,
+        "episodes_sampled": 60,
+        "episodes_over_30min_sampled": 60,
+        "subscribers": null,
+        "status": "active",
+        "last_episode_date": "2026-11-03",
+        "last_episode_video": "0sxT3NF8yFg"
+      },
+      "tracking": {
+        "enabled": false,
+        "reason_disabled": "Kandidat iz registry discovery prolaza 2026-09-24 — verificiran format (60/60 originala ≥30 min), čeka editorial odluku o praćenju.",
+        "candidate_phase": 1
+      },
+      "tier": 3,
+      "data_quality": "partial",
+      "activity": {
+        "source": "watch+backfill",
+        "checked_at": "2026-11-05",
+        "last_original_upload": "20261103",
+        "originals_60d": 5,
+        "originals_90d": 5,
+        "originals_365d": 19,
+        "new_originals_since_baseline": 5,
+        "derivative_ratio": 0,
+        "min_duration_sec": 901,
+        "no_originals": false,
+        "error": null
+      }
+    },
+    {
+      "slug": "otvoreni-studio",
+      "display_name": "Otvoreni studio",
+      "youtube": {
+        "url": "https://www.youtube.com/playlist?list=PLFSB3SakI85eSysSqSzwcV10-DRXNNokK",
+        "channel_id": "UCVfz6I7XISePfuN02Hx4bCA",
+        "type": "playlist",
+        "playlist_id": "PLFSB3SakI85eSysSqSzwcV10-DRXNNokK",
+        "parent_channel": "VTV Televizija"
+      },
+      "tags": [
+        "talk-show",
+        "regional-media"
+      ],
+      "voditelji": [],
+      "metadata": {
+        "last_episode": "2026-09",
+        "average_duration_minutes": 55,
+        "episodes_sampled": 22,
+        "episodes_over_30min_sampled": 22,
+        "subscribers": null,
+        "status": "active",
+        "last_episode_date": "2026-09-10",
+        "last_episode_video": "v6C68ycdF-0"
+      },
+      "tracking": {
+        "enabled": false,
+        "reason_disabled": "Kandidat iz registry discovery prolaza 2026-09-24 — verificiran format (22/22 originala ≥30 min), čeka editorial odluku o praćenju.",
+        "candidate_phase": 1
+      },
+      "tier": 3,
+      "data_quality": "partial",
+      "activity": {
+        "source": "watch+backfill",
+        "checked_at": "2026-11-05",
+        "last_original_upload": "20260910",
+        "originals_60d": 1,
+        "originals_90d": 1,
+        "originals_365d": 6,
+        "new_originals_since_baseline": 0,
+        "derivative_ratio": 0,
+        "min_duration_sec": 1264,
+        "no_originals": false,
+        "error": null
+      }
     },
     {
       "slug": "dijalog",

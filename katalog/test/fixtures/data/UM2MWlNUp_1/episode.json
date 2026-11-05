@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "generated_at": "2026-10-15T22:33:58Z",
+  "files": [
+    "article.json",
+    "diarized.srt",
+    "info.json",
+    "outline.json",
+    "summary.json",
+    "words.json"
+  ]
+}

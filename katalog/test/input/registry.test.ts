@@ -28,6 +28,8 @@ describe("parseRegistry", () => {
       youtubeChannelId: null,
       trackingEnabled: true,
       registryTier: 3,
+      youtubeType: "channel",
+      parentSlug: null,
     });
   });
 

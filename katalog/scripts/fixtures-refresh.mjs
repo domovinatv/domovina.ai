@@ -16,15 +16,32 @@ import { fileURLToPath } from "node:url";
 // ---- Izbor (popisi i razlozi: test/fixtures/README.md) ---------------------
 
 const CDN = "https://cdn.domovina.ai/";
-/** Tier 1 kanali čiji se listing uzima. */
-const LISTING_SLUGS = ["40_dana_za_zivot", "dijalog", "nanovoroeni"];
-/** Dodatno u `index.json`: dijele YouTube channel_id (S2). */
-const INDEX_EXTRA_SLUGS = ["slijedi_svoj_poziv_1", "slijedi_svoj_poziv_2"];
+/**
+ * Tier 1 kanali čiji se listing uzima. `slijedi_svoj_poziv_1`/`_2` dijele YouTube
+ * channel_id s `na_kavi_sa_svetim_ignacijem` (S2); `podcast_cuspajz` drži osnovni ID
+ * varijante `UM2MWlNUp_1`; `subclub` je kanal Tier 2 epizode bez `info.json`.
+ * Plan uvoza (S2) traži listing za svaki kanal iz `index.json`, pa ih index ima isto.
+ */
+const LISTING_SLUGS = [
+  "40_dana_za_zivot", "dijalog", "nanovoroeni", "slijedi_svoj_poziv_1", "slijedi_svoj_poziv_2",
+  "podcast_cuspajz", "subclub",
+];
+/** Dodatno u `index.json` (bez listinga). */
+const INDEX_EXTRA_SLUGS = [];
 /** Epizode koje listing fixture MORA zadržati. */
-const PINNED_VIDEOS = { nanovoroeni: ["KLPD-Meu4e8"] };
+const PINNED_VIDEOS = { nanovoroeni: ["KLPD-Meu4e8"], podcast_cuspajz: ["UM2MWlNUpqg"] };
 const MAX_VIDEOS = 20;
-/** `_unlisted` epizode (Tier 2). */
-const UNLISTED_IDS = ["kYwKrihe2K0", "7N0gyXAfA4M", "KLPD-Meu4e8", "CUJmOc91C64", "hmM9f_3Mqm4"];
+/**
+ * `_unlisted` epizode (Tier 2). S2 dodaje: `A-oDNz3nvdQ` (Nova Eva: registry ima
+ * `type: channel` + playlistu), `0sxT3NF8yFg` (VTV: tri playliste, dvosmisleno),
+ * `UM2MWlNUp_1` (eksperimentalna varijanta Tier 1 epizode, Tier 1 kanal po channel_id).
+ */
+const UNLISTED_IDS = [
+  "kYwKrihe2K0", "7N0gyXAfA4M", "KLPD-Meu4e8", "CUJmOc91C64", "hmM9f_3Mqm4",
+  "A-oDNz3nvdQ", "0sxT3NF8yFg", "UM2MWlNUp_1",
+];
+/** Tier 2 epizode bez `info.json` na R2: uzima se samo `summary.json` (S2). */
+const NO_INFO_IDS = ["6dcab9c9837"];
 /** Njihov kanal NE smije biti u registryju (S2: „kanal kojeg nema u registryju”). */
 const NOT_IN_REGISTRY_IDS = ["CUJmOc91C64", "hmM9f_3Mqm4"];
 /** Registry unosi uzeti po slugu (nemaju `channel_id` pa ih channel_id ne nađe). */
@@ -49,6 +66,9 @@ const REGISTRY_PATH = process.env.KATALOG_REGISTRY_PATH
   ? resolve(process.env.KATALOG_REGISTRY_PATH)
   : join(FETCH_REPO, "data", "podcasts_registry.json");
 const CHANNEL_INDEX_JS = join(FETCH_REPO, "generate_channel_index.js");
+const KEY_CACHE_PATH = process.env.KATALOG_KEY_CACHE_PATH
+  ? resolve(process.env.KATALOG_KEY_CACHE_PATH)
+  : join(FETCH_REPO, ".r2_keys_cache.json");
 
 // ---- Dohvat ----------------------------------------------------------------
 
@@ -181,6 +201,29 @@ function shortRegistry(registry, wantedChannelIds, forbiddenChannelIds) {
   return { version: registry.version, podcasts: chosen.map((e) => omit(e, REGISTRY_DROP_KEYS)) };
 }
 
+/**
+ * Key cache sveden na ključeve `data/<id>/…` epizoda iz fixturea, plus prvi
+ * `images/` i prvi `channels/` ključ (uvoznik ih mora preskočiti). Sortirano po
+ * ključu, veličine doslovne.
+ */
+function shortKeyCache(cache, ids) {
+  if (cache.v !== 2) throw new Error(`key cache: nepoznata verzija ${cache.v}`);
+  const keys = Object.keys(cache.sizes).sort();
+  const keep = keys.filter((k) => {
+    const m = /^data\/([^/]+)\//.exec(k);
+    return m !== null && ids.has(m[1]);
+  });
+  for (const prefix of ["images/", "channels/"]) {
+    const k = keys.find((x) => x.startsWith(prefix));
+    if (k) keep.push(k);
+  }
+  for (const id of ids) {
+    if (!keep.some((k) => k.startsWith(`data/${id}/`))) throw new Error(`key cache: nema ključeva za ${id}`);
+  }
+  keep.sort();
+  return { v: cache.v, sizes: Object.fromEntries(keep.map((k) => [k, cache.sizes[k]])) };
+}
+
 // ---- Tripwire: PIPELINE_BITS ----------------------------------------------
 
 async function checkPipelineBits(ours) {
@@ -221,6 +264,9 @@ async function main() {
       { path: `data/${id}/summary.json`, out: `data/${id}/summary.json`, shorten: shortSummary, parse: P.parseEpisodeSummary },
       { path: `data/${id}/episode.json`, out: `data/${id}/episode.json`, shorten: shortManifest, parse: P.parseEpisodeManifest },
     ]),
+    ...NO_INFO_IDS.map((id) => ({
+      path: `data/${id}/summary.json`, out: `data/${id}/summary.json`, shorten: shortSummary, parse: P.parseEpisodeSummary,
+    })),
   ];
 
   const fetched = await pool(jobs, CONCURRENCY, async (job) => {
@@ -244,13 +290,21 @@ async function main() {
     }
   }
   const registry = JSON.parse(await readFile(REGISTRY_PATH, "utf8"));
+  const keyCache = JSON.parse(await readFile(KEY_CACHE_PATH, "utf8"));
+  const fixtureIds = new Set([...UNLISTED_IDS, ...NO_INFO_IDS]);
+  for (const f of fetched) if (f.out.startsWith("channels/") && f.data.videos) for (const v of f.data.videos) fixtureIds.add(v.id);
+  for (const id of NO_INFO_IDS) {
+    if (Object.hasOwn(keyCache.sizes, `data/${id}/info.json`)) throw new Error(`key cache: ${id} ima info.json, a fixture tvrdi da nema`);
+  }
   const files = [
     ...fetched,
     { out: "registry/podcasts_registry.json", data: shortRegistry(registry, wanted, forbidden), parse: P.parseRegistry },
+    { out: "r2_keys_cache.json", data: shortKeyCache(keyCache, fixtureIds), parse: (await import("../src/ingest/keys.ts")).parseKeyCache },
   ];
 
   // Stari generirani sadržaj van (README ostaje), pa upis.
   for (const dir of ["channels", "data", "registry"]) await rm(join(OUT, dir), { recursive: true, force: true });
+  await rm(join(OUT, "r2_keys_cache.json"), { force: true });
   for (const f of files) {
     const text = `${JSON.stringify(f.data, null, 2)}\n`;
     f.parse(JSON.parse(text)); // baca InputError s putanjom ako fixture ne prolazi parser

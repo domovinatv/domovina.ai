@@ -1,0 +1,417 @@
+{
+  "version": "1.0",
+  "generated_at": "2026-11-01T02:46:50.690Z",
+  "id": "slijedi_svoj_poziv_2",
+  "name": "Slijedi svoj poziv — 2. konferencija o liderstvu",
+  "avatar_square": "https://cdn.domovina.ai/channels/images/slijedi_svoj_poziv_2/avatar_square.jpg",
+  "avatar_square_dimensions": null,
+  "avatar_cover": "https://cdn.domovina.ai/channels/images/slijedi_svoj_poziv_2/avatar_cover.jpg",
+  "avatar_cover_dimensions": {
+    "width": 900,
+    "height": 900
+  },
+  "youtube_channel_url": "https://www.youtube.com/channel/UCuk9D5H9mx7birJ1-S22nyQ",
+  "youtube_playlist_url": null,
+  "description": null,
+  "tags": [],
+  "follower_count": 506,
+  "video_count": 9,
+  "total_duration_seconds": 15034,
+  "avg_magisterium_score": 84,
+  "latest_video_date": "2026-02-13",
+  "videos": [
+    {
+      "id": "E_ohJLD26ec",
+      "title": "Duhovna dimenzija vodstva - mistično vodstvo | Sebastian Šujević | SSP",
+      "title_hr": "Duhovna dimenzija vodstva - mistično vodstvo | Sebastian Šujević | SSP",
+      "date": "2026-02-13",
+      "duration_seconds": 1213,
+      "duration_display": "20:13",
+      "views": 98,
+      "likes": 6,
+      "thumbnail": "https://cdn.domovina.ai/images/E_ohJLD26ec/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=E_ohJLD26ec",
+      "abstract": "U ovom predavanju s konferencije o liderstvu pater Sebastian Šujević, provincijal Hrvatske pokrajine Družbe Isusove, govori o duhovnoj i mističnoj dimenziji vod…",
+      "topics": [
+        "duhovno vodstvo",
+        "mistično vodstvo",
+        "savjest"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Voditeljica/Voditelj konferencije",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Sebastian Šujević",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "_MeKh3N7yXs",
+      "title": "Glazba, ekonomija i enologija u jednom suzvučju | Miroslav Škoro | SSP",
+      "title_hr": "Glazba, ekonomija i enologija u jednom suzvučju | Miroslav Škoro | SSP",
+      "date": "2026-02-13",
+      "duration_seconds": 2813,
+      "duration_display": "46:53",
+      "views": 92,
+      "likes": 3,
+      "thumbnail": "https://cdn.domovina.ai/images/_MeKh3N7yXs/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=_MeKh3N7yXs",
+      "abstract": "U ovom razgovoru s paterom Tvrtkom Barunom na konferenciji o liderstvu, Miroslav Škoro dijeli svoja bogata životna i profesionalna iskustva. Škoro se osvrće na …",
+      "topics": [
+        "politika",
+        "poduzetništvo",
+        "glazba"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Voditeljica",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Miroslav Škoro",
+          "role": "gost"
+        },
+        {
+          "id": "SPEAKER_02",
+          "suggested_name": "Tvrtko Barun",
+          "role": "voditelj"
+        }
+      ],
+      "magisterium_score": 83,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": true,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "QwIkHfJPAJE",
+      "title": "Kako umjetnici oblikuju svjetove i ljude | Petra Radin, Zdravko Šljivac, Tomislav Mihac Kovačic|SSP",
+      "title_hr": "Kako umjetnici oblikuju svjetove i ljude | Petra Radin, Zdravko Šljivac, Tomislav Mihac Kovačic | SSP",
+      "date": "2026-02-13",
+      "duration_seconds": 2393,
+      "duration_display": "39:53",
+      "views": 38,
+      "likes": 1,
+      "thumbnail": "https://cdn.domovina.ai/images/QwIkHfJPAJE/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=QwIkHfJPAJE",
+      "abstract": "Panel \"Moć scene\" okupio je redateljicu i glumicu Petru Radin, dirigenta i glazbenog producenta Zdravka Šljivca te frontmena benda Oganj Tomislava Mihaca Kovači…",
+      "topics": [
+        "umjetnost i društvo",
+        "liderstvo u umjetnosti",
+        "odgovornost umjetnika"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_02",
+          "suggested_name": "Diana Tikvić",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_03",
+          "suggested_name": "Petra Radin",
+          "role": "gost"
+        },
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Zdravko Šljivac",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "dDDwWZPVS0s",
+      "title": "Kako voditi u svijetu umjetne inteligencije? | Marijana Šarolić Robić | SSP",
+      "title_hr": "Kako voditi u svijetu umjetne inteligencije? | Marijana Šarolić Robić | SSP",
+      "date": "2026-02-13",
+      "duration_seconds": 1038,
+      "duration_display": "17:18",
+      "views": 35,
+      "likes": null,
+      "thumbnail": "https://cdn.domovina.ai/images/dDDwWZPVS0s/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=dDDwWZPVS0s",
+      "abstract": "U ovom predavanju odvjetnica i suosnivačica udruge CroAI Marijana Šarolić Robić govori o izazovima i metodama vodstva u doba brze tehnološke transformacije. Kro…",
+      "topics": [
+        "umjetna inteligencija",
+        "liderstvo",
+        "etika"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Voditelj",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Marijana Šarolić Robić",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": 83,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": true,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "oyoo29JF-0o",
+      "title": "Otkivanje vlastite autentičnosti | Alan Žepec | SSP",
+      "title_hr": "Otkrivanje vlastite autentičnosti | Alan Žepec | Slijedi svoj poziv",
+      "date": "2026-02-13",
+      "duration_seconds": 1243,
+      "duration_display": "20:43",
+      "views": 53,
+      "likes": 1,
+      "thumbnail": "https://cdn.domovina.ai/images/oyoo29JF-0o/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=oyoo29JF-0o",
+      "abstract": "U predavanju s konferencije o liderstvu Alan Žepec, transformacijski coach i poduzetnik, govori o tome što znači biti autentičan. Opisuje kako je u pripremi pre…",
+      "topics": [
+        "autentičnost",
+        "osobni razvoj",
+        "maske i uloge"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Voditelj",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Alan Žepec",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "BUXMT0NATHU",
+      "title": "Voditi druge do medalje života | Nikola Bralić | SSP",
+      "title_hr": "Voditi druge do medalje života | Nikola Bralić | SSP",
+      "date": "2026-02-13",
+      "duration_seconds": 2338,
+      "duration_display": "38:58",
+      "views": 23,
+      "likes": 1,
+      "thumbnail": "https://cdn.domovina.ai/images/BUXMT0NATHU/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=BUXMT0NATHU",
+      "abstract": "Panel razgovor s veslačkim trenerom Nikolom Bralićem održan u sklopu konferencije o liderstvu, koji vodi novinar i moderator Ognjen Golubić. Bralić opisuje svak…",
+      "topics": [
+        "veslanje",
+        "trenerski posao",
+        "liderstvo u sportu"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Voditelj programa",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Ognjen Golubić",
+          "role": "moderator panela"
+        },
+        {
+          "id": "SPEAKER_02",
+          "suggested_name": "Nikola Bralić",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "vtVwsyxBB_g",
+      "title": "Zašto (ne) biti autoritativni vođa? | Ivan Runje | SSP",
+      "title_hr": "Zašto (ne) biti autoritativni vođa? | Ivan Runje | SSP",
+      "date": "2026-02-13",
+      "duration_seconds": 1242,
+      "duration_display": "20:42",
+      "views": 180,
+      "likes": 8,
+      "thumbnail": "https://cdn.domovina.ai/images/vtVwsyxBB_g/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=vtVwsyxBB_g",
+      "abstract": "U izlaganju na konferenciji o liderstvu Ivan Runje, direktor marketinga i upravljanja proizvodima u Hrvatskom Telekomu, propituje razliku između vođenja iz pozi…",
+      "topics": [
+        "liderstvo",
+        "moć i autoritet",
+        "povratna informacija"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Dijana (voditeljica konferencije)",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Ivan Runje",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "7db0JE6uMTE",
+      "title": "Roditeljstvo kao vodstvo: izgradnjom karaktera do istinskog lidera | Carla Konta | SSP",
+      "title_hr": "Roditeljstvo kao vodstvo: izgradnjom karaktera do istinskog lidera | Carla Konta | SSP",
+      "date": "2025-12-05",
+      "duration_seconds": 1427,
+      "duration_display": "23:47",
+      "views": 164,
+      "likes": 4,
+      "thumbnail": "https://cdn.domovina.ai/images/7db0JE6uMTE/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=7db0JE6uMTE",
+      "abstract": "U izlaganju na konferenciji o liderstvu Carla Konta, majka šestero djece i zagovarateljica obrazovanja kod kuće, govori o roditeljstvu kao liderskoj ulozi. Pola…",
+      "topics": [
+        "roditeljstvo",
+        "liderstvo",
+        "odgoj za vrline"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Voditelj",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Carla Konta",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "1mRu8yg4-BQ",
+      "title": "Vođenje neprofitnih organizacija - privilegija ili teret? | Mladenka Majerić | SSP",
+      "title_hr": "Vođenje neprofitnih organizacija - privilegija ili teret?",
+      "date": "2025-10-30",
+      "duration_seconds": 1327,
+      "duration_display": "22:07",
+      "views": 127,
+      "likes": 6,
+      "thumbnail": "https://cdn.domovina.ai/images/1mRu8yg4-BQ/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=1mRu8yg4-BQ",
+      "abstract": "Predavanje Mladenke Majerić na konferenciji 'Slijedi svoj poziv' bavi se izazovima, privilegijama i teretima vođenja neprofitnih organizacija. Autorica ističe k…",
+      "topics": [
+        "neprofitne organizacije",
+        "liderstvo",
+        "fundraising"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Voditelj",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Mladenka Majerić",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": 87,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": true,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    }
+  ]
+}

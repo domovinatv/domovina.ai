@@ -1,0 +1,459 @@
+{
+  "version": "1.0",
+  "generated_at": "2026-11-01T02:46:50.651Z",
+  "id": "slijedi_svoj_poziv_1",
+  "name": "Slijedi svoj poziv — 1. konferencija o liderstvu",
+  "avatar_square": "https://cdn.domovina.ai/channels/images/slijedi_svoj_poziv_1/avatar_square.jpg",
+  "avatar_square_dimensions": null,
+  "avatar_cover": "https://cdn.domovina.ai/channels/images/slijedi_svoj_poziv_1/avatar_cover.jpg",
+  "avatar_cover_dimensions": {
+    "width": 900,
+    "height": 900
+  },
+  "youtube_channel_url": "https://www.youtube.com/channel/UCuk9D5H9mx7birJ1-S22nyQ",
+  "youtube_playlist_url": null,
+  "description": null,
+  "tags": [],
+  "follower_count": 506,
+  "video_count": 10,
+  "total_duration_seconds": 16399,
+  "avg_magisterium_score": 90,
+  "latest_video_date": "2025-03-18",
+  "videos": [
+    {
+      "id": "TfMw-f2vRhc",
+      "title": "Stožerne kreposti i demistifikacija istinske solidarnosti | Andrej Grubišić | SSP",
+      "title_hr": "Stožerne kreposti i demistifikacija istinske solidarnosti | Andrej Grubišić | SSP",
+      "date": "2025-03-18",
+      "duration_seconds": 1750,
+      "duration_display": "29:10",
+      "views": 403,
+      "likes": 12,
+      "thumbnail": "https://cdn.domovina.ai/images/TfMw-f2vRhc/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=TfMw-f2vRhc",
+      "abstract": "U završnom izlaganju konferencije financijski savjetnik i profesor financija Andrej Grubišić povezuje četiri stožerne kreposti – razboritost, pravednost, umjere…",
+      "topics": [
+        "stožerne kreposti",
+        "konzervativizam",
+        "prirodna i ugovorna prava"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Voditeljica",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Andrej Grubišić",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "XkqhHTjYCNg",
+      "title": "Isus kao lider | mons. Giorgio Lingua | SSP",
+      "title_hr": "Isus kao lider | mons. Giorgio Lingua | SSP",
+      "date": "2025-03-11",
+      "duration_seconds": 1302,
+      "duration_display": "21:42",
+      "views": 68,
+      "likes": 3,
+      "thumbnail": "https://cdn.domovina.ai/images/XkqhHTjYCNg/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=XkqhHTjYCNg",
+      "abstract": "U ovom govoru apostolski nuncij u Republici Hrvatskoj, mons. Giorgio Lingua, izlaže zašto je Isus Krist primjer istinskog lidera. Polazi od zapažanja da Isus ni…",
+      "topics": [
+        "isusovo liderstvo",
+        "služenje i vlast",
+        "autoritativnost i vjerodostojnost"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Voditelj",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "mons. Giorgio Lingua",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "5ACdWaOubgU",
+      "title": "Moć medija vs. utjecaj pojedinca | Ivana Petrović & Antonia Hrvatin Roth | SSP (w/ Nataša Božić)",
+      "title_hr": "Moć medija vs. utjecaj pojedinca | Ivana Petrović & Antonia Hrvatin Roth | SSP (w/ Nataša Božić)",
+      "date": "2025-03-11",
+      "duration_seconds": 2525,
+      "duration_display": "42:05",
+      "views": 63,
+      "likes": 1,
+      "thumbnail": "https://cdn.domovina.ai/images/5ACdWaOubgU/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=5ACdWaOubgU",
+      "abstract": "Panel s konferencije o liderstvu okuplja dvije iskusne novinarke, Ivanu Petrović s Nove TV i Antoniu Hrvatin Roth s HTV-a, koje s voditeljicom Natašom Božić raz…",
+      "topics": [
+        "moć medija",
+        "etika u novinarstvu",
+        "vjera i mediji"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_02",
+          "suggested_name": "Moderatorica konferencije",
+          "role": "voditeljica/najavljivačica"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Nataša Božić",
+          "role": "voditeljica panela"
+        },
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Ivana Petrović",
+          "role": "gost/panelistica"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "wqw25tuJAxM",
+      "title": "Može li biznis biti izvor dobra? | Kristina Ercegović | SSP",
+      "title_hr": "Može li biznis biti izvor dobra? | Kristina Ercegović | SSP",
+      "date": "2025-03-11",
+      "duration_seconds": 979,
+      "duration_display": "16:19",
+      "views": 54,
+      "likes": 1,
+      "thumbnail": "https://cdn.domovina.ai/images/wqw25tuJAxM/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=wqw25tuJAxM",
+      "abstract": "U govoru na konferenciji SSP poduzetnica Kristina Ercegović propituje jezik i vrijednosti suvremenog poslovnog svijeta u kojem su borba, konkurencija i utrka za…",
+      "topics": [
+        "poduzetništvo",
+        "biznis kao izvor dobra",
+        "svrha i vrijednosti u poslu"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Voditelj",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Kristina Ercegović",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "cqkVl91aZIc",
+      "title": "Plaču li lider? | Aleksandar Stanković | SSP",
+      "title_hr": "Plaču li lideri? | Aleksandar Stanković | SSP",
+      "date": "2025-03-11",
+      "duration_seconds": 1241,
+      "duration_display": "20:41",
+      "views": 68,
+      "likes": 1,
+      "thumbnail": "https://cdn.domovina.ai/images/cqkVl91aZIc/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=cqkVl91aZIc",
+      "abstract": "Aleksandar Stanković, urednik i voditelj emisije \"Nedjeljom u 2\", drži predavanje na konferenciji uoči tisućitog izdanja svoje emisije, na temu liderstva i pita…",
+      "topics": [
+        "liderstvo",
+        "novinarstvo",
+        "emocije i ranjivost lidera"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Aleksandar Stanković",
+          "role": "gost"
+        },
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Voditeljica (moderatorica)",
+          "role": "voditelj"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "LT5hVmrLMjQ",
+      "title": "Ponosno i ponizno kroz uspjehe (i neuspjehe) | Zlatko Dalić | SSP (w/ Božo Skoko)",
+      "title_hr": "Ponosno i ponizno kroz uspjehe (i neuspjehe) | Zlatko Dalić | SSP (w/ Božo Skoko)",
+      "date": "2025-03-11",
+      "duration_seconds": 2541,
+      "duration_display": "42:21",
+      "views": 66,
+      "likes": 2,
+      "thumbnail": "https://cdn.domovina.ai/images/LT5hVmrLMjQ/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=LT5hVmrLMjQ",
+      "abstract": "Izbornik hrvatske nogometne reprezentacije Zlatko Dalić u razgovoru s Božom Skokom govori o svom pristupu vodstvu, motivaciji vrhunskih igrača i izgradnji autor…",
+      "topics": [
+        "liderstvo i vodstvo",
+        "poniznost i samokontrola",
+        "hrvatska nogometna reprezentacija"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Moderator konferencije",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_02",
+          "suggested_name": "Božo Skoko",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Zlatko Dalić",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "f0bq8BVuWY8",
+      "title": "Uloga vođa u izgradnji odnosa | Ivan Gadže | SSP",
+      "title_hr": "Uloga vođa u izgradnji odnosa | Ivan Gadže | SSP",
+      "date": "2025-03-11",
+      "duration_seconds": 1325,
+      "duration_display": "22:05",
+      "views": 131,
+      "likes": 3,
+      "thumbnail": "https://cdn.domovina.ai/images/f0bq8BVuWY8/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=f0bq8BVuWY8",
+      "abstract": "U izlaganju na skupu u organizaciji Centra Ignacije Ivan Gadže, osnivač i partner Kaizen instituta u Hrvatskoj, govori o liderstvu u poslovnom kontekstu i o odn…",
+      "topics": [
+        "liderstvo",
+        "organizacijska kultura",
+        "međuljudski odnosi na radnom mjestu"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Voditelj",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Ivan Gadže",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "Pr1y86Fu5gQ",
+      "title": "Vođe u ratu, vođe u miru | Krešimir Ćosić | SSP",
+      "title_hr": "Vođe u ratu, vođe u miru | Krešimir Ćosić | SSP",
+      "date": "2025-03-11",
+      "duration_seconds": 1252,
+      "duration_display": "20:52",
+      "views": 71,
+      "likes": 4,
+      "thumbnail": "https://cdn.domovina.ai/images/Pr1y86Fu5gQ/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=Pr1y86Fu5gQ",
+      "abstract": "Predavanje profesora i umirovljenog general-pukovnika Krešimira Ćosića o liderstvu u ratnim i mirnodopskim uvjetima, s posebnim osvrtom na Domovinski rat. Autor…",
+      "topics": [
+        "liderstvo",
+        "domovinski rat",
+        "nacionalna sigurnost"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Voditelj",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Krešimir Ćosić",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": 87,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": true,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "m50-bWAY1vo",
+      "title": "Vodstvo u individualnim kriznim situacijama | Ana Ljubas & Ivana Kalogjera |SSP (w/Mladenka Majerić)",
+      "title_hr": "Vodstvo u individualnim kriznim situacijama | Ana Ljubas i Ivana Kalogjera (moderira Mladenka Majerić)",
+      "date": "2025-03-11",
+      "duration_seconds": 2290,
+      "duration_display": "38:10",
+      "views": 77,
+      "likes": 2,
+      "thumbnail": "https://cdn.domovina.ai/images/m50-bWAY1vo/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=m50-bWAY1vo",
+      "abstract": "Panel s konferencije o vodstvu u organizaciji Centra Ignacije posvećen je vođenju u individualnim kriznim situacijama – bolesti, umiranju i gubitku posla. Ana L…",
+      "topics": [
+        "vodstvo u kriznim situacijama",
+        "empatija i ljudskost u zdravstvu",
+        "sestrinstvo i manjak osoblja"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Diana (voditeljica konferencije)",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_03",
+          "suggested_name": "Mladenka Majerić",
+          "role": "moderatorica panela"
+        },
+        {
+          "id": "SPEAKER_02",
+          "suggested_name": "Ana Ljubas",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": null,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": false,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    },
+    {
+      "id": "GjwTrP5wCsg",
+      "title": "Zašto najbolji vođe i planiraju i improviziraju? | Matija Kopić | SSP",
+      "title_hr": "Zašto najbolji vođe i planiraju i improviziraju? | Matija Kopić | SSP",
+      "date": "2025-03-11",
+      "duration_seconds": 1194,
+      "duration_display": "19:54",
+      "views": 141,
+      "likes": 2,
+      "thumbnail": "https://cdn.domovina.ai/images/GjwTrP5wCsg/thumbnail.png",
+      "youtube_url": "https://www.youtube.com/watch?v=GjwTrP5wCsg",
+      "abstract": "U ovom izlaganju poduzetnik Matija Kopić preispituje moderni koncept liderstva i naglašava važnost kršćanskog identiteta u vođenju. Umjesto pukog fokusa na moć …",
+      "topics": [
+        "liderstvo",
+        "kršćansko vodstvo",
+        "umjetna inteligencija"
+      ],
+      "speakers": [
+        {
+          "id": "SPEAKER_00",
+          "suggested_name": "Voditeljica",
+          "role": "voditelj"
+        },
+        {
+          "id": "SPEAKER_01",
+          "suggested_name": "Matija Kopić",
+          "role": "gost"
+        }
+      ],
+      "magisterium_score": 92,
+      "pipeline": {
+        "has_transcript": true,
+        "has_diarized": true,
+        "has_summary": true,
+        "has_article": true,
+        "has_magisterium": true,
+        "has_translation_en": false,
+        "has_summary_en": false,
+        "has_article_en": false,
+        "has_magisterium_en": false
+      }
+    }
+  ]
+}

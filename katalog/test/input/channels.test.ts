@@ -42,8 +42,8 @@ describe("parseChannelIndex", () => {
   const index = parseChannelIndex(fixtures.index());
   const bySlug = new Map(index.channels.map((c) => [c.slug, c]));
 
-  it("čita svih 5 kanala iz fixturea", () => {
-    expect([...bySlug.keys()]).toEqual([...LISTING_SLUGS, "slijedi_svoj_poziv_1", "slijedi_svoj_poziv_2"]);
+  it("čita svih 7 kanala iz fixturea (svaki ima listing)", () => {
+    expect([...bySlug.keys()].sort()).toEqual(LISTING_SLUGS);
     expect(index.generatedAt).toMatch(/^\d{4}-\d{2}-\d{2}T/);
   });
 
@@ -74,7 +74,7 @@ describe("parseChannelIndex", () => {
     const first = raw.channels[0];
     if (first === undefined) throw new Error("prazan index");
     raw.channels.push(first);
-    expect(inputError(() => parseChannelIndex(raw)).path).toBe("channels[5].id");
+    expect(inputError(() => parseChannelIndex(raw)).path).toBe("channels[7].id");
   });
 
   it("krivi tip video_count → InputError s putanjom", () => {
@@ -140,7 +140,7 @@ describe("parseChannelListing", () => {
         checked++;
       });
     }
-    expect(checked).toBe(60);
+    expect(checked).toBe(119);
   });
 
   it("nanovoroeni drži KLPD-Meu4e8 (ista epizoda je i u _unlisted)", () => {

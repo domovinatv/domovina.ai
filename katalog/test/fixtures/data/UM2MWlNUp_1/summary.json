@@ -1,0 +1,29 @@
+{
+  "version": "1.0",
+  "generated_at": "2026-10-15T18:10:47.250Z",
+  "model": "opus",
+  "source": {
+    "filename": "20261010_edo_pezzi_danas_se_prebrzo_postaje_trener_ja_ih_zovem_laptop_treneri_podcast_cuspajz_162_yt_UM2MWlNUp_1.wav.canary.diarized.srt",
+    "channel": "_varijante",
+    "youtube_id": "UM2MWlNUp_1",
+    "title": "EDO PEZZI -Danas se prebrzo postaje trener ,ja ih zovem \"laptop treneri\" PODCAST ČUŠPAJZ #162 · varijanta 1: Canary + pyannote + Gemini sluh → Opus",
+    "upload_date": "20261010",
+    "duration_seconds": 4320,
+    "platform": "youtube",
+    "source_url": "https://www.youtube.com/watch?v=UM2MWlNUpqg"
+  },
+  "provenance": {
+    "experiment": "exp-20261010",
+    "srt_input": "canary-1b-v2+pyannote-c1+agy-gemini-3-8-flash",
+    "article_input": "canary-1b-v2+pyannote-c1+agy-gemini-3-8-flash",
+    "article_model": "opus-5-5",
+    "note": "promovirano iz experiments/2026-10-10-asr (slijepa ocjena 15.10.2026.)"
+  },
+  "summary": {
+    "title_hr": "EDO PEZZI - Danas se prebrzo postaje trener, ja ih zovem \"laptop treneri\" (PODCAST ČUŠPAJZ #162) · varijanta 1",
+    "abstract_hr": "U 162. epizodi podcasta Čušpajz gostuje Edo Pezzi, dugogodišnji sportski novinar i reporter iz Splita. Razgovor počinje analizom četiriju utakmica Lige nacija, uključujući poraz od Engleske i utakmicu sa Španjolskom. Pezzi brani izbornika Slavena Bilića i kritizira žuto novinarstvo i uvrede na portalima. Zatim govori o padu kvalitete HNL-a, o stanju i upravljanju Hajdukom, o lošem odgoju mladih igrača i trenera te o inicijativi za rušenje Poljuda. Kritizira i komercijalizaciju nogometa pod vodstvom FIFA-e, a završava predlaganjem promjena u hrvatskom nogometu i komentarom o ulasku Igora Štimca u politiku.",
+    "language": "hr",
+    "content_type": "podcast",
+    "sentiment": "mixed"
+  }
+}

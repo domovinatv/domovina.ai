@@ -39,6 +39,11 @@ const registry: Raw = import.meta.glob<string>("../fixtures/registry/podcasts_re
   import: "default",
   eager: true,
 });
+const keyCache: Raw = import.meta.glob<string>("../fixtures/r2_keys_cache.json", {
+  query: "?raw",
+  import: "default",
+  eager: true,
+});
 
 /** `../fixtures/data/<id>/info.json` → `<id>`; `../fixtures/channels/<slug>.json` → `<slug>`. */
 function keyOf(path: string): string {
@@ -65,6 +70,7 @@ export const fixtures = {
   summaries: () => parsed(summaries),
   manifests: () => parsed(manifests),
   registry: () => only(registry),
+  keyCache: () => only(keyCache),
 };
 
 /** Duboka kopija fixturea za negativne testove (mijenja se bez dodira originala). */
@@ -72,8 +78,28 @@ export function clone<T>(value: T): T {
   return structuredClone(value);
 }
 
-export const UNLISTED_IDS = ["7N0gyXAfA4M", "CUJmOc91C64", "KLPD-Meu4e8", "hmM9f_3Mqm4", "kYwKrihe2K0"];
-export const LISTING_SLUGS = ["40_dana_za_zivot", "dijalog", "nanovoroeni"];
+/** Tier 2 epizode s `info.json`, `summary.json` i `episode.json` (sortirano). */
+export const UNLISTED_IDS = [
+  "0sxT3NF8yFg",
+  "7N0gyXAfA4M",
+  "A-oDNz3nvdQ",
+  "CUJmOc91C64",
+  "KLPD-Meu4e8",
+  "UM2MWlNUp_1",
+  "hmM9f_3Mqm4",
+  "kYwKrihe2K0",
+];
+/** Tier 2 epizode bez `info.json` na R2: samo `summary.json`. */
+export const NO_INFO_IDS = ["6dcab9c9837"];
+export const LISTING_SLUGS = [
+  "40_dana_za_zivot",
+  "dijalog",
+  "nanovoroeni",
+  "podcast_cuspajz",
+  "slijedi_svoj_poziv_1",
+  "slijedi_svoj_poziv_2",
+  "subclub",
+];
 
 /** Pozove `fn` i vrati InputError koji baci; sve drugo (i prolaz) je pad testa. */
 export function inputError(fn: () => unknown): InputError {

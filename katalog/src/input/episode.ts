@@ -7,6 +7,7 @@ import {
   index,
   type JsonObject,
   optCompactDate,
+  optIsoOrCompactDate,
   optNonNegative,
   optObject,
   optString,
@@ -24,6 +25,11 @@ export interface EpisodeInfo {
   readonly channel: string | null;
   /** YouTube `UC…` ili numerički X ID (`1973380383166050304`). */
   readonly channelId: string | null;
+  /**
+   * Ime autora kako ga yt-dlp zna; jedino ime X/Twitter zapisa (`CUJmOc91C64`:
+   * `channel` nema, `uploader` je „Hobba …”). Uvoznik ga koristi kad `channel` nema.
+   */
+  readonly uploader: string | null;
   /** `upload_date` `YYYYMMDD` pretvoren u `YYYY-MM-DD`. */
   readonly uploadDate: string | null;
   /** Može biti decimalan (245.295) ili nepoznat (`hmM9f_3Mqm4`: ključa nema). */
@@ -39,6 +45,7 @@ export function parseEpisodeInfo(raw: unknown): EpisodeInfo {
     title: reqString(o, "title", ROOT),
     channel: optString(o, "channel", ROOT),
     channelId: optString(o, "channel_id", ROOT),
+    uploader: optString(o, "uploader", ROOT),
     uploadDate: optCompactDate(o, "upload_date", ROOT),
     durationSeconds: optNonNegative(o, "duration", ROOT),
     extractor: optString(o, "extractor", ROOT),
@@ -54,6 +61,13 @@ export interface EpisodeSummary {
   readonly language: string | null;
   /** `source.duration_seconds`; prati `info.json` (i decimalno i `null`). */
   readonly durationSeconds: number | null;
+  /** `source.upload_date` (`YYYY-MM-DD` ili `YYYYMMDD`, vraća se `YYYY-MM-DD`); jedini datum epizode bez `info.json`. */
+  readonly uploadDate: string | null;
+  /**
+   * `source.channel`: većinom `"_unlisted"` (ne govori ništa), ali tri epizode bez
+   * `info.json` nose CDN slug kanala (`subclub`, `launched`), odluka 206.
+   */
+  readonly sourceChannel: string | null;
 }
 
 function optLang(o: JsonObject, key: string, path: string): string | null {
@@ -74,6 +88,8 @@ export function parseEpisodeSummary(raw: unknown): EpisodeSummary {
     abstractHr: summary === null ? null : optString(summary, "abstract_hr", "summary"),
     language: summary === null ? null : optLang(summary, "language", "summary"),
     durationSeconds: source === null ? null : optNonNegative(source, "duration_seconds", "source"),
+    uploadDate: source === null ? null : optIsoOrCompactDate(source, "upload_date", "source"),
+    sourceChannel: source === null ? null : optString(source, "channel", "source"),
   };
 }
 

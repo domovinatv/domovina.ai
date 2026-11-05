@@ -67,6 +67,28 @@
       }
     },
     {
+      "id": "podcast_cuspajz",
+      "name": "PODCAST  ČUŠPAJZ OFFICIAL",
+      "avatar_square": "https://cdn.domovina.ai/channels/images/podcast_cuspajz/avatar_square.jpg",
+      "avatar_square_dimensions": null,
+      "avatar_cover": "https://cdn.domovina.ai/channels/images/podcast_cuspajz/avatar_cover.jpg",
+      "avatar_cover_dimensions": {
+        "width": 900,
+        "height": 900
+      },
+      "youtube_channel_url": "https://www.youtube.com/channel/UCaqCX-pMk_RXhs4EQnP4VuQ",
+      "youtube_playlist_url": null,
+      "follower_count": 7080,
+      "video_count": 174,
+      "total_duration_seconds": 620064,
+      "avg_magisterium_score": 69,
+      "latest_video": {
+        "id": "qFOD-W0-GvU",
+        "date": "2026-11-04",
+        "title": "DAMIR OMERBEGOVIĆ – O BiH nakon izbora, o političkom islamizmu – PODCAST ČUŠPAJZ #169"
+      }
+    },
+    {
       "id": "slijedi_svoj_poziv_1",
       "name": "Slijedi svoj poziv — 1. konferencija o liderstvu",
       "avatar_square": "https://cdn.domovina.ai/channels/images/slijedi_svoj_poziv_1/avatar_square.jpg",
@@ -108,6 +130,25 @@
         "id": "E_ohJLD26ec",
         "date": "2026-02-13",
         "title": "Duhovna dimenzija vodstva - mistično vodstvo | Sebastian Šujević | SSP"
+      }
+    },
+    {
+      "id": "subclub",
+      "name": "Sub Club by RevenueCat",
+      "avatar_square": "https://cdn.domovina.ai/channels/images/subclub/avatar_square.jpg",
+      "avatar_square_dimensions": null,
+      "avatar_cover": "https://cdn.domovina.ai/channels/images/subclub/avatar_cover.jpg",
+      "avatar_cover_dimensions": null,
+      "youtube_channel_url": "https://subclub.com",
+      "youtube_playlist_url": null,
+      "follower_count": 0,
+      "video_count": 185,
+      "total_duration_seconds": 570933,
+      "avg_magisterium_score": 79,
+      "latest_video": {
+        "id": "g6RoPxoCqLA",
+        "date": "2026-10-28",
+        "title": "Kako je Praktika izgradila profitabilan AI posao s 50 milijuna dolara ARR-a — Adam Turaev, Praktika"
       }
     }
   ]

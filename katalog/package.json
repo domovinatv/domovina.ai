@@ -11,6 +11,7 @@
     "test": "vitest run",
     "check": "npm run typecheck && npm run lint && npm run test",
     "migrate:local": "wrangler d1 migrations apply katalog --local",
+    "import": "node scripts/import.mjs",
     "fixtures:refresh": "node scripts/fixtures-refresh.mjs"
   },
   "devDependencies": {
