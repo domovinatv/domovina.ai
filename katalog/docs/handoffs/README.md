@@ -86,3 +86,17 @@ Handoff se mijenja samo prema naprijed: gotovi `SN` se ne prepisuju, služe kao 
   `run_in_background` i javi se tek na kraju. Oko 150k konteksta orkestratora zatvori
   sesiju po koraku 3 lanca.
 - Svako istraživanje zapiši u `katalog/docs/research/YYYY-MM-DD-*.md`.
+- **Paralelni lanac u istom repou** (dogovor s lancem `vijesti/`, 05.11.2026.; ekvivalent
+  stoji u `vijesti/docs/handoffs/README.md`):
+  1. katalog dira samo `katalog/`, vijesti samo `vijesti/`; korijen ni jedan bez dogovora
+     (iznimke koje paket izričito navodi, gore pod „Opseg”, javljaju se drugoj sesiji prije
+     prve izmjene);
+  2. commit samo po svojim putanjama (`git commit -m … -- katalog/`) ili uz provjeru
+     `git diff --cached --name-only`; nikad `git add -A`, `git commit -a`, `stash`, `reset`
+     ni `checkout`/`restore` nad tuđim datotekama;
+  3. `git pull --rebase` i push samo kad su vlastite putanje čiste; tuđe necommitane
+     izmjene se ne diraju;
+  4. greška u zajedničkoj datoteci ili u drugom lancu → prvo `SendMessage` drugoj sesiji,
+     tek onda izmjena;
+  5. ovo pravilo se prepisuje u brief svakog subagenta;
+  6. `/wrap-up` commita i pusha samo svoje putanje.
