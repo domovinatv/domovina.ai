@@ -86,4 +86,5 @@ procjena po ruti izlazi iz S4, ne iz pretpostavke.
 
 ## Gdje smo
 
-S0: plan, TODO i handoffi. Koda nema.
+S0: plan, TODO i handoffi. S1 (05.11.2026., `ac07618`): kostur Workera (`/health`), D1 shema s
+keyset indeksima, parseri svih ulaza, stvarni fixturei; 134 testa. Sljedeće: S2, uvoznik.

@@ -11,11 +11,11 @@ Legenda: `[x]` gotovo · `[ ]` otvoreno · `[~]` u radu · `(!)` traži korisnik
 
 ## F0 — temelj i mjerenje (ništa javno, ništa na Cloudflare računu)
 
-- [ ] `katalog/package.json`, TypeScript strict, eslint, vitest + `@cloudflare/vitest-pool-workers` (lokalni D1), `npm run check` → S1
-- [ ] `katalog/wrangler.jsonc` bez `routes` i s `workers_dev: false` (ništa se ne deploya) → S1
-- [ ] Migracije D1: `brands`, `channels`, `episodes`, `ingest_runs`; stupci `brand`, `tier`, `lang`, `published_date` od prvog dana → S1
-- [ ] Tipovi + parseri za stvarne ulaze: `channels/data/index.json`, `channels/data/<slug>.json`, `data/<id>/info.json` (samo potrebna polja), `data/<id>/summary.json`, `data/<id>/episode.json` → S1
-- [ ] Fixturei: 3 Tier 1 kanala (skraćeni listinzi), 5 `_unlisted` epizoda iz različitih kanala, isječak registryja → S1
+- [x] `katalog/package.json`, TypeScript strict, eslint, vitest + `@cloudflare/vitest-pool-workers` (lokalni D1), `npm run check` → S1
+- [x] `katalog/wrangler.jsonc` bez `routes` i s `workers_dev: false` (ništa se ne deploya) → S1
+- [x] Migracije D1: `brands`, `channels`, `episodes`, `ingest_runs`; stupci `brand`, `tier`, `lang`, `published_date` od prvog dana → S1
+- [x] Tipovi + parseri za stvarne ulaze: `channels/data/index.json`, `channels/data/<slug>.json`, `data/<id>/info.json` (samo potrebna polja), `data/<id>/summary.json`, `data/<id>/episode.json` → S1
+- [x] Fixturei: 3 Tier 1 kanala (skraćeni listinzi), 5 `_unlisted` epizoda iz različitih kanala, isječak registryja → S1
 - [ ] Uvoznik `katalog import` (lokalni D1): Tier 1 iz listinga, Tier 2 iz `.r2_keys_cache.json` + `info.json`, kanal preko `channel_id` → registry slug → S2
 - [ ] Idempotentan upsert po YouTube ID-u; drugi uvoz istog ulaza = 0 promjena (test) → S2
 - [ ] Izvještaj uvoza: epizoda po tieru, epizode bez razriješenog kanala (s razlogom, ne tiho) → S2
