@@ -44,6 +44,10 @@ describe("buildPlan nad fixtureima", () => {
     ]);
     expect(r.withoutInfoJson).toEqual(["6dcab9c9837"]);
     expect(r.experimentalVariants).toEqual([{ id: "UM2MWlNUp_1", base: "UM2MWlNUpqg" }]);
+    // Varijanta nosi osnovni ID u retku (stupac `variant_of`, odluka 302); nitko drugi.
+    expect(plan.episodes.filter((e) => e.variantOf !== null).map((e) => [e.id, e.variantOf])).toEqual([
+      ["UM2MWlNUp_1", "UM2MWlNUpqg"],
+    ]);
     expect(r.withoutDate).toEqual({ tier1: [], tier2: [] });
     expect(r.infoIdMismatch).toEqual([]);
     expect(r.tier2AlsoInTier1).toEqual([]);
@@ -69,6 +73,7 @@ describe("buildPlan nad fixtureima", () => {
       lang: "hr",
       magisteriumScore: null,
       flags: 511,
+      variantOf: null,
     });
     expect(episode("hmM9f_3Mqm4")).toMatchObject({ durationSeconds: null, flags: 15 });
     expect(episode("0sxT3NF8yFg")).toMatchObject({ channelSlug: null, publishedDate: "2026-11-03", flags: 511 });
@@ -86,15 +91,18 @@ describe("buildPlan nad fixtureima", () => {
       lang: "hr",
       magisteriumScore: null,
       flags: 15,
+      variantOf: null,
     });
   });
 
-  it("processed_count i latest_published_date broje sve retke kanala, oba tiera", () => {
-    expect(channel("podcast_cuspajz")).toMatchObject({ tier: 1, processedCount: 21, latestPublishedDate: "2026-11-04" });
+  it("processed_count i latest_published_date broje sve retke kanala, oba tiera, bez varijanti", () => {
+    // 21 redak, od toga varijanta UM2MWlNUp_1 (odluka 302): broji se 20.
+    expect(plan.episodes.filter((e) => e.channelSlug === "podcast_cuspajz")).toHaveLength(21);
+    expect(channel("podcast_cuspajz")).toMatchObject({ tier: 1, processedCount: 20, latestPublishedDate: "2026-11-04" });
     expect(channel("subclub")).toMatchObject({ tier: 1, processedCount: 21, latestPublishedDate: "2026-10-28" });
     expect(channel("hkm")).toMatchObject({ processedCount: 1, latestPublishedDate: "2018-10-01", avatar: null });
     for (const c of plan.channels) {
-      const rows = plan.episodes.filter((e) => e.channelSlug === c.slug);
+      const rows = plan.episodes.filter((e) => e.channelSlug === c.slug && e.variantOf === null);
       expect(c.processedCount, c.slug).toBe(rows.length);
     }
   });

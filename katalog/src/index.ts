@@ -1,24 +1,20 @@
+import { API_PREFIX, errorResponse, handleV1, jsonResponse } from "./api/v1.ts";
 import type { Env } from "./env.js";
 
-export const API_PREFIX = "/api/katalog/v1";
-
-const JSON_HEADERS = {
-  "content-type": "application/json; charset=utf-8",
-  "cache-control": "no-store",
-} as const;
-
-function json(body: unknown, status = 200): Response {
-  return new Response(JSON.stringify(body), { status, headers: JSON_HEADERS });
-}
+export { API_PREFIX };
 
 export default {
-  fetch(request: Request): Response {
-    const { pathname } = new URL(request.url);
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+    const url = new URL(request.url);
+    const { pathname } = url;
 
-    if (request.method === "GET" && pathname === `${API_PREFIX}/health`) {
-      return json({ ok: true, service: "katalog", version: 1 });
+    if (request.method !== "GET" || !pathname.startsWith(`${API_PREFIX}/`)) {
+      return errorResponse(404, "not_found");
     }
-
-    return json({ ok: false, error: "not_found" }, 404);
+    const rest = pathname.slice(API_PREFIX.length + 1);
+    if (rest === "health") {
+      return jsonResponse({ ok: true, service: "katalog", version: 1 }, 200, "no-store");
+    }
+    return handleV1(url, rest, env, ctx);
   },
 } satisfies ExportedHandler<Env>;

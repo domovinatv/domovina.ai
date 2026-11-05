@@ -182,7 +182,7 @@ async function main() {
   const db = proxy.env.DB;
   try {
     const migrated = await db
-      .prepare("SELECT count(*) AS n FROM pragma_table_info('channels') WHERE name = 'unregistered'")
+      .prepare("SELECT count(*) AS n FROM pragma_table_info('episodes') WHERE name = 'variant_of'")
       .first();
     if (migrated?.n !== 1) throw new Error("lokalni D1 nije migriran: prvo `npm run migrate:local`");
     const runId = await W.startRun(db, SOURCE, startedAt);

@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://domovina.ai/api/katalog/v1/contract/channels.schema.json",
+  "title": "GET /channels",
+  "description": "Kanali, po želji jednog tiera; najsvježiji prvi.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "catalog",
+    "items",
+    "next",
+    "meta"
+  ],
+  "properties": {
+    "version": {
+      "const": "1"
+    },
+    "catalog": {
+      "description": "ID zadnjeg uspješnog uvoza (ingest_runs), null kad ga nema",
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[0-9]+$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "items": {
+      "type": "array",
+      "maxItems": 100,
+      "items": {
+        "$ref": "channel.schema.json"
+      }
+    },
+    "next": {
+      "description": "Neproziran keyset kursor; null na zadnjoj stranici",
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]+$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rows_read"
+      ],
+      "properties": {
+        "rows_read": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

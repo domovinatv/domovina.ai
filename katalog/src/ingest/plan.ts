@@ -35,6 +35,8 @@ export interface EpisodeRow {
   readonly lang: string | null;
   readonly magisteriumScore: number | null;
   readonly flags: number;
+  /** Osnovni ID kad je epizoda eksperimentalna varijanta (odluke 208, 302), inače `null`. */
+  readonly variantOf: string | null;
 }
 
 /** Tier 2 epizoda kako je uvoznik dohvatio: `null` = datoteka nema ni nakon retryja. */
@@ -135,6 +137,7 @@ export function buildPlan(input: PlanInput): ImportPlan {
         lang: null,
         magisteriumScore: v.magisteriumScore,
         flags: v.flags,
+        variantOf: null,
       });
     }
   }
@@ -205,13 +208,25 @@ export function buildPlan(input: PlanInput): ImportPlan {
       lang: summary?.language ?? null,
       magisteriumScore: null,
       flags: flagsFromFiles(t.files),
+      variantOf: null,
     });
   }
 
-  // processed_count i latest_published_date iz redaka koji idu u D1 (odluka 210).
+  // Varijante (odluka 208) dobivaju osnovni ID; popisi ih ne pokazuju (odluka 302).
+  const variants = experimentalVariants(episodes.map((e) => e.id));
+  const baseOf = new Map(variants.map((v) => [v.id, v.base]));
+  for (let i = 0; i < episodes.length; i++) {
+    const e = episodes[i];
+    const base = e === undefined ? undefined : baseOf.get(e.id);
+    if (e !== undefined && base !== undefined) episodes[i] = { ...e, variantOf: base };
+  }
+
+  // processed_count i latest_published_date iz redaka koji idu u D1 (odluka 210),
+  // bez varijanti, da brojka odgovara onome što lista `/channels/:slug/episodes`
+  // (odluka 302).
   const counts = new Map<string, { n: number; latest: string | null }>();
   for (const e of episodes) {
-    if (e.channelSlug === null) continue;
+    if (e.channelSlug === null || e.variantOf !== null) continue;
     const c = counts.get(e.channelSlug) ?? { n: 0, latest: null };
     c.n += 1;
     if (e.publishedDate !== null && (c.latest === null || e.publishedDate > c.latest)) c.latest = e.publishedDate;
@@ -253,7 +268,7 @@ export function buildPlan(input: PlanInput): ImportPlan {
     tier2OnTier1Channel,
     withoutInfoJson,
     infoIdMismatch,
-    experimentalVariants: experimentalVariants(episodes.map((e) => e.id)),
+    experimentalVariants: variants,
     videoCountMismatch,
     tier2AlsoInTier1,
   };

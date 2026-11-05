@@ -1,8 +1,12 @@
 import { env } from "cloudflare:workers";
 import { beforeAll, describe, expect, it } from "vitest";
 import {
+  allChannels,
+  catalogContext,
+  channelBySlug,
   channelDirectory,
   channelEpisodes,
+  episodeCard,
   episodesOnDay,
   latestEpisodes,
   MAX_PAGE_SIZE,
@@ -60,19 +64,40 @@ beforeAll(async () => {
 const PAGE = 20;
 const cursor = { publishedDate: day(20), id: "ep_20_5" };
 
-const cases: { name: string; query: SqlQuery; index: string; table: string }[] = [
-  { name: "najnovije, prva stranica", query: latestEpisodes(BRAND, PAGE), index: "episodes_by_date", table: "episodes" },
-  { name: "najnovije, iza kursora", query: latestEpisodes(BRAND, PAGE, cursor), index: "episodes_by_date", table: "episodes" },
-  { name: "dan, prva stranica", query: episodesOnDay(BRAND, day(20), PAGE), index: "episodes_by_date", table: "episodes" },
-  { name: "dan, iza kursora", query: episodesOnDay(BRAND, day(20), PAGE, "ep_20_5"), index: "episodes_by_date", table: "episodes" },
-  { name: "kanal, prva stranica", query: channelEpisodes(BRAND, "kanal_1", PAGE), index: "episodes_by_channel", table: "episodes" },
-  { name: "kanal, iza kursora", query: channelEpisodes(BRAND, "kanal_1", PAGE, cursor), index: "episodes_by_channel", table: "episodes" },
-  { name: "direktorij, prva stranica", query: channelDirectory(BRAND, 1, PAGE), index: "channels_directory", table: "channels" },
+// Svaki upit kartice: raspon indeksa epizoda + kanal po PK u LEFT JOIN-u.
+const JOIN = /^SEARCH c USING PRIMARY KEY \(brand=\? AND slug=\?\) LEFT-JOIN$/m;
+const on = (table: string, index: string) => new RegExp(`^SEARCH ${table} USING (COVERING )?INDEX ${index} \\(`, "m");
+const chCursor = { latestPublishedDate: day(39), slug: "kanal_0" };
+
+const cases: { name: string; query: SqlQuery; plan: RegExp[] }[] = [
+  { name: "najnovije, prva stranica", query: latestEpisodes(BRAND, PAGE), plan: [on("e", "episodes_by_date"), JOIN] },
+  { name: "najnovije, iza kursora", query: latestEpisodes(BRAND, PAGE, cursor), plan: [on("e", "episodes_by_date"), JOIN] },
+  { name: "dan, prva stranica", query: episodesOnDay(BRAND, day(20), PAGE), plan: [on("e", "episodes_by_date"), JOIN] },
+  { name: "dan, iza kursora", query: episodesOnDay(BRAND, day(20), PAGE, "ep_20_5"), plan: [on("e", "episodes_by_date"), JOIN] },
+  { name: "kanal, prva stranica", query: channelEpisodes(BRAND, "kanal_1", PAGE), plan: [on("e", "episodes_by_channel"), JOIN] },
+  { name: "kanal, iza kursora", query: channelEpisodes(BRAND, "kanal_1", PAGE, cursor), plan: [on("e", "episodes_by_channel"), JOIN] },
+  { name: "tier, prva stranica", query: channelDirectory(BRAND, 1, PAGE), plan: [on("channels", "channels_directory")] },
+  { name: "tier, iza kursora", query: channelDirectory(BRAND, 1, PAGE, chCursor), plan: [on("channels", "channels_directory")] },
+  { name: "svi kanali, prva stranica", query: allChannels(BRAND, PAGE), plan: [on("channels", "channels_all_by_date")] },
+  { name: "svi kanali, iza kursora", query: allChannels(BRAND, PAGE, chCursor), plan: [on("channels", "channels_all_by_date")] },
   {
-    name: "direktorij, iza kursora",
-    query: channelDirectory(BRAND, 1, PAGE, { latestPublishedDate: day(39), slug: "kanal_0" }),
-    index: "channels_directory",
-    table: "channels",
+    name: "kartica epizode",
+    query: episodeCard(BRAND, "ep_20_5"),
+    plan: [/^SEARCH e USING PRIMARY KEY \(brand=\? AND id=\?\)$/m, JOIN],
+  },
+  {
+    name: "zaglavlje kanala",
+    query: channelBySlug(BRAND, "kanal_1"),
+    plan: [/^SEARCH channels USING PRIMARY KEY \(brand=\? AND slug=\?\)$/m],
+  },
+  {
+    name: "brend i verzija kataloga",
+    query: catalogContext("plan.test", "plan"),
+    plan: [
+      /^SEARCH brands USING INDEX sqlite_autoindex_brands_2 \(host=\?\)$/m,
+      /^SEARCH brands USING PRIMARY KEY \(id=\?\)$/m,
+      /^SEARCH ingest_runs USING COVERING INDEX ingest_runs_ok$/m,
+    ],
   },
 ];
 
@@ -84,9 +109,11 @@ describe("migracije", () => {
        ORDER BY type, name`,
     ).all<{ type: string; name: string }>();
     expect(results).toEqual([
+      { type: "index", name: "channels_all_by_date" },
       { type: "index", name: "channels_directory" },
       { type: "index", name: "episodes_by_channel" },
       { type: "index", name: "episodes_by_date" },
+      { type: "index", name: "ingest_runs_ok" },
       { type: "table", name: "brands" },
       { type: "table", name: "channels" },
       { type: "table", name: "episodes" },
@@ -104,17 +131,21 @@ describe("migracije", () => {
 });
 
 describe("EXPLAIN QUERY PLAN", () => {
-  it.each(cases)("$name: indeks $index, bez SCAN i TEMP B-TREE", async ({ query, index, table }) => {
+  it.each(cases)("$name: indeks, bez SCAN i TEMP B-TREE", async ({ query, plan: expected }) => {
     const plan = await queryPlan(query);
     const text = plan.join("\n");
-    expect(text).toMatch(new RegExp(`^SEARCH ${table} USING (COVERING )?INDEX ${index} \\(`, "m"));
-    expect(text).not.toMatch(/\bSCAN\b/);
+    for (const re of expected) expect(text).toMatch(re);
+    // `SCAN CONSTANT ROW` je SELECT bez FROM (upit brenda), ne sken tablice.
+    expect(text.replace(/^SCAN CONSTANT ROW$/m, "")).not.toMatch(/\bSCAN\b/);
     expect(text).not.toMatch(/TEMP B-TREE/);
   });
 
   it("row-value kursor je raspon indeksa, ne filtar", async () => {
     const plan = await queryPlan(latestEpisodes(BRAND, PAGE, cursor));
     expect(plan.join("\n")).toContain("(brand=? AND (published_date,id)<(?,?))");
+    expect((await queryPlan(allChannels(BRAND, PAGE, chCursor))).join("\n")).toContain(
+      "(brand=? AND (latest_published_date,slug)<(?,?))",
+    );
   });
 });
 
@@ -123,8 +154,32 @@ describe("rows_read je ograničen stranicom", () => {
     const { results, meta } = await prepare(env.DB, query).all();
     expect(results.length).toBeGreaterThan(0);
     // Indeksni raspon + dohvat retka po PK: najviše dva čitanja po retku
-    // stranice i jedno za kraj raspona. Sken tablice bio bi ~400.
-    expect(meta.rows_read).toBeLessThanOrEqual(2 * PAGE + 1);
+    // stranice i jedno za kraj raspona. Sken tablice bio bi ~400. Kanal u
+    // LEFT JOIN-u po PK izmjereno ne povećava rows_read (odluka 301).
+    expect(meta.rows_read).toBeLessThanOrEqual(2 * results.length + 1);
+  });
+
+  it("varijanta nije u popisima, kartica je vidi", async () => {
+    await env.DB.prepare(
+      `INSERT INTO episodes (brand, id, channel_slug, title, title_hr, published_date,
+         duration_seconds, tier, lang, magisterium_score, flags, updated_at, variant_of)
+       VALUES (?1, 'ep_39_9x_1', 'kanal_1', 'Varijanta', NULL, ?2, NULL, 2, NULL, NULL, 0, ?3, 'ep_39_9')`,
+    )
+      .bind(BRAND, day(39), "2026-11-05T12:00:00Z")
+      .run();
+    const ids = async (q: SqlQuery) => (await prepare(env.DB, q).all<{ id: string }>()).results.map((r) => r.id);
+    expect(await ids(latestEpisodes(BRAND, 100))).not.toContain("ep_39_9x_1");
+    expect(await ids(episodesOnDay(BRAND, day(39), 100))).not.toContain("ep_39_9x_1");
+    expect(await ids(channelEpisodes(BRAND, "kanal_1", 100))).not.toContain("ep_39_9x_1");
+    expect(await ids(episodeCard(BRAND, "ep_39_9x_1"))).toEqual(["ep_39_9x_1"]);
+    await expect(
+      env.DB.prepare(
+        `INSERT INTO episodes (brand, id, channel_slug, title, tier, flags, updated_at, variant_of)
+         VALUES (?1, 'prazna_var', NULL, 'X', 2, 0, '2026-11-05T12:00:00Z', '')`,
+      )
+        .bind(BRAND)
+        .run(),
+    ).rejects.toThrow(/CHECK/);
   });
 
   it("kursor nastavlja točno iza zadnjeg retka", async () => {
@@ -147,7 +202,9 @@ describe("rows_read je ograničen stranicom", () => {
 
   it("limit izvan 1–MAX_PAGE_SIZE se odbija", () => {
     expect(() => latestEpisodes(BRAND, 0)).toThrow(RangeError);
-    expect(() => latestEpisodes(BRAND, MAX_PAGE_SIZE + 1)).toThrow(RangeError);
+    // MAX_PAGE_SIZE + 1 je dopušten: API čita redak više za `next` (odluka 304).
+    expect(() => latestEpisodes(BRAND, MAX_PAGE_SIZE + 1)).not.toThrow();
+    expect(() => latestEpisodes(BRAND, MAX_PAGE_SIZE + 2)).toThrow(RangeError);
     expect(() => latestEpisodes(BRAND, 1.5)).toThrow(RangeError);
   });
 });

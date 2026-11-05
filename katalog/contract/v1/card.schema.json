@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://domovina.ai/api/katalog/v1/contract/card.schema.json",
+  "title": "Kartica epizode",
+  "description": "Ista u svim popisima epizoda i u /episodes/:id/card (odluka 301). snake_case kao ChannelVideo.fromJson / HomeSnapshot u podcast_core.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "title",
+    "title_hr",
+    "date",
+    "duration_seconds",
+    "magisterium_score",
+    "p",
+    "tier",
+    "lang",
+    "variant_of",
+    "channel"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "title_hr": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "date": {
+      "description": "published_date; null kad datum nije poznat (samo u kartici, popisi takve ne pokazuju)",
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "duration_seconds": {
+      "description": "Sekunde, može biti decimalno (X/Twitter 245.295)",
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "magisterium_score": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 100
+    },
+    "p": {
+      "description": "Pipeline zastavice kao bitmaska (PIPELINE_BITS, VideoPipeline.fromBits)",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 511
+    },
+    "tier": {
+      "enum": [
+        1,
+        2
+      ]
+    },
+    "lang": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 2,
+      "maxLength": 16
+    },
+    "variant_of": {
+      "description": "Osnovni ID eksperimentalne varijante (odluka 302); u popisima uvijek null",
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "channel": {
+      "description": "null kad epizoda nema kanal",
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "slug",
+            "name",
+            "tier"
+          ],
+          "properties": {
+            "slug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1
+            },
+            "tier": {
+              "enum": [
+                1,
+                2
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

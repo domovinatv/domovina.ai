@@ -15,6 +15,7 @@
     "fixtures:refresh": "node scripts/fixtures-refresh.mjs"
   },
   "devDependencies": {
+    "@cfworker/json-schema": "4.1.1",
     "@cloudflare/vitest-pool-workers": "0.18.0",
     "@cloudflare/workers-types": "4.20260702.1",
     "@eslint/js": "10.0.1",

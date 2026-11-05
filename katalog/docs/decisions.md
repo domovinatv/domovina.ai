@@ -262,3 +262,141 @@ Mjerenja i naredbe: [research/2026-11-05-uvoz-tier2.md](research/2026-11-05-uvoz
      Grane bez stvarne epizode (dvosmislen Tier 1 `channel_id`, bez `channel_id`, bez imena,
      nepoznat extractor) testiraju se izmjenom jednog polja stvarnog `info` objekta, kao
      negativni testovi parsera.
+
+## S3 (2026-11-05, API v1)
+
+Rute (sve `GET`, prefiks `/api/katalog/v1`): `days/:date`, `channels`, `channels/:slug`,
+`channels/:slug/episodes`, `episodes/:id/card`, `directory`, `health`. Kod u `src/api/`
+(`v1.ts`, `cursor.ts`), SQL u `src/db/queries.ts`, ugovor u `contract/v1/`, testovi u
+`test/api/`. Mjerenja nad stvarnim podacima su s lokalnog D1 iz S2 (3665 epizoda, 162
+kanala), nakon migracije `0003` i ponovnog uvoza.
+
+300. **Omotnica odgovora.** Popis: `{version: "1", catalog, items, next, meta: {rows_read}}`;
+     jedan objekt: `{version, catalog, item, meta}`. `version` je string (stari build čita
+     `as String?`, isto pravilo kao listing v2 u korijenskom `CLAUDE.md`). `catalog` = `id`
+     zadnjeg `ok` retka u `ingest_runs` kao string, `null` kad uspješnog uvoza nema. Polja se
+     samo dodaju, tip se nikad ne mijenja. `meta.rows_read` = zbroj `meta.rows_read` svih D1
+     upita tog zahtjeva, uključujući upit brenda i verzije (`Reader` u `v1.ts`). Greška ima
+     svoj oblik `{ok: false, error}` (odluka 116), bez omotnice.
+301. **Kartica epizode** je ista u svim popisima epizoda i u `card`: `id, title, title_hr,
+     date, duration_seconds, magisterium_score, p, tier, lang, variant_of, channel`, snake_case
+     kao `ChannelVideo.fromJson` / `HomeSnapshot` (`date` = `published_date`, `p` = `flags`
+     za `VideoPipeline.fromBits`). `duration_seconds` je broj ili `null` i ostaje decimalan
+     (245.295; Dart radi `(num?)?.toInt()`). `channel` je `{slug, name, tier}` ili `null`
+     (ključ uvijek prisutan). Kanal dolazi `LEFT JOIN`-om po PK `(brand, slug)` u istom upitu;
+     plan `SEARCH c USING PRIMARY KEY (brand=? AND slug=?) LEFT-JOIN` (test). Izmjereno: JOIN
+     ne povećava `rows_read` (20 redaka kanala = 40 kao i bez JOIN-a), pa granica `2 × n + 1`
+     iz odluke 114 vrijedi i za upite kartice.
+302. **Eksperimentalne varijante se skrivaju iz popisa.** Migracija `0003` dodaje
+     `episodes.variant_of TEXT` (`NULL` ili `length > 0`, STRICT), uvoznik ga puni iz
+     `experimentalVariants` koje plan već računa (odluka 208), upsert ga uključuje u `SET` i u
+     `WHERE … IS NOT` (odluka 214). `episodes_by_date` i `episodes_by_channel` su ponovo
+     stvoreni kao parcijalni `WHERE variant_of IS NULL`; svaki upit epizoda nosi
+     `e.variant_of IS NULL` doslovno i i dalje `INDEXED BY` (bez tog uvjeta parcijalni indeks
+     nije upotrebljiv i `INDEXED BY` pukne, a ne skenira). `card` vraća i varijantu, s
+     `variant_of` = osnovni ID. `processed_count` i `latest_published_date` (odluka 210) broje
+     samo ne-varijante, pa `processed_count` = broj stavki `/channels/:slug/episodes` (test
+     nad fixtureima: `podcast_cuspajz` 21 redak, 20 u popisu i u `processed_count`).
+     Izmjereno na stvarnim podacima: 55 varijanti, 51 na 14 kanala, 4 bez kanala; nijedan kanal
+     ne pada na 0, `latest_published_date` se ne mijenja ni jednom; `podcast_cuspajz` 178 →
+     174 = 174 stavke u popisu. Prvi uvoz nakon migracije: 0 / 14 / 58 promijenjenih redaka
+     (55 varijanti + 3 epizode koje su se na CDN-u promijenile od S2), drugi 0 / 0 / 0.
+     Epizoda bez datuma ima 0, pa „uključujući one bez datuma” u shemi kanala zasad nema
+     razlike. Posljedica: parcijalni `episodes_by_channel` više ne služi provjeri stranog
+     ključa pri brisanju kanala ili promjeni sluga (tada bi SQLite skenirao `episodes`).
+     Uvoz danas ništa ne briše (odluka 212); revizija kad drift-check počne brisati kanale.
+     `variant_of` nema strani ključ: `ALTER TABLE ADD COLUMN` ne može dodati složeni ključ.
+303. **`/directory` i `/channels` bez `tier` čitaju isti indeks i isti skup.** Novi parcijalni
+     `channels_all_by_date (brand, latest_published_date DESC, slug DESC) WHERE
+     processed_count >= 1` (predviđen odlukom 111); upit `allChannels` nosi
+     `processed_count >= 1` doslovno. Plan: `SEARCH channels USING INDEX channels_all_by_date
+     (brand=? AND latest_published_date>?)`, iza kursora `(latest_published_date,slug)<(?,?)`,
+     bez SCAN i TEMP B-TREE. Za `channels` bez tiera uvjet ne mijenja skup: kanal bez obrađene
+     epizode nema ni datum (plan ih računa iz istih redaka), a popis po datumu takve ionako ne
+     pokazuje. Izmjereno: oba popisa daju istih 162 kanala. `channels?tier=` ostaje na
+     `channels_directory`. Ruta `directory` je zadržana zasebno da se može razići (npr.
+     abecedni poredak) bez promjene `channels`; to je otvoreno pitanje za S10.
+304. **Keyset kursor i limit.** Kursor je base64url bez paddinga nad JSON nizom
+     `[datum, ključ]` (epizode `[published_date, id]`, kanali `[latest_published_date, slug]`).
+     400 `bad_cursor` kad se ne da dekodirati, nije niz od dva neprazna stringa, datum nije
+     valjan, ili zapis nije kanonski (ponovno kodiranje mora dati isti string: s paddingom ili
+     razmakom u JSON-u isti kursor bi imao dva ključa u cacheu). `?cursor=` prazan je
+     `bad_cursor`. Za `days/:date` datum u kursoru mora biti jednak `:date`. `limit`: zadano
+     30, `^\d{1,3}$` i 1–100 (`MAX_PAGE_SIZE`), inače `bad_limit` (`0`, `101`, `1.5`, `1e1`,
+     `-1`, prazno). `next` iz `LIMIT n+1`: ima li n+1-vi redak, `next` = kursor n-tog, vraća
+     se n; prazna i zadnja stranica imaju `next: null`. Revizija odluke 114: funkcije u
+     `queries.ts` primaju `limit` do `MAX_PAGE_SIZE + 1`, jer im API predaje n+1. `OFFSET`
+     čuva `test/api/no-offset.test.ts`: čita `src/**/*.ts` kroz `import.meta.glob(?raw)`, miče
+     komentare (`/* */`, `//`) i pada na `\bOFFSET\b` bez obzira na veličinu slova; isti test
+     dokazuje da bi provjera uhvatila `OFFSET` u SQL stringu.
+305. **Brend i verzija kataloga jednim upitom.** `catalogContext`: tri skalarna podupita
+     (brend po `brands.host` = `url.hostname`, bez porta; brend `env.DEFAULT_BRAND`; `max(id)`
+     iz novog parcijalnog indeksa `ingest_runs_ok (id) WHERE status = 'ok'`). Host koji nije u
+     tablici pada na `DEFAULT_BRAND` (wrangler `vars`, `"domovina"`), da `wrangler dev` na
+     localhostu radi; ni tako → 404 `brand_not_found`. Izmjereno `rows_read` 2–3, konstantno:
+     `ingest_runs_ok` daje `max(id)` jednim čitanjem kako god tablica rasla (`SEARCH
+     ingest_runs USING COVERING INDEX ingest_runs_ok`), dok bi `max(id) WHERE status='ok'` bez
+     indeksa čitao cijelu tablicu. Parametri i datum se provjeravaju PRIJE baze, pa loš zahtjev
+     ne troši ništa.
+306. **`INDEXED BY` i za dohvat po PK.** PK tablice WITHOUT ROWID SQLite imenuje
+     `sqlite_autoindex_<tablica>_1` i prima ga u `INDEXED BY` iako ga nema u `sqlite_schema`
+     (izmjereno lokalno); `UNIQUE (host)` u `brands` je `sqlite_autoindex_brands_2` (postoji u
+     shemi). Tako i kartica, zaglavlje kanala, JOIN kanala i upit brenda poštuju odluku 113.
+     Revizija: ako staging D1 (S5) odbije ime autoindeksa, dohvat po punom PK ide bez
+     `INDEXED BY` (jednakost na cijelom PK planer uvijek rješava po PK).
+307. **Cache.** `Cache-Control` po ruti, računa se pri svakom odgovoru (i na hit), pa se
+     granica „jučer” pomiče sama: `days/:date` stariji od jučer (UTC) `public, max-age=3600,
+     stale-while-revalidate=86400`; danas, jučer i budućnost `public, max-age=60,
+     stale-while-revalidate=300`; `channels`, `channels/:slug`, epizode kanala, `directory`
+     `public, max-age=60, stale-while-revalidate=600`; `card` `public, max-age=300,
+     stale-while-revalidate=3600`; greške `no-store`. Ni prošli dan nema dan-dug browser
+     cache, jer pipeline backfill dodaje epizode i u stare dane. U Workeru `caches.default`:
+     ključ = origin + put + sortirani poznati parametri (`limit` uvijek, normaliziran;
+     `cursor`, `tier` kad su zadani; nepoznati odbačeni) + `_cv=<catalog>` (`none` bez
+     uvoza). Novi `ok` uvoz daje nove ključeve, pa purge po URL-u nikad ne treba. Razlog je
+     pravilo iz korijenskog `CLAUDE.md`: purge `{"files":[url]}` vrati `success` a varijanta s
+     `Origin` ostane; verzija u ključu zaobilazi purge u potpunosti. Upit verzije ide na
+     svakom zahtjevu i jedini je D1 upit pri hitu. Na hit tijelo je ono iz izračuna (i
+     `meta.rows_read`), uz `x-katalog-cache: hit|miss`. U cache ide samo 200, kroz
+     `ctx.waitUntil(cache.put)`. Dopuna: zapis u `caches.default` nosi vlastiti
+     `cache-control: public, max-age=3600` (ne klijentov), jer je sadržaj po verziji
+     nepromjenjiv; gornja granica od sat vremena pokriva jedini slučaj kad se D1 mijenja bez
+     nove verzije (prekinut uvoz ostavi djelomičan upis i `status = 'failed'`, odluka 213).
+     U testu odgovor stigne prije upisa u cache, pa test ponavlja zahtjev do `hit`.
+308. **CORS: `access-control-allow-origin: *` na svim odgovorima (i greškama i health), bez
+     `Vary: Origin`.** Javni podaci samo za čitanje; jedan cache zapis za web (šalje `Origin`)
+     i native (ne šalje), čime se izbjegava dvostruki zapis iz
+     `docs/2026-09-19-cachiran-404-vary-origin.md` (test: zahtjev s `Origin` dobije `hit` na
+     zapis bez njega). OPTIONS preflight se ne dodaje (jednostavan GET ga ne treba); svaka
+     druga metoda je 404 `not_found`.
+309. **`rows_read` po ruti** (`test/api/rows-read.test.ts`, granica `3 × limit + 5` za
+     limit 1, 5, 30, 100). Nad fixtureima, `limit=30`: `days/2026-05-13` 7,
+     `days/2026-11-03` 4, `channels` 14, `channels?tier=1` 10, `channels?tier=2` 7,
+     `directory` 14, `channels/podcast_cuspajz/episodes` 44 (20 stavki: 2 kontekst + 1
+     zaglavlje + 2 × 20 + 1 kraj raspona); `channels/subclub` 3, `episodes/UM2MWlNUp_1/card`
+     4. Na stvarnim podacima, najveća stranica: `channels` (limit 30) 35, `directory`
+     (limit 100) 104, `channels/podcast_cuspajz/episodes` limit 30 → 67, limit 100 → 206
+     (= 2 × 101 + 4, ispod 305), `days/2026-11-04` (26 stavki) 53. Prolaz kroz cijeli popis
+     kanala (162, 6 stranica po 30) je 190 ukupno, tj. linearno u broju stavki, ne u dubini.
+     Sintetički test s velikim brojem epizoda dolazi zasebno; `measure()` i `ROUTES` u istoj
+     datoteci su mu ostavljeni.
+310. **Ugovor: JSON Schema draft 2020-12 u `contract/v1/`.** Zajedničke `card.schema.json`
+     i `channel.schema.json`; odgovori `days`, `channels`, `directory`, `channel-episodes`,
+     `channel-response`, `card-response`, `error`. Odstupanje od imena u zadatku: odgovori
+     `channels/:slug` i `card` su `channel-response` / `card-response`, jer su `channel` i
+     `card` imena sheme stavke. `additionalProperties: false` na odgovorima, karticama,
+     kanalu i `meta` (novo polje se svjesno dopiše u shemu), `null` samo gdje ga D1 dopušta,
+     `items` najviše 100. `$id` (`https://domovina.ai/api/katalog/v1/contract/…`) je
+     identifikator za `$ref`, ne poslužena adresa. Validator je `@cfworker/json-schema` 4.1.1
+     (radi u workerd bez `eval`/`new Function`; Ajv ne radi jer generira kod kroz `new
+     Function`), pinan točno u `devDependencies`; 4.1.3–4.1.6 su objavljeni 30. 10. – 4. 11.
+     2026., premladi za uvođenje. Svaki 2xx i 4xx odgovor u `test/api/` prolazi shemu
+     (`api()` u `helpers.ts`, `shortCircuit = false` da greška nabroji sva prekršena pravila).
+311. **Rute.** Putanja se dijeli na segmente; prazan segment (kosa crta na kraju) i
+     segment koji `decodeURIComponent` ne prima su 404 `not_found`. `:date` se provjerava
+     istim pravilom kao CHECK u shemi (`YYYY-MM-DD` i stvaran datum, odluka 108) → 400
+     `bad_date`. Redoslijed provjera: ruta (404) → parametri (400) → brend (404) → cache →
+     upit (404 `channel_not_found` / `episode_not_found`). Ponovljen parametar uzima prvu
+     vrijednost. `channels/:slug/episodes` dohvaća zaglavlje i stranicu jednim `db.batch`,
+     da 404 za nepoznat kanal ne košta drugi odlazak do baze. `latestEpisodes` (naslovnica,
+     S9/S12) je usklađen s karticom i varijantama, ali API v1 ga još ne izlaže.

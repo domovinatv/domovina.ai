@@ -10,6 +10,10 @@
   // Ruta (`domovina.ai/api/katalog/v1/*`, isti origin kao aplikacija) dolazi
   // tek sa staging/produkcijskim deployem (S5/S6).
 
+  // Brend kad host zahtjeva nije u `brands.host` (npr. `wrangler dev` na
+  // localhostu), odluka 305.
+  "vars": { "DEFAULT_BRAND": "domovina" },
+
   "d1_databases": [
     {
       "binding": "DB",

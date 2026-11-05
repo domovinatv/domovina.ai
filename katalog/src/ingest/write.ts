@@ -40,10 +40,11 @@ const EPISODE_SET = [
   "lang",
   "magisterium_score",
   "flags",
+  "variant_of",
 ] as const;
 
 export const UPSERT_EPISODE = `INSERT INTO episodes (brand, id, ${EPISODE_SET.join(", ")}, updated_at)
-  VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)
+  VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13)
   ON CONFLICT (brand, id) DO UPDATE SET ${EPISODE_SET.map((c) => `${c} = excluded.${c}`).join(", ")},
     updated_at = excluded.updated_at
   WHERE ${EPISODE_SET.map((c) => `episodes.${c} IS NOT excluded.${c}`).join(" OR ")}`;
@@ -76,6 +77,7 @@ export function episodeParams(brand: string, e: EpisodeRow, now: string): (strin
     e.lang,
     e.magisteriumScore,
     e.flags,
+    e.variantOf,
     now,
   ];
 }

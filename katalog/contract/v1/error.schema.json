@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://domovina.ai/api/katalog/v1/contract/error.schema.json",
+  "title": "Greška",
+  "description": "Svaki 4xx odgovor; Cache-Control: no-store.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "ok",
+    "error"
+  ],
+  "properties": {
+    "ok": {
+      "const": false
+    },
+    "error": {
+      "enum": [
+        "not_found",
+        "brand_not_found",
+        "channel_not_found",
+        "episode_not_found",
+        "bad_cursor",
+        "bad_limit",
+        "bad_tier",
+        "bad_date"
+      ]
+    }
+  }
+}
