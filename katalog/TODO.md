@@ -20,10 +20,10 @@ Legenda: `[x]` gotovo · `[ ]` otvoreno · `[~]` u radu · `(!)` traži korisnik
 - [x] Idempotentan upsert po YouTube ID-u; drugi uvoz istog ulaza = 0 promjena (test) → S2
 - [x] Izvještaj uvoza: epizoda po tieru, epizode bez razriješenog kanala (s razlogom, ne tiho) → S2
 - [ ] Registry: 7 YouTube kanala ima samo playliste (TV Jadran, Jutarnji list, HRT vijesti, Anze Tomic, VTV, RTL, NOVA TV), pa 22/253 Tier 2 epizode ostaju bez kanala; dodati `umbrella`/`channel` unos (fetch sesija; odluka 204, `docs/research/2026-11-05-uvoz-tier2.md`) → fetch
-- [ ] API v1 nad lokalnim D1: `days/:date`, `channels`, `channels/:slug/episodes`, `episodes/:id/card`, `directory` → S3
-- [ ] Keyset paginacija (cursor), limit stranice, nikad `OFFSET` → S3
-- [ ] JSON sheme odgovora u `katalog/contract/` + ugovorni testovi → S3
-- [ ] Cache API + verzija u ključu cachea; purge strategija zapisana → S3
+- [x] API v1 nad lokalnim D1: `days/:date`, `channels`, `channels/:slug/episodes`, `episodes/:id/card`, `directory` → S3
+- [x] Keyset paginacija (cursor), limit stranice, nikad `OFFSET` → S3
+- [x] JSON sheme odgovora u `katalog/contract/` + ugovorni testovi → S3
+- [x] Cache API + verzija u ključu cachea; purge strategija zapisana → S3
 - [ ] Sintetički generator (npr. 50k kanala / 1M epizoda) u lokalnom D1 → S4
 - [ ] Mjerenje `rows_read` po ruti (`meta.rows_read`), veličina baze po 100k epizoda, projekcija do limita 10 GB → S4
 <!-- doc-refs:ignore-start -->
