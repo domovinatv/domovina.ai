@@ -203,3 +203,8 @@ flowchart TD
   s „appStoreVersions … is not in valid state". Skripta do tada već stvori verziju,
   whatsNew, build i phased release, pa nakon ispunjenog upitnika (App Information →
   Age Ratings) treba samo ponovno pokrenuti isti `--submit`.
+- **`play-rollout.sh complete` je do 5. 11. 2026. padao** s „Only one completed
+  release is allowed": staged release na tracku nosi i stari `completed` (on služi
+  ostatak korisnika), a skripta ga je zadržavala i kod završavanja. Sada `complete`
+  ostavlja samo novi release. 241 je tako s 20 % otišao na 100 % isti dan, uz
+  „nema podataka" za crash/ANR (Reporting API).

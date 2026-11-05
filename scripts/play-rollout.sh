@@ -75,7 +75,11 @@ NEW=$(ACTION="$ACTION" ruby -rjson -e '
     abort "udio mora biti između 0 i 1 (1 = complete)" unless f > 0 && f < 1
     r["status"] = "inProgress"; r["userFraction"] = f
   end
-  t["releases"] = t["releases"].select { |x| x.equal?(r) || x["status"] == "completed" }
+  # Staged release uz sebe nosi stari completed (on služi ostalih 80 %). Kad ga
+  # završimo, stari mora van: Play dopušta samo JEDAN completed release po tracku
+  # („Only one completed release is allowed”, 5.11.2026. na 241 nad 205).
+  keep_old = ENV["ACTION"] != "complete"
+  t["releases"] = t["releases"].select { |x| x.equal?(r) || (keep_old && x["status"] == "completed") }
   puts t.to_json' <<<"$TRACK_JSON")
 
 curl -s --retry 3 "${auth[@]}" -H "Content-Type: application/json" -X PUT \
