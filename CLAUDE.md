@@ -50,6 +50,15 @@ Posljedice za dnevni rad:
   (preskače samo ako ljuske nema na disku). Promjena jezgre koja lomi
   white-label pada ovdje, prije taga.
 
+## Portal vijesti — `vijesti/` (plan od 5. 11. 2026.)
+
+Samostalna aplikacija (Node/TS engine + Astro portal) koja iz CDN artefakata piše
+članke za `domovina.ai/vijesti`. Radi se kroz lanac sesija S1–S13: plan
+`vijesti/docs/plan.md`, radna lista `vijesti/TODO.md`, handoffi i pravila
+`vijesti/docs/handoffs/`. „Nastavi vijesti” = prvi neoznačeni `SN.md` u tablici
+„Stanje lanca”. Izvan `vijesti/` lanac dira samo `web/_worker.js` i
+`scripts/test-social-tags.mjs` (S7).
+
 ## Build & Deploy
 
 ```bash
