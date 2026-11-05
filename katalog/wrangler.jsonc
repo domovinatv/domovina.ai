@@ -1,0 +1,24 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "domovina-katalog",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-07-01",
+  "workers_dev": false,
+  "observability": { "enabled": true },
+
+  // Namjerno BEZ `routes` i BEZ `account_id`: u F0 se ništa ne deploya.
+  // Ruta (`domovina.ai/api/katalog/v1/*`, isti origin kao aplikacija) dolazi
+  // tek sa staging/produkcijskim deployem (S5/S6).
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "katalog",
+      // PLACEHOLDER, nije stvarna baza. Stvarni ID se upisuje tek u S5,
+      // kad se baza napravi na računu. Lokalno (`--local`, vitest) ID se ne
+      // koristi za ništa osim kao ključ lokalne SQLite datoteke.
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations"
+    }
+  ]
+}

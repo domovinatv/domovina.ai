@@ -9,4 +9,5 @@ linearno s korpusom. Datoteke po epizodi (`data/<id>/*`) ostaju na R2 kako jesu.
 - Odluke: [docs/decisions.md](docs/decisions.md)
 - Lanac sesija: [docs/handoffs/README.md](docs/handoffs/README.md)
 
-Koda još nema (S0 je samo plan). `npm run check` nastaje u S1.
+Provjera: `cd katalog && npm install && npm run check` (tsc + eslint + vitest u
+Workers runtimeu s lokalnim D1). Lokalne migracije: `npm run migrate:local`.

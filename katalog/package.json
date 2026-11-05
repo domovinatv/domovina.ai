@@ -1,0 +1,26 @@
+{
+  "name": "domovina-katalog",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Katalog kanala i epizoda kao servis: Cloudflare Worker + D1, paginirani API za podcast_core",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "check": "npm run typecheck && npm run lint && npm run test",
+    "migrate:local": "wrangler d1 migrations apply katalog --local"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "0.18.0",
+    "@cloudflare/workers-types": "4.20260702.1",
+    "@eslint/js": "10.0.1",
+    "eslint": "10.14.0",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.72.1",
+    "vite": "8.3.6",
+    "vitest": "4.1.12",
+    "wrangler": "4.107.0"
+  }
+}
