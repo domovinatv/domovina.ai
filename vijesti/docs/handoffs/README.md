@@ -52,6 +52,20 @@ Handoff se mijenja samo prema naprijed: gotovi `SN` se ne prepisuju, služe kao 
 - **Opseg:** sve živi u `vijesti/`. Izvan njega se dira samo ono što paket izričito
   navodi (S7: `web/_worker.js`, `scripts/test-social-tags.mjs`). Flutter aplikacija,
   `packages/podcast_core/` i korijenski `package.json` se ne diraju.
+- **Paralelni lanac u istom repou** (od 2026-11-05): lanac „katalog” (`katalog/`,
+  `katalog/docs/handoffs/`) radi druga Claude sesija na istoj grani `main`, u istom
+  radnom stablu. Pravila za oba lanca:
+  - vijesti dira samo `vijesti/` (plus izričite iznimke paketa), katalog samo `katalog/`;
+    korijenske datoteke ni jedan lanac ne dira bez dogovora;
+  - commit samo po svojim putanjama (`git commit -m … -- vijesti/`) ili uz provjeru
+    `git diff --cached --name-only` prije commita; nikad `git add -A`, `git commit -a`,
+    `git stash`, `git reset`, `git checkout`/`restore` nad tuđim datotekama;
+  - `git pull --rebase` i push samo kad su vlastite putanje čiste; tuđe necommitane
+    izmjene u stablu su normalne i ne diraju se;
+  - greška nađena u zajedničkoj datoteci ili u drugom lancu: javi drugoj sesiji
+    (`ListAgents` + `SendMessage`) prije nego je diraš;
+  - isto pravilo vrijedi za subagente: orkestrator ga prepiše u svaki brief;
+  - `/wrap-up` commita i pusha samo vijesti/ putanje.
 - **Pipeline se ne mijenja** (odluka 2). Rad na `fetch.domovina.tv` je izvan lanca.
 - **Orkestracija:** posao rade Opus 5.5 subagenti (`model: "opus"`), glavna sesija
   orkestrira. Paket razbij na dva agenta: (a) implementacija, (b) testovi i spajanje.
