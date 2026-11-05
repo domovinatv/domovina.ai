@@ -50,6 +50,15 @@ Posljedice za dnevni rad:
   (preskače samo ako ljuske nema na disku). Promjena jezgre koja lomi
   white-label pada ovdje, prije taga.
 
+## Katalog kao servis — `katalog/` (plan od 5. 11. 2026.)
+
+Cloudflare Worker + D1 koji aplikaciji servira paginirane popise kanala i
+epizoda (i Tier 2 iz `_unlisted`) umjesto zbirnih JSON datoteka na R2, koje
+rastu linearno. Lanac sesija S1–S14: plan `katalog/docs/plan.md`, radna lista
+`katalog/TODO.md`, handoffi i pravila `katalog/docs/handoffs/`. „Nastavi
+katalog” = prvi neoznačeni `SN.md` u tablici „Stanje lanca”. Vrata: S4, S5,
+S6, S11, S12. S7 se radi iz `fetch.domovina.tv`.
+
 ## Portal vijesti — `vijesti/` (plan od 5. 11. 2026.)
 
 Samostalna aplikacija (Node/TS engine + Astro portal) koja iz CDN artefakata piše
