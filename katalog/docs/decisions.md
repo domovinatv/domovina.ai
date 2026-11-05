@@ -400,3 +400,51 @@ kanala), nakon migracije `0003` i ponovnog uvoza.
      vrijednost. `channels/:slug/episodes` dohvaća zaglavlje i stranicu jednim `db.batch`,
      da 404 za nepoznat kanal ne košta drugi odlazak do baze. `latestEpisodes` (naslovnica,
      S9/S12) je usklađen s karticom i varijantama, ali API v1 ga još ne izlaže.
+312. **Glavni modul izvozi samo handler.** workerd svaki imenovani export glavnog modula
+     (`main` u `wrangler.jsonc`) čita kao entrypoint i odbija sve što nije funkcija/klasa ili
+     `ExportedHandler`: `export { API_PREFIX }` u `src/index.ts` rušio je `wrangler dev
+     --local` („Incorrect type for map entry 'API_PREFIX'”), a vitest pool to ne vidi.
+     `API_PREFIX` je u `src/api/prefix.ts`; `test/main-module-exports.test.ts` uvozi
+     `src/index.ts` i pada na svaki imenovani export koji nije funkcija (dokazano privremenim
+     `export const`). Izmjereno nakon popravka nad lokalnim D1 iz S2 (`wrangler dev --local
+     --port 8799`): `days/2026-11-04?limit=100` → 26 epizoda (Tier 1: 4, Tier 2: 22), 3 s
+     `channel: null`, 0 varijanti, `next: null`, `catalog "4"`, `rows_read` 52 (odluka 309
+     je izmjerila 53; razlika je upit konteksta, 2–3 ovisno o tome nađe li se host).
+313. **Sintetički `rows_read`** (`test/api/rows-read-synthetic.test.ts`): fixturei + 5000
+     sintetičkih epizoda kroz isti `applyPlan` kao uvoz (jedan plan, 5127 epizoda, 340
+     kanala, 211–230 ms u poolu, pa batch INSERT mimo uvoznika nije trebao). Raspodjela je
+     deterministička (mulberry32, sjeme `20261105`): kanali od 2370 i 1100 epizoda, 6 po 80,
+     320 s 1–2, 140 bez kanala, 30 bez datuma, „vrući” dan `2026-10-20` s 331 sintetičkih ne-varijanti
+     (4 stranice po 100) i parovima ID-eva koji se razlikuju samo veličinom slova, te 400
+     varijanti uz osnovnu epizodu (isti kanal i dan, ID `<9 znakova>_<n>`), pola na vrućem
+     danu, dakle usred raspona koji popis čita. Za svaku rutu limit 1, 30, 100 na prvoj
+     stranici i iza kursora do kojeg se dođe slijedeći `next` po 100 (200 do 1500 redaka
+     duboko): `rows_read ≤ 3 × limit + 5` i duboka − prva ≤ 5. Izmjereno (prva / duboka),
+     limit 30: vrući dan 62 / 63, `channels` 33 / 34, `channels?tier=2` 33 / 32, `directory`
+     33 / 34, veliki kanal 65 / 66 (dubina 1500 i 800); limit 100: vrući dan 199 / 199,
+     veliki kanal 205 / 206, `channels`/`directory` 103 / 43 (zadnja, kratka stranica). Isto
+     kao na stvarnim podacima (206 za limit 100), pa varijante usred raspona ne troše ništa:
+     nisu u parcijalnom indeksu. Kartica varijante 4, zaglavlje malog kanala 3. Uz to test
+     prolista vrući dan i kanal od 1100 epizoda do kraja i uspoređuje s poretkom izračunatim
+     u JS-u (datum DESC, id DESC; za ASCII ID-eve JS usporedba = SQLite BINARY), te
+     `processed_count` s brojem stavki. Datoteka traje ~0,5 s. `measure()` i
+     `ROWS_READ_CONSTANT` su premješteni u `helpers.ts`: uvoz iz `rows-read.test.ts` bi u
+     drugoj datoteci ponovo registrirao njegove testove.
+314. **Neovisni pregled `src/api/*` i `queries.ts` (S3): nema stvarne greške osim 312.**
+     Provjereno testom (`test/api/review.test.ts`, svi zeleni bez promjene koda): `%2F` u
+     slugu je dio sluga (dijeli se prije dekodiranja) → 404 `channel_not_found`; `%00`, SQL u
+     slugu i ID-u → 404, ne 500 (sve ide kroz bind); `%73ubclub` = `subclub` (zaseban ključ
+     cachea, isti sadržaj); neispravan UTF-8 → 404 `not_found`; `%2e%2e` URL parser
+     normalizira prije rute; kursor s NUL-om, nepostojećim, ne-ASCII i ključem od 2000 znakova
+     → 200; HEAD/OPTIONS/POST/PUT/DELETE → 404 `no-store` s ACAO; `catalog: null` (podaci bez
+     `ok` uvoza) → `_cv=none`, prvi `ok` uvoz → miss s novom verzijom i istim stavkama (pool
+     izolira storage po datoteci, pa je to prvi test datoteke); `Cache-Control` dana u
+     00:00:00.000Z i 23:59:59.999Z, preko kraja godine i prijestupnog dana; ključ cachea
+     razdvaja host, port, limit, kursor, tier i verziju, a nepoznate parametre odbacuje.
+     Kursor na granici: jednaki datumi i ID-evi koji se razlikuju samo veličinom slova
+     pokriveni su u 313 (usporedbu radi samo SQLite, JS ništa ne uspoređuje). Otvoreno, nije
+     mijenjano: (a) HEAD je 404 (odluka 308), iako HTTP traži da GET resurs prima i HEAD; (b)
+     iznimka iz D1 izlazi kao 500 iz runtimea, bez JSON-a, ACAO i `no-store`, pa je web klijent
+     vidi kao CORS grešku; (c) ključ cachea nosi sirovi `pathname`, pa isti resurs može imati
+     više zapisa (`%73ubclub`); (d) host koji nije u `brands` dobiva `DEFAULT_BRAND` i vlastiti
+     ključ cachea, dakle proizvoljan `Host` puni cache (u produkciji to ograničava ruta zone).

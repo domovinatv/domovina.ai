@@ -1,13 +1,10 @@
 // `meta.rows_read` po ruti nad fixtureima (odluka 309): zbroj svih D1 upita
-// zahtjeva, ≤ 3 × limit + konstanta. Sintetički test s velikim brojem epizoda
-// dolazi zasebno; `measure()` je ovdje da ga može koristiti.
+// zahtjeva, ≤ 3 × limit + konstanta. Isto nad 5000 sintetičkih epizoda:
+// `rows-read-synthetic.test.ts` (odluka 313); `measure()` je u `helpers.ts`.
 import { describe, expect, it } from "vitest";
-import { api, brand, type Contract, seed } from "./helpers.ts";
+import { brand, type Contract, measure, ROWS_READ_CONSTANT, seed } from "./helpers.ts";
 
-/** Konstanta: upit brenda i verzije (≤ 3) + zaglavlje kanala uz njegove epizode (1) + kraj raspona (1). */
-export const ROWS_READ_CONSTANT = 5;
-
-export const ROUTES: readonly { readonly path: string; readonly contract: Contract }[] = [
+const ROUTES: readonly { readonly path: string; readonly contract: Contract }[] = [
   { path: "days/2026-05-13", contract: "days" },
   { path: "days/2026-11-03", contract: "days" },
   { path: "channels", contract: "channels" },
@@ -18,14 +15,6 @@ export const ROUTES: readonly { readonly path: string; readonly contract: Contra
   { path: "channels/subclub", contract: "channel-response" },
   { path: "episodes/UM2MWlNUp_1/card", contract: "card-response" },
 ];
-
-/** `meta.rows_read` jednog zahtjeva (cache miss: svaki zahtjev ide s novim limitom ili brendom). */
-export async function measure(host: string, path: string, contract: Contract): Promise<number> {
-  const { res, body } = await api<{ meta: { rows_read: number } }>(host, path, contract);
-  expect(res.status, path).toBe(200);
-  expect(res.headers.get("x-katalog-cache"), path).toBe("miss");
-  return body.meta.rows_read;
-}
 
 describe("rows_read nad fixtureima", () => {
   const b = brand("s3-rows");

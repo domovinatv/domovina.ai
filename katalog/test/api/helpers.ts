@@ -163,3 +163,17 @@ export async function collect<T>(
   }
   throw new Error("popis nema kraja");
 }
+
+/** Konstanta: upit brenda i verzije (≤ 3) + zaglavlje kanala uz njegove epizode (1) + kraj raspona (1). */
+export const ROWS_READ_CONSTANT = 5;
+
+/**
+ * `meta.rows_read` jednog zahtjeva, uz provjeru da je bio cache miss (inače bi
+ * se mjerio upit verzije, ne ruta).
+ */
+export async function measure(host: string, path: string, contract: Contract): Promise<number> {
+  const { res, body } = await api<{ meta: { rows_read: number } }>(host, path, contract);
+  expect(res.status, path).toBe(200);
+  expect(res.headers.get("x-katalog-cache"), path).toBe("miss");
+  return body.meta.rows_read;
+}

@@ -16,8 +16,6 @@ import {
 import type { Env } from "../env.ts";
 import { decodeCursor, encodeCursor, isIsoDate } from "./cursor.ts";
 
-export const API_PREFIX = "/api/katalog/v1";
-
 /** Zadana veličina stranice kad `limit` nije zadan (odluka 304). */
 export const DEFAULT_PAGE_SIZE = 30;
 

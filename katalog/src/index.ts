@@ -1,7 +1,10 @@
-import { API_PREFIX, errorResponse, handleV1, jsonResponse } from "./api/v1.ts";
+import { API_PREFIX } from "./api/prefix.ts";
+import { errorResponse, handleV1, jsonResponse } from "./api/v1.ts";
 import type { Env } from "./env.js";
 
-export { API_PREFIX };
+// Glavni modul izvozi SAMO handler: workerd svaki imenovani export čita kao
+// entrypoint (funkcija, klasa ili ExportedHandler), pa konstanta ovdje ruši
+// `wrangler dev` dok ga vitest pool ne primijeti (odluka 312).
 
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
