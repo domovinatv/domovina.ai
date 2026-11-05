@@ -145,3 +145,120 @@ paralelni worktreeji ne sudare. Odluka se ne briše: zamijeni je novom koja je p
      onome što parser dobiva u produkciji), deterministički (dvaput = isti bajtovi,
      provjereno). Promjena izvora (reobrada epizode) obara test s konkretnom vrijednošću;
      to je namjerno.
+
+## S2 (2026-11-05, uvoznik)
+
+Mjerenja i naredbe: [research/2026-11-05-uvoz-tier2.md](research/2026-11-05-uvoz-tier2.md).
+
+200. **Popis Tier 2 epizoda dolazi iz key cachea.** `../fetch.domovina.tv/.r2_keys_cache.json`
+     je `{v: 2, sizes: {<R2 ključ>: <bajtovi>}}` (209 056 ključeva, 9,5 MB). `parseKeyCache`
+     prihvaća samo `v === 2` i čita ključeve `data/<id>/<datoteka>`; `images/`, `channels/`
+     i ostalo preskače. `_unlisted` u ključevima ne postoji, pa je Tier 2 = ID-evi s
+     `data/<id>/article.json` (pravilo `podcast.domovina.ai` `58fb664`) minus ID-evi iz
+     Tier 1 listinga. Izmjereno: 3665 − 3412 = **253**; svih 3412 Tier 1 epizoda ima
+     `article.json`. Revizija: kad pipeline (S7) objavi popis izravno.
+201. **Dohvat ide s CDN-a, uz jedan retry na 404.** `index.json`, 52 listinga, pa
+     `info.json` + `summary.json` za svaku Tier 2 epizodu; konkurentnost 6. 404 se ponovi
+     jednom s `?cb=<5-minutni bucket>` (pravilo `DataService._get`); tek drugi 404 znači
+     „nema”. Izmjereno: 562 GET-a = 1 + 52 + 2 × 253 + 3 retryja (tri `info.json`, ni
+     nakon retryja). Tier 1 datoteka koje nema i svaka greška parsera ruše uvoz (puknuće
+     je signal da se ugovor promijenio, odluka 107). Registry se čita s diska.
+202. **`flags` Tier 2 epizode računa se iz imena datoteka na R2**, po pravilima
+     `generate_channel_index.js` preslikanima na R2 imena (`diarized.srt` → transcript i
+     diarized, `article.magisterium.json` ili `_batch` → magisterium, `translation_en` =
+     `summary.en.json` ∧ `article.en.json`). Provjera na Tier 1: 3411/3412 epizoda daje
+     isti `flags` kao listing; jedina razlika je `MGLq9v3AtvE` (R2 ima
+     `article.magisterium.json`, listing kaže `has_magisterium: false`, tj. listing je
+     stariji od uploada). Tier 1 `flags` i dalje dolazi iz listinga (ulaz za Tier 1 je
+     listing). Revizija: ako se razlika poveća, Tier 1 prelazi na ključeve.
+203. **Redoslijed razrješavanja kanala Tier 2 epizode** (`src/ingest/resolve.ts`, čista
+     funkcija): (a) `info.channel_id` = točno jedan Tier 1 kanal po `youtubeChannelId` iz
+     `index.json`; više njih (`UCuk9D5H9mx7birJ1-S22nyQ`) → NULL,
+     `ambiguous_tier1_channel_id` (izmjereno: 0 takvih epizoda); (b) registry po
+     `youtube.channel_id` (odluka 204); (c) kanal bez registryja (odluka 205). Tier 2
+     epizoda praćenog kanala ide na Tier 1 kanal, `tier` epizode ostaje 2, i stavka je
+     izvještaja (`tier2OnTier1Channel`, izmjereno 17), ne tihi spoj. Bez `info.json` vidi
+     odluku 206. Svaka epizoda bez kanala ima razlog u izvještaju.
+204. **Izbor registry unosa među onima s istim `channel_id`**, redom: jedini unos; jedini
+     `youtube.type === "umbrella"` (HKM `hkm` uz 9 playlista); jedini `type === "channel"`;
+     jedini bez `parent_slug`; inače NULL, `ambiguous_registry_channel_id`. Pravilo
+     `channel` je dodano nakon mjerenja: bez njega 36 epizoda bez kanala, s njim 22 (Podcast
+     Inkubator 6, Nova Eva 5, Poslovni dnevnik 2, VIDA 1 dobivaju svoj kanal; ondje je
+     jedan unos kanal, ostali su playliste tog kanala). Preostale 22 (8,7 % od 253, ispod
+     praga rizika 10 %) su sa 7 YouTube kanala koji u registryju imaju samo playliste: TV
+     Jadran 8, Jutarnji list 4, HRT vijesti 4, Anze Tomic 3, VTV 1, RTL 1, NOVA TV 1.
+     Popravak je u registryju (unos `umbrella` ili `channel` za te `channel_id`-eve), ne u
+     pogađanju. Registry slug koji nakon `-` → `_` postoji kao Tier 1 CDN slug je taj Tier 1
+     kanal (`registry_tier1`); inače Tier 2 kanal sa slugom i `display_name` iz registryja.
+     Parser registryja zato čita i `youtube.type` i `parent_slug`.
+205. **Kanal bez registryja: slug `yt-<channel_id>` ili `x-<channel_id>`**, po
+     `info.extractor` (`youtube`, `twitter`; izmjereno samo ta dva). Veličina slova ostaje
+     (`yt-UCckHqySbfy5FcPP6MD_S-Yg`): YouTube ID razlikuje velika i mala slova, a CDN
+     slugovi su mala slova s `_`, registry mala slova s `-`, pa izvedeni slug ne može
+     pogoditi ni jedan ni drugi; resolver svejedno baca ako bi pogodio. Drugi extractor →
+     NULL, `unknown_extractor`. Ime je `info.channel`, a kad ga nema `info.uploader` (X
+     zapis `CUJmOc91C64` nema `channel`, `uploader` je „Hobba 🟢”; to je ime iz izvora, ne
+     naš tekst sučelja, pa pravilo bez emojija ne vrijedi). Bez oba → NULL,
+     `no_channel_name` (izmjereno 0; odluka 109 ostaje). `youtube_channel_id` je NULL za X.
+     Oznaka je stupac `channels.unregistered` (migracija `0002`; `DEFAULT 0` samo jer
+     `ADD COLUMN … NOT NULL` traži zamjensku vrijednost, uvoznik ga uvijek piše;
+     `CHECK (unregistered IN (0, 1) AND (unregistered = 0 OR tier = 2))`, provjereno u
+     poolu). Izmjereno: 28 takvih kanala, 31 epizoda.
+206. **Epizoda bez `info.json` se ne baca.** Naslov, datum i trajanje dolaze iz
+     `summary.json` `source`, kanal iz `source.channel` samo ako je to Tier 1 CDN slug
+     (`summary_source_channel`), inače NULL, `no_info_json`. Izmjereno: 3 takve epizode,
+     sve s kanalom (`6dcab9c9837`, `cd7ac05aabf` → `subclub`, `eab99cbaefd` →
+     `launched`). Dopuna S1: `source.channel` nije uvijek `"_unlisted"` (194 `_unlisted`,
+     55 `_varijante`, 2 `subclub`, 1 `launched`, 1 `domovina_tv` od 253), ali se za kanal
+     čita samo kad `info.json` nema. `source.upload_date` dolazi u dva oblika (185
+     `YYYY-MM-DD`, 68 `YYYYMMDD`), pa ga čita `optIsoOrCompactDate`; svugdje drugdje oblik
+     ostaje strog.
+207. **Ime Tier 2 kanala uzima se s najnovije epizode** (datum, pa ID), jer kanali mijenjaju
+     ime. Za registry kanal je `display_name` isti za sve epizode. Tier 1 ime je iz
+     listinga.
+208. **Eksperimentalne varijante se uvoze kao i svaka epizoda** (D1 je projekcija R2) i
+     navode u izvještaju. Varijanta = 9 znakova osnovnog ID-a + `_<znamenka>`
+     (`0Oo1LHNiJ_2` uz `0Oo1LHNiJR4`), pod uvjetom da osnovni ID s tim prefiksom postoji.
+     Izmjereno: 55 varijanti od 15 osnovnih ID-eva, točno onoliko koliko `summary.json` ima
+     `source.channel: "_varijante"`. Varijanta dobiva kanal kao i osnovna epizoda
+     (`UM2MWlNUp_1` → `podcast_cuspajz` po `channel_id`) ili ga nema (`KA73jz0Q7_2…5`, TV
+     Jadran, odluka 204). Revizija: ako proizvod želi varijante skrivati, treba stupac ili
+     zastavica (S3+), ne filtar u uvozniku.
+209. **Polja epizode.** Tier 1: iz listinga doslovno (`title`, `title_hr`, `date`,
+     `duration_seconds`, `magisterium_score`, `flags`); `lang` NULL jer ga listing nema.
+     Tier 2: `title` iz `info.json` (bez njega `source.title`), `title_hr` i `lang` iz
+     `summary.json`, `duration_seconds` iz `info.json` (bez njega iz `source`),
+     `magisterium_score` NULL (nije u `info`/`summary`; magisterium datoteke se ne
+     dohvaćaju). Revizija: pipeline (S7) šalje ocjenu.
+210. **`processed_count` = broj redaka u D1 s tim kanalom (oba tiera), `latest_published_date`
+     = njihov najnoviji datum.** Ne `video_count`: izmjereno `video_count = len(videos)` u
+     52/52 listinga, ali 17 Tier 2 epizoda praćenih kanala ne bi bilo u brojci koju lista
+     `/c/:slug`. `video_count ≠ len(videos)` ostaje tripwire u izvještaju
+     (`videoCountMismatch`, stvarni ulaz 0). Tier 2 kanal nema avatar ni jezik (NULL).
+211. **Brend je `domovina` s hostom `domovina.ai`**, upsert istim pravilom kao ostalo.
+212. **Uvoz ne briše retke koji su nestali iz ulaza** (izvan opsega S2; konvergencija je
+     drift-check, S7/S11). Plan je deterministički: retci sortirani po ID-u/slugu, isti
+     ulaz daje isti plan (test).
+213. **Upis kroz `getPlatformProxy`, ne `wrangler d1 execute --file`.** `getPlatformProxy`
+     (wrangler 4.107, `remoteBindings: false`, zadani `persist` = `.wrangler/state/v3`) daje
+     `env.DB` nad istom lokalnom bazom koju čita `wrangler d1 execute katalog --local`
+     (provjereno: isti retci). Razlozi: isti `applyPlan` kao u testu (pool `env.DB`),
+     `meta.changes` po naredbi iz `db.batch()` bez parsiranja izlaza wranglera, i bez
+     generiranja SQL-a s ručnim escapeom. Batch je 200 naredbi i transakcija; uvoz kao
+     cjelina nije atomaran, pa prekid ostavi `ingest_runs.status = 'failed'` s greškom.
+214. **Idempotentan upsert**: `INSERT … ON CONFLICT (brand, …) DO UPDATE SET … WHERE
+     t.a IS NOT excluded.a OR …` preko svih stupaca osim `updated_at`. `IS NOT` jer `<>` s
+     NULL nikad nije istinit (test: broj → NULL je promjena). Nepromijenjen redak ne broji
+     se u `meta.changes` i ne pomiče `updated_at`. Izmjereno: prvi uvoz 1/162/3665 (brend,
+     kanali, epizode), drugi 0/0/0, `updated_at` jedna vrijednost (vrijeme prvog uvoza).
+     Kanali se pišu prije epizoda (odluka 110).
+215. **`ingest_runs`**: `source = 'backfill'`, redak `running` prije upisa, `ok` ili
+     `failed` nakon; `counts` je cijeli izvještaj (plan, key cache, HTTP, `written`).
+216. **Fixturei S2.** Svaki kanal iz `index.json` fixturea ima i listing (plan to traži):
+     dodani `slijedi_svoj_poziv_1`/`_2`, `podcast_cuspajz` (drži `UM2MWlNUpqg`), `subclub`.
+     Tier 2: `A-oDNz3nvdQ` (Nova Eva, pravilo `channel`), `0sxT3NF8yFg` (VTV, dvosmisleno),
+     `UM2MWlNUp_1` (varijanta, Tier 1 kanal po `channel_id`), `6dcab9c9837` (samo
+     `summary.json`). `r2_keys_cache.json` je isječak stvarnog cachea za ID-eve iz fixturea.
+     Grane bez stvarne epizode (dvosmislen Tier 1 `channel_id`, bez `channel_id`, bez imena,
+     nepoznat extractor) testiraju se izmjenom jednog polja stvarnog `info` objekta, kao
+     negativni testovi parsera.

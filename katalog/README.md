@@ -15,3 +15,7 @@ Workers runtimeu s lokalnim D1). Lokalne migracije: `npm run migrate:local`.
 Parseri ulaza (`index.json`, listinzi, `data/<id>/*.json`, registry) su u `src/input/`;
 fixturei u `test/fixtures/` (stvarni, skraćeni) osvježava `npm run fixtures:refresh`
 (Node 24+, čita CDN i `../../fetch.domovina.tv/data/podcasts_registry.json`).
+
+Uvoznik (S2): `npm run migrate:local && npm run import` puni LOKALNI D1 (`.wrangler/`, nije u
+gitu) iz CDN-a, key cachea i registryja u `../../fetch.domovina.tv/`; `-- --dry-run` samo
+ispiše izvještaj. Pravila: `docs/decisions.md` 200–216.
