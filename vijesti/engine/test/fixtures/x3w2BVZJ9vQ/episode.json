@@ -1,0 +1,455 @@
+{
+ "version": 1,
+ "generated_at": "2026-10-29T03:38:59Z",
+ "files": [
+  "article.json",
+  "book.epub",
+  "diarized.en.srt",
+  "diarized.srt",
+  "info.json",
+  "outline.json",
+  "sponsors_in_video.json",
+  "summary.json",
+  "video_h264.mp4",
+  "words.en.json"
+ ],
+ "inline": {
+  "info.json": {
+   "id": "x3w2BVZJ9vQ",
+   "title": "Should Future Priests Be TikTok Creators? | Catholic Futurist",
+   "thumbnail": "https://i.ytimg.com/vi/x3w2BVZJ9vQ/maxresdefault.jpg",
+   "description": "Is it better to keep seminarians away from social media, or should they learn how to use it while they’re still in formation?\n\nFr. Michael Kong shares what he learned while studying social media and evangelization in Rome, and why digital formation matters for the future priests.\n\nFor all those curious about the world of tomorrow and how to navigate the crucial choices presented by emerging technology, guided by the practical and timeless wisdom of the Catholic faith, join the Catholic Futurist Podcast.\n\nhttps://www.catholicfuturist.com/ \n\n\nYouTube Timestamps:\n\n0:00 Intro\n0:51 The Catholic storytelling workshop\n3:28 Catching eyes in three seconds\n4:03 Social media as a marketplace\n5:07 The prayer that reached the most people\n7:40 Don't give a baby a steak\n8:57 What seminaries don't teach\n11:51 His thesis: TikTok vs Instagram\n15:18 Online reactions vs in person\n18:46 Why his parish is growing",
+   "channel_id": "UChAEWwrEQc07pft2NDb9_-A",
+   "duration": 1273,
+   "webpage_url": "https://www.youtube.com/watch?v=x3w2BVZJ9vQ",
+   "tags": [
+    "Catholic Futurist",
+    "Catholic Futurist Podcast",
+    "Benjamin Crockett",
+    "Catholic",
+    "Catholicism",
+    "Evangelization",
+    "Digital Evangelization",
+    "Social Media Evangelization",
+    "Catholic Social Media",
+    "Parish Social Media",
+    "Priest on TikTok",
+    "TikTok",
+    "Instagram",
+    "Catholic Content Creators",
+    "Seminary Formation",
+    "Priestly Formation",
+    "Catholic Storytelling",
+    "Faith and Technology",
+    "AI",
+    "Artificial Intelligence",
+    "Future of the Church",
+    "Sacred Heart Kew",
+    "Melbourne"
+   ],
+   "playable_in_embed": true,
+   "chapters": [
+    {
+     "start_time": 0,
+     "title": "Intro",
+     "end_time": 51
+    },
+    {
+     "start_time": 51,
+     "title": "The Catholic storytelling workshop",
+     "end_time": 208
+    },
+    {
+     "start_time": 208,
+     "title": "Catching eyes in three seconds",
+     "end_time": 243
+    },
+    {
+     "start_time": 243,
+     "title": "Social media as a marketplace",
+     "end_time": 307
+    },
+    {
+     "start_time": 307,
+     "title": "The prayer that reached the most people",
+     "end_time": 460
+    },
+    {
+     "start_time": 460,
+     "title": "Don't give a baby a steak",
+     "end_time": 537
+    },
+    {
+     "start_time": 537,
+     "title": "What seminaries don't teach",
+     "end_time": 711
+    },
+    {
+     "start_time": 711,
+     "title": "His thesis: TikTok vs Instagram",
+     "end_time": 918
+    },
+    {
+     "start_time": 918,
+     "title": "Online reactions vs in person",
+     "end_time": 1126
+    },
+    {
+     "start_time": 1126,
+     "title": "Why his parish is growing",
+     "end_time": 1273
+    }
+   ],
+   "channel": "Catholic Futurist",
+   "uploader": "Catholic Futurist",
+   "upload_date": "20260811",
+   "timestamp": 1786482230
+  },
+  "summary.json": {
+   "version": "1.0",
+   "generated_at": "2026-08-27T13:33:02.861Z",
+   "model": "claude-code:opus",
+   "source": {
+    "filename": "20260811_should_future_priests_be_tiktok_creators_catholic_futurist_yt_x3w2BVZJ9vQ",
+    "channel": "catholic_futurist",
+    "youtube_id": "x3w2BVZJ9vQ",
+    "title": "Should Future Priests Be TikTok Creators? | Catholic Futurist",
+    "upload_date": "2026-08-11",
+    "duration_seconds": 1273
+   },
+   "summary": {
+    "title_hr": "Trebaju li budući svećenici biti TikTok kreatori? | Catholic Futurist",
+    "abstract_hr": "U razgovoru za podcast Catholic Futurist otac Michael Kong, svećenik koji djeluje u župi Presvetog Srca u Melbourneu, govori o društvenim mrežama kao prostoru za evangelizaciju. Objašnjava zaključke svoje disertacije o društvenoj komunikaciji, u kojoj je usporedio TikTok i Instagram te intervjuirao katoličke laičke influencere. Poseban naglasak stavlja na nedostatak digitalne formacije u sjemeništima, uspoređujući praksu u Australiji i Koreji, gdje sjemeništarci često godinama nemaju pristup mobitelima i internetu. Također komentira raspravu s radionice o katoličkom pripovijedanju i umjetnoj inteligenciji te ističe da online sadržaj mora voditi prema stvarnoj, fizičkoj zajednici i sakramentima.",
+    "key_topics": [
+     "digitalna evangelizacija",
+     "društvene mreže",
+     "formacija sjemeništaraca",
+     "katoličko pripovijedanje",
+     "umjetna inteligencija",
+     "tiktok i instagram",
+     "župna zajednica",
+     "kulturne razlike u evangelizaciji"
+    ],
+    "speakers": [
+     {
+      "id": "SPEAKER_00",
+      "suggested_name": "Fr. Michael Kong",
+      "role": "gost"
+     },
+     {
+      "id": "SPEAKER_01",
+      "suggested_name": "Benjamin Crockett",
+      "role": "voditelj"
+     }
+    ],
+    "key_points": [
+     "Gost uspoređuje društvene mreže s tržnicom na kojoj je Isus razgovarao s ljudima: to je bučan prostor u koji ljudi dolaze i odlaze, ali i prilika za susret i evangelizaciju, uz uvjet da se alat koristi pažljivo i s poštovanjem.",
+     "Zbog kratkog raspona pažnje sadržaj mora 'uhvatiti' gledatelja u prve tri sekunde, inače će jednostavno nastaviti klizati zaslonom.",
+     "Župni kanal gradi se na jedinstvenosti: glavni sadržaj su kratke molitve po temama (npr. molitva za posao), a snimka svirke Ave Marije na violini prikupila je više od tristo tisuća pregleda, bez hashtagova i plaćenog oglašavanja.",
+     "Ciljana publika su ljudi koji ne dolaze u crkvu ili su je napustili; onima koji pitaju za adresu župe savjetuje da pronađu svoju lokalnu crkvu, jer cilj nije dovesti ljude njemu, nego Bogu.",
+     "Koristi usporedbu da se bebi ne daje odrezak nego mlijeko: njegov sadržaj je 'ulazna točka' s implicitnom porukom, a zainteresirane potom upućuje na dublje sadržaje autora poput oca Michaela Schmitza i biskupa Barrona.",
+     "U sjemeništima gotovo nema formacije za digitalnu evangelizaciju; u nekim korejskim biskupijama sjemeništarci sedam godina nemaju dopuštenje koristiti mobitel, dok formatori (u tridesetima do pedesetima) teško procjenjuju sadržaj koji konzumiraju dvadesetogodišnjaci.",
+     "Zaključak disertacije je da su TikTok i Instagram različiti načini komunikacije — Instagram je (u vrijeme istraživanja) imao veći utjecaj kada je riječ o slici i prepoznatljivosti brenda — te da je važnije razumjeti publiku, sadržaj i jezik nego samu platformu.",
+     "Rast župe Presvetog Srca gost pripisuje zboru i dječjoj liturgiji, što potvrđuje da je, unatoč online prisutnosti, ključna ljudska, fizička povezanost u zajednici."
+    ],
+    "mentioned_people": [
+     "Michael Kong",
+     "Ben",
+     "Isus Krist",
+     "Michael Schmitz",
+     "biskup Barron",
+     "Robert Gallia",
+     "Djevica Marija"
+    ],
+    "mentioned_places": [
+     "Rim",
+     "Palermo",
+     "Melbourne",
+     "Australija",
+     "Koreja",
+     "Italija",
+     "Španjolska",
+     "Europa",
+     "Sjedinjene Američke Države"
+    ],
+    "mentioned_organizations": [
+     "župa Presvetog Srca (Sacred Heart) u Melbourneu",
+     "Santa Croce (sveučilište u Rimu)",
+     "TikTok",
+     "Instagram",
+     "YouTube"
+    ],
+    "language": "hr",
+    "content_type": "podcast",
+    "sentiment": "positive"
+   }
+  },
+  "outline.json": {
+   "iterations": [
+    {
+     "iteration_number": 1,
+     "start_time": "00:00:00",
+     "end_time": "00:21:10",
+     "theme": "Društvene mreže kao 'tržnica' za evangelizaciju: iskustva Fr. Michaela Konga o digitalnom pripovijedanju, formaciji svećenika i rastu župe",
+     "reason_for_cut": "Transkript je kraći od jednog tematskog bloka (završava na 00:21:10) i čini jednu neprekinutu razgovornu cjelinu od uvoda do zaključnog pozdrava, pa se rez radi tek na samom kraju snimke.",
+     "chapters": [
+      {
+       "timestamp": "00:00:00",
+       "topic": "Uvodna misao: društvene mreže kao tržnica na kojoj je Isus razgovarao s ljudima"
+      },
+      {
+       "timestamp": "00:00:38",
+       "topic": "Pozdrav i dolazak gosta ravno s vlaka iz Palerma"
+      },
+      {
+       "timestamp": "00:00:51",
+       "topic": "Radionica o katoličkom pripovijedanju i rasprava o umjetnoj inteligenciji kao pomoći ili prijetnji umjetnicima"
+      },
+      {
+       "timestamp": "00:02:38",
+       "topic": "Tri kategorije kršćanskog pripovijedanja: eksplicitno, implicitno i katolička prisutnost na internetu"
+      },
+      {
+       "timestamp": "00:03:28",
+       "topic": "Kako u tri sekunde privući pažnju u svijetu beskonačnog skrolanja"
+      },
+      {
+       "timestamp": "00:04:03",
+       "topic": "Društvene mreže kao alat, a ne ovisnost; mreže kao prostor evangelizacije"
+      },
+      {
+       "timestamp": "00:05:07",
+       "topic": "Župa Sacred Heart u Melbourneu: traženje jedinstvenog sadržaja, molitve i violina"
+      },
+      {
+       "timestamp": "00:06:28",
+       "topic": "Brojke pratitelja na TikToku i Instagramu bez hashtagova i oglašavanja"
+      },
+      {
+       "timestamp": "00:07:01",
+       "topic": "Ciljana publika: oni koji ne dolaze u crkvu i poziv da pronađu svoju lokalnu župu"
+      },
+      {
+       "timestamp": "00:07:40",
+       "topic": "'Ne dajemo bebi odrezak' – postupno vođenje publike prema dubljem sadržaju i drugim stvarateljima"
+      },
+      {
+       "timestamp": "00:08:57",
+       "topic": "Što sjemeništa ne uče: nedostatak formacije za digitalnu evangelizaciju"
+      },
+      {
+       "timestamp": "00:09:58",
+       "topic": "Usporedba pravila o mobitelima u sjemeništima u Melbourneu i Koreji"
+      },
+      {
+       "timestamp": "00:10:34",
+       "topic": "Predavanje influencera svećenika formatorima i generacijski jaz u razumijevanju sadržaja"
+      },
+      {
+       "timestamp": "00:11:51",
+       "topic": "Disertacija na Santa Croce: društvene mreže kao prostor evangelizacije, TikTok naspram Instagrama"
+      },
+      {
+       "timestamp": "00:12:20",
+       "topic": "Važnost laika i mladih stvaratelja sadržaja te zaključci usporedbe platformi"
+      },
+      {
+       "timestamp": "00:13:31",
+       "topic": "Budući trendovi: virtualna stvarnost, prepoznavanje lica i virtualni likovi"
+      },
+      {
+       "timestamp": "00:14:29",
+       "topic": "Konkretna stvarnost sakramenata i mjerilo uspjeha evangelizacije"
+      }
+     ]
+    }
+   ]
+  },
+  "article.json": {
+   "metadata": {
+    "source_file": "20260811_should_future_priests_be_tiktok_creators_catholic_futurist_yt_x3w2BVZJ9vQ.wav.canary.diarized.srt",
+    "generated_at": "2026-08-27T13:55:19.244Z",
+    "model": "claude-code:opus"
+   },
+   "iterations": [
+    {
+     "iteration_number": 1,
+     "start_time": "00:00:00",
+     "end_time": "00:21:10",
+     "theme": "Društvene mreže kao 'tržnica' za evangelizaciju: iskustva Fr. Michaela Konga o digitalnom pripovijedanju, formaciji svećenika i rastu župe",
+     "sections": [
+      {
+       "subtitle": "Tržnica na kojoj je Isus razgovarao s ljudima: uvodna slika koja definira cijeli razgovor",
+       "screenshot_timestamp": "00:00:12",
+       "screenshot_description": "Fr. Michael Kong u uvodnoj sekvenci objašnjava usporedbu društvenih mreža s tržnicom",
+       "content": "Epizoda podcasta **Catholic Futurist** otvara se snažnom slikom koju postavlja gost, **Fr. Michael Kong**: društvene mreže on, kao svećenik i propovjednik, doživljava kao **tržnicu**.\n\n\"U vrijeme Isusa nije bilo društvenih mreža\", podsjeća Fr. Michael Kong. Isus je stoga išao na tržnicu i ondje razgovarao s ljudima – u prostoru u kojem je, kako gost naglašava, bilo mnogo buke i svakojakih sadržaja. Ljudi bi dolazili, neki ne bi bili zainteresirani pa bi otišli, a neki bi ostali i krenuli za njim.\n\nUpravo tako, tvrdi Fr. Michael Kong, danas funkcionira digitalni prostor. Društvene mreže za njega nisu prijetnja nego **prilika i prostor za evangelizaciju te interakciju s ljudima** – uz jasan uvjet koji ponavlja kroz cijeli razgovor: potrebno je naučiti kako ih koristiti pažljivo i s poštovanjem.\n\nVoditelj **Benjamin Crockett** pozdravlja gosta koji je na snimanje došao doslovno s vlaka. Fr. Michael Kong pojašnjava da je upravo stigao iz **Palerma** te se ispričava što je zbog puta \"malo opušteniji\" nego inače.",
+       "keywords": [
+        "društvene mreže",
+        "tržnica",
+        "evangelizacija",
+        "digitalni prostor",
+        "interakcija"
+       ],
+       "entities": [
+        "Fr. Michael Kong",
+        "Benjamin Crockett",
+        "Catholic Futurist",
+        "Palermo",
+        "Isus"
+       ]
+      },
+      {
+       "subtitle": "Radionica o katoličkom pripovijedanju: je li umjetna inteligencija saveznik ili prijetnja umjetnicima?",
+       "screenshot_timestamp": "00:01:20",
+       "screenshot_description": "Gost govori o raspravi na radionici o prednostima i manama umjetne inteligencije za umjetnike",
+       "content": "Benjamin Crockett uvodi temu radionice o **kršćanskom, odnosno katoličkom pripovijedanju** na kojoj je gost sudjelovao. Fr. Michael Kong opisuje je kao mjesto žive rasprave i razmjene mišljenja o jednom ključnom pitanju: je li tehnologija **umjetne inteligencije** korisna umjetnicima u stvaranju djela i komunikaciji s publikom – ili im predstavlja prepreku.\n\nGost prepričava obje strane argumenta:\n\n- **Strah:** dio filmskih redatelja i programera pribojava se da bi umjetna inteligencija mogla **zamijeniti stvarni ljudski rad**.\n- **Nada:** drugi ističu da ono za što je nekome trebalo tri dana rada, uz pomoć umjetne inteligencije može biti gotovo u tridesetak minuta – čime se umjetnicima oslobađa vrijeme za druge stvari.\n\n\"Ima prednosti i mana\", zaključuje Fr. Michael Kong. Na voditeljevo pitanje je li se raspravljalo samo o filmu i video medijima, gost odgovara da je razgovor uglavnom bio dominiran filmskom produkcijom, ali da platforma zapravo nije presudna. Ključno pitanje ostaje isto: **kako umjetnu inteligenciju upotrijebiti kao sredstvo komunikacije istine, ljepote i dobrote**.",
+       "keywords": [
+        "umjetna inteligencija",
+        "katoličko pripovijedanje",
+        "filmska produkcija",
+        "istina, ljepota i dobrota",
+        "radionica"
+       ],
+       "entities": [
+        "Fr. Michael Kong",
+        "Benjamin Crockett"
+       ]
+      },
+      {
+       "subtitle": "Tri kategorije katoličkog pripovijedanja i borba za prve tri sekunde pažnje",
+       "screenshot_timestamp": "00:03:30",
+       "screenshot_description": "Fr. Michael Kong objašnjava kako u tri sekunde privući pažnju u svijetu beskonačnog skrolanja",
+       "content": "Fr. Michael Kong prenosi podjelu o kojoj se raspravljalo na radionici – **tri kategorije kršćanskog ili katoličkog pripovijedanja**:\n\n1. **Eksplicitno pripovijedanje** – filmovi koji izravno prikazuju vjerski sadržaj, poput filmova o Kristovoj muci.\n2. **Implicitno pripovijedanje** – priče poput *Ratova zvijezda*, u kojima se kršćanska značenja pojavljuju posredno.\n3. **Katolička prisutnost na internetu** – jednostavno biti prisutan u medijskom svijetu.\n\nGost naglašava da o trećoj kategoriji može govorit iz vlastitog iskustva jer ju je i **studirao** i osobno ga zanima.\n\nSlijedi dijagnoza suvremene pažnje. Fr. Michael Kong opisuje kako ljudi neprestano skrolaju – čak i pri odabiru filmova tijekom leta zna se potrošiti pola sata ili sat samo na pregledavanje opcija i najava. Zato je, kaže, prvi zadatak **uhvatiti čovjeka**, jer će inače samo nastaviti klizati prstom.\n\n\"U roku od **tri sekunde** – kako privući ljude da uopće pokušaju slušati?\" pita se gost. Iza tog kratkog trenutka, ističe, stoji ono što se zapravo želi prenijeti: **poruka nade i poruka ljubavi**. Dodaje i da danas govori o kratkim formama i *reelsovima*, ali da nitko ne zna koja će platforma dominirati u budućnosti.",
+       "keywords": [
+        "eksplicitno pripovijedanje",
+        "implicitno pripovijedanje",
+        "skrolanje",
+        "tri sekunde pažnje",
+        "poruka nade"
+       ],
+       "entities": [
+        "Fr. Michael Kong",
+        "Ratovi zvijezda"
+       ]
+      },
+      {
+       "subtitle": "Alat, a ne ovisnost: kada mreže treba isključiti",
+       "screenshot_timestamp": "00:04:10",
+       "screenshot_description": "Gost odgovara na pitanje voditelja o vlastitom odnosu prema društvenim mrežama",
+       "content": "Benjamin Crockett pita gosta kakav je njegov osobni odnos prema društvenim mrežama – zabrinjavaju li ga i koristi li ih mnogo.\n\nOdgovor Fr. Michaela Konga je jasan: društvene mreže su **alat**, a ne nešto u što se čovjek mora neprestano uključivati. Ako pomažu činiti ono što se želi činiti – zašto ne. No ako postanu **ometanje ili ovisnost**, odnosno ako stvar krene u negativnom smjeru, tada treba pronaći način da se to zaustavi.\n\nUpravo na tom mjestu gost ponovno poseže za svojom središnjom metaforom tržnice: kao svećenik i propovjednik, mreže vidi kao mjesto na koje se izlazi među ljude, sa svom bukom koja uz to ide. Zaključak ostaje isti – to je prostor evangelizacije, ali uz nužnu naučenu disciplinu odgovornog i poštovanjem prožetog korištenja.",
+       "keywords": [
+        "mreže kao alat",
+        "ovisnost",
+        "odgovorno korištenje",
+        "evangelizacija"
+       ],
+       "entities": [
+        "Fr. Michael Kong",
+        "Benjamin Crockett"
+       ]
+      },
+      {
+       "subtitle": "Župa Sacred Heart u Melbourneu: molitva za posao, violina i 300.000 pregleda",
+       "screenshot_timestamp": "00:05:40",
+       "screenshot_description": "Fr. Michael Kong opisuje sadržaj župnog profila – molitve i sviranje violine",
+       "content": "Na pitanje koji su načini korištenja mreža posebno uspješni za evangelizaciju, Fr. Michael Kong predstavlja konkretan slučaj – župu **Sacred Heart u Melbourneu** u Australiji, gdje djeluje. Ondje su pokrenuli društvene kanale za crkvenu platformu, a gost vodi i vlastiti osobni profil.\n\nPolazna odluka medijskog tima bila je načelna: **ako netko drugi već izvrsno radi određeni tip sadržaja, nema smisla raditi isto.** Zato su tražili vlastitu jedinstvenost. Suradnici su mu, prepričava kroz smijeh, rekli: \"Oče, ne sviraju svi svećenici violinu.\" Njegov je odgovor bio da ne svira dobro – ali da to nije važno.\n\nGlavni sadržaj župnog kanala ipak je **molitva**. Svaki put objavljuju drugu temu, a jedan od najgledanijih uradaka bila je **molitva za posao**, jer se ljudi bore s financijskim problemima i traženjem zaposlenja. Petnaest ili trideset sekundi molitve – i, kaže gost, ljudi reagiraju. On se potom osobnim profilom uključuje u odgovaranje.\n\nDrugi stup sadržaja je glazba: nedavno je snimio izvedbu skladbe **Ave Maria**, koja je prikupila više od **300.000 pregleda**, a spominje i brojku od 700.000 vezanu uz doseg.\n\nPritom naglašava da broj pratitelja nije velik: oko **8.000 na TikToku** i **3.500 na Instagramu** – i to **bez hashtagova i bez ikakvog plaćenog oglašavanja**. Rezultat pripisuje čistoći sadržaja koji odgovara na stvarne potrebe ljudi u danom trenutku.",
+       "keywords": [
+        "molitva za posao",
+        "Ave Maria",
+        "jedinstvenost sadržaja",
+        "bez hashtagova",
+        "pregledi"
+       ],
+       "entities": [
+        "Sacred Heart",
+        "Melbourne",
+        "Australija",
+        "TikTok",
+        "Instagram",
+        "Fr. Michael Kong"
+       ]
+      },
+      {
+       "subtitle": "\"Ne dajemo bebi odrezak\": strategija postupnog vođenja publike",
+       "screenshot_timestamp": "00:08:00",
+       "screenshot_description": "Gost objašnjava usporedbu s hranjenjem djeteta i upućivanjem publike drugim stvarateljima",
+       "content": "Ciljana publika Fr. Michaela Konga nisu praktični vjernici, nego **ljudi koji ne dolaze u crkvu, nisu čuli za Isusa Krista ili su Crkvu napustili**. Želi da se vrate ili barem provire.\n\nU komentarima ga, kaže, često pitaju gdje se njegova crkva nalazi. Odgovor je uvijek isti: **neka pronađu svoju lokalnu župu.** \"Ne radi se o tome da dovedem ljude u moju crkvu, nego da ih dovedem k Bogu\", ističe gost.\n\nNa voditeljevo pitanje traže li ti ljudi istinu, dublje razgovore i smisao, gost potvrdno odgovara i objašnjava svoj cilj – **povezati ih s onima koji već stvaraju dubinski sadržaj**. Kao primjere navodi:\n\n- **oca Michaela Schmitza**\n- **biskupa Barrona**\n- **Roberta Gallia**\n- kao i vjernike laike koji proizvode ozbiljan katolički sadržaj\n\nSvoju ulogu objašnjava slikovito: \"**Ne dajemo bebi odrezak.** Dajemo bebi mlijeko, kašu, pa kad odraste – sendvič, a tek onda komad odreska i vino.\" Njegov je sadržaj, dakle, namijenjen onima koji još ne mogu \"probaviti\" dublje teme. Privlači ih, ali s **implicitnim značenjem i porukom iza toga**, a kad netko poželi znati više, prosljeđuje ga ozbiljnijim izvorima.\n\nDodaje da na župnim profilima ima mnogo pozitivnih komentara i pitanja ljudi koji žele naučiti više – i na njih redovito odgovara.",
+       "keywords": [
+        "ciljana publika",
+        "lokalna župa",
+        "postupna formacija",
+        "implicitna poruka",
+        "dubinski sadržaj"
+       ],
+       "entities": [
+        "Michael Schmitz",
+        "biskup Barron",
+        "Robert Gallia",
+        "Fr. Michael Kong"
+       ]
+      },
+      {
+       "subtitle": "Ono što sjemeništa ne uče: od zabrane mobitela u Koreji do influencera koji predaje formatorima",
+       "screenshot_timestamp": "00:10:15",
+       "screenshot_description": "Fr. Michael Kong uspoređuje pravila o mobitelima u sjemeništima u Melbourneu i Koreji",
+       "content": "Benjamin Crockett postavlja pitanje koje stoji u naslovu epizode: postoji li u sjemeništima **formacija za digitalnu evangelizaciju** i odgovorno korištenje društvenih mreža? Odgovor je kratak – nažalost, ne.\n\nFr. Michael Kong podsjeća da mreže prije deset ili dvadeset godina, kad je on bio sjemeništarac, nisu bile velika tema. Opisuje i tadašnja pravila u **Melbourneu**: prve godine mobitel nije bio dopušten, a kasnije se postupno dopuštalo korištenje subotom. U sobama nije bilo internetske veze – **četrdesetak studenata dijelilo je dva zajednička računala u knjižnici**. Danas se to promijenilo.\n\nJe li to dobro ili loše, gost ne zna reći. No navodi zapanjujuću usporedbu iz nedavnog posjeta **Koreji**, gdje je upoznao formatore u dijecezanskim sjemeništima: u dvjema biskupijama sjemeništarci **tijekom sedam godina formacije još uvijek nemaju dopuštenje koristiti mobitel**.\n\nGost smatra da je važno da mlađa generacija prati što se događa u svijetu – jer, kako ponavlja, upravo je tamo **tržnica na kojoj ljudi komuniciraju**. Kao pozitivan primjer navodi da je prošlog mjeseca u jedno sjemenište pozvan **svećenik influencer** koji je održao predavanje – ne studentima, nego **formatorima**, kako bi oni prvi shvatili što se događa na mrežama i potom to filtrirali sjemeništarcima.\n\nIpak, tu vidi i problem: formatori su najčešće u kasnim tridesetima, četrdesetima i pedesetima, a sjemeništarci u kasnim tinejdžerskim ili ranim dvadesetim godinama. \"Razumiju li isti sadržaj na isti način? Kako prosuđuju je li nešto korisno za sjemeništarce?\" pita se gost.\n\nSam se nada da će se vratiti u Australiju te posjetiti sjemenište – ne u predavaoničkom stilu, nego kako bi podijelio što se trenutačno događa vani, s primjerima dobre i manje idealne uporabe mreža. Razlog je praktičan: **nakon izlaska iz sjemeništa svećenika više nitko ne kontrolira osim biskupa**, pa formacija i obrazovanje moraju doći prije.",
+       "keywords": [
+        "formacija sjemeništaraca",
+        "zabrana mobitela",
+        "digitalna evangelizacija",
+        "generacijski jaz",
+        "formatori"
+       ],
+       "entities": [
+        "Melbourne",
+        "Koreja",
+        "Australija",
+        "Fr. Michael Kong",
+        "Benjamin Crockett"
+       ]
+      },
+      {
+       "subtitle": "Disertacija na Santa Croce: TikTok naspram Instagrama i uloga laika",
+       "screenshot_timestamp": "00:12:10",
+       "screenshot_description": "Gost predstavlja temu svoje disertacije o društvenim mrežama kao prostoru evangelizacije",
+       "content": "Fr. Michael Kong studirao je **društvenu komunikaciju na sveučilištu Santa Croce u Rimu**, a njegova je disertacija nosila temu: **društvene mreže kao prostor evangelizacije – usporedba TikToka i Instagrama**.\n\nMetodološki, istražio je povijest obiju platformi i proveo **intervjue s katoličkim influencerima laicima**. Iznenadila ga je količina mladih ljudi koji se time bave. Naglašava koliko je važno vjerovati u rad laika, studenata i mladih: svećenici, redovnici i redovnice, kaže, već imaju određenu prednost i prepoznatljivost, dok laici moraju **krenuti ispočetka** – ali zato stvaraju sadržaj za koji smatraju da funkcionira unutar njihove vlastite generacije.\n\nZaključak usporedbe? **Obje platforme su različite** i predstavljaju različite načine komunikacije. Ako je riječ o komunikaciji kroz sliku ili prepoznatljivost brenda, **Instagram je imao veći utjecaj od TikToka** – no gost odmah ograđuje taj nalaz: to je bilo prošle godine, a stvari se mijenjaju iznimno brzo.\n\nZato njegov naglasak nije na platformi nego na pripremljenosti: ako se razumije **publika, ciljana skupina, pravi sadržaj i pravi jezik**, tada će se biti spreman za bilo koju mrežu koja se tek pojavi.",
+       "keywords": [
+        "disertacija",
+        "TikTok vs Instagram",
+        "laici influenceri",
+        "društvena komunikacija",
+        "ciljana publika"
+       ],
+       "entities": [
+        "Santa Croce",
+        "Rim",
+        "TikTok",
+        "Instagram",
+        "Fr. Michael Kong"
+       ]
+      },
+      {
+       "subtitle": "Virtualni likovi i prepoznavanje lica: što dolazi nakon skrolanja",
+       "screenshot_timestamp": "00:13:45",
+       "screenshot_description": "Fr. Michael Kong govori o virtualnoj stvarnosti i virtualnim likovima u korejskim online emitiranjima",
+       "content": "Na pitanje koje trendove vidi, Fr. Michael Kong odgovara da će u budućnosti sve učestalija postajati **virtualna stvarnost**. Kao primjer ponovno navodi **Koreju**, gdje na internetskim platformama i u online emitiranjima ljudi već koriste **prepoznavanje lica** i nastupaju kroz animirane likove – a takvi sadržaji postaju viralni. Ono što se pritom događa jest da **stvarna i virtualna osoba komuniciraju zajedno posredstvom tehnologije**.\n\nGdje će to točno odvesti, gost ne zna. No njegov zaključak vraća se na formaciju: sjemeništarci moraju barem nešto od toga iskusiti ili o tome učiti kako bi bili pripremljeni.\n\nUsred svih tih tehnoloških pomaka, Fr. Michael Kong podvlači crtu koja se ne pomiče – vjera u **osobnog Krista, Euharistiju, sakramente i konkretnu stvarnost**. Pitanje je samo kako to prenijeti ljudima vani.\n\nZanimljivo, gost priznaje da ga **ne opterećuje mjerljivi uspjeh evangelizacije**. Podsjeća da su i Isusa slijedile tisuće ljudi – pet tisuća, tri tisuće – ali kad je progovorio o istini, koliko ih je ostalo? Prisjeća se i trenutka kad se obratio apostolima s pitanjem hoće li i oni otići, na što su odgovorili da je on istina i život i da nemaju kamo drugamo poći. Zaključak Fr. Michaela Konga: **ako se na mrežama govori istina, doći će i slijediti oni koji su nadahnuti Duhom.**",
+       "keywords": [
+        "virtualna stvarnost",
+        "prepoznavanje lica",
+        "sakramenti",
+        "mjerilo uspjeha",
+        "konkretna stvarnost"
+       ],
+       "entities": [
+        "Koreja",
+        "Isus",
+        "Euharistija",
+        "Fr. Michael Kong"
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,168 @@
+{
+ "version": "1.0",
+ "generated_at": "2026-11-05T18:38:35.870Z",
+ "id": "domovina_tv",
+ "name": "DOMOVINA",
+ "avatar_square": "https://cdn.domovina.ai/channels/images/domovina_tv/avatar_square.jpg",
+ "avatar_square_dimensions": null,
+ "avatar_cover": "https://cdn.domovina.ai/channels/images/domovina_tv/avatar_cover.jpg",
+ "avatar_cover_dimensions": {
+  "width": 900,
+  "height": 900
+ },
+ "youtube_channel_url": "https://www.youtube.com/channel/UCXXhnehl2pss0uYdfLRDtyw",
+ "youtube_playlist_url": null,
+ "description": null,
+ "tags": [],
+ "follower_count": 31,
+ "video_count": 7,
+ "total_duration_seconds": 49680,
+ "avg_magisterium_score": 77,
+ "latest_video_date": "2026-10-28",
+ "videos": [
+  {
+   "id": "b-nls1ck8EE",
+   "title": "#002 - Zadruge i budućnost bankarstva - Goran Jeras (ZEF i EEB) i Matija S. - 13.3.2026. - [Podcast]",
+   "title_hr": "#002 - Zadruge i budućnost bankarstva - Goran Jeras (ZEF i EEB) i Matija S.",
+   "date": "2026-03-26",
+   "duration_seconds": 9645,
+   "duration_display": "2:40:45",
+   "views": 2,
+   "likes": 1,
+   "thumbnail": "https://cdn.domovina.ai/images/b-nls1ck8EE/thumbnail.png",
+   "youtube_url": "https://www.youtube.com/watch?v=b-nls1ck8EE",
+   "abstract": "U epizodi Domovina TV-a voditelj Matija Stepanić razgovara s Goranom Jerasom, upraviteljem Zadruge za etično financiranje (ZEF) i CEO-om tvrtke ECHOES, preko koje se osniva Europska etična banka (EEB). Razgovor objašnjava kako komercijalne banke kreditnom ekspanzijom stvaraju novac, kako novac lokalnih zajednica odlazi na globalna financijska tržišta (primjer općine Lovinac) i po čemu se zadruge kao društva osoba razlikuju od trgovačkih društava. Gost predstavlja kreditnu politiku EEB-a usmjerenu na priuštivo stanovanje kroz stambene zadruge, obnovljive izvore energije (ESCO model) i predfinanciranje ribara te inovacije poput transparentnog objavljivanja kredita i modela 'banking as a service'. Raspravlja se i o Franjinoj ekonomiji, steward ownership modelu, stanju zadrugarstva u Hrvatskoj, neizdavanju novih bankarskih licenci od strane HNB-a i o krhkosti globalnog financijskog sustava. Zaključak je da ZEF kroz EEB, koja se osniva u Litvi, nikad nije bio bliže cilju osnivanja etične banke u vlasništvu građana.",
+   "topics": [
+    "kreiranje novca i kreditna ekspanzija",
+    "zadruge i zadružni model poslovanja",
+    "europska etična banka",
+    "priuštivo stanovanje i stambene zadruge",
+    "zelena energija i esco model",
+    "financiranje ribara",
+    "franjina ekonomija i steward ownership",
+    "kritika globalnog financijskog sustava"
+   ],
+   "speakers": [
+    {
+     "id": "SPEAKER_00",
+     "suggested_name": "Matija Stepanić",
+     "role": "voditelj"
+    },
+    {
+     "id": "SPEAKER_01",
+     "suggested_name": "Goran Jeras",
+     "role": "gost"
+    }
+   ],
+   "magisterium_score": 79,
+   "pipeline": {
+    "has_transcript": true,
+    "has_diarized": true,
+    "has_summary": true,
+    "has_article": true,
+    "has_magisterium": true,
+    "has_translation_en": true,
+    "has_summary_en": true,
+    "has_article_en": true,
+    "has_magisterium_en": true
+   }
+  },
+  {
+   "id": "MGLq9v3AtvE",
+   "title": "cc_01 | Building a Real-Time Event Ticketing App: Senko Rašić & Matija Stepanić (CroAI Code Club)",
+   "title_hr": "cc_01 | Izrada aplikacije za prodaju ulaznica u stvarnom vremenu: Senko Rašić i Matija Stepanić (CroAI Code Club)",
+   "date": "2026-02-26",
+   "duration_seconds": 7899,
+   "duration_display": "2:11:39",
+   "views": 1,
+   "likes": null,
+   "thumbnail": "https://cdn.domovina.ai/images/MGLq9v3AtvE/thumbnail.png",
+   "youtube_url": "https://www.youtube.com/watch?v=MGLq9v3AtvE",
+   "abstract": "Snimka prvog susreta CroAI Code Cluba. Matija Stepanić i Senko Rašić uživo i interaktivno s publikom pokušavaju od nule izraditi Flutter aplikaciju za prodaju ulaznica, nalik na Lumu ili Entrio, uz pomoć alata Claude Code i Antigravity te Firebasea. Uz demonstraciju se razvila rasprava o cijenama AI planova, pregledu (reviewu) AI-generiranog koda, regulativi Europske unije i ljudskom nadzoru, odabiru modela za planiranje i pisanje koda te korištenju skillova, MCP servera i lokalnih modela. Tijekom demonstracije došlo je do potrošnje limita Pro plana, problema s dostupnošću servisa i poteškoća s Firebase autentifikacijom. Aplikacija je na kraju pokrenuta na Android uređaju, ali prijava putem Googlea nije proradila zbog nedovršene konfiguracije.",
+   "topics": [
+    "ai alati za programiranje",
+    "claude code i antigravity",
+    "razvoj flutter aplikacija",
+    "pregled ai-generiranog koda",
+    "cijene i limiti ai planova",
+    "regulativa i ljudski nadzor u eu",
+    "rad s klijentima i specifikacija",
+    "mcp serveri i skillovi"
+   ],
+   "speakers": [
+    {
+     "id": "SPEAKER_00",
+     "suggested_name": "Matija Stepanić",
+     "role": "voditelj"
+    },
+    {
+     "id": "SPEAKER_01",
+     "suggested_name": "Senko Rašić",
+     "role": "voditelj"
+    },
+    {
+     "id": "SPEAKER_02",
+     "suggested_name": "Gost 1",
+     "role": "sugovornik"
+    },
+    {
+     "id": "SPEAKER_03",
+     "suggested_name": "Gost 2",
+     "role": "sugovornik"
+    },
+    {
+     "id": "SPEAKER_04",
+     "suggested_name": "Gost 3",
+     "role": "sugovornik"
+    },
+    {
+     "id": "SPEAKER_05",
+     "suggested_name": "Gost 4",
+     "role": "sugovornik"
+    },
+    {
+     "id": "SPEAKER_06",
+     "suggested_name": "Gost 5",
+     "role": "sugovornik"
+    },
+    {
+     "id": "SPEAKER_07",
+     "suggested_name": "Gost 6 (odvjetnica)",
+     "role": "sugovornik"
+    },
+    {
+     "id": "SPEAKER_08",
+     "suggested_name": "Gost 7",
+     "role": "sugovornik"
+    },
+    {
+     "id": "SPEAKER_09",
+     "suggested_name": "Gost 8",
+     "role": "sugovornik"
+    },
+    {
+     "id": "SPEAKER_10",
+     "suggested_name": "Gost 9",
+     "role": "sugovornik"
+    },
+    {
+     "id": "SPEAKER_11",
+     "suggested_name": "Gost 10",
+     "role": "sugovornik"
+    }
+   ],
+   "magisterium_score": null,
+   "pipeline": {
+    "has_transcript": true,
+    "has_diarized": true,
+    "has_summary": true,
+    "has_article": true,
+    "has_magisterium": false,
+    "has_translation_en": false,
+    "has_summary_en": false,
+    "has_article_en": false,
+    "has_magisterium_en": false
+   }
+  }
+ ]
+}

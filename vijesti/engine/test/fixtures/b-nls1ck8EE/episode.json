@@ -1,0 +1,433 @@
+{
+ "version": 1,
+ "generated_at": "2026-11-05T15:18:42Z",
+ "files": [
+  "article.en.json",
+  "article.json",
+  "article.magisterium.en.json",
+  "article.magisterium.json",
+  "book.en.epub",
+  "book.epub",
+  "diarized.srt",
+  "info.json",
+  "outline.json",
+  "reels.en.json",
+  "reels.json",
+  "screenshots_webp.json",
+  "sponsors_in_video.json",
+  "summary.en.json",
+  "summary.json",
+  "video_h264.mp4",
+  "words.json"
+ ],
+ "inline": {
+  "info.json": {
+   "id": "b-nls1ck8EE",
+   "title": "#002 - Zadruge i budućnost bankarstva - Goran Jeras (ZEF i EEB) i Matija S. - 13.3.2026. - [Podcast]",
+   "thumbnail": "https://i.ytimg.com/vi/b-nls1ck8EE/maxresdefault.jpg",
+   "description": "U novoj epizodi Domovina TV-a gostuje Goran Jeras, upravitelj Zadruge za etično financiranje (ZEF) s dvanaestogodišnjim iskustvom te CEO tvrtke ECHOES putem koje se trenutno osniva Europska etična banka (EEB). \nKroz ovaj analitični razgovor dekonstruiramo način na koji današnji bankarski sustav funkcionira i kako iscrpljuje lokalne zajednice. Goran, po struci fizičar koji je iskustvo stjecao u konzaltingu unutar financijskog sektora, pojašnjava zašto je zadružni model poslovanja ključan za dugoročni razvoj. \nZa razliku od trgovačkih društava, zadruge su društva osoba, a ne kapitala, što znači da im je cilj zadržavanje stvorene vrijednosti u rukama onih koji ju stvaraju.Saznajte kako Europska etična banka planira promijeniti pravila igre financiranjem stvarnih potreba građana – od priuštivog stanovanja i zelene energije do direktne podrške poljoprivrednicima i ribarima.\nTeme o kojima smo razgovarali:\n- Što je zapravo novac i kako komercijalne banke kreiraju novac kroz kreditnu ekspanziju.\n- Koja je razlika između klasičnih trgovačkih društava i zadruga te zašto zadruge funkcioniraju po demokratskom principu \"jedan član, jedan glas\".\n- Primjer općine Lovinac: Kako bogatstvo lokalnih zajednica završava na globalnim financijskim tržištima umjesto u razvoju lokalne infrastrukture.\n- Kreditna politika EEB-a: Fokus na priuštivo stanovanje kroz stambene zadruge, obnovljive izvore energije i projekte koji donose stvarnu društvenu vrijednost.\n- Inovacije na tržištu: Banka kao tehnološka platforma (Banking as a Service) i potpuna transparentnost poslovanja prema klijentima.\n- Franjina ekonomija i modeli upravljanja tvrtkama koji na prvo mjesto stavljaju opće dobro i zaštitu planeta.\nOvaj video nastao je u suradnji sa Zadrugom za etično financiranje (kanal @Zadrugazaetičnofinanciranje). \n\nPodržite njihov rad, informirajte se o zadrugarstvu i postanite dio promjene u financijskom sustavu.\n\nPoveznice na ZEF\nWeb stranica: https://zef.hr/\nYouTube kanal: https://www.youtube.com/@Zadrugazaeti%C4%8Dnofinanciranje/videos\nFacebook: https://www.facebook.com/zefhrvatska\nInstagram: https://www.instagram.com/zef.hr/\n\nPoveznice na EEB\nLinkedIn: ttps://www.linkedin.com/company/echoes-lt/",
+   "channel_id": "UCXXhnehl2pss0uYdfLRDtyw",
+   "duration": 9645,
+   "webpage_url": "https://www.youtube.com/watch?v=b-nls1ck8EE",
+   "tags": [
+    "Goran Jeras",
+    "ZEF",
+    "Zadruga za etično financiranje",
+    "etično bankarstvo",
+    "Europska etična banka",
+    "EEB",
+    "Domovina TV",
+    "Matija Stepanić",
+    "podcast Hrvatska",
+    "financijska pismenost",
+    "bankarski sustav",
+    "kako banke kreiraju novac",
+    "što je novac",
+    "zadruge",
+    "zadrugarstvo",
+    "priuštivo stanovanje",
+    "stambene zadruge",
+    "zelena energija",
+    "zelena tranzicija",
+    "ESCO model",
+    "lokalna ekonomija",
+    "Franjina ekonomija",
+    "stewardship ownership",
+    "održivi razvoj",
+    "financije",
+    "ekonomija",
+    "novac",
+    "krediti",
+    "Hrvatska"
+   ],
+   "playable_in_embed": true,
+   "channel": "DOMOVINA",
+   "uploader": "DOMOVINA",
+   "upload_date": "20260326",
+   "timestamp": 1774549756
+  },
+  "summary.json": {
+   "version": "1.0",
+   "generated_at": "2026-11-05T10:41:42.591Z",
+   "model": "claude-code:opus",
+   "source": {
+    "filename": "20260326_002_zadruge_i_buducnost_bankarstva_goran_jeras_zef_i_eeb_i_matija_s_13_3_2026_podcast_yt_b-nls1ck8EE",
+    "channel": "_unlisted",
+    "youtube_id": "b-nls1ck8EE",
+    "title": "#002 - Zadruge i budućnost bankarstva - Goran Jeras (ZEF i EEB) i Matija S. - 13.3.2026. - [Podcast]",
+    "upload_date": "2026-03-26",
+    "duration_seconds": 9645,
+    "platform": "youtube",
+    "source_url": "https://www.youtube.com/watch?v=b-nls1ck8EE",
+    "yt_matched": null,
+    "local_file": false
+   },
+   "summary": {
+    "title_hr": "#002 - Zadruge i budućnost bankarstva - Goran Jeras (ZEF i EEB) i Matija S.",
+    "abstract_hr": "U epizodi Domovina TV-a voditelj Matija Stepanić razgovara s Goranom Jerasom, upraviteljem Zadruge za etično financiranje (ZEF) i CEO-om tvrtke ECHOES, preko koje se osniva Europska etična banka (EEB). Razgovor objašnjava kako komercijalne banke kreditnom ekspanzijom stvaraju novac, kako novac lokalnih zajednica odlazi na globalna financijska tržišta (primjer općine Lovinac) i po čemu se zadruge kao društva osoba razlikuju od trgovačkih društava. Gost predstavlja kreditnu politiku EEB-a usmjerenu na priuštivo stanovanje kroz stambene zadruge, obnovljive izvore energije (ESCO model) i predfinanciranje ribara te inovacije poput transparentnog objavljivanja kredita i modela 'banking as a service'. Raspravlja se i o Franjinoj ekonomiji, steward ownership modelu, stanju zadrugarstva u Hrvatskoj, neizdavanju novih bankarskih licenci od strane HNB-a i o krhkosti globalnog financijskog sustava. Zaključak je da ZEF kroz EEB, koja se osniva u Litvi, nikad nije bio bliže cilju osnivanja etične banke u vlasništvu građana.",
+    "key_topics": [
+     "kreiranje novca i kreditna ekspanzija",
+     "zadruge i zadružni model poslovanja",
+     "europska etična banka",
+     "priuštivo stanovanje i stambene zadruge",
+     "zelena energija i esco model",
+     "financiranje ribara",
+     "franjina ekonomija i steward ownership",
+     "kritika globalnog financijskog sustava"
+    ],
+    "speakers": [
+     {
+      "id": "SPEAKER_00",
+      "suggested_name": "Matija Stepanić",
+      "role": "voditelj"
+     },
+     {
+      "id": "SPEAKER_01",
+      "suggested_name": "Goran Jeras",
+      "role": "gost"
+     }
+    ],
+    "key_points": [
+     "Banke nisu samo posrednici između štediša i dužnika: kroz bankarski multiplikator i međusobno posuđivanje mogu kreirati velike količine kreditnog novca, a obavezne rezerve mogu zaobići pomoću raznih financijskih instrumenata.",
+     "Banke mogu višak novca deponirati kod centralne banke uz prinos od oko 2%, a klijentima na pasivne depozite plaćaju simboličnu kamatu i ne pitaju ih u što ulažu njihov novac.",
+     "Zadruge su društva osoba, a ne kapitala, nemaju vlasnika i upravljaju se po načelu 'jedan član, jedan glas', s ciljem da stvorena vrijednost ostane u zajednici koja ju je stvorila.",
+     "Primjer općine Lovinac pokazuje da i siromašne zajednice imaju znatnu štednju (oko 18 milijuna eura), ali zbog nedostatka lokalne infrastrukture taj novac odlazi drugdje, uključujući Wall Street.",
+     "Kreditna politika EEB-a izbjegava potrošačke kredite, a fokusira se na priuštivo stanovanje, obnovljive izvore energije (uključujući ESCO model), proizvodnju hrane i prilagođene kredite poput onih za poljoprivredu.",
+     "ZEF već sada predfinancira ribare koji čekaju povrat sredstava iz Fonda za ribarstvo; krediti su beskamatni za članove ZEF-a, a do sada ih je iskoristilo oko 17 ribara.",
+     "HNB je 2019. dao do znanja da takav model banke neće dobiti licencu u Hrvatskoj, pa se banka osniva na europskoj razini, a ZEF je zbog toga i pandemije izgubio gotovo pola od nekadašnjih 1486 članova, dok sada članstvo ponovno raste."
+    ],
+    "mentioned_people": [
+     "Matija Stepanić",
+     "Goran Jeras",
+     "Richard Werner",
+     "Bruno Petrušić",
+     "papa Franjo",
+     "Franjo Asiški",
+     "Vujičić",
+     "Ačkar",
+     "Domagoj Rožić",
+     "Neven Vidaković",
+     "Trump",
+     "Fukuyama"
+    ],
+    "mentioned_places": [
+     "Hrvatska",
+     "Lovinac",
+     "Hvar",
+     "Zadar",
+     "Gospić",
+     "Split",
+     "Zagreb",
+     "Sisak",
+     "Sisačko-moslavačka županija",
+     "Velika Gorica",
+     "Križevci",
+     "Pula",
+     "Ludbreg",
+     "Duga Resa",
+     "Podstrana",
+     "Varaždin",
+     "Krapanj",
+     "Slavonija",
+     "Dalmacija",
+     "Nizozemska",
+     "Litva",
+     "Milano",
+     "Italija",
+     "Španjolska",
+     "Poljska",
+     "Gljivice",
+     "Portugal",
+     "Cipar",
+     "Mediteran",
+     "Sjedinjene Američke Države",
+     "Kalifornija",
+     "Velika Britanija",
+     "Engleska",
+     "Njemačka",
+     "Austrija",
+     "Beč",
+     "Belgija",
+     "Mađarska",
+     "Liechtenstein",
+     "Rusija",
+     "Ukrajina",
+     "Japan",
+     "Kina",
+     "Kolumbija",
+     "Latinska Amerika",
+     "Afrika",
+     "New York",
+     "Amsterdam",
+     "London"
+    ],
+    "mentioned_organizations": [
+     "Zadruga za etično financiranje (ZEF)",
+     "Europska etična banka (EEB)",
+     "ECHOES",
+     "Domovina TV",
+     "McKinsey & Company",
+     "Udruga Franak",
+     "Hrvatska narodna banka (HNB)",
+     "Hrvatska poštanska banka (HPB)",
+     "Centralna banka Engleske",
+     "Fond za zaštitu okoliša i energetsku učinkovitost",
+     "HBOR",
+     "Fond za ribarstvo i akvakulturu",
+     "Porezna uprava",
+     "HEP",
+     "Agencija za promet nekretninama (APN)",
+     "Zelena energetska zadruga (ZEZ)",
+     "Hrvatski savez zadruga",
+     "Centar za razvoj zadružnog poduzetništva",
+     "Ministarstvo poduzetništva",
+     "Trgovački sud",
+     "Hrvatska udruga poslodavaca",
+     "Gospodarska komora",
+     "Obrtnička komora",
+     "Solvis",
+     "Farmex",
+     "BT Solar",
+     "Docking",
+     "Rheinmetall",
+     "Sedmi odjel",
+     "Podatkovni centar Križ",
+     "Kanal Servis",
+     "Hotel Split",
+     "OPG Đakula",
+     "Pivovara Brlog",
+     "Zadruga Glas poduzetnika",
+     "Revolut",
+     "Wise",
+     "Paysera",
+     "ZABA",
+     "UniCredit",
+     "PBZ",
+     "Intesa Sanpaolo",
+     "Erste",
+     "Erste Stiftung",
+     "Raiffeisen",
+     "OTP",
+     "MOL",
+     "INA",
+     "HT",
+     "BlackRock",
+     "Vanguard",
+     "Sparkasse",
+     "Rabobank",
+     "Samoborska banka",
+     "Imex banka",
+     "Tesla štedna banka",
+     "Volksbank",
+     "Sberbank",
+     "Euroclear",
+     "World Systemic Foundation",
+     "Catalytic Capital Consortium",
+     "New Venture Fund",
+     "MacArthur Foundation",
+     "Patagonia",
+     "Hilti",
+     "Climate KIC",
+     "Europski institut za tehnologiju",
+     "Europska investicijska banka",
+     "Europska unija",
+     "UN",
+     "Vatikan",
+     "BRICS",
+     "Franjina ekonomija",
+     "Minka",
+     "Infobip",
+     "FER",
+     "HRT",
+     "Riverside FM",
+     "Apple",
+     "Pevex",
+     "Impact Days",
+     "Money Motion"
+    ],
+    "language": "hr",
+    "content_type": "podcast",
+    "sentiment": "mixed"
+   }
+  },
+  "outline.json": {
+   "iterations": [
+    {
+     "iteration_number": 1,
+     "start_time": "00:00:01",
+     "end_time": "00:39:43",
+     "theme": "Što je novac, kako banke stvaraju novac i zašto je zadruga alternativa",
+     "reason_for_cut": "Rez je na kraju objašnjenja kreditiranja kao 'posuđivanja iz budućnosti' i rizika banke, točno prije nego što voditelj pita za konkretnu kreditnu politiku ZEF-a i Europske etične banke.",
+     "chapters": [
+      {
+       "timestamp": "00:00:01",
+       "topic": "Uvod i predstavljanje gosta Gorana Jerasa (ZEF i Europska etična banka)"
+      },
+      {
+       "timestamp": "00:00:32",
+       "topic": "12 godina ZEF-a: od ideje Hrvatske etične banke do šire misije"
+      },
+      {
+       "timestamp": "00:03:14",
+       "topic": "Osobni put: od fizike i McKinseyja do bankarskih rizika u Nizozemskoj"
+      },
+      {
+       "timestamp": "00:06:01",
+       "topic": "Što je zapravo novac: društveni dogovor, dug i državni novac"
+      },
+      {
+       "timestamp": "00:09:31",
+       "topic": "Mit o bankama kao posrednicima i bankarski multiplikator"
+      },
+      {
+       "timestamp": "00:12:58",
+       "topic": "Basel 3, obvezne rezerve i zaobilaženje limita"
+      },
+      {
+       "timestamp": "00:14:37",
+       "topic": "Kamata centralne banke od 2% i parkiranje novca bez kreditiranja"
+      }
+     ]
+    }
+   ]
+  },
+  "article.json": {
+   "metadata": {
+    "source_file": "20260326_002_zadruge_i_buducnost_bankarstva_goran_jeras_zef_i_eeb_i_matija_s_13_3_2026_podcast_yt_b-nls1ck8EE.wav.canary.diarized.srt",
+    "generated_at": "2026-11-05T10:42:54.802Z",
+    "model": "claude-code:opus",
+    "iterations_expected": 4,
+    "complete": true
+   },
+   "iterations": [
+    {
+     "iteration_number": 1,
+     "start_time": "00:00:01",
+     "end_time": "00:39:43",
+     "theme": "Što je novac, kako banke stvaraju novac i zašto je zadruga alternativa",
+     "sections": [
+      {
+       "subtitle": "Maraton umjesto sprinta: dvanaest godina borbe za banku građana",
+       "screenshot_timestamp": "00:00:45",
+       "screenshot_description": "Goran Jeras započinje priču o nastanku Zadruge za etično financiranje",
+       "content": "Novu epizodu emisije **Domovina TV** voditelj **Matija Stepanić** otvara pozdravom „Hvaljen Isus, Marija i sveti Josip“ i predstavlja gosta. **Goran Jeras** već dvanaest godina upravlja **Zadrugom za etično financiranje (ZEF)**. Ujedno je izvršni direktor tvrtke EkoES, preko koje se trenutno osniva **Europska etična banka**.\n\nNa pitanje kako bi opisao dvanaestogodišnji put ZEF-a, Jeras se prisjeća da je zadruga krenula vrlo entuzijastično i ambiciozno. Članovi su vjerovali da ih čeka sprint, a s vremenom su shvatili da trče maraton. Polazni cilj bio je osnivanje **Hrvatske etične banke**: banke u vlasništvu građana koja bi sve svoje financijske instrumente usmjerila prema općem dobru, razvoju lokalne ekonomije i stvaranju nove vrijednosti koja podiže kvalitetu života ljudi u Hrvatskoj.\n\nJeras objašnjava i zašto su osnivači očekivali brz uspjeh. Etično bankarstvo nije nov model, nego tradicionalan. Banke su izvorno nastale kao kolektivne institucije u vlasništvu građana, obrtnika i poljoprivrednika koji su udruživali sredstva kako bi zajednički ostvarivali svoje interese. Nisu bile **ekstrakcijski model** kakav postoji danas. ZEF se oslanjao na iskustva postojećih etičnih banaka u Europi i svijetu te na tadašnju osviještenost građana. Ta je osviještenost 2014. godine, prema Jerasovim riječima, dobrim dijelom nastala zahvaljujući **udruzi Franak**. Tada su se ljudi prvi put masovno zapitali radi li bankarstvo u njihovom interesu i ispunjava li svoju ulogu u društvu.\n\nCilj osnivanja banke ostao je do danas, ali se misija zadruge u međuvremenu proširila. ZEF danas povezuje pojedince, poduzeća, udruge i javna tijela koja žele održivu i pravednu ekonomiju u Hrvatskoj. Domaći resursi i sredstva trebali bi služiti lokalnom razvoju, a ne odlaziti na **Wall Street** i u druge spekulativne investicije. Jeras upozorava da kroz takve investicije financijski sustav danas „crpi supstancu“ i vrijednost koju društvo stvara.",
+       "keywords": [
+        "etično bankarstvo",
+        "zadruga",
+        "lokalni razvoj",
+        "ekstrakcijski bankarski model",
+        "opće dobro"
+       ],
+       "entities": [
+        "Matija Stepanić",
+        "Goran Jeras",
+        "Domovina TV",
+        "Zadruga za etično financiranje (ZEF)",
+        "EkoES",
+        "Europska etična banka",
+        "Hrvatska etična banka",
+        "udruga Franak",
+        "Wall Street"
+       ]
+      },
+      {
+       "subtitle": "Fizičar u svijetu financija: od McKinseyja do bankarskih rizika u Nizozemskoj",
+       "screenshot_timestamp": "00:04:30",
+       "screenshot_description": "Goran Jeras opisuje kako je kroz rad u Nizozemskoj ušao u svijet bankarskih rizika",
+       "content": "Kada ga Matija Stepanić upita za struku, Goran Jeras otkriva da je po obrazovanju **fizičar** i da je u bankarstvu završio „spletom okolnosti“. Za financije i ekonomiju nikad se nije formalno školovao. Još tijekom studija počeo je raditi za **McKinsey & Company**, veliku konzultantsku kuću koja je tada otvarala ured u Zagrebu. Taj ga je posao zainteresirao za dotad nepoznat svijet biznisa i optimizacije poslovnih procesa.\n\nKonzalting ga je ubrzo odveo u **Nizozemsku**. Ondje se zaposlio u maloj, kako kaže, „boutique“ konzultantskoj firmi čiji su klijenti uglavnom bile banke i osiguravajuća društva. Bankarstvo i financije učio je praktički kroz posao. Prvo je dizajnirao specijalizirani bankarski softver, oslanjajući se na iskustvo s programiranjem. S **financijskom krizom 2008. i 2009. godine** prešao je na bankarske rizike. Tada je, kako kaže, prvi put shvatio što se događa „ispod haube“ bankarstva i koliko je taj sustav **inherentno neodrživ**.\n\nJeras ističe da mu je fizika pomogla da sve naučeno o financijama stavlja u kontekst fizikalnih zakona i prirodnih granica ekstrakcije resursa na planetu. Nije mu bilo jasno kako ekonomija i financije ne vide dvije stvari:\n\n- **postoje ograničenja i granice rasta**,\n- model **neoliberalnog kapitalizma** nužno povećava nejednakost, jer stalno iscrpljuje one slabije u lancu i gomila bogatstvo kod jačih.\n\nZaključuje da takav model dugoročno ne može donijeti dobre ishode ni za ljude ni za planet.",
+       "keywords": [
+        "fizika",
+        "konzalting",
+        "bankarski rizici",
+        "financijska kriza 2008.",
+        "granice rasta"
+       ],
+       "entities": [
+        "Goran Jeras",
+        "Matija Stepanić",
+        "McKinsey & Company",
+        "Zagreb",
+        "Nizozemska"
+       ]
+      },
+      {
+       "subtitle": "Novac kao društvena igra: od trampe i duga do apstrakcije bez pokrića",
+       "screenshot_timestamp": "00:06:50",
+       "screenshot_description": "Goran Jeras objašnjava da je novac društveni dogovor, a ne objektivna vrijednost",
+       "content": "Matija Stepanić iznosi tezu da je jedini pravi novac u opticaju zapravo **državni novac**. Goran Jeras to koristi kao povod za temeljno pitanje: što je uopće novac?\n\nLjudi, kaže, idu na tečajeve financijske pismenosti i ondje uče o razlikama između obveznica, ETF-ova, dionica, spekulativnih fondova i kriptovaluta. Malo tko, međutim, zna što je novac. Većina ga doživljava kao vrijednost samu po sebi. Jeras naglašava da novac ne predstavlja objektivnu vrijednost: novac, ekonomija i financijski sustav su **društveni dogovor**. Zajednica se dogovorila da će funkcionirati na određeni način i za to postavila pravila. On to uspoređuje s **društvenom igrom (board game)**. Postojeća pravila samo su jedan mogući skup pravila, a društvo može zamisliti potpuno drugačiju „igru“ s drugačijim ekonomskim i financijskim pravilima.\n\nPrema Jerasu, novac je **nastao kao dug**, a ne kao vrijednost. U trampi nisu svi proizvodi bili dostupni u isto vrijeme zbog sezonalnosti, pa su nastali odnosi dugovanja, ono što se na engleskom naziva **IOU** („I owe you“). Iz tih društvenih odnosa i obveza protučinidbe razvio se novac kakav danas poznajemo. Ti su se odnosi s vremenom potpuno apstrahirali.\n\nJeras se slaže sa Stepanićem da je državni novac jedini pravi. Samo iza njega stoji skup trajnih međusobnih odnosa koji nisu nužno oportunistički i tržišni, a bez kojih ljudi na nekom području ne bi mogli surađivati i opstati. Danas se novac kreira putem **komercijalnih banaka**, i to u količinama koje su većinom spekulativnog, „doslovno kockarskog“ karaktera, bez veze s realnim vrijednostima zajednice. Vrijednost tog bankarskog novca izjednačena je s novcem koji su izvorno stvarale države. To se dogodilo dogovorom koji, kako ističe, nije bio demokratski i u kojem građani nisu sudjelovali. Zato smatra da je svijet danas u **ogromnoj krizi novca**: novac je izgubio sve osnovne karakteristike koje mu pripisuje svaka udžbenička definicija.",
+       "keywords": [
+        "definicija novca",
+        "društveni dogovor",
+        "novac kao dug",
+        "državni novac",
+        "kriza novca"
+       ],
+       "entities": [
+        "Goran Jeras",
+        "Matija Stepanić"
+       ]
+      },
+      {
+       "subtitle": "Mit o posredniku: kako isti novac kruži i množi se u bankama",
+       "screenshot_timestamp": "00:10:45",
+       "screenshot_description": "Goran Jeras na primjeru tri osobe objašnjava bankarski multiplikator",
+       "content": "Matija Stepanić upozorava na rašireno uvjerenje da banke samo spajaju štediše i dužnike „jedan za jedan“. Kreditni novac je, kaže, drukčiji od emitiranog novca i ima ga mnogo više, pa traži od gosta da objasni kako nastaje ta ekspanzija.\n\nGoran Jeras objašnjava da ljudima najintuitivnije zvuči **teorija posredovanja (intermediation)**, prema kojoj banke samo posreduju između onih koji štede i onih koji posuđuju. To, kaže, nije točno i **empirijski je dokazano da nije tako**, a vjerovanje se ipak zadržalo. Bankarstvo ima „vrlo zanimljiv trik“, koji ilustrira primjerom:\n\n- prva osoba položi štednju od 100 eura u banku,\n- banka odobri kredit drugoj osobi, koja tim novcem kupi nešto od treće osobe,\n- treća osoba položi primljeni novac u istu banku,\n- banka ne zna da je to već posuđeni novac i vidi ga kao **novih 100 eura**, pa smatra da je u opticaju 200 eura,\n- tih „novih“ 100 eura banka može ponovno posuditi četvrtoj osobi i krug se ponavlja.\n\nTim računovodstvenim mehanizmom, koji se uči u monetarnoj politici i bankarstvu, nastaje **bankarski multiplikator**: banka isti novac plasira u sustav više puta.\n\nPravi problem, ističe Jeras, nastaje zato što se taj kreditni novac izjednačava s realno emitiranim novcem. Kad bankama ponestane „pravog“ novca, mogu posuditi izmišljeni kreditni novac od drugih banaka. Tako nastaje **spirala bez kraja**. Dok god su banke spremne posuđivati jedna drugoj virtualni novac, ekspanzija može teći neograničeno. Nastaju goleme sume bez podloge u realnim vrijednostima, a često i bez veze s realnim gospodarskim aktivnostima. Taj se novac najčešće koristi za spekulativno bogaćenje na tržištima kapitala.",
+       "keywords": [
+        "bankarski multiplikator",
+        "teorija posredovanja",
+        "kreditni novac",
+        "kreiranje novca",
+        "spekulacija"
+       ],
+       "entities": [
+        "Goran Jeras",
+        "Matija Stepanić"
+       ]
+      },
+      {
+       "subtitle": "Osigurači koji ne drže: Basel 3 i obvezne rezerve",
+       "screenshot_timestamp": "00:13:10",
+       "screenshot_description": "Goran Jeras komentira obvezne rezerve od 12 posto u Hrvatskoj i nultu stopu u Engleskoj",
+       "content": "Matija Stepanić napominje da ekspanzija ipak ima granice: postoji standard **Basel 3**, a **HNB** propisuje obvezne rezerve od oko 12 posto. Goran Jeras potvrđuje da je stopa u Hrvatskoj 12 posto. Dodaje podatak za koji malo tko zna: **centralna banka Engleske** nema takav limit, nego tamo obvezne rezerve iznose 0 posto.\n\nU bankarskoj teoriji obvezne rezerve služe kao osigurač koji bi trebao spriječiti beskonačnu kreditnu ekspanziju. Jeras tvrdi da je dokazano kako se i taj limit može zaobići, i to kroz **kvazikapitalne instrumente**. Banke s dobrim kreditnim rejtingom mogu jedna drugoj dugoročno posuđivati novac. Rezerve ne moraju uvijek biti u „pravom“ novcu: čak i prema Basel 3 standardu prihvaća se da budu u dugoročnim financijskim instrumentima koji su dovoljno likvidni da se tretiraju kao kapital.\n\nTime se, zaključuje Jeras, širok skup „virtualnih“ financijskih instrumenata pod određenim okolnostima ubraja u izračun propisanog postotka. Zato banke u praksi mogu zaobilaziti limite koje propisuju mnoge centralne banke.",
+       "keywords": [
+        "Basel 3",
+        "obvezne rezerve",
+        "kvazikapitalni instrumenti",
+        "kreditni rejting",
+        "regulativa"
+       ],
+       "entities": [
+        "Basel 3",
+        "HNB",
+        "Centralna banka Engleske",
+        "Hrvatska",
+        "Goran Jeras",
+        "Matija Stepanić"
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ }
+}

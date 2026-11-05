@@ -1,0 +1,31 @@
+{
+  "name": "domovina-vijesti",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Portal vijesti iz podcasta (engine, baza, portal) za domovina.ai/vijesti",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "check": "npm run typecheck && npm run lint && npm run test",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "fixtures:refresh": "tsx engine/test/fixtures-refresh.ts"
+  },
+  "dependencies": {
+    "@electric-sql/pglite": "^0.5.15",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^22.20.5",
+    "eslint": "^10.14.0",
+    "globals": "^17.14.0",
+    "tsx": "^4.23.15",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.72.1",
+    "vitest": "^5.1.0"
+  }
+}

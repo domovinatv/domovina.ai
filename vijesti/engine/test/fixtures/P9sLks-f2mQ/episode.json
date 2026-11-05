@@ -1,0 +1,281 @@
+{
+ "version": 1,
+ "generated_at": "2026-10-09T18:53:31Z",
+ "files": [
+  "article.json",
+  "book.epub",
+  "diarized.srt",
+  "info.json",
+  "outline.json",
+  "sponsors_in_video.json",
+  "summary.json",
+  "video_h264.mp4"
+ ],
+ "inline": {
+  "info.json": {
+   "id": "P9sLks-f2mQ",
+   "title": "\"Djeca koja jedu samo brašno i vodu\" Ana Papac, Udruga Zdenac",
+   "thumbnail": "https://i.ytimg.com/vi/P9sLks-f2mQ/maxresdefault.jpg",
+   "description": "U 47. epizodi ugostila sam Anu Papac, pravnicu i djelatnicu Udruge Zdenac, koja je s nama podijelila svoju osobnu priču, ali i približila djelovanje jedne hrvatske udruge koja već godinama mijenja živote ljudi u Africi, Latinskoj Americi, Hrvatskoj i dijaspori.\n\nRazgovarale smo o tome kako izgleda život na misijama u Tanzaniji, s kakvim se izazovima susreću djeca i obitelji koje žive u teškom siromaštvu te kako i naizgled male geste mogu nekome potpuno promijeniti život. Ana je podijelila dirljive priče s terena, iskustva koja su obilježila njezin život i lekcije koje je ponijela sa svojih višemjesečnih boravaka u Africi.\n\nDotaknule smo se i rada Udruge Zdenac, projekata obrazovanja, skrbi za najugroženije, kumstava za djecu te važnosti dugoročnog i odgovornog humanitarnog djelovanja.\n\nUživajte u razgovoru.\n\n🔔 Pretplatite se na kanal za nove epizode.\n👍 Ako vam se razgovor svidio, podržite ga lajkom i podijelite ga s drugima.\n\nViše o radu Udruge Zdenac: www.zdenac.org",
+   "channel_id": "UCT6Sx8T7walJ0dpOgqHllkw",
+   "duration": 4982,
+   "webpage_url": "https://www.youtube.com/watch?v=P9sLks-f2mQ",
+   "tags": [],
+   "playable_in_embed": true,
+   "channel": "Iva Kraljevic",
+   "uploader": "Iva Kraljevic",
+   "upload_date": "20260626",
+   "timestamp": 1782453606
+  },
+  "summary.json": {
+   "version": "1.0",
+   "generated_at": "2026-07-07T06:35:04.030Z",
+   "model": "gemini-3.5-flash",
+   "source": {
+    "filename": "20260626_djeca_koja_jedu_samo_brasno_i_vodu_ana_papac_udruga_zdenac_yt_P9sLks-f2mQ",
+    "channel": "iva_kraljevic",
+    "youtube_id": "P9sLks-f2mQ",
+    "title": "\"Djeca koja jedu samo brašno i vodu\" Ana Papac, Udruga Zdenac",
+    "upload_date": "2026-06-26",
+    "duration_seconds": 4982
+   },
+   "summary": {
+    "title_hr": "Djeca koja jedu samo brašno i vodu - Ana Papac, Udruga Zdenac",
+    "abstract_hr": "U 47. epizodi podcasta voditeljica Iva Kraljević ugošćuje Anu Papac, pravnicu i djelatnicu hrvatske Udruge Zdenac. Ana dijeli svoju osobnu životnu priču, od studija prava i krize na fakultetu do dubokog duhovnog obraćenja i odlaska u misije. Kroz razgovor se detaljno opisuje djelovanje udruge u Tanzaniji, teški uvjeti u kojima djeca žive te važnost obrazovanja, kumstava i dugoročne humanitarne pomoći.",
+    "key_topics": [
+     "humanitarni rad",
+     "misije u africi",
+     "tanzanija",
+     "kumstva za djecu",
+     "duhovnost",
+     "volontiranje",
+     "obrazovanje"
+    ],
+    "speakers": [
+     {
+      "id": "SPEAKER_00",
+      "suggested_name": "Iva Kraljević",
+      "role": "voditelj"
+     },
+     {
+      "id": "SPEAKER_01",
+      "suggested_name": "Ana Papac",
+      "role": "gost"
+     }
+    ],
+    "key_points": [
+     "Ana Papac se s Udrugom Zdenac susrela 2006. godine nakon svjedočanstva misionarke Ljilje Lončar, što je usmjerilo njezin životni put prema volontiranju i misijama.",
+     "Udruga Zdenac djeluje u Tanzaniji, Ugandi, Keniji, Kongu, Venezueli, Kubi te u Hrvatskoj i dijaspori, s naglaskom na cjelovitu duhovnu i materijalnu izgradnju.",
+     "U Tanzaniji udruga vodi muški i ženski učenički dom za srednjoškolce, pruža subotnje obroke i poduku za djecu te gradi kuću utočišta za zlostavljane djevojčice.",
+     "Projekt 'Zdenac znanja' omogućuje kumstva i sponzorstva za školovanje djece u državnim i privatnim školama po simboličnim cijenama.",
+     "Udruga Zdenac je u 23 godine postojanja školovala više od 13.000 djece te je izgradila i dječji vrtić u Dugom Selu isključivo od donacija.",
+     "U listopadu udruga planira posjetiti hrvatsku dijasporu u Kanadi i Americi te pokrenuti izgradnju velikog duhovno-edukacijskog centra u Lici."
+    ],
+    "mentioned_people": [
+     "Ljilja Lončar",
+     "Miljan Kožul",
+     "Nives",
+     "Don Romanus",
+     "Don Ante Batarello",
+     "Sara",
+     "Steven",
+     "Marija",
+     "Charles",
+     "Šerifa",
+     "Hongera",
+     "Iliana",
+     "Orlando",
+     "Mirjana"
+    ],
+    "mentioned_places": [
+     "Tanzanija",
+     "Kongo",
+     "Uganda",
+     "Latinska Amerika",
+     "Hrvatska",
+     "Vinkovci",
+     "Zagreb",
+     "Siget",
+     "Ekvador",
+     "Knežija",
+     "Dugo Selo",
+     "Kenija",
+     "Čipole",
+     "Venezuela",
+     "Kuba",
+     "Margarita",
+     "Švicarska",
+     "Kur",
+     "Graubinden",
+     "Kanada",
+     "Amerika",
+     "Windsor",
+     "Ontario",
+     "Norval",
+     "Toronto",
+     "Chicago",
+     "Lika"
+    ],
+    "mentioned_organizations": [
+     "Udruga Zdenac",
+     "Crkva Sv. Križa",
+     "Crkva Marije Pomoćnice",
+     "Patreon",
+     "Hrvatska katolička misija u Švicarskoj"
+    ],
+    "language": "hr",
+    "content_type": "podcast",
+    "sentiment": "positive"
+   }
+  },
+  "outline.json": {
+   "iterations": [
+    {
+     "iteration_number": 1,
+     "start_time": "00:00:00",
+     "end_time": "00:39:59",
+     "theme": "Osobni poziv, prvo iskustvo u Africi i rad udruge Zdenac u Tanzaniji",
+     "reason_for_cut": "Završava točno prije prelaska na raspravu o financijskim aspektima, kumstvima i usporedbi siromaštva u Hrvatskoj i Africi.",
+     "chapters": [
+      {
+       "timestamp": "00:00:07",
+       "topic": "Uvod i predstavljanje gošće Ane Papac"
+      },
+      {
+       "timestamp": "00:02:03",
+       "topic": "Anin životni put i prvi susret s udrugom Zdenac"
+      },
+      {
+       "timestamp": "00:04:37",
+       "topic": "Volontiranje, duhovna priprema i tečaj 'Talent for You'"
+      },
+      {
+       "timestamp": "00:09:45",
+       "topic": "Prvi odlazak u Afriku na godišnji odmor i odluka o otkazu"
+      },
+      {
+       "timestamp": "00:13:00",
+       "topic": "Susret s Anom iz Tanzanije i preuzimanje projekta 'Učim živjeti s Bogom'"
+      }
+     ]
+    }
+   ]
+  },
+  "article.json": {
+   "metadata": {
+    "source_file": "20260626_djeca_koja_jedu_samo_brasno_i_vodu_ana_papac_udruga_zdenac_yt_P9sLks-f2mQ.wav.canary.diarized.srt",
+    "generated_at": "2026-07-07T06:38:43.719Z",
+    "model": "gemini-3.5-flash"
+   },
+   "iterations": [
+    {
+     "iteration_number": 1,
+     "start_time": "00:00:00",
+     "end_time": "00:39:59",
+     "theme": "Osobni poziv, prvo iskustvo u Africi i rad udruge Zdenac u Tanzaniji",
+     "sections": [
+      {
+       "subtitle": "Uvod i predstavljanje gošće Ane Papac",
+       "screenshot_timestamp": "00:00:20",
+       "screenshot_description": "Voditeljica Iva Kraljević predstavlja gošću Anu Papac iz udruge Zdenac.",
+       "content": "Voditeljica Iva Kraljević u uvodu podcasta predstavlja svoju gošću Anu Papac, aktivnu članicu i koordinatoricu udruge Zdenac. Ana Papac u razgovoru dijeli svoja bogata iskustva s višemjesečnih misijskih putovanja u Afriku, točnije u Tanzaniju. Voditeljica ističe kako udruga Zdenac, osim u Tanzaniji, provodi hvalevrijedne projekte i u drugim dijelovima svijeta poput Konga, Ugande i Latinske Amerike, ali i u samoj Hrvatskoj te među hrvatskom dijasporom. Priče o djeci iz afričkih misija, koje udruga pomaže, duboko dotiču srce i ostavljaju snažan dojam na svakoga tko se s njima susretne.",
+       "keywords": [
+        "misije",
+        "humanitarni rad",
+        "predstavljanje",
+        "afričke priče"
+       ],
+       "entities": [
+        "Iva Kraljević",
+        "Ana Papac",
+        "Zdenac",
+        "Tanzanija",
+        "Kongo",
+        "Uganda",
+        "Latinska Amerika",
+        "Hrvatska"
+       ]
+      },
+      {
+       "subtitle": "Anin životni put i prvi susret s udrugom Zdenac",
+       "screenshot_timestamp": "00:02:45",
+       "screenshot_description": "Ana Papac opisuje svoj prvi susret s časnom sestrom Ljiljom Lončar u crkvi u Sigetu.",
+       "content": "Ana Papac opisuje svoj životni put koji je započeo u Vinkovcima, gdje je odrasla u velikoj i skladnoj obitelji. Nakon završetka srednje škole dolazi na studij prava u Zagreb, a prekretnica u njezinom životu događa se 2006. godine. U trenucima osobne krize i preispitivanja vlastitog životnog poziva na fakultetu, Ana u zagrebačkom naselju Siget, u Crkvi Sv. Križa, prisustvuje svjedočanstvu časne sestre i misionarke Ljilje Lončar. Sestra Ljilja, koja je provela 13 godina u Ekvadoru, tijekom svog govora uputila je pitanje prisutnima: 'Možda Bog baš nekoga od vas ovdje zove?'. Taj trenutak i osjećaj neopisive topline potaknuli su Anu da joj priđe i uključi se u rad udruge Zdenac, najprije kao vanjska suradnica, a potom i kao aktivna volonterka.",
+       "keywords": [
+        "životni put",
+        "poziv",
+        "misionarka",
+        "volontiranje"
+       ],
+       "entities": [
+        "Ana Papac",
+        "Vinkovci",
+        "Zagreb",
+        "Zdenac",
+        "Siget",
+        "Crkva Sv. Križa",
+        "Ljilja Lončar",
+        "Ekvador"
+       ]
+      },
+      {
+       "subtitle": "Volontiranje, duhovna priprema i tečaj 'Talent for You'",
+       "screenshot_timestamp": "00:08:15",
+       "screenshot_description": "Ana Papac objašnjava važnost duhovne pripreme i otkrivanja talenata kroz tečaj.",
+       "content": "U udruzi Zdenac volontiranje nadilazi puko odrađivanje fizičkih poslova i humanitarnih akcija. Ana Papac naglašava kako je od samih početaka iznimno važan segment bila duhovnost, evangelizacija i redoviti rad na sebi uz vodstvo duhovnika. Nakon razdoblja u kojem je bila manje aktivna zbog dislociranosti, Ana se 2018. godine ponovno snažnije povezuje s udrugom kada joj župnik u Vinkovcima nudi vođenje misijske skupine. Ključni trenutak za njezinu potpunu životnu transformaciju bio je tečaj 'Talent for You' u veljači 2022. godine. Taj intenzivni program pomogao joj je osvijestiti da su njezini talenti i potencijali na tadašnjem sigurnom poslu u državnoj tvrtki zapravo bili 'zakopani' i neiskorišteni za višu svrhu.",
+       "keywords": [
+        "duhovnost",
+        "evangelizacija",
+        "talenti",
+        "osobni rast"
+       ],
+       "entities": [
+        "Ana Papac",
+        "Zdenac",
+        "Vinkovci",
+        "Talent for You"
+       ]
+      },
+      {
+       "subtitle": "Prvi odlazak u Afriku na godišnji odmor i odluka o otkazu",
+       "screenshot_timestamp": "00:10:10",
+       "screenshot_description": "Ana govori o svom prvom putovanju u Afriku i odluci da napusti siguran posao.",
+       "content": "Nakon tečaja o talentima, Ana Papac donosi brzu odluku – moli svoju šeficu za korištenje cijelog godišnjeg odmora kako bi prvi put otputovala u Afriku. To putovanje 2022. godine opisuje kao svoje 'drugo, dublje obraćenje'. Iako je odrasla u praktičnoj katoličkoj obitelji, njezin osobni i autentični odnos s Bogom u potpunosti se oblikovao u afričkoj pustinji, među tamošnjom djecom i ljudima. Po povratku u Hrvatsku, unatoč strahovima i nerazumijevanju okoline te brizi roditelja za njezinu egzistenciju, Ana odlučuje ne produžiti ugovor u državnoj tvrtki. Osjećala je da njezino srce više ne pripada tom mjestu i da Bog za nju ima potpuno drugačiji, iako u tom trenutku neizvjestan put.",
+       "keywords": [
+        "godišnji odmor",
+        "obraćenje",
+        "otkaz",
+        "životna prekretnica"
+       ],
+       "entities": [
+        "Ana Papac",
+        "Afrika",
+        "Hrvatska"
+       ]
+      },
+      {
+       "subtitle": "Susret s Anom iz Tanzanije i preuzimanje projekta 'Učim živjeti s Bogom'",
+       "screenshot_timestamp": "00:13:45",
+       "screenshot_description": "Ana Papac opisuje suradnju s mladom Anom iz Tanzanije koja je posjetila Hrvatsku.",
+       "content": "Tijekom višemjesečnog razdoblja potrage za novim smjerom u životu, Ana Papac u Vinkovcima ugošćuje Anu iz Tanzanije. Riječ je o djevojci koja je kao siromašno siče odrasla u kućici od blata, a zahvaljujući programu udruge Zdenac završila je školovanje i postala ključna lokalna suradnica na terenu. Ana iz Tanzanije provela je godinu dana u Hrvatskoj, naučivši izvrstan hrvatski jezik u samo jedanaest mjeseci. Zajedno su obilazile škole, vrtiće i župe, svjedočeći o teškim uvjetima života u Africi. To zajedničko iskustvo potaknulo je sestru Ljilju Lončar da ponudi Ani Papac ulogu koordinatorice projekta 'Učim živjeti s Bogom', što je uključivalo i obvezu polugodišnjeg boravka u afričkim misijama.",
+       "keywords": [
+        "svjedočanstvo",
+        "suradnja",
+        "edukacija",
+        "solidarnost"
+       ],
+       "entities": [
+        "Ana Papac",
+        "Ana iz Tanzanije",
+        "Vinkovci",
+        "Zdenac",
+        "Hrvatska",
+        "Ljilja Lončar"
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ }
+}

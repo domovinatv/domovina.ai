@@ -1,0 +1,411 @@
+1
+00:00:06,630 --> 00:00:23,370
+[SPEAKER_00] Dobro. Lijep pozdrav svima, hvala što ste došli u ovako velikom broju. Sad imamo razloga znojiti, kad nećeš ništa raditi tu. Evo, puno hvala Hermanu Zvonimiru Došiloviću, on je i Valentini.
+
+2
+00:00:25,350 --> 00:00:28,890
+[SPEAKER_00] Herman je rekao: "Idemo napraviti neki ovakav event, kao,
+
+3
+00:00:30,390 --> 00:00:49,950
+[SPEAKER_00] pa idemo probati." I na ovaj način, evo, Senko i ja, probat ćemo pomaknuti, ono, granice. I da, ono, iako ta neka aplikacija gdje radimo nekakvu kopiju, Entria, Lume, čega god, je, ono, nije toliko reprezentativan, ali smo, ono, izmislili nešto pa da napravimo
+
+4
+00:00:51,390 --> 00:00:57,030
+[SPEAKER_00] nekakav vibe coding. Dok probamo napraviti tu Flutter aplikaciju,
+
+5
+00:00:58,350 --> 00:01:03,030
+[SPEAKER_00] Senko će na svom kompu, ovo je njegov ekran, probati, znači, klonati
+
+6
+00:01:04,650 --> 00:01:19,290
+[SPEAKER_00] sve s GitHuba. S obzirom da Senko ne radi inače Flutter, probat će s Claudeom instalirati sve CLI-eve i sve što treba. Evo, moje pitanje: tko je ikad koristio Claude?
+
+7
+00:01:19,290 --> 00:01:23,430
+[SPEAKER_00] Kod? Okej. Tko nije?
+
+8
+00:01:25,470 --> 00:01:29,430
+[SPEAKER_00] Dobro. Ali svi koristili neki AI. I,
+
+9
+00:01:30,870 --> 00:01:42,030
+[SPEAKER_00] ono, pretpostavljam da u svakodnevnom radu sve to koristite. I, ono, realno, znači, bilo koju sad aplikaciju koju mi sad radimo, puno brže bi napravili u miru doma.
+
+10
+00:01:43,230 --> 00:01:47,550
+[SPEAKER_00] Ali, evo, ideja je ovoga da ovo bude u stvari nekakvo nelinearno predavanje,
+
+11
+00:01:48,810 --> 00:02:03,030
+[SPEAKER_00] gdje se baš potiče da nas prekinete. Kad god možete, znači, reći: "E, zanima me to, ja sam skužio u svom radu prije 3 tjedna, e, ovo ti je bolje" i te neke stvari.
+
+12
+00:02:03,210 --> 00:02:17,010
+[SPEAKER_00] I jako bi bilo dobro da ljude koje ne poznajete pored sebe, da vidite na koji način u stvari možemo napraviti suradnju oko te neke, sad, AI revolucije, pa da onda na taj način...
+
+13
+00:02:17,130 --> 00:02:23,910
+[SPEAKER_00] zato smo se i okupili, ono, u stvarnom prostoru. I onda bi mi sad krenuli. Evo, Senko, pa daj ti isto koju riječ.
+
+14
+00:02:24,570 --> 00:02:39,210
+[SPEAKER_01] Evo, sad mislim da si sve rekao, ne znam šta bih još uopće dodao ovdje. Dakle, ono, bit će ovo interaktivna nekakva, interaktivni event, događaj, nemojte se sramiti pitati. Tko je došao s laptopom, tko želi, ono, kuckati i zajedno to s nama raditi, tu je
+
+15
+00:02:40,470 --> 00:02:56,370
+[SPEAKER_01] link na GitHub page, možete isto to downloadati, probati raditi pull requestove i slično. Tko se to ne da, može nam dovikivati promptove, šta da mi probamo, ili pitati, komentirati, i tako. Tako da, pitajte, komentirajte, ovo može biti, ono, onoliko interaktivno koliko želite.
+
+16
+00:02:56,490 --> 00:03:11,310
+[SPEAKER_01] Na kraju krajeva, cilj nam je tu da istražimo šta se sve može, šta se ne može, doći do granica, probati ih, probiti, naletjeti na zid, i svi zajedno naučiti nešto novo, podijeliti ta neka iskustva. A ako usput uspijemo napraviti tu aplikaciju, to će biti, ono, bonus nekako.
+
+17
+00:03:11,670 --> 00:03:25,290
+[SPEAKER_00] Tako je, da. A i u stvari je baš, ono, ideja da mi, ono, sad pustimo da se to printa, pa da vidimo kako to radi. Pripremili smo neke promptove, čisto da ne moramo gubiti vrijeme na tipkanje, tipfelere i ostalo.
+
+18
+00:03:26,730 --> 00:03:36,270
+[SPEAKER_00] Ali, kažem, bilo bi dobro da barem, ono, svakih 5-6 minuta netko postavi pitanje. I onda, ima li pitanja? Možda prije nego što krenemo?
+
+19
+00:03:36,390 --> 00:03:38,730
+[SPEAKER_02] A jeste li već napravili tu aplikaciju kao pripremu
+
+20
+00:03:38,790 --> 00:03:44,430
+[SPEAKER_00] za ovaj? Nismo. Znači, probali smo ju napraviti za ovim stolom prošli tjedan, ono...
+
+21
+00:03:45,990 --> 00:03:57,870
+[SPEAKER_00] Ma nije radilo, probali smo napraviti neke user testove za iOS, tu je bio iPad, i rekao: "Budemo to poklikali", Claude je u nekom trenutku zapeo, i odlučili smo ne donijeti iPad onda danas.
+
+22
+00:04:00,630 --> 00:04:07,170
+[SPEAKER_00] Da bude jednostavnije, znači, brže će raditi hot reload i sve ostalo na Androidu. Znači, na ovom tu uređaju ću ja raditi.
+
+23
+00:04:08,850 --> 00:04:23,250
+[SPEAKER_00] Screen sharing je instantno ovdje. I, ovo je sad moj iPhone, ali nećemo ga koristiti. I probat ćemo malo run-at na webu. Pa evo, znači, ima li još neko pitanje prije nego što krenemo?
+
+24
+00:04:23,490 --> 00:04:40,230
+[SPEAKER_00] I ideja je, znači, da ne da sad, onak, šutimo, nego kažem da što više prekinete, baš zato kad se već i jesmo okupili u stvarnom prostoru, pa da... jer, ono, mogli smo se spojiti svi online i to raditi, ali ovo u stvari nije toliko važno koliko je važno da
+
+25
+00:04:42,390 --> 00:04:49,470
+[SPEAKER_00] probamo sve te alate, a vjerujem da ih svi koristite svaki dan. Pa onda, evo, ideja je da, ono,
+
+26
+00:04:51,030 --> 00:04:52,110
+[SPEAKER_00] podijelimo iskustva.
+
+27
+00:04:53,310 --> 00:04:57,690
+[SPEAKER_03] Dobro. Koji je end goal? Kad si gotov? Što znači gotova aplikacija?
+
+28
+00:04:58,230 --> 00:05:20,430
+[SPEAKER_00] Pa, ne znamo, znači, kad će se to dogoditi, ali ideja je da, znači, ovaj event će trajati negdje, negdje do 8, 9, koliko će imati smisla. Jer realno, aplikacija kao takva je, ono, izmišljena, pa onda u stvari samo idemo vidjeti što možemo, kako da može Claude, ono, automatizirano pokretati
+
+29
+00:05:20,550 --> 00:05:33,210
+[SPEAKER_00] aplikaciju, commitati stvari semantički i sve ostale stvari. A kažem, glavna ideja je da Senko sa svog kompa pull-a source i to pokušava pokrenuti.
+
+30
+00:05:33,450 --> 00:05:39,750
+[SPEAKER_00] I zato u stvari možda nećemo puno niti raditi, ali vi prekidajte koliko možete, pa da onda možemo krenuti.
+
+31
+00:05:40,110 --> 00:05:48,330
+[SPEAKER_04] Imam samo jedno pitanje za uvod. A evo, baš za uvod, možda ste htjeli i adresirati: zašto Claude Code? Ne znam, GitHub Copilot, niti Gravity Code, niti
+
+32
+00:05:49,050 --> 00:05:54,810
+[SPEAKER_00] ništa. Može, evo, odlično pitanje. GitHub Copilot, ja sam, ono, koristio sam ga, ne znam, prije
+
+33
+00:05:56,370 --> 00:06:18,450
+[SPEAKER_00] koliko godina, kad je još bio, ono, najobičniji nekakav autocomplete u VS Codeu, i to je u stvari bio početak nekakvog AI-assisted codinga. Danas jedni druge kopiraju, to je nekakva mrtva utrka svih tih LLM-ova, par velikih kompanija, i realno, oni jedni druge prekopiravaju, što se vidjelo prije godinu dana kad
+
+34
+00:06:18,630 --> 00:06:38,730
+[SPEAKER_00] su Kinezi open-sourcali DeepSeek, koji je u stvari bio posnifani OpenAI. I sad, u stvari, cijela priča je takva da sad gledamo tko će biti bolji. Iako, realno, znači, svaki kad imamo i, ono, nekakve code gen alate, recimo Replit ili domaći Pitagora, jel imate nekoga iz Pitagore stola?
+
+35
+00:06:38,730 --> 00:06:51,390
+[SPEAKER_00] Evo, nema ih. Ono, stvar je u tome da imamo jednostavno gotovi Claude Code SDK, i za nekakav specific case pojednostaviti ljudima, uvijek možemo napraviti code gen ispred toga.
+
+36
+00:06:51,570 --> 00:07:01,110
+[SPEAKER_00] Pa samim time, vjerojatno, znači, i mnogi drugi koriste jedni druge u pozadini. Što se dosta i vidjelo sa tim nekakvim, ono, releaseovima kroz mjesece.
+
+37
+00:07:03,690 --> 00:07:06,990
+[SPEAKER_00] Tko, evo, tko preko godinu dana koristi Claude Code?
+
+38
+00:07:10,590 --> 00:07:12,210
+[SPEAKER_00] Neki drugi code gen alat?
+
+39
+00:07:13,530 --> 00:07:14,130
+[SPEAKER_04] Mislim, pristup ne, ali...
+
+40
+00:07:15,330 --> 00:07:15,630
+[SPEAKER_00] Okej.
+
+41
+00:07:18,630 --> 00:07:31,290
+[SPEAKER_01] Evo, imam i ja pitanje. Općenito, zapravo, kad se sad priča o code genu, dakle, imamo, ono, editore tipa, GitHub Copilot je bio plugin u VS Codeu, pa imamo Cursor, pa imamo Entity Gravity sad.
+
+42
+00:07:32,910 --> 00:07:44,430
+[SPEAKER_01] Tko od vas pretežno, ako koristite AI, koristi takav nekakvi IDE koji onda ima neki chat asistent u sebi? Dakle, ne Claude Code ili Codex, nego, ono, VS Code ili nešto, Cursor, Entity Gravity, pa onda AI ima u sebi.
+
+43
+00:07:46,350 --> 00:08:02,250
+[SPEAKER_01] Okej, a koliko pretežno Claude Code ili Codex ili Amp ili tako nešto? Dakle, tu smo negdje, ja bih rekao, možda pola-pola, ekipa koja koristi editore, pa onda AI unutar editora, ili ovaj, komandno-linijski, agentic-first, a onda editore tu možda sa strane.
+
+44
+00:08:02,850 --> 00:08:07,830
+[SPEAKER_05] Da budemo realni, jedno i drugo se koristi paralelno, jedno za jedno, jedno za drugo, nije baš sve na sve, jel
+
+45
+00:08:07,950 --> 00:08:09,330
+[SPEAKER_00] da? Tako je, da.
+
+46
+00:08:09,570 --> 00:08:12,090
+[SPEAKER_03] Ja imam Claude Code u terminalu u knjižarstvu.
+
+47
+00:08:15,150 --> 00:08:15,210
+[SPEAKER_00] Tako
+
+48
+00:08:15,390 --> 00:08:15,570
+[SPEAKER_02] je.
+
+49
+00:08:18,570 --> 00:08:18,750
+[SPEAKER_05] Onda
+
+50
+00:08:18,750 --> 00:08:18,750
+[SPEAKER_03] mogu editirati. Još
+
+51
+00:08:18,870 --> 00:08:21,450
+[SPEAKER_05] je i Codex sa strane, i još Atlas sa strane.
+
+52
+00:08:22,770 --> 00:08:25,650
+[SPEAKER_00] Da, evo, ja za Atlas nisam nikad ni čuo.
+
+53
+00:08:28,290 --> 00:08:51,030
+[SPEAKER_00] Ali recimo, evo, ne znam, znači, sad ćemo kodirati, ćemo tako da u stvari uzet ćemo Entity Gravity kao neki VS Code fork, kojeg je Google dodao u sve svoje agentic stvari, i opet su unutra svi LLM-ovi. Ideja je da iz terminala koristimo Claude Code koji će u stvari printati aplikaciju, a da onda na neki način možemo reviewati, gledati stable checkpointove
+
+54
+00:08:52,170 --> 00:08:59,610
+[SPEAKER_00] u Git-u, i gledati da li to ima smisla, nema smisla, da li treba promijeniti koju liniju, bar da imamo nekakvu kontrolu što se stvarno isprintalo.
+
+55
+00:08:59,970 --> 00:09:01,890
+[SPEAKER_05] A koji AI koristiš za code review?
+
+56
+00:09:04,650 --> 00:09:13,170
+[SPEAKER_00] S obzirom da većinu projekata, onak, radim sam, ili jedan na jedan sa klijentom, onda na neki način mi ispadne
+
+57
+00:09:14,850 --> 00:09:24,270
+[SPEAKER_00] najbolja kombinacija toga da, recimo, u Claude desktopu se napravi, ono, prazni project. Na taj project bilo kakvu datu može
+
+58
+00:09:25,590 --> 00:09:42,450
+[SPEAKER_00] klijent ubaciti unutra u bilo kakvoj slobodnoj formi. Ako, recimo, ne znam, recordamo neki meeting sa Whisper large modelom, ga transkriptiramo, ubacimo ga ponovo unutra da on sam to vrti, i onda opet uz te nekakve reg baze koju Anthropic handla pod svakim
+
+59
+00:09:44,250 --> 00:09:53,430
+[SPEAKER_00] projectom, se može raditi ta nekakva arhitekturalna specifikacija koja će malo po malo raditi stvari, a opet da ne ispljune puno toga što se sve raspadne.
+
+60
+00:09:55,230 --> 00:09:56,610
+[SPEAKER_00] Je li je tako slično iskustvo?
+
+61
+00:09:57,930 --> 00:09:58,530
+[SPEAKER_05] Small steps.
+
+62
+00:09:58,650 --> 00:10:06,090
+[SPEAKER_00] Da, small steps je upravo, ali ono, ono što nam daju svi ti AI coding alati je upravo to da imamo mogućnost
+
+63
+00:10:07,770 --> 00:10:19,710
+[SPEAKER_00] da, ono, tisuću linija na sat koje rade se mogu napraviti. Što je bilo nezamislivo, ono, svi mi smo na ruke godinama pisali, to je ono, kad je postojao.
+
+64
+00:10:20,130 --> 00:10:22,170
+[SPEAKER_06] Progooglaj, pa eto, Google je najavljivao.
+
+65
+00:10:22,230 --> 00:10:38,970
+[SPEAKER_00] Tako je, ali stack overflow je na kraju bio ono, progooglaj, pronađi, probaj, koliko ima upvoteova, pokreni, pa mi ne radi, pa. Copy-paste. Copy-paste, da. Ali na kraju, ono, stvarno to bude, realno to na kraju je ista stvar, samo je automatizirano.
+
+66
+00:10:39,810 --> 00:10:40,890
+[SPEAKER_00] Tako da, evo.
+
+67
+00:10:43,170 --> 00:10:51,450
+[SPEAKER_03] Imate neki base setup i kako ćemo učiti kod? Je li to neka ARP puzzle koju on sad priča? Kako idete? Da budete pametniji? Nemamo. Ili ste from scratch?
+
+68
+00:10:51,690 --> 00:10:56,550
+[SPEAKER_00] Znači, radimo from scratch, upravo zato da ovakva pitanja isplivaju
+
+69
+00:10:58,590 --> 00:11:14,130
+[SPEAKER_00] na vidjelo. Zato, jer nismo, ono, uložili sad da bi, ono, ubacili. Jedino što imamo, pustio sam na neki research jedan chat, kao, nek se napravi, evo, to možda možemo odmah krenuti, sa tim smo krenuli.
+
+70
+00:11:14,370 --> 00:11:18,210
+[SPEAKER_00] Evo, napravili smo empty project, stvarno ništa nema, niti jednog, ono,
+
+71
+00:11:19,950 --> 00:11:32,730
+[SPEAKER_00] nikakvog source-a unutra. I u nekom trenutku je samo rečeno, čak, ono, niti nekakav detaljni research, bilo je kao, okej, radimo, daj da napravimo nekakav clone Lume ili Entri-a. Pa onda da se napravi nekakav presjek.
+
+72
+00:11:33,450 --> 00:11:36,930
+[SPEAKER_05] Matej, daj malo veći font, ja sam čula, pa možda i nije
+
+73
+00:11:38,070 --> 00:11:41,070
+[SPEAKER_03] dobro.
+
+74
+00:11:41,190 --> 00:11:41,550
+[SPEAKER_00] Možda manje. Bolje?
+
+75
+00:11:41,730 --> 00:11:43,110
+[SPEAKER_07] Može manje, velik.
+
+76
+00:11:43,530 --> 00:11:44,010
+[SPEAKER_03] Malo manje.
+
+77
+00:11:44,550 --> 00:11:44,850
+[SPEAKER_08] Okej.
+
+78
+00:11:45,210 --> 00:11:48,510
+[SPEAKER_07] E, da li ćemo znati koliko smo novaca potrošili na kraju?
+
+79
+00:11:48,630 --> 00:12:00,630
+[SPEAKER_00] Tako je, odlično pitanje, i upravo zato ne radimo sa max planom. Znači, radimo sa pro planom, i to već ja cijeli ovaj mjesec ne radim sa max planom, da malo eksperimentiram.
+
+80
+00:12:01,470 --> 00:12:06,990
+[SPEAKER_00] Ono što možemo ovdje pokazati, znači, po tom pitanju billinga, da se i uziđe.
+
+81
+00:12:07,110 --> 00:12:08,130
+[SPEAKER_04] Koji je koji plan, samo?
+
+82
+00:12:08,670 --> 00:12:08,910
+[SPEAKER_00] Aha.
+
+83
+00:12:09,390 --> 00:12:10,830
+[SPEAKER_04] Ne znam napamet, koji je koji plan.
+
+84
+00:12:11,070 --> 00:12:11,250
+[SPEAKER_00] Da.
+
+85
+00:12:12,390 --> 00:12:14,490
+[SPEAKER_01] Pro je 20 dolara, max je 100 dolara.
+
+86
+00:12:15,210 --> 00:12:19,590
+[SPEAKER_00] Da, i max puta 20 je 180 eura, to je
+
+87
+00:12:19,650 --> 00:12:20,310
+[SPEAKER_01] to. Da, 200
+
+88
+00:12:20,310 --> 00:12:35,850
+[SPEAKER_00] eura. I ono što je, evo, zadnji session, što je u stvari isto dobro, pitanje. Tko od vas ne razumije ovo tu? Ili nikad nije vidio i nikad nije istraživao pricing uopće od AI-a, što je u stvari dosta...
+
+89
+00:12:35,850 --> 00:12:43,230
+[SPEAKER_00] Može, ali koji inače AI koristite? Znači, su sve u nekom free, ChatGPT, nešto?
+
+90
+00:12:43,410 --> 00:12:43,770
+[SPEAKER_09] Da, da.
+
+91
+00:12:44,310 --> 00:13:01,890
+[SPEAKER_00] Okej. Ja sam, znači, prvi put čuo za Claude Code kad je, ono, baš bio releasan prvi put, i nekih dva mjeseca, otprilike, je bila situacija da u stvari su naplaćivali, ono, isključivo API usage, što je bilo iznimno skupo.
+
+92
+00:13:01,950 --> 00:13:12,390
+[SPEAKER_00] Znači, ono, potrošilo se 200 dolara za sat vremena, što je, ono, bilo, a nije bila takva velika vrijednost. I prošli, je li to bilo prošle godine? Da, i onda, znači,
+
+93
+00:13:14,310 --> 00:13:30,630
+[SPEAKER_00] ne, ove godine je to bilo. Ove godine na ljeto su onda oni stavili i u subscription da je paušalno Claude Code dostupan, i bio je dostupan u pro planu. Pro plan, tko ga koristi nekako intenzivno svaki dan, vidi da brzo udari u zid.
+
+94
+00:13:30,990 --> 00:13:42,750
+[SPEAKER_00] Znači, iako ti session-i traju po 5 sati, 5 sati, tak nešto, nakon sat vremena intenzivnog rada to nije dovoljno. Nakon toga sam probao sa ovim max planom, koji je puta 5 usage,
+
+95
+00:13:44,070 --> 00:13:56,370
+[SPEAKER_00] dosta je dobar, međutim nije dovoljan za nekakav full paralelni rad, di se upali, ne znam, 5, 6, 7 agenata, odnosno Claude Code instanci, koje rade paralelno.
+
+96
+00:13:57,390 --> 00:14:11,610
+[SPEAKER_00] I koristio sam, znači, mjesecima max plan, ovaj puta 20, i onda se stvarno može raditi. Znači, to se, to, moj osjećaj je, ne znam je li od vas drugih isto takav, kao da vam netko dao 30 pari ruku.
+
+97
+00:14:11,730 --> 00:14:17,190
+[SPEAKER_00] Znači, u odnosu dvije godine prije i onih deset godina prije, kak se to prije radilo.
+
+98
+00:14:19,230 --> 00:14:22,770
+[SPEAKER_04] A onda si rekao da si sa maxa se vratio sad na pro, nisam skužio razlog.
+
+99
+00:14:22,950 --> 00:14:37,410
+[SPEAKER_00] Tako je, zbog ovog eventa. Znači, zbog ovog eventa, išli smo isprobati baš to, okej, kad udarim sa max planom, da vidim stvarno nakon koliko mi pro plan kaže više nisi uporabljiv, trebaš koristiti usage.
+
+100
+00:14:37,830 --> 00:14:42,690
+[SPEAKER_00] Evo ga, ovo je tu sad neka situacija, trenutni balance je, znači, 25
+
+101
+00:14:43,950 --> 00:14:52,590
+[SPEAKER_00] eura, sad smo to uplatili, i evo ga, znači, imamo, možemo napuniti ovaj session još do kraja, na koji način on mjeri te tokene, piše po...
+
+102
+00:14:53,430 --> 00:14:57,090
+[SPEAKER_04] To su, znači, taj extra usage je kao API costovi?
+
+103
+00:14:57,150 --> 00:15:13,290
+[SPEAKER_00] To su onda upravo API costovi, i onda u stvari kad se na mjesečnoj bazi, ako se koristi pro plan, i koristi se extra usage, to na kraju stvarno ispadne tu negdje, možda malo jeftinije, ali baš ako netko želi, ono, full, full, full,

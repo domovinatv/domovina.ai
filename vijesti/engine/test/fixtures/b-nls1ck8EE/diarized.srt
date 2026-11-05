@@ -1,0 +1,299 @@
+1
+00:00:01,710 --> 00:00:04,830
+[SPEAKER_00] Hvaljen Isus, Marija i sveti Josip, dragi prijatelji.
+
+2
+00:00:06,030 --> 00:00:23,790
+[SPEAKER_00] Ja sam Matija Stepanić i dobro došli u novu epizodu "Domovina TV-a". S nama je danas Goran Jeras, upravitelj Zadruge za etično financiranje već 12 godina i CEO EkoES-a, preko kojeg se trenutno osniva Europska etična banka.
+
+3
+00:00:24,690 --> 00:00:25,710
+[SPEAKER_00] Gorane, dobro došao.
+
+4
+00:00:26,250 --> 00:00:30,570
+[SPEAKER_01] Hvala, Matija, na pozivu i, naravno, dobar dan svim gledateljima i slušateljima.
+
+5
+00:00:32,190 --> 00:00:34,410
+[SPEAKER_00] Evo, ukratko, za početak:
+
+6
+00:00:35,970 --> 00:00:44,850
+[SPEAKER_00] kroz ovih 12 godina, kako bi ti to ispričao, koji je cijeli put bio ZEF-a i zašto ta cijela inicijativa?
+
+7
+00:00:45,330 --> 00:01:05,370
+[SPEAKER_01] Da, znači, ZEF, odnosno to je kratica za Zadrugu za etično financiranje, je prije 12 godina krenuo vrlo entuzijastično i ambiciozno u projekt za koji smo mislili da će biti više nalik sprintu nego maratonu, a poslije smo shvatili da zapravo trčimo maraton, a ne sprint.
+
+8
+00:01:05,670 --> 00:01:15,090
+[SPEAKER_01] A to je, glavna ideja je bila osnivanje Hrvatske etične banke, znači banke koja bi bila u vlasništvu svojih građana i koja bi
+
+9
+00:01:16,650 --> 00:01:20,130
+[SPEAKER_01] sve svoje financijske instrumente stavila na raspolaganje i koristila za
+
+10
+00:01:21,630 --> 00:01:38,070
+[SPEAKER_01] neko opće dobro, odnosno razvoj lokalne ekonomije, stvaranje nove dodane vrijednosti koja će povećavati kvalitetu života ljudi u Hrvatskoj. Zašto smo mislili da ćemo trčati sprint? Pa zato jer to nije neki novi model, to je model etičnog bankarstva koji, ja bih rekao, je
+
+11
+00:01:39,270 --> 00:01:52,530
+[SPEAKER_01] tradicionalan. Banke su nastale kao kolektivne institucije u vlasništvu građana, obrtnika, poljoprivrednika, znači svih onih koji su udruživali svoja sredstva da bi time kolektivno ostvarivali svoje interese, i nisu bile
+
+12
+00:01:54,030 --> 00:02:02,310
+[SPEAKER_01] ovakav ekstrakcijski bankarski model kao što imamo danas. Tako da smo mislili da ćemo na tim iskustvima
+
+13
+00:02:03,630 --> 00:02:16,590
+[SPEAKER_01] postojećih etičnih banaka iz Europe i svijeta, i osviještenošću građana koja je nastala, između ostalog, zahvaljujući i udrugom Franak u tom trenutku, znači kad smo mi kretali, to je bila 2014. godina, kada su ljudi prvi put počeli
+
+14
+00:02:17,850 --> 00:02:30,090
+[SPEAKER_01] se preispitivati i razmišljati o tome da li je bankarstvo koje imaju to koje radi u njihovom interesu ili ne radi, na koji način funkcionira, da li ostvaruje ono što bi trebalo ostvarivati kao svoju ulogu u društvu.
+
+15
+00:02:31,230 --> 00:02:53,430
+[SPEAKER_01] I tu smo, evo, tu smo krenuli s tim ciljem i dan-danas u njemu ustrajemo, ali cilj je postao i puno širi od toga. Znači, zadruga je danas organizacija koja povezuje pojedince, poduzeća, udruge, javna tijela koja jednostavno žele održivu, pravednu ekonomiju u Hrvatskoj, koja će naše
+
+16
+00:02:53,610 --> 00:03:01,530
+[SPEAKER_01] vlastite resurse, naša vlastita sredstva stavljati u funkciju našeg lokalnog razvoja, a ne slati na Wall Street i druge spekulativne
+
+17
+00:03:03,390 --> 00:03:13,770
+[SPEAKER_01] investicije, što zapravo danas imamo, i gdje financijski sustav crpi supstancu, crpi vrijednost koju društvo inače ima.
+
+18
+00:03:14,730 --> 00:03:20,250
+[SPEAKER_00] Odlično. Evo, hvala za odličan uvod. Ti si inače po struci...
+
+19
+00:03:20,310 --> 00:03:40,170
+[SPEAKER_01] Ja sam fizičar i spletom okolnosti sam završio u bankarstvu, znači nisam nikad bio formalno obrazovan za financije i ekonomiju. Međutim, praktički još za vrijeme studija počeo sam raditi za jednu konzalting kuću, veliku konzalting kuću koja je tada otvarala ured u Zagrebu, McKinsey& Company.
+
+20
+00:03:41,550 --> 00:03:48,390
+[SPEAKER_01] To me zainteresiralo i za neki svijet koji mi je do tad bio nepoznat, općenito biznisa, poslovanja,
+
+21
+00:03:49,650 --> 00:03:57,270
+[SPEAKER_01] konzaltinga za optimizaciju poslovnih procesa i slično. I nekako vrlo brzo kroz taj konzalting sam
+
+22
+00:03:59,010 --> 00:04:01,770
+[SPEAKER_01] završio i radeći u Nizozemskoj, gdje sam
+
+23
+00:04:03,090 --> 00:04:09,450
+[SPEAKER_01] počeo raditi za jednu malu konzalting, ajmo reći boutique konzalting firmu, u kojoj su uglavnom klijenti bile
+
+24
+00:04:11,190 --> 00:04:22,350
+[SPEAKER_01] banke i osiguravajuća društva, znači financijski sektor. I tu sam počeo učiti sve što danas znamo o bankarstvu i financijama, praktički kroz posao. Znači, prvo sam bio
+
+25
+00:04:23,790 --> 00:04:30,510
+[SPEAKER_01] zadužen za dizajniranje softvera, specijaliziranog softvera za bankarstvo,
+
+26
+00:04:31,770 --> 00:04:54,210
+[SPEAKER_01] jer imao sam nešto iskustva s programiranjem, s razumijevanjem kako tehnologija, softverska tehnologija funkcionira. Međutim, onda kako se razvijala, kako je došla ona financijska kriza 2008. i 2009. godine, onda sam se počeo baviti bankarskim rizicima i tu sam prvi put počeo shvaćati, razumijevati što se događa ispod haube
+
+27
+00:04:54,330 --> 00:05:07,710
+[SPEAKER_01] u tom bankarstvu i kako je to inherentno neodrživ sustav. I tu mi je zapravo to obrazovanje fizičara pomoglo da sve što sam učio o bankarstvu i financijama uvijek stavljam u kontekst
+
+28
+00:05:09,750 --> 00:05:22,770
+[SPEAKER_01] fizikalnih zakona, održivosti u smislu prirodnih granica koje na planetu postoje oko ekstrakcije resursa. I nikako mi nije bilo jasno kako ekonomija i financije ne vide da,
+
+29
+00:05:25,710 --> 00:05:35,250
+[SPEAKER_01] kao prvo, postoje ograničenja i limiti rasta, a kao drugo, da model koji danas imamo, ovog neoliberalnog kapitalizma, zapravo
+
+30
+00:05:37,230 --> 00:05:39,630
+[SPEAKER_01] dovodi do toga da nužna posljedica
+
+31
+00:05:41,130 --> 00:05:46,170
+[SPEAKER_01] njegovog daljnjeg razvoja je povećanje nejednakosti, da on cijelo vrijeme
+
+32
+00:05:47,550 --> 00:06:00,870
+[SPEAKER_01] iscrpljuje supstancu od onih koji su slabiji u tom lancu i akumulira bogatstvo kod onih koji su jači u tom lancu, i da ne može dovesti do dobrih ishoda niti za ljude niti za planet na neki duži rok.
+
+33
+00:06:01,770 --> 00:06:06,390
+[SPEAKER_00] Pa da, i u stvari jedini pravi novac koji se u
+
+34
+00:06:07,830 --> 00:06:10,350
+[SPEAKER_00] našem opticaju je u stvari državni novac.
+
+35
+00:06:10,950 --> 00:06:26,070
+[SPEAKER_01] Da, ljudi, jedini pravi novac, to je zapravo pitanje što je uopće novac. Ljudi često idu na razne tečajeve financijske pismenosti, pa im se tamo objašnjava, ne znam, koja je razlika ulaganja u obveznice ili ETF-ove, ili ne znam, dionice, ili nekakve
+
+36
+00:06:27,330 --> 00:06:49,410
+[SPEAKER_01] špekulativnije fondove ili kripto. Međutim, nekako vrlo malo ljudi uopće zna što je to novac, ako se gleda sama neka, ono, ljudi novac doživljavaju kao vrijednost, doživljavaju ga kao nešto što ima neku svoju zadatost, ne razmišljaju da je novac, ono, ne predstavlja neku objektivnu
+
+37
+00:06:49,410 --> 00:06:58,710
+[SPEAKER_01] vrijednost, nego i novac i ekonomija i financijski sustav koji imamo su naš društveni dogovor. Znači, mi kao zajednica smo se dogovorili da ćemo funkcionirati na određeni način.
+
+38
+00:07:00,510 --> 00:07:19,050
+[SPEAKER_01] Počeli smo definirati pravila toga, i definiranjem pravila toga smo došli do toga što danas imamo. Međutim, trebamo biti svjesni da je to kao i board game, samo jedan set mogućih pravila, da mi možemo kao društvo zamisliti potpuno drugačiji board game, odnosno potpuno drugačiji set i ekonomskih i financijskih pravila.
+
+39
+00:07:19,410 --> 00:07:26,970
+[SPEAKER_01] I da po ovim pravilima koje danas imamo, novac je zapravo krenuo kao dug. Novac nije krenuo kao vrijednost, nego novac je kroz sezonalnost
+
+40
+00:07:28,590 --> 00:07:45,090
+[SPEAKER_01] trampe, znači ono, razmjene, došlo do toga da nisu svi proizvodi koji se razmjenjuju uvijek dostupni u istom trenutku, i da onda dolazi do odnosa koji su odnosi dugovanja, ono što se na engleskom kaže IOU, i da ti
+
+41
+00:07:46,890 --> 00:07:59,010
+[SPEAKER_01] odnosi međusobnih, znači društvenih odnosa dugovanja, odnosno nekakve protučinidbe, su ti koji su evoluirali u ono što danas znamo kao novac. Međutim, oni su se potpuno
+
+42
+00:08:00,450 --> 00:08:23,010
+[SPEAKER_01] apstrahirali, oni više nemaju nikakve veze. Kad kažeš da je jedini novac zapravo novac koji daje država, to je istina, jer je to jedini novac gdje ti znaš da postoji nekakav set međusobnih odnosa koji će kontinuirano trajati i nije nužno oportunističko-tržišni, nego koji ljudi na određenom području moraju imati da bi uopće mogli međusobno
+
+43
+00:08:23,130 --> 00:08:37,890
+[SPEAKER_01] surađivati i opstajati. A danas taj novac i taj odnos novca kao duga je postao toliko apstraktan da se novac, ono, kreira putem komercijalnih banaka,
+
+44
+00:08:39,270 --> 00:08:58,950
+[SPEAKER_01] da su količine tog novca koje se kreiraju uglavnom spekulativnog, većina tog novca je znači spekulativnog, kockarskog, doslovno karaktera, i da više nema nikakve veze niti odnosa niti s nekim realnim protučinidbama, niti realnim vrijednostima što ljudi unutar neke zajednice imaju.
+
+45
+00:08:59,010 --> 00:09:03,390
+[SPEAKER_01] Znači, postao je totalni apstrakt, a njegova vrijednost i mogućnost tog
+
+46
+00:09:04,830 --> 00:09:18,930
+[SPEAKER_01] novca koji emitiraju banke se opet nekim dogovorom koji nije bio demokratski, u kojem nismo sudjelovali, izjednačila s tim novcem koji su inicijalno kreirale zajednice, odnosno države samostalno.
+
+47
+00:09:19,050 --> 00:09:31,230
+[SPEAKER_01] I to je stvarno problem. Mi smo danas u ogromnoj krizi novca, jer je novac prestao biti novac, izgubio je sve svoje osnovne karakteristike koje po svakoj, ono, ajmo reći, udžbeničkoj definiciji novca bi trebao imati.
+
+48
+00:09:31,950 --> 00:09:44,310
+[SPEAKER_00] I komercijalne banke? U stvari, likvidnost je nešto, dok je emitirani, odnosno novac kroz kreditnu politiku, sasvim drugi novac, ima ga mnogo više.
+
+49
+00:09:45,030 --> 00:09:57,630
+[SPEAKER_00] I ono, većina ljudi, ono, ima nekakvu logiku: aha, imamo štediše i imamo na neki način ljude koji podignu kredit i to vraćaju. Međutim, to nije jedan za jedan.
+
+50
+00:09:57,990 --> 00:10:02,970
+[SPEAKER_00] Ako bi mogao objasniti gledateljima na koji način se radi ekspanzija.
+
+51
+00:10:03,570 --> 00:10:26,190
+[SPEAKER_01] Da, znači, ljudi često misle, i to je ta teorija koja je nekako ljudima možda najintuitivnija, intermediationa ili kako bi se to reklo, da su banke zapravo samo posrednici koji posreduju između štediša koji stavljaju novac na štednju i ljudi koji trebaju taj novac pa ga posuđuju uz kredite.
+
+52
+00:10:26,670 --> 00:10:42,150
+[SPEAKER_01] Međutim, to nije tako i to je i empirijski dokazano da nije tako. Međutim, i dalje je nekako se zadržalo vjerovanje da je to način na koji bankarstvo funkcionira. Međutim, bankarstvo ima jedan vrlo zanimljiv trik, a to je trik da
+
+53
+00:10:43,530 --> 00:10:50,850
+[SPEAKER_01] ako, recimo, imamo krug od, ne znam, tri osobe, jedna prva osoba je ta koja je stavila nekakvu štednju u banku i onda ona kupi,
+
+54
+00:10:52,410 --> 00:11:06,270
+[SPEAKER_01] onda banka izda kredit drugoj osobi koja želi nešto kupiti i ta druga osoba od treće kupi stvari i ta treća osoba kad to ponovo stavi taj novac u banku, ako je to, recimo, radi jednostavnosti, ista banka
+
+55
+00:11:08,190 --> 00:11:30,450
+[SPEAKER_01] iz koje je originalno došla štednja, banka ne zna da je to taj već posuđeni novac. Banka to vidi kao novi novac. Znači, banka sad odjednom misli da u opticaju postoji, ako je ono inicijalno bilo 100 kuna ili eura, i sad su te 100 kuna napravile krug, banka kad ponovo dobije od treće osobe novi depozit, misli da je to novih 100 eura i da sad ima 200
+
+56
+00:11:30,510 --> 00:11:47,250
+[SPEAKER_01] eura u opticaju. I onda tih novih 100 eura može posuditi nekoj četvrtoj osobi koja, ako se ponovo zatvori isti krug, će banka opet pomisliti: a, to je opet došlo novih 100 eura koje mogu dalje plasirati. I tim računovodstvenim trikom, na neki način, i to je ono što se uči i
+
+57
+00:11:48,510 --> 00:12:01,950
+[SPEAKER_01] u monetarnoj politici i bankarstvu, se stvara taj efekt takozvanog bankarskog multiplikatora koji omogućava da banka jednu te isti novac posudi, odnosno plasira u sustav više puta.
+
+58
+00:12:02,790 --> 00:12:13,290
+[SPEAKER_01] Međutim, ono što je tu sad postao pravi problem je da izjednačavanjem tog kreditnog novca s ovim realnim emitiranim novcem, banke u trenutku kada
+
+59
+00:12:15,210 --> 00:12:27,990
+[SPEAKER_01] im ponestane, ajmo reći, pravog novca, uvijek mogu posuditi taj izmišljeni bankarski novac, kreditni novac od drugih banaka. I tu se zapravo stvara jedna spirala koja nema kraja.
+
+60
+00:12:28,050 --> 00:12:50,490
+[SPEAKER_01] Znači, banke doslovno mogu neograničeno, dok god su jedne drugima voljne posuđivati virtualni kreditni novac, mogu tu ekspanziju raditi neograničeno i mogu kreirati ogromne neograničene sume virtualnog izmišljenog novca koji nema nikakvu stvarnu podlogu u niti realnim vrijednostima, a često niti u realnim ekonomskim
+
+61
+00:12:50,610 --> 00:12:53,190
+[SPEAKER_01] aktivnostima, nego koristi se za
+
+62
+00:12:54,630 --> 00:12:58,470
+[SPEAKER_01] spekulativno bogaćenje na tržištima kapitala, najčešće.
+
+63
+00:12:58,650 --> 00:13:09,450
+[SPEAKER_00] Pa u stvari postoje ipak neki limiti. Basel 3 standard, na kraju, ono kad centralna banka propiše HNB, to je negdje oko 12%?
+
+64
+00:13:09,870 --> 00:13:28,230
+[SPEAKER_01] 12% u Hrvatskoj, međutim, recimo, centralna banka Engleske nema taj limit, tamo je 0%, što malo ljudi zna. Znači, tamo nemaju te obavezne rezerve. I te obavezne rezerve su i dalje u teoriji, bankarskoj teoriji, nekakav osigurač koji kao onemogućava da se banke to rade u nedogled.
+
+65
+00:13:28,410 --> 00:13:31,170
+[SPEAKER_01] Međutim, to je također dokazano da upravo kroz ove,
+
+66
+00:13:33,870 --> 00:13:38,010
+[SPEAKER_01] ajmo reći, kvazi kapitalne instrumente, odnosno instrumente gdje banke
+
+67
+00:13:39,990 --> 00:13:42,690
+[SPEAKER_01] s dobrim kreditnim rejtingom mogu
+
+68
+00:13:44,250 --> 00:13:46,590
+[SPEAKER_01] dugoročno posuđivati novce jedni drugima,
+
+69
+00:13:48,210 --> 00:13:52,350
+[SPEAKER_01] se i taj limit gdje postoji može također zaobići. Znači,
+
+70
+00:13:54,510 --> 00:14:04,470
+[SPEAKER_01] te obavezne rezerve koje se propisuju centralnim bankarskim sustavom, one ne moraju uvijek biti u pravom novcu. Znači, banke čak i po Basel 3 standardu
+
+71
+00:14:05,850 --> 00:14:27,270
+[SPEAKER_01] prihvaćaju da su te rezerve u nekakvim, ne znam, ono, dugoročnim financijskim instrumentima koji su dovoljno likvidni da služe kao kapital. Tako da dosta i dalje širok set, ajmo reći, virtualnih financijskih instrumenata se pod određenim okolnostima može tretirati kao kapital koji onda dolazi u računicu
+
+72
+00:14:29,010 --> 00:14:36,450
+[SPEAKER_01] tog postotka. Tako da u praksi banke mogu zaobilaziti i te limite koji postoje od strane mnogih centralnih banaka.
+
+73
+00:14:37,710 --> 00:14:48,990
+[SPEAKER_00] Vrlo zanimljivo. A i u stvari banke imaju tu nekakvo baš ono ekskluzivno pravo da one jedine smiju deponirati
+
+74
+00:14:50,550 --> 00:14:57,630
+[SPEAKER_00] sumu svih tih depozita kod centralne banke za koju dobivaju prinos iz državnog proračuna 2%.
+
+75
+00:14:57,990 --> 00:15:14,490
+[SPEAKER_01] To je sada u ovim okolnostima tako. Znači, taj prinos koji banke dobijaju ovisi o toj, kako se to kaže, ono, temeljnoj kamatnoj stopi. Znači, to je kamatna stopa koja je osnovni element svake monetarne politike, znači centralne banke, ovisno o

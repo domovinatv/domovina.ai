@@ -1,0 +1,70 @@
+{
+ "version": "1.0",
+ "generated_at": "2026-10-31T03:51:06.486Z",
+ "id": "iva_kraljevic",
+ "name": "Iva Kraljevic",
+ "avatar_square": "https://cdn.domovina.ai/channels/images/iva_kraljevic/avatar_square.jpg",
+ "avatar_square_dimensions": null,
+ "avatar_cover": "https://cdn.domovina.ai/channels/images/iva_kraljevic/avatar_cover.jpg",
+ "avatar_cover_dimensions": {
+  "width": 1060,
+  "height": 175
+ },
+ "youtube_channel_url": "https://www.youtube.com/channel/UCT6Sx8T7walJ0dpOgqHllkw",
+ "youtube_playlist_url": null,
+ "description": "Bok, ja sam Iva. Majka dvaju dječaka i supruga jednog muža. Ipak, ovdje sam u ulozi starije sestre. \nIskreno, ali opušteno govorim o bitnim temama. \nUz kavu, naravno! ;)\n\n možeš me podržati na Patreonu https://www.patreon.com/c/IvaKraljevic\nSnimam potpuno neovisno, vlastitom opremom, s puno ljubavi i truda.\nTvoja podrška mi je bitna! Hvala 🤍",
+ "tags": [],
+ "follower_count": 37700,
+ "video_count": 67,
+ "total_duration_seconds": 304827,
+ "avg_magisterium_score": 85,
+ "latest_video_date": "2026-10-30",
+ "videos": [
+  {
+   "id": "P9sLks-f2mQ",
+   "title": "\"Djeca koja jedu samo brašno i vodu\" Ana Papac, Udruga Zdenac",
+   "title_hr": "Djeca koja jedu samo brašno i vodu - Ana Papac, Udruga Zdenac",
+   "date": "2026-06-26",
+   "duration_seconds": 4982,
+   "duration_display": "1:23:02",
+   "views": 3876,
+   "likes": 210,
+   "thumbnail": "https://cdn.domovina.ai/images/P9sLks-f2mQ/thumbnail.png",
+   "youtube_url": "https://www.youtube.com/watch?v=P9sLks-f2mQ",
+   "abstract": "U 47. epizodi podcasta voditeljica Iva Kraljević ugošćuje Anu Papac, pravnicu i djelatnicu hrvatske Udruge Zdenac. Ana dijeli svoju osobnu životnu priču, od studija prava i krize na fakultetu do dubokog duhovnog obraćenja i odlaska u misije. Kroz razgovor se detaljno opisuje djelovanje udruge u Tanzaniji, teški uvjeti u kojima djeca žive te važnost obrazovanja, kumstava i dugoročne humanitarne pomoći.",
+   "topics": [
+    "humanitarni rad",
+    "misije u africi",
+    "tanzanija",
+    "kumstva za djecu",
+    "duhovnost",
+    "volontiranje",
+    "obrazovanje"
+   ],
+   "speakers": [
+    {
+     "id": "SPEAKER_00",
+     "suggested_name": "Iva Kraljević",
+     "role": "voditelj"
+    },
+    {
+     "id": "SPEAKER_01",
+     "suggested_name": "Ana Papac",
+     "role": "gost"
+    }
+   ],
+   "magisterium_score": null,
+   "pipeline": {
+    "has_transcript": true,
+    "has_diarized": true,
+    "has_summary": true,
+    "has_article": true,
+    "has_magisterium": false,
+    "has_translation_en": false,
+    "has_summary_en": false,
+    "has_article_en": false,
+    "has_magisterium_en": false
+   }
+  }
+ ]
+}

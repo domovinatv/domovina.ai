@@ -1,0 +1,67 @@
+{
+ "refreshed_at": "2026-11-05T18:43:32.277Z",
+ "limit_ms": 900000,
+ "fixtures": [
+  {
+   "id": "pIx_7N-6HJ4",
+   "criterion": "words",
+   "reason": "mreze_rijeci, 32 min, 2 govornika; words.json (soniox, anchored 1), 178/179 cueova s poklapanjem broja riječi",
+   "channel": "mreze_rijeci",
+   "files": {
+    "episode.json": 25174,
+    "diarized.srt": 15321,
+    "words.json": 29627
+   },
+   "totalBytes": 70122
+  },
+  {
+   "id": "P9sLks-f2mQ",
+   "criterion": "no_words",
+   "reason": "iva_kraljevic, 83 min, 2 govornika; bez words.json (stariji katalog), članak gemini-3.5-flash",
+   "channel": "iva_kraljevic",
+   "files": {
+    "episode.json": 13005,
+    "diarized.srt": 15581
+   },
+   "totalBytes": 28586
+  },
+  {
+   "id": "x3w2BVZJ9vQ",
+   "criterion": "english",
+   "lang": "en",
+   "reason": "catholic_futurist, 21 min; diarized.srt je HRVATSKI prijevod, izvorni engleski je diarized.en.srt + words.en.json; summary/article na hrvatskom",
+   "channel": "catholic_futurist",
+   "files": {
+    "episode.json": 28254,
+    "diarized.srt": 20314,
+    "diarized.en.srt": 20647,
+    "words.en.json": 40102
+   },
+   "totalBytes": 109317
+  },
+  {
+   "id": "MGLq9v3AtvE",
+   "criterion": "many_speakers",
+   "reason": "CroAI Code Club (summary.source.channel = _unlisted, listing domovina_tv), 12 govornika u SRT-u, 10 u prvih 15 min; ujedno 2 h 11 min s words.json",
+   "channel": "_unlisted",
+   "files": {
+    "episode.json": 23798,
+    "diarized.srt": 17041,
+    "words.json": 33435
+   },
+   "totalBytes": 74274
+  },
+  {
+   "id": "b-nls1ck8EE",
+   "criterion": "long",
+   "reason": "domovina_tv, 2 h 41 min, 4 iteracije članka; words.json (soniox), 782/782 cueova se poklapa",
+   "channel": "_unlisted",
+   "files": {
+    "episode.json": 24317,
+    "diarized.srt": 15760,
+    "words.json": 29656
+   },
+   "totalBytes": 69733
+  }
+ ]
+}

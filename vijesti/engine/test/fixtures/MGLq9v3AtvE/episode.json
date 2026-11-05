@@ -1,0 +1,389 @@
+{
+ "version": 1,
+ "generated_at": "2026-11-05T18:38:13Z",
+ "files": [
+  "article.json",
+  "article.magisterium.json",
+  "book.epub",
+  "diarized.srt",
+  "info.json",
+  "outline.json",
+  "reels.json",
+  "screenshots_webp.json",
+  "sponsors_in_video.json",
+  "summary.json",
+  "video_h264.mp4",
+  "words.json"
+ ],
+ "inline": {
+  "info.json": {
+   "id": "MGLq9v3AtvE",
+   "title": "cc_01 | Building a Real-Time Event Ticketing App: Senko Rašić & Matija Stepanić (CroAI Code Club)",
+   "thumbnail": "https://i.ytimg.com/vi/MGLq9v3AtvE/maxresdefault.jpg",
+   "description": "Dobrodošli na prvu snimku CroAI Code Cluba (cc_01), nove inicijative unutar Hrvatske udruge za umjetnu inteligenciju (CroAI) namijenjene developerima i tech entuzijastima.\n\nU ovoj \"hands-on\" sesiji, Senko Rašić i Matija Stepanić demonstriraju razvoj aplikacije za prodaju ulaznica u stvarnom vremenu koristeći Flutter, Firebase i moderne AI coding alate.\n\n🚀 O čemu smo pričali:\nAI code modeli su u posljednjih godinu dana evoluirali od \"drobljenja\" koda s bugovima do alata koji uz dobar prompt štede tjedne rada. Čak su i Nasini inženjeri koristili Claude za Perseverance rover na Marsu prošlog prosinca! No, kako izbjeći hype i pisati optimiziran kod?\n\n💡 Ključni uvid s meetupa:\n\nSenko Rašić: Hands-on iskustvo s Claude patternima i izazovi code reviewa u AI workflowima.\n\nMatija Stepanić: Demo FlutterFlow i DreamFlow platformi za brzo generiranje sučelja (feng shui za inženjere).\n\nIteracija s klijentima: Kako potaknuti klijente da sami koriste AI za planiranje rješenja (cowork mode).\n\nAlati: Iskustva s MCP integracijama (DesktopCommander, Linear), V0 i Lovable.\n\n🤝 Organizacija i podrška:\nOvaj video je snimka ekrana uživo (screensharing) s meetupa održanog u organizaciji CroAI (Croatian AI Association). Snimka je nastala uz tehničku podršku i resurse platforme DOMOVINA.tv.\n\nHvala Hermanu Zvonimiru Došiloviću za iniciranje ove važne developerske inicijative.\n\n🔗 Poveznice:\n\nCroAI: https://www.croai.org/\n\nDOMOVINA.tv: Pretplatite se za više sadržaja o vjeri, domoljublju i tehnologiji.\n\n#ai #flutter #croai #coding #domovinatv #croatia #softwaredevelopment #claude #gemini",
+   "channel_id": "UCXXhnehl2pss0uYdfLRDtyw",
+   "duration": 7899,
+   "webpage_url": "https://www.youtube.com/watch?v=MGLq9v3AtvE",
+   "tags": [],
+   "playable_in_embed": true,
+   "channel": "DOMOVINA",
+   "uploader": "DOMOVINA",
+   "upload_date": "20260226",
+   "timestamp": 1772111949
+  },
+  "summary.json": {
+   "version": "1.0",
+   "generated_at": "2026-11-05T18:14:49.111Z",
+   "model": "claude-code:opus",
+   "source": {
+    "filename": "20260226_cc_01_building_a_real_time_event_ticketing_app_senko_rasic_matija_stepanic_croai_code_club_yt_MGLq9v3AtvE",
+    "channel": "_unlisted",
+    "youtube_id": "MGLq9v3AtvE",
+    "title": "cc_01 | Building a Real-Time Event Ticketing App: Senko Rašić & Matija Stepanić (CroAI Code Club)",
+    "upload_date": "2026-02-26",
+    "duration_seconds": 7899,
+    "platform": "youtube",
+    "source_url": "https://www.youtube.com/watch?v=MGLq9v3AtvE",
+    "yt_matched": null,
+    "local_file": false
+   },
+   "summary": {
+    "title_hr": "cc_01 | Izrada aplikacije za prodaju ulaznica u stvarnom vremenu: Senko Rašić i Matija Stepanić (CroAI Code Club)",
+    "abstract_hr": "Snimka prvog susreta CroAI Code Cluba. Matija Stepanić i Senko Rašić uživo i interaktivno s publikom pokušavaju od nule izraditi Flutter aplikaciju za prodaju ulaznica, nalik na Lumu ili Entrio, uz pomoć alata Claude Code i Antigravity te Firebasea. Uz demonstraciju se razvila rasprava o cijenama AI planova, pregledu (reviewu) AI-generiranog koda, regulativi Europske unije i ljudskom nadzoru, odabiru modela za planiranje i pisanje koda te korištenju skillova, MCP servera i lokalnih modela. Tijekom demonstracije došlo je do potrošnje limita Pro plana, problema s dostupnošću servisa i poteškoća s Firebase autentifikacijom. Aplikacija je na kraju pokrenuta na Android uređaju, ali prijava putem Googlea nije proradila zbog nedovršene konfiguracije.",
+    "key_topics": [
+     "ai alati za programiranje",
+     "claude code i antigravity",
+     "razvoj flutter aplikacija",
+     "pregled ai-generiranog koda",
+     "cijene i limiti ai planova",
+     "regulativa i ljudski nadzor u eu",
+     "rad s klijentima i specifikacija",
+     "mcp serveri i skillovi"
+    ],
+    "speakers": [
+     {
+      "id": "SPEAKER_00",
+      "suggested_name": "Matija Stepanić",
+      "role": "voditelj"
+     },
+     {
+      "id": "SPEAKER_01",
+      "suggested_name": "Senko Rašić",
+      "role": "voditelj"
+     },
+     {
+      "id": "SPEAKER_02",
+      "suggested_name": "Gost 1",
+      "role": "sugovornik"
+     },
+     {
+      "id": "SPEAKER_03",
+      "suggested_name": "Gost 2",
+      "role": "sugovornik"
+     },
+     {
+      "id": "SPEAKER_04",
+      "suggested_name": "Gost 3",
+      "role": "sugovornik"
+     },
+     {
+      "id": "SPEAKER_05",
+      "suggested_name": "Gost 4",
+      "role": "sugovornik"
+     },
+     {
+      "id": "SPEAKER_06",
+      "suggested_name": "Gost 5",
+      "role": "sugovornik"
+     },
+     {
+      "id": "SPEAKER_07",
+      "suggested_name": "Gost 6 (odvjetnica)",
+      "role": "sugovornik"
+     },
+     {
+      "id": "SPEAKER_08",
+      "suggested_name": "Gost 7",
+      "role": "sugovornik"
+     },
+     {
+      "id": "SPEAKER_09",
+      "suggested_name": "Gost 8",
+      "role": "sugovornik"
+     },
+     {
+      "id": "SPEAKER_10",
+      "suggested_name": "Gost 9",
+      "role": "sugovornik"
+     },
+     {
+      "id": "SPEAKER_11",
+      "suggested_name": "Gost 10",
+      "role": "sugovornik"
+     }
+    ],
+    "key_points": [
+     "Matija Stepanić navodi da AI alati omogućuju generiranje tisuću linija koda na sat te da je rad s Max planom (x20) usporedio s time da je dobio 30 pari ruku. Pro plan pri intenzivnom radu brzo dosegne limit, što se dogodilo i tijekom samog eventa.",
+     "Senko Rašić ističe da je pregled velike količine AI-generiranog koda otvoreno pitanje za produkcijski kod, jer s vremenom dolazi do zamora. AI alati za code review dobri su za prvi prolaz i mehaničke propuste, ali ne i za arhitekturalne prosudbe, pa je potrebna kombinacija s ljudskom procjenom.",
+     "Odvjetnica iz publike upozorava da regulativa Europske unije stavlja veliki naglasak na ljudski nadzor (human in the loop). Predlaže pristup zdravog razuma koji uzima u obzir brzinu oporavka, policu osiguranja i to radi li se o kritičnoj infrastrukturi.",
+     "Matija preporučuje da se u radu s klijentima razvoj odgodi što je duže moguće. Specifikaciju treba graditi iz transkripata sastanaka i Claude projekata te započeti relacijskim dijagramom u DBML-u, a klijente potiče da sami izrađuju prototipove u Claude desktopu.",
+     "Jedan sudionik savjetuje da se planiranje radi skupim modelima (npr. Opus), a pisanje koda bržim i jeftinijim modelima poput Gemini Flasha. Naveo je da 200.000 proizvoda dnevno obrađuje s Gemini Flash Liteom za oko 10 dolara.",
+     "Drugi sudionik opisuje rad u kojem se sve temelji na skillovima, pravilima i sub-agentima radi konzistencije. Kao najveće probleme ističe lažno pozitivne testove i ograničenu veličinu konteksta modela.",
+     "Aplikacija je na kraju pokrenuta na Android uređaju, ali prijava putem Googlea nije radila zbog nedovršene Firebase konfiguracije. Senko je zaključio da će ovakve prepreke s autentifikacijom usporavati rad bez obzira na to koliko brzo AI piše kod."
+    ],
+    "mentioned_people": [
+     "Herman Zvonimir Došilović",
+     "Valentina",
+     "Senko Rašić",
+     "Matija Stepanić",
+     "Ivan",
+     "Able"
+    ],
+    "mentioned_places": [
+     "Europska unija",
+     "Amerika",
+     "Australija",
+     "Afrika",
+     "Latvija"
+    ],
+    "mentioned_organizations": [
+     "CroAI",
+     "Anthropic",
+     "Google",
+     "OpenAI",
+     "GitHub",
+     "FlutterFlow",
+     "Holistics",
+     "Pitagora",
+     "Replit",
+     "Cursor",
+     "Hugging Face",
+     "Perplexity",
+     "Microsoft",
+     "AWS",
+     "Cloudflare",
+     "Y Combinator",
+     "Techstars",
+     "Prezi",
+     "Stack Overflow",
+     "Lovable",
+     "Linear",
+     "CodeMagic",
+     "Luma",
+     "Entrio",
+     "Shopify",
+     "GLS",
+     "DeepSeek"
+    ],
+    "language": "hr",
+    "content_type": "podcast",
+    "sentiment": "mixed"
+   }
+  },
+  "outline.json": {
+   "iterations": [
+    {
+     "iteration_number": 1,
+     "start_time": "00:00:06",
+     "end_time": "00:40:51",
+     "theme": "Uvod u CroAI Code Club, odabir alata, cijene Claude planova, inicijalizacija Flutter aplikacije i debata o reviewanju AI koda",
+     "reason_for_cut": "Završava nakon razmišljanja o privatnosti i AI-u kao akceleratoru znanja, točno prije pitanja o FlutterFlowu kojim kreće cjelina o specifikaciji i dizajnu aplikacije.",
+     "chapters": [
+      {
+       "timestamp": "00:00:06",
+       "topic": "Pozdrav, zahvala Hermanu i Valentini, ideja nelinearnog interaktivnog predavanja"
+      },
+      {
+       "timestamp": "00:02:24",
+       "topic": "Senko Rašić o cilju eventa: istražiti granice alata, pull requestovi publike"
+      },
+      {
+       "timestamp": "00:03:36",
+       "topic": "Pitanja publike: je li aplikacija unaprijed napravljena, Android umjesto iOS-a"
+      },
+      {
+       "timestamp": "00:04:53",
+       "topic": "Što znači gotova aplikacija i plan rada na dva računala"
+      },
+      {
+       "timestamp": "00:05:40",
+       "topic": "Zašto Claude Code, a ne GitHub Copilot ili drugi code gen alati"
+      },
+      {
+       "timestamp": "00:07:18",
+       "topic": "Anketa: AI unutar IDE-a ili agentic CLI alati poput Claude Codea i Codexa"
+      },
+      {
+       "timestamp": "00:08:28",
+       "topic": "Antigravity kao editor za review, Claude projekti i Whisper transkripti sastanaka"
+      },
+      {
+       "timestamp": "00:10:06",
+       "topic": "Tisuću linija na sat i usporedba sa Stack Overflow erom"
+      },
+      {
+       "timestamp": "00:10:43",
+       "topic": "Kreće se from scratch: prazan projekt i clone Lume ili Entria"
+      },
+      {
+       "timestamp": "00:11:45",
+       "topic": "Koliko košta: Pro i Max planovi, extra usage i API troškovi"
+      }
+     ]
+    }
+   ]
+  },
+  "article.json": {
+   "metadata": {
+    "source_file": "20260226_cc_01_building_a_real_time_event_ticketing_app_senko_rasic_matija_stepanic_croai_code_club_yt_MGLq9v3AtvE.wav.canary.diarized.srt",
+    "generated_at": "2026-11-05T18:16:27.037Z",
+    "model": "claude-code:opus",
+    "iterations_expected": 3,
+    "complete": true
+   },
+   "iterations": [
+    {
+     "iteration_number": 1,
+     "start_time": "00:00:06",
+     "end_time": "00:40:51",
+     "theme": "Uvod u CroAI Code Club, odabir alata, cijene Claude planova, inicijalizacija Flutter aplikacije i debata o reviewanju AI koda",
+     "sections": [
+      {
+       "subtitle": "CroAI Code Club: predavanje koje publika smije prekidati",
+       "screenshot_timestamp": "00:01:45",
+       "screenshot_description": "Matija Stepanić pozdravlja publiku i objašnjava ideju nelinearnog, interaktivnog predavanja",
+       "content": "Prvi susret **CroAI Code Cluba** otvara **Matija Stepanić**. Zahvaljuje publici što je došla u velikom broju te **Hermanu Zvonimiru Došiloviću** i **Valentini**, na čiju je inicijativu događaj nastao. Prema Stepanićevim riječima, Herman je jednostavno predložio: „Idemo napraviti neki ovakav event, pa idemo probati.“ Tako su se Stepanić i **Senko Rašić** našli pred publikom s namjerom da, kako kaže, pomaknu granice.\n\nZadatak večeri je izmišljen. Radi se aplikacija koja kopira platforme za prodaju ulaznica poput **Luma** i **Entrio**, a nastaje metodom koju Stepanić naziva *vibe coding*. Dok on pokušava napraviti **Flutter** aplikaciju, Rašić na svom računalu treba klonirati sve s GitHuba. Budući da Rašić inače ne radi u Flutteru, sve potrebne alate i CLI-eve pokušat će instalirati uz pomoć Claudea. Stepanić priznaje da je projekt malo reprezentativan i da bi svaku od tih aplikacija obojica puno brže napravila u miru doma.\n\nZato inzistira na formatu **nelinearnog predavanja**. Publika ga treba prekidati, iznositi vlastita otkrića i govoriti stvari poput „ovo ti je bolje“. Posebno potiče prisutne da upoznaju ljude koje ne poznaju, jer se okupljanje u stvarnom prostoru događa upravo zbog suradnje oko „AI revolucije“.\n\nRašić dodaje da je događaj interaktivan i da se nitko ne treba sramiti pitati. Tko ima laptop, može preuzeti projekt s GitHub stranice i slati **pull requestove**. Ostali mogu dovikivati promptove, pitati i komentirati. „Cilj nam je istražiti što se sve može, a što ne može, doći do granica, probati ih probiti, naletjeti na zid i svi zajedno naučiti nešto novo“, kaže Rašić. Ako se usput i napravi aplikacija, to će biti bonus.\n\nStepanić otkriva da su promptovi unaprijed pripremljeni, kako se vrijeme ne bi gubilo na tipkanje i tipfelere. Od publike traži da barem svakih pet do šest minuta netko postavi pitanje.",
+       "keywords": [
+        "vibe coding",
+        "nelinearno predavanje",
+        "interaktivni event",
+        "pull request",
+        "Flutter"
+       ],
+       "entities": [
+        "CroAI Code Club",
+        "Matija Stepanić",
+        "Senko Rašić",
+        "Herman Zvonimir Došilović",
+        "Valentina",
+        "GitHub",
+        "Luma",
+        "Entrio",
+        "Claude"
+       ]
+      },
+      {
+       "subtitle": "iPad je ostao kod kuće: pokus koji nije uspio i što znači „gotova aplikacija“",
+       "screenshot_timestamp": "00:04:00",
+       "screenshot_description": "Matija Stepanić pokazuje Android uređaj na kojem će testirati aplikaciju umjesto iPada",
+       "content": "Prvo pitanje iz publike je izravno: je li aplikacija već napravljena kao priprema za događaj? Stepanić odgovara da nije. Organizatori su je tjedan ranije pokušali napraviti za istim stolom, ali bez uspjeha. Za iOS su pokušali napisati korisničke testove na iPadu, Claude je u jednom trenutku zapeo, pa su odlučili iPad ne donositi.\n\nRadi jednostavnosti rad se seli na **Android**. Stepanić objašnjava da tamo brže radi *hot reload* i sve ostalo. Screen sharing s uređaja je trenutačan. Svoj iPhone ima pri ruci, ali ga neće koristiti, a aplikaciju će pokušati pokrenuti i na webu.\n\nSljedeći sudionik pita koji je krajnji cilj, odnosno kada je aplikacija gotova. Stepanić odgovara da ni sami ne znaju. Događaj će trajati do osam ili devet sati, koliko bude imalo smisla. Aplikacija je izmišljena, a stvarni je cilj vidjeti koliko Claude može:\n\n- automatizirano pokretati aplikaciju,\n- **semantički commitati** promjene,\n- obavljati ostale razvojne korake bez ručne intervencije.\n\nGlavna je ideja da Rašić na svom računalu povuče izvorni kod i pokuša ga pokrenuti. Stepanić unaprijed upozorava da se zbog toga možda neće puno toga napraviti i ponavlja da publika slobodno prekida.",
+       "keywords": [
+        "hot reload",
+        "Android",
+        "iOS testovi",
+        "semantički commit",
+        "automatizacija"
+       ],
+       "entities": [
+        "Matija Stepanić",
+        "Senko Rašić",
+        "Claude",
+        "iPad",
+        "iPhone",
+        "Android"
+       ]
+      },
+      {
+       "subtitle": "Zašto Claude Code: „mrtva utrka“ u kojoj svi kopiraju sve",
+       "screenshot_timestamp": "00:06:00",
+       "screenshot_description": "Matija Stepanić objašnjava zašto koristi Claude Code umjesto GitHub Copilota i drugih code gen alata",
+       "content": "Jedan sudionik postavlja pitanje koje je, kako sam kaže, trebalo adresirati na početku: zašto baš **Claude Code**, a ne GitHub Copilot ili neki drugi alat?\n\nStepanić se prisjeća da je **GitHub Copilot** koristio prije nekoliko godina, kad je bio običan *autocomplete* u VS Codeu. Tada je to bio početak AI-asistiranog kodiranja. Današnje stanje opisuje kao **„mrtvu utrku“** nekoliko velikih kompanija čiji se LLM-ovi međusobno prekopiravaju. Kao primjer navodi trenutak od prije godinu dana kada su kineski razvijatelji objavili otvoreni **DeepSeek**, model koji je po njegovim riječima bio „posnifani OpenAI“.\n\nZa code gen alate poput **Replita** ili domaće **Pitagore** (pita i ima li u dvorani nekoga iz Pitagore, ali nema) objašnjava da danas postoji gotov **Claude Code SDK**. Za neki specifičan slučaj uvijek se ispred njega može staviti vlastiti code gen sloj koji ljudima pojednostavljuje rad. Zato pretpostavlja da i mnogi drugi alati u pozadini koriste tuđe sustave, što se, kaže, vidjelo i iz izdanja tijekom posljednjih mjeseci.\n\n### Pola dvorane u editoru, pola u terminalu\n\nRašić zatim provodi anketu. Pita tko pretežno koristi **IDE s ugrađenim chat asistentom**, poput VS Codea s Copilotom, Cursora ili Antigravityja, a tko **komandno-linijske, „agentic-first“ alate** poput Claude Codea, Codexa ili Ampa. Procjenjuje da je omjer otprilike pola-pola.\n\nSudionica dodaje da se u praksi oboje koristi paralelno, svaki alat za svoju namjenu. Drugi sudionik drži Claude Code u terminalu i uz njega editira kod. Spominju se i Codex te Atlas „sa strane“, za koji Stepanić priznaje da nikad nije čuo.",
+       "keywords": [
+        "Claude Code",
+        "code gen alati",
+        "agentic CLI",
+        "IDE asistenti",
+        "Claude Code SDK"
+       ],
+       "entities": [
+        "GitHub Copilot",
+        "VS Code",
+        "DeepSeek",
+        "OpenAI",
+        "Replit",
+        "Pitagora",
+        "Cursor",
+        "Antigravity",
+        "Codex",
+        "Amp",
+        "Atlas",
+        "Senko Rašić",
+        "Matija Stepanić"
+       ]
+      },
+      {
+       "subtitle": "Od snimljenog sastanka do specifikacije: Whisper, Claude projekti i „small steps“",
+       "screenshot_timestamp": "00:09:30",
+       "screenshot_description": "Matija Stepanić opisuje kako transkripte sastanaka s klijentima ubacuje u Claude projekte",
+       "content": "Stepanić opisuje postav za ovu večer. **Antigravity**, Googleov fork VS Codea s ugrađenim agentnim mogućnostima i podrškom za više LLM-ova, služit će za pregled koda. **Claude Code** iz terminala će „printati“ aplikaciju. Ideja je da se u Gitu mogu pratiti stabilni *checkpointi* i procjenjivati ima li generirano smisla te treba li promijeniti koju liniju, kako bi postojala barem neka kontrola nad onim što je stvarno isprintano.\n\nSudionica pita koji AI koristi za code review. Stepanić odgovara da većinu projekata radi sam ili jedan na jedan s klijentom, pa mu se najbolje pokazala sljedeća kombinacija:\n\n- u **Claude Desktopu** otvara se prazan **projekt**,\n- klijent u njega ubacuje podatke u bilo kakvom slobodnom obliku,\n- sastanci se snimaju i transkribiraju modelom **Whisper large**, a transkript se vraća u projekt,\n- uz RAG bazu koju Anthropic održava za svaki projekt, malo po malo nastaje **arhitekturna specifikacija** koja „ne ispljune puno toga što se sve raspadne“.\n\nSudionica to sažima u dvije riječi: **„small steps“**. Stepanić se slaže, ali ističe da AI alati omogućuju i suprotno, **tisuću linija koda na sat**. To je bilo nezamislivo dok su svi godinama pisali kod ručno.\n\nKad netko iz publike spomene staro „progooglaj“, Stepanić se nadovezuje na eru **Stack Overflowa**: pretraži, pronađi, provjeri koliko odgovor ima upvoteova, pokreni, ne radi, pokušaj ponovno. Publika dodaje: copy-paste. „Na kraju je to ista stvar, samo je automatizirano“, zaključuje Stepanić.",
+       "keywords": [
+        "Whisper transkripcija",
+        "arhitekturna specifikacija",
+        "code review",
+        "Stack Overflow",
+        "tisuću linija na sat"
+       ],
+       "entities": [
+        "Antigravity",
+        "Google",
+        "VS Code",
+        "Claude Code",
+        "Claude Desktop",
+        "Whisper",
+        "Anthropic",
+        "Stack Overflow",
+        "Matija Stepanić"
+       ]
+      },
+      {
+       "subtitle": "Prazan projekt i jedna rečenica: kreće se od nule",
+       "screenshot_timestamp": "00:11:15",
+       "screenshot_description": "Na ekranu prazan projekt bez ijedne linije izvornog koda",
+       "content": "Sudionik pita imaju li organizatori pripremljen neki *base setup* ili kreću od nule. Stepanić potvrđuje da se radi **from scratch**. To je namjerno, kako bi upravo ovakva pitanja isplivala na vidjelo i kako nitko ne bi mogao reći da je unaprijed nešto ubačeno.\n\nJedino što postoji jest *research* chat koji je ranije pokrenuo. Projekt je potpuno prazan, bez ijedne linije izvornog koda. Ni zadatak nije zadan detaljnim istraživanjem, nego jednostavnom uputom: napravi klon **Luma** ili **Entrio**, pa neka se napravi presjek tih dviju aplikacija.\n\nSlijedi kratka tehnička pauza za veličinu fonta. Publika najprije traži veći, a onda ipak malo manji, kako bi se kod na projekciji mogao pratiti.",
+       "keywords": [
+        "from scratch",
+        "prazan projekt",
+        "klon aplikacije",
+        "research chat"
+       ],
+       "entities": [
+        "Luma",
+        "Entrio",
+        "Matija Stepanić"
+       ]
+      },
+      {
+       "subtitle": "Koliko stoji „30 pari ruku“: Pro, Max i skupi API",
+       "screenshot_timestamp": "00:12:40",
+       "screenshot_description": "Na ekranu stranica za naplatu Claude računa s prikazom stanja extra usagea",
+       "content": "Odvjetnica u publici pita hoće li se na kraju znati koliko je novca potrošeno. Stepanić odgovara da se upravo zato ne radi s Max planom, nego s **Pro planom**. Cijeli taj mjesec radi bez Maxa kako bi eksperimentirao. Rašić objašnjava razliku: **Pro stoji 20 dolara, Max 100 dolara**. Varijanta Maxa s dvadeseterostrukom potrošnjom, dodaje Stepanić, iznosi oko 180 eura, a Rašić ga ispravlja na 200.\n\n### Od 200 dolara na sat do paušala\n\nStepanić se prisjeća početaka. Claude Code je počeo koristiti čim je izašao, a otprilike dva mjeseca naplaćivalo se **isključivo korištenje API-ja**, što je bilo iznimno skupo: **200 dolara potrošenih za sat vremena**, bez velike stvarne vrijednosti. Tek su ljeta te godine Claude Code uključili u pretplatu.\n\nIskustvo s planovima sažima ovako:\n\n- **Pro plan**: sesije traju po pet sati, ali tko radi intenzivno, udari u zid nakon otprilike sat vremena.\n- **Max (5x)**: dosta dobar, ali nedovoljan za puni paralelni rad s pet, šest ili sedam Claude Code instanci odjednom.\n- **Max (20x)**: koristio ga je mjesecima, i tek se tada „stvarno može raditi“.\n\nTaj osjećaj opisuje slikovito: **„kao da vam je netko dao 30 pari ruku“**, u usporedbi s načinom rada od prije dvije, a pogotovo deset godina.\n\nNa pitanje zašto se vratio s Maxa na Pro, objašnjava da je razlog ovaj događaj. Želio je vidjeti nakon koliko vremena mu Pro plan javi da više nije upotrebljiv i da treba prijeći na dodatnu potrošnju. Na računu je uplaćeno **25 eura**. Na pitanje je li taj *extra usage* zapravo trošak API-ja, potvrđuje da jest. Pro plan uz dodatnu potrošnju mjesečno ispadne možda malo jeftiniji, ali tko želi raditi „full, full, full“, osam sati dnevno, treba uzeti Max plan, s kojim se za mjesec dana „može napraviti svašta“.\n\nSudionica dobacuje: „Ili zaposliš pet ljudi.“ Stepanić odvraća: „Ili se kupi jedan Max plan i da se petorici ljudi, pa svi shareaju. Ima rješenja.“",
+       "keywords": [
+        "Pro plan",
+        "Max plan",
+        "extra usage",
+        "API troškovi",
+        "paralelni agenti"
+       ],
+       "entities": [
+        "Claude Code",
+        "Anthropic",
+        "Matija Stepanić",
+        "Senko Rašić"
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ }
+}

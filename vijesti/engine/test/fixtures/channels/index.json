@@ -1,0 +1,95 @@
+{
+ "version": "1.0",
+ "generated_at": "2026-11-05T18:39:03.171Z",
+ "channel_count": 52,
+ "channels": [
+  {
+   "id": "catholic_futurist",
+   "name": "Catholic Futurist",
+   "avatar_square": "https://cdn.domovina.ai/channels/images/catholic_futurist/avatar_square.jpg",
+   "avatar_square_dimensions": null,
+   "avatar_cover": "https://cdn.domovina.ai/channels/images/catholic_futurist/avatar_cover.jpg",
+   "avatar_cover_dimensions": {
+    "width": 1060,
+    "height": 175
+   },
+   "youtube_channel_url": "https://www.youtube.com/channel/UChAEWwrEQc07pft2NDb9_-A",
+   "youtube_playlist_url": null,
+   "follower_count": 208,
+   "video_count": 21,
+   "total_duration_seconds": 57593,
+   "avg_magisterium_score": 92,
+   "latest_video": {
+    "id": "nuNw4qWs0r4",
+    "date": "2026-10-20",
+    "title": "Samo 20 % Amerikanaca s nadom gleda na umjetnu inteligenciju | Catholic Futurist"
+   }
+  },
+  {
+   "id": "domovina_tv",
+   "name": "DOMOVINA",
+   "avatar_square": "https://cdn.domovina.ai/channels/images/domovina_tv/avatar_square.jpg",
+   "avatar_square_dimensions": null,
+   "avatar_cover": "https://cdn.domovina.ai/channels/images/domovina_tv/avatar_cover.jpg",
+   "avatar_cover_dimensions": {
+    "width": 900,
+    "height": 900
+   },
+   "youtube_channel_url": "https://www.youtube.com/channel/UCXXhnehl2pss0uYdfLRDtyw",
+   "youtube_playlist_url": null,
+   "follower_count": 31,
+   "video_count": 7,
+   "total_duration_seconds": 49680,
+   "avg_magisterium_score": 77,
+   "latest_video": {
+    "id": "QkcpHsj43rE",
+    "date": "2026-10-28",
+    "title": "AI u praksi: Claude Code uživo | Matija Stepanić, StartupVG"
+   }
+  },
+  {
+   "id": "iva_kraljevic",
+   "name": "Iva Kraljevic",
+   "avatar_square": "https://cdn.domovina.ai/channels/images/iva_kraljevic/avatar_square.jpg",
+   "avatar_square_dimensions": null,
+   "avatar_cover": "https://cdn.domovina.ai/channels/images/iva_kraljevic/avatar_cover.jpg",
+   "avatar_cover_dimensions": {
+    "width": 1060,
+    "height": 175
+   },
+   "youtube_channel_url": "https://www.youtube.com/channel/UCT6Sx8T7walJ0dpOgqHllkw",
+   "youtube_playlist_url": null,
+   "follower_count": 37700,
+   "video_count": 67,
+   "total_duration_seconds": 304827,
+   "avg_magisterium_score": 85,
+   "latest_video": {
+    "id": "AzDPQv3Jw98",
+    "date": "2026-10-30",
+    "title": "Slikovnice, lektire, djetinjstvo... Zašto su priče važnije nego što mislimo? Željka Horvat Vukelja"
+   }
+  },
+  {
+   "id": "mreze_rijeci",
+   "name": "Mreže Riječi",
+   "avatar_square": "https://cdn.domovina.ai/channels/images/mreze_rijeci/avatar_square.jpg",
+   "avatar_square_dimensions": null,
+   "avatar_cover": "https://cdn.domovina.ai/channels/images/mreze_rijeci/avatar_cover.jpg",
+   "avatar_cover_dimensions": {
+    "width": 900,
+    "height": 900
+   },
+   "youtube_channel_url": "https://www.youtube.com/channel/UCX7jtR9MufouIC20G7AAVOg",
+   "youtube_playlist_url": null,
+   "follower_count": 5430,
+   "video_count": 171,
+   "total_duration_seconds": 290634,
+   "avg_magisterium_score": 90,
+   "latest_video": {
+    "id": "SiKEiejafpE",
+    "date": "2026-11-04",
+    "title": "Pobačaj je \"Sakrament\" Sotone - Marija Šošić [PODCAST Mreže Riječi #29]"
+   }
+  }
+ ]
+}

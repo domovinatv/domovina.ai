@@ -1,0 +1,73 @@
+{
+ "version": "1.0",
+ "generated_at": "2026-11-05T09:20:53.879Z",
+ "id": "mreze_rijeci",
+ "name": "Mreže Riječi",
+ "avatar_square": "https://cdn.domovina.ai/channels/images/mreze_rijeci/avatar_square.jpg",
+ "avatar_square_dimensions": null,
+ "avatar_cover": "https://cdn.domovina.ai/channels/images/mreze_rijeci/avatar_cover.jpg",
+ "avatar_cover_dimensions": {
+  "width": 900,
+  "height": 900
+ },
+ "youtube_channel_url": "https://www.youtube.com/channel/UCX7jtR9MufouIC20G7AAVOg",
+ "youtube_playlist_url": null,
+ "description": "„Mreže Riječi“ katolički je portal koji su pokrenuli vjeroučitelji Splitsko-makarske nadbiskupije sa svojim suradnicima u cilju širenja Božje riječi dalje od školskih učionica i vjeronaučnih dvorana. Na portalu se obrađuju teme iz području odgoja i obrazovanja, socijalne skrbi, teologije, medicine, komunikacijskih i drugih znanosti.",
+ "tags": [
+  "Mreže Riječi"
+ ],
+ "follower_count": 5430,
+ "video_count": 171,
+ "total_duration_seconds": 290634,
+ "avg_magisterium_score": 90,
+ "latest_video_date": "2026-11-04",
+ "videos": [
+  {
+   "id": "pIx_7N-6HJ4",
+   "title": "Jedno ti nedostaje: EP 65 - Večera je spremna - fra Ante Vučković i Stanko Stojić",
+   "title_hr": "Jedno ti nedostaje: EP 65 - Večera je spremna - fra Ante Vučković i Stanko Stojić",
+   "date": "2026-11-03",
+   "duration_seconds": 1927,
+   "duration_display": "32:07",
+   "views": 1710,
+   "likes": 86,
+   "thumbnail": "https://cdn.domovina.ai/images/pIx_7N-6HJ4/thumbnail.png",
+   "youtube_url": "https://www.youtube.com/watch?v=pIx_7N-6HJ4",
+   "abstract": "U 65. epizodi emisije Jedno ti nedostaje voditelj Stanko Stojić i fra Ante Vučković tumače odlomak iz 14. poglavlja Markova evanđelja o pripremi pashalne večere i najavi izdaje. Fra Ante objašnjava židovski kontekst Pashe i Isusovo proročko znanje koje se očituje u uputama učenicima. Ističe da Isus svjesno i suvereno prihvaća put koji ga čeka, a odbacuje new age tumačenje čovjeka s krčagom vode kao najave doba vodenjaka. Sugovornici se osvrću i na otuđenost suvremenog čovjeka od izvora hrane, na biblijske korijene hrvatskog jezika te na pitanje Judine slobode i konačne sudbine. Emisija završava porukom da treba sada naći vremena za bliske odnose, a ne čekati neko bolje vrijeme.",
+   "topics": [
+    "priprema pashalne večere",
+    "isusovo proročko znanje",
+    "kritika new age tumačenja",
+    "izdaja i pitanje 'da nisam ja?'",
+    "judina sloboda i sudbina",
+    "gubitak kontakta sa životom",
+    "biblija i hrvatski jezik",
+    "bliski odnosi"
+   ],
+   "speakers": [
+    {
+     "id": "SPEAKER_00",
+     "suggested_name": "Stanko Stojić",
+     "role": "voditelj"
+    },
+    {
+     "id": "SPEAKER_01",
+     "suggested_name": "fra Ante Vučković",
+     "role": "gost"
+    }
+   ],
+   "magisterium_score": null,
+   "pipeline": {
+    "has_transcript": true,
+    "has_diarized": true,
+    "has_summary": true,
+    "has_article": true,
+    "has_magisterium": false,
+    "has_translation_en": true,
+    "has_summary_en": true,
+    "has_article_en": true,
+    "has_magisterium_en": false
+   }
+  }
+ ]
+}

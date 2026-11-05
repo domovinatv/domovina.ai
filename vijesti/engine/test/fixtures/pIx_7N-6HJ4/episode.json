@@ -1,0 +1,360 @@
+{
+ "version": 1,
+ "generated_at": "2026-11-04T04:45:07Z",
+ "files": [
+  "article.en.json",
+  "article.json",
+  "book.en.epub",
+  "book.epub",
+  "diarized.srt",
+  "info.json",
+  "outline.json",
+  "reels.en.json",
+  "reels.json",
+  "screenshots_webp.json",
+  "sponsors_in_video.json",
+  "summary.en.json",
+  "summary.json",
+  "video_h264.mp4",
+  "video_h264_fmp4.mp4",
+  "video_h264_fmp4_web.mp4",
+  "words.json"
+ ],
+ "inline": {
+  "info.json": {
+   "id": "pIx_7N-6HJ4",
+   "title": "Jedno ti nedostaje: EP 65 - Večera je spremna - fra Ante Vučković i Stanko Stojić",
+   "thumbnail": "https://i.ytimg.com/vi_webp/pIx_7N-6HJ4/maxresdefault.webp",
+   "description": "Urednik i voditelj: Stanko Stojić\nSugovornik: fra Ante Vučković\n\nČitanje:\nMk 14, 12-16\n\nPriprava za vazmenu gozbu\n\nU prvi dan beskvasnih kruhova, kad se običavalo klati vazmeno janje, upitaše ga njegovi učenici: »Kamo da idemo i pripravimo za te vazmeno janje?« Tada posla dvojicu svojih učenika i naloži im: »Idite u grad! Tamo će vas sresti čovjek s krčagom. Idite za njim; i gdje uđe, kažite gospodaru one kuće: Učitelj pita: Gdje je dvorana u kojoj mogu slaviti Vazam sa svojim učenicima? On će vam pokazati veliku gornju prostoriju opremljenu za gozbu. Ondje nam pripravite!« Učenici odoše u grad i nađoše kao što im je bio Isus kazao i pripraviše Vazam.\n\nOPIS 65. EMISIJE:\n\nIsus šalje dvojicu učenika u Jeruzalem da priprave sve što je potrebno za slavljenje Pashe. Potom dolazi on s dvanaestoricom i svi sjedaju za stol. Isus ponavlja upozorenje kako će ga jedan učenik izdati. Svi se pitaju tko je taj...\n\nIsus u najdramatičnijim trenucima svoga života bira biti s učenicima. Zna što mu se sprema i zato im želi dati sebe u potpunosti. S kim se mi okružujemo u teškim trenucima? Jesu li to isti ljudi s kojima slavimo i radosne događaje? Dajemo li sebe u potpunosti ljudima koje volimo? Lijepo je, kao Isus, primati i davati ljubav prijateljima.\n\n\nPRODUKCIJSKI TIM MREŽE RIJEČI\nMarin Matijaca\nGlavna urednica: prof. dr. sc. Jadranka Garmaz \n\n\n©Mreže Riječi\n\nKONTAKT:\ninfo@mrezerijeci.com\nWeb: https://mrezerijeci.com/\nFacebook: https://www.facebook.com/mrezerijeci\nInstagram: https://www.instagram.com/mrezerijeci/",
+   "channel_id": "UCX7jtR9MufouIC20G7AAVOg",
+   "duration": 1927,
+   "webpage_url": "https://www.youtube.com/watch?v=pIx_7N-6HJ4",
+   "tags": [
+    "vjera",
+    "bog",
+    "evanđelje"
+   ],
+   "playable_in_embed": true,
+   "channel": "Mreže Riječi",
+   "uploader": "Mreže Riječi",
+   "upload_date": "20261103",
+   "timestamp": 1793695441
+  },
+  "summary.json": {
+   "version": "1.0",
+   "generated_at": "2026-11-04T02:18:39.108Z",
+   "model": "claude-code:opus",
+   "source": {
+    "filename": "20261103_jedno_ti_nedostaje_ep_65_vecera_je_spremna_fra_ante_vuckovic_i_stanko_stojic_yt_pIx_7N-6HJ4",
+    "channel": "mreze_rijeci",
+    "youtube_id": "pIx_7N-6HJ4",
+    "title": "Jedno ti nedostaje: EP 65 - Večera je spremna - fra Ante Vučković i Stanko Stojić",
+    "upload_date": "2026-11-03",
+    "duration_seconds": 1927,
+    "platform": "youtube",
+    "source_url": "https://www.youtube.com/watch?v=pIx_7N-6HJ4",
+    "yt_matched": null,
+    "local_file": false
+   },
+   "summary": {
+    "title_hr": "Jedno ti nedostaje: EP 65 - Večera je spremna - fra Ante Vučković i Stanko Stojić",
+    "abstract_hr": "U 65. epizodi emisije Jedno ti nedostaje voditelj Stanko Stojić i fra Ante Vučković tumače odlomak iz 14. poglavlja Markova evanđelja o pripremi pashalne večere i najavi izdaje. Fra Ante objašnjava židovski kontekst Pashe i Isusovo proročko znanje koje se očituje u uputama učenicima. Ističe da Isus svjesno i suvereno prihvaća put koji ga čeka, a odbacuje new age tumačenje čovjeka s krčagom vode kao najave doba vodenjaka. Sugovornici se osvrću i na otuđenost suvremenog čovjeka od izvora hrane, na biblijske korijene hrvatskog jezika te na pitanje Judine slobode i konačne sudbine. Emisija završava porukom da treba sada naći vremena za bliske odnose, a ne čekati neko bolje vrijeme.",
+    "key_topics": [
+     "priprema pashalne večere",
+     "isusovo proročko znanje",
+     "kritika new age tumačenja",
+     "izdaja i pitanje 'da nisam ja?'",
+     "judina sloboda i sudbina",
+     "gubitak kontakta sa životom",
+     "biblija i hrvatski jezik",
+     "bliski odnosi"
+    ],
+    "speakers": [
+     {
+      "id": "SPEAKER_00",
+      "suggested_name": "Stanko Stojić",
+      "role": "voditelj"
+     },
+     {
+      "id": "SPEAKER_01",
+      "suggested_name": "fra Ante Vučković",
+      "role": "gost"
+     }
+    ],
+    "key_points": [
+     "Fra Ante objašnjava da je priprema Pashe uključivala osiguravanje prostora, obredno klanje janjeta u hramu, pripremu gorkog zelja i vina. Marko te detalje pretpostavlja i ne opisuje ih jer su bili dio svakodnevnog života.",
+     "Isusove upute o čovjeku s krčagom vode nisu dogovoreno namještanje, nego izraz njegova znanja o svemu što ga čeka. Isus taj put prihvaća svjesno i suvereno, bez stvaranja emotivne drame.",
+     "Tumačenje čovjeka s krčagom vode kao najave 'doba vodenjaka' fra Ante smatra proizvoljnim i neutemeljenim. Za Marka novo doba dolazi s Kristom i njegovim uskrsnućem.",
+     "Marko ne imenuje izdajnika, a učenici pitaju 'Da nisam ja?'. Prema fra Anti, time se čitatelja poziva da preispita vlastiti odnos s Učiteljem, a ne da traži tko je izdajnik.",
+     "Izdaja onoga koji s nekim dijeli stol, slika preuzeta iz Psalma 41, najdublja je rana jer dolazi iz blizine. Hrvatski jezik prožet je biblijskim slikama i metaforama.",
+     "Bog upravlja poviješću, ali to ne umanjuje Judinu slobodu i odgovornost. Juda nije bio predodređen za izdaju, a njegova konačna sudbina ostaje skrivena Bogu.",
+     "Budući da malo tko zna kad će otići iz ovoga života, treba već sada naći vremena, pozornosti i prostora za bliske odnose."
+    ],
+    "mentioned_people": [
+     "Isus",
+     "Marija",
+     "Juda",
+     "Petar",
+     "Marko",
+     "Luka",
+     "Matej",
+     "Tolkien",
+     "Baba Vanga"
+    ],
+    "mentioned_places": [
+     "Jeruzalem",
+     "Getsemanski vrt",
+     "Francuska",
+     "Kosovo",
+     "Slavonija"
+    ],
+    "mentioned_organizations": [
+     "Crkva"
+    ],
+    "language": "hr",
+    "content_type": "podcast",
+    "sentiment": "positive"
+   }
+  },
+  "outline.json": {
+   "iterations": [
+    {
+     "iteration_number": 1,
+     "start_time": "00:00:13",
+     "end_time": "00:31:53",
+     "theme": "Priprema pashalne večere i navještaj izdaje u Markovu evanđelju (Mk 14): Isusovo proročko znanje, Judina izdaja i poziv na osobno ispitivanje savjesti",
+     "reason_for_cut": "Transkript traje kraće od jednog bloka od 35 do 45 minuta, pa cijela epizoda čini jednu iteraciju koja završava voditeljevom odjavom na samom kraju snimke.",
+     "chapters": [
+      {
+       "timestamp": "00:00:13",
+       "topic": "Uvod: prvi dan beskvasnih kruhova i židovsko računanje vremena"
+      },
+      {
+       "timestamp": "00:01:26",
+       "topic": "Što je značila priprema za Pashu: prostor, hrana i obredno žrtvovanje janjeta"
+      },
+      {
+       "timestamp": "00:01:55",
+       "topic": "Pitanje učenika i Isusove upute koje otkrivaju Njegovo proročko znanje; Isus kao Učitelj"
+      },
+      {
+       "timestamp": "00:03:51",
+       "topic": "Čovjek s krčagom vode: dogovoreni znak ili Isusova svijest o vlastitoj sudbini"
+      },
+      {
+       "timestamp": "00:07:30",
+       "topic": "Kritika new age tumačenja o \"dobu vodenjaka\""
+      },
+      {
+       "timestamp": "00:10:26",
+       "topic": "Glad za smislom, zamor kršćanstva i znakovi novog buđenja (Francuska, Kosovo)"
+      },
+      {
+       "timestamp": "00:12:37",
+       "topic": "Nemogućnost predviđanja budućnosti i novozavjetni poziv na budnost"
+      },
+      {
+       "timestamp": "00:13:41",
+       "topic": "Blagovalište na katu i sve što se pri pashalnoj večeri podrazumijevalo"
+      }
+     ]
+    }
+   ]
+  },
+  "article.json": {
+   "metadata": {
+    "source_file": "20261103_jedno_ti_nedostaje_ep_65_vecera_je_spremna_fra_ante_vuckovic_i_stanko_stojic_yt_pIx_7N-6HJ4.wav.canary.diarized.srt",
+    "generated_at": "2026-11-04T02:20:40.013Z",
+    "model": "claude-code:opus",
+    "iterations_expected": 1,
+    "complete": true
+   },
+   "iterations": [
+    {
+     "iteration_number": 1,
+     "start_time": "00:00:13",
+     "end_time": "00:31:53",
+     "theme": "Priprema pashalne večere i navještaj izdaje u Markovu evanđelju (Mk 14): Isusovo proročko znanje, Judina izdaja i poziv na osobno ispitivanje savjesti",
+     "sections": [
+      {
+       "subtitle": "Prvi dan beskvasnih kruhova: zašto je Marku važno da je četvrtak",
+       "screenshot_timestamp": "00:00:36",
+       "screenshot_description": "Fra Ante Vučković objašnjava vremenski okvir prvog dana beskvasnih kruhova i židovsko računanje dana",
+       "content": "Nova epizoda serijala posvećenog Markovu evanđelju počinje pozdravom „Hvaljen Isus i Marija“ koji voditelj **Stanko Stojić** upućuje gledateljima, slušateljima i, kako ih sam naziva, „štiocima Markova evanđelja“. Uz gosta, **fra Antu Vučkovića**, stigao je do sredine 14. poglavlja i teme koja otvara završni čin evanđeoske drame: pripreme za pashalnu večeru. Isus šalje učenike, a Stojić predlaže da se tekst rastumači od samog početka, od izraza „prvog dana beskvasnih kruhova“.\n\nFra Ante Vučković najprije upozorava na precizno vođenje vremena kod Marka. Četrnaesto poglavlje počelo je napomenom da su „za dva dana“ Pasha i beskvasni kruhovi, što pada u srijedu. Sada se radnja pomaknula za jedan dan, na **četvrtak**. Četvrtak je bio dan priprave, a sama Pasha blagovala se, prema židovskom računanju, u petak.\n\nTu nastaje očita nepodudarnost s današnjim kalendarom, koju fra Ante objašnjava razlikom u računanju vremena. Po suvremenom shvaćanju riječ je o četvrtku navečer. **Židovi**, međutim, računaju da novi dan počinje sa zalaskom sunca, pa je ista večer za njih već bila petak. Bez obzira na sustav računanja, zaključuje gost, radnja se odvija u četvrtak, na dan kad počinje priprava za Pashu.",
+       "keywords": [
+        "beskvasni kruhovi",
+        "židovsko računanje vremena",
+        "Veliki četvrtak",
+        "Pasha"
+       ],
+       "entities": [
+        "Markovo evanđelje",
+        "Isus",
+        "Marija",
+        "Židovi"
+       ]
+      },
+      {
+       "subtitle": "Što je značilo „pripraviti Pashu“: prostor, hrana i janje zaklano u Hramu",
+       "screenshot_timestamp": "00:01:26",
+       "screenshot_description": "Gost nabraja što je sve bilo potrebno za pripremu pashalne večere",
+       "content": "Fra Ante Vučković zatim objašnjava što je za jednog Židova u Isusovo vrijeme značila priprava Pashe. Nije to bila tek kuhinjska užurbanost, nego obvezan niz zadataka:\n\n- osigurati **prostor** za blagovanje,\n- spremiti **hranu**,\n- dati obredno zaklati **janje** staro do godinu dana, i to u **Hramu**,\n- sve dovršiti na vrijeme kako bi se Pasha mogla blagovati navečer.\n\nPasha se, naglašava gost, blagovala u noći i trebala je završiti oko dva sata ujutro, dakle iza ponoći. Takav je okvir, kako kaže, općenito vrijedio za sve Židove. Na tu se pozadinu nadovezuje konkretan evanđeoski prizor u kojem učenici pitaju Isusa: „Gdje hoćeš blagovati Pashu, da odemo i pripravimo?“",
+       "keywords": [
+        "pashalno janje",
+        "obredno žrtvovanje",
+        "priprava Pashe",
+        "noćno blagovanje"
+       ],
+       "entities": [
+        "Hram",
+        "Židovi",
+        "Isus"
+       ]
+      },
+      {
+       "subtitle": "Upute koje odaju proročko znanje: Isus kao Učitelj",
+       "screenshot_timestamp": "00:02:19",
+       "screenshot_description": "Fra Ante Vučković uspoređuje slanje učenika u grad sa slanjem po magarca prije ulaska u Jeruzalem",
+       "content": "Odgovor koji Isus daje učenicima, prema fra Anti Vučkoviću, otkriva Njegovo **proročko znanje**. Gost podsjeća na sličan prizor obrađen ranije u serijalu, kada je Isus pred svečani ulazak u **Jeruzalem** poslao dvojicu učenika po magarca. Isto se znanje pokazuje i sada, ovaj put s još više pojedinosti. Isus šalje dvojicu učenika, za koje se ne zna tko su, u grad i govori im što će naći, na koga će naići i što trebaju reći. Najupečatljiviji je detalj čovjek koji nosi **krčag vode**, po kojem će ga prepoznati i kojega trebaju upitati za svratište.\n\nStanko Stojić dovršava misao gosta: radi se o svratištu u kojem će „Učitelj“ moći blagovati. Fra Ante se zadržava upravo na tom nazivu. Isusa ovdje Učiteljem nazivaju Njegovi učenici, a pri kraju evanđelja čitatelj već dobro zna kakav je bio odnos između njih i Njega.\n\n„On je uistinu Učitelj“, ističe gost. Prema Markovu opisu, Isus je najviše vremena proveo poučavajući narod i svoje učenike. Nisu sve te pouke zapisane, nego je preneseno tek ponešto, u jezgrovitom obliku. Ipak, poučavanje je bilo glavnina Njegova javnog djelovanja.",
+       "keywords": [
+        "proročko znanje",
+        "Isus Učitelj",
+        "čovjek s krčagom vode",
+        "poučavanje"
+       ],
+       "entities": [
+        "Jeruzalem",
+        "Isus",
+        "Marko"
+       ]
+      },
+      {
+       "subtitle": "Dogovoreni znak ili svijest o vlastitoj sudbini?",
+       "screenshot_timestamp": "00:03:51",
+       "screenshot_description": "Stanko Stojić pita je li čovjek s krčagom vode mogao biti unaprijed dogovoreni znak",
+       "content": "Stojić iznosi tumačenje koje se ponekad čuje: možda je čovjek s krčagom bio **dogovoreni znak**, odnosno Isus se unaprijed dogovorio s nekim da će ondje nositi vodu. Fra Ante Vučković priznaje da bi tako nešto u današnjem svijetu bilo sasvim moguće i ne bi bilo sporno. Ovdje, međutim, nije riječ o dogovoru. Takvo bi „namještanje“, kaže, bilo potpuno neprimjereno svemu što se o Isusu dotad saznalo iz evanđelja.\n\nGost ističe da i sam taj detalj nije presudan. Čak i da se prihvati mogućnost dogovora, ostaje mnogo krupnija slika: **Isus zna što će se s Njim dogoditi**. Ono što čini, čini potpuno svjesno, jer se radi o utemeljiteljskom činu nečega što će trajati. To je način Njegove prisutnosti među vjernicima, prisutnost u **Euharistiji**.\n\nZato, prema fra Anti, nije bitno samo to što Isus predviđa čovjeka s krčagom, nego ulazak u znatno dublju priču. Sve što Ga čeka, četvrtak poslijepodne, petak, subota kao šabat u kojem se miruje i nedjelja uskrsnuća, Njemu je potpuno prisutno. On zna svoju sudbinu i svoj put, ali i ono što će se dogoditi s učenicima. U kratkim Markovim tekstovima Isus zna:\n\n- tko Ga izdaje, zašto i na koji način,\n- tko će Ga zatajiti, pa Petru precizno kaže što će se dogoditi,\n- što će biti s Njim samim.\n\nUčenicima je i ranije najavio da će Ga židovski i svećenički glavari uhvatiti, krivo optužiti, osuditi i sramotno pogubiti, ali da će treći dan uskrsnuti. Ta drama, koja stane u nekoliko riječi, prema gostu je drama odnosa Boga i čovjeka, Boga i Njegova izabranog naroda, i tiče se svih ljudi koji dolaze nakon toga.",
+       "keywords": [
+        "Euharistija",
+        "svijest o sudbini",
+        "utemeljiteljski čin",
+        "navještaj muke",
+        "uskrsnuće"
+       ],
+       "entities": [
+        "Isus",
+        "Petar",
+        "Marko",
+        "šabat"
+       ]
+      },
+      {
+       "subtitle": "Bez panike i bez emotivnih efekata: suverenost na putu prema križu",
+       "screenshot_timestamp": "00:06:44",
+       "screenshot_description": "Fra Ante Vučković naglašava Isusovu suverenost i odsutnost emotivne dramatizacije",
+       "content": "Fra Ante Vučković posebno ističe ton kojim Isus govori u tim trenucima. U tekstu nema emotivne drame. Isus ne stvara ozračje dramatičnosti kojim bi snažnim emocijama privukao učenike. Govori iz znanja koje posjeduje i iz **jasne suverenosti**: to je put kojim želi proći i koji prihvaća.\n\nStanko Stojić to sažima kolokvijalno: Isus „ne diže paniku“. Gost se slaže i zaključuje da je priprava za Pashu ujedno priprava za **Posljednju večeru** s učenicima. U njoj će se spojiti ono što Pasha znači Židovima, ono što je ta večer tada značila učenicima i ono što će kasnije značiti vjernicima. Taj spoj, kaže fra Ante, povezuje prošlost, sadašnjost i budućnost.",
+       "keywords": [
+        "Posljednja večera",
+        "suverenost",
+        "prošlost, sadašnjost i budućnost",
+        "Pasha"
+       ],
+       "entities": [
+        "Isus",
+        "Židovi"
+       ]
+      },
+      {
+       "subtitle": "„Doba vodenjaka“: kako new age čita Markov tekst",
+       "screenshot_timestamp": "00:07:30",
+       "screenshot_description": "Stanko Stojić iznosi new age tumačenje čovjeka s krčagom kao astrološkog znaka vodenjaka",
+       "content": "Voditelj zatim spominje ideju koju je vidio u jednom filmu, a koja se svojedobno često navodila. Neki pripadnici **new agea** čovjeka s krčagom vode tumače kao **vodenjaka**, odnosno astrološki znak. Prema tom čitanju Isus zaključuje kršćansko „doba ribe“ i najavljuje novo „doba vodenjaka“, poznatije kao „Age of Aquarius“, kako pjeva i istoimena pjesma.\n\nFra Ante Vučković takvo tumačenje odlučno odbacuje kao **nategnuto i proizvoljno**. U tekstu nema „apsolutno ničega“ osim simbolike koju netko tumači na svoj način. Simbolika ovdje znači samo jedno: to je čovjek kojega treba pitati za prostor. Izvlačiti iz toga da je Isus najavio doba vodenjaka nakon dvije tisuće godina doba ribe, kaže, posve je neutemeljeno. Ipak, priznaje da nekome tko nije ozbiljno prošao kroz Sveto pismo i pročita samo tu rečenicu takvo tumačenje može djelovati uvjerljivo.\n\nMarko, ističe gost, ima sasvim drugi smjer i ne očekuje nikakvo buduće novo doba. **Novo doba dolazi s Kristom i Njegovim uskrsnućem**, a nakon toga slijedi ono što Isus najavljuje pri ustanovi Euharistije: da će piti novo vino u Kraljevstvu nebeskom. To je za Marka novo doba, a ne doba vodenjaka.",
+       "keywords": [
+        "new age",
+        "doba vodenjaka",
+        "astrologija",
+        "proizvoljno tumačenje",
+        "Kraljevstvo nebesko"
+       ],
+       "entities": [
+        "Age of Aquarius",
+        "Marko",
+        "Krist",
+        "Novi zavjet"
+       ]
+      },
+      {
+       "subtitle": "Zašto novom dobu treba stari tekst?",
+       "screenshot_timestamp": "00:09:29",
+       "screenshot_description": "Gost postavlja pitanje zašto zagovornici doba vodenjaka traže potvrdu u Novom zavjetu",
+       "content": "Stojić predviđa prigovor: „Kako vi to znate?“ Odgovor vidi u proučavanju Biblije u cjelini. Tko poznaje širu sliku, kontekst i način pisanja novozavjetnih tekstova, može donijeti utemeljen zaključak o tumačenju, umjesto da rečenicu izvuče iz konteksta.\n\nFra Ante Vučković smatra da je mnogo zanimljivije drugo pitanje: zašto se zagovornik doba vodenjaka uopće poziva na **Novi zavjet**? Ako je netko uvjeren da dolazi novo doba, zašto simboliku traži u tekstu koji je, po njegovoj logici, tekst prošlosti, tekst koji „pripada ribi“ i koji mu ništa ne znači? Takva potreba da se nešto utemelji u kršćanskom tekstu ili da se u njemu nađe simbolika koje ondje nema, prema gostu, pokazuje da takvi tumači **sami sebi nisu do kraja uvjerljivi**. Nemaju dovoljno snažnih argumenata, pa se oslanjaju na nešto vrlo rubno, na simboliku koje u samom tekstu i njegovu kontekstu nema.",
+       "keywords": [
+        "biblijski kontekst",
+        "argumentacija",
+        "simbolika",
+        "tumačenje Svetog pisma"
+       ],
+       "entities": [
+        "Novi zavjet",
+        "Biblija"
+       ]
+      },
+      {
+       "subtitle": "Glad za smislom, zamor kršćanstva i neočekivana buđenja u Francuskoj i na Kosovu",
+       "screenshot_timestamp": "00:11:19",
+       "screenshot_description": "Fra Ante Vučković govori o novokrštenicima u Francuskoj i povratku vjeri na Kosovu",
+       "content": "Na pitanje što ljude navodi na takva tumačenja, sugovornici zajedno dolaze do istog odgovora: mnogi su **gladni smisla**. Fra Ante Vučković podsjeća da su biblijski tekstovi otvoreni svakome i da ljudi očito imaju potrebu smjestiti sebe u određeno razdoblje.\n\nGost smatra da new age pokret igra na jednoj prilično realnoj činjenici, a to je **zamor koji se dogodio u kršćanstvu**: zamor i odmak od izvornog razumijevanja teksta nakon dvije tisuće godina. Istodobno primjećuje da današnje vrijeme možda pokazuje novo buđenje, i to kroz posve neočekivane pojave:\n\n- **Francuska**, gdje je velik broj mladih novokrštenika,\n- **Kosovo**, područje velikim dijelom islamske vjeroispovijesti, gdje se dio mlađih ljudi želi vratiti vjeri svojih predaka iz vremena prije osmanlijske vlasti. Fra Ante to povezuje s potragom za dobrim načinom života i za vlastitim identitetom, a neki tu pojavu nazivaju **povratkom korijenima**.\n\nTe su pojave, kaže gost, osobito zanimljive u zapadnom svijetu nakon velikog zamora i otpada od vjere. Prije nekoliko desetljeća bile su česte pesimistične i naizgled uvjerljive prognoze da „vjera blijedi“ i da će nestati. Sada se pokazuje da ljudi zapravo nemaju jasnu sposobnost predviđanja kamo će svijet u cjelini ići.",
+       "keywords": [
+        "glad za smislom",
+        "zamor kršćanstva",
+        "novokrštenici",
+        "povratak korijenima",
+        "identitet"
+       ],
+       "entities": [
+        "Francuska",
+        "Kosovo",
+        "Osmansko Carstvo"
+       ]
+      },
+      {
+       "subtitle": "Novi zavjet ne nudi kalendar budućnosti, nego poziv na budnost",
+       "screenshot_timestamp": "00:12:46",
+       "screenshot_description": "Gost objašnjava da Novi zavjet ne daje precizne podatke o budućnosti nego poziva na budnost",
+       "content": "Stojić duhovito povezuje razgovor s tekstom: ljudi ne mogu predvidjeti budućnost, za razliku od Isusa koji predviđa čovjeka s krčagom vode. Fra Ante Vučković nadovezuje se tvrdnjom da su Isusova predviđanja za naš svijet izrečena s **malo riječi i malo slika**. U Novom zavjetu nema jasnih i preciznih podataka o tome koliko neko doba traje, kada završava ni po kojim se znakovima prepoznaje.\n\nNovi zavjet umjesto toga stalno upozorava na **budnost**:\n\n- budnost nad vlastitim životom i načinom na koji se živi,\n- svijest da život stoji pred Bogom,\n- svijest da je život kratak,\n- potrebu da se život uredi tako da se ne izgubi, ne propadne i ne prođe uzalud.\n\nTo su, prema gostu, osnovne upute kada je riječ o razdobljima vremena. Stojić zaključuje da je to dovoljno, a sve ostalo svrstava u kategoriju „Babe Vange“ i olakog predviđanja. Uz to dodaje da sve okolnosti koje utječu na budućnost ionako nije moguće predvidjeti.",
+       "keywords": [
+        "budnost",
+        "predviđanje budućnosti",
+        "kratkotrajnost života",
+        "život pred Bogom"
+       ],
+       "entities": [
+        "Novi zavjet",
+        "Baba Vanga",
+        "Isus"
+       ]
+      },
+      {
+       "subtitle": "Blagovalište na katu i sve što se podrazumijevalo, a nije zapisano",
+       "screenshot_timestamp": "00:14:04",
+       "screenshot_description": "Fra Ante Vučković opisuje dvoranu na katu u današnjem Jeruzalemu",
+       "content": "Vraćajući se tekstu, Stanko Stojić navodi Isusove riječi o čovjeku koji će učenicima pokazati „na katu veliko blagovalište“, prostor već spremljen. Pita treba li taj detalj tumačiti simbolički, primjerice kao znak uzvišenog položaja u odnosu na prizemlje, ili ga treba čitati doslovno.\n\nFra Ante Vučković odgovara konkretno. U **Jeruzalemu** i danas postoji dvorana na katu, više puta rušena i ponovno građena, koja je relativno prostrana. U nju lako stane priprema za skupinu nešto veću od obitelji, a to je, prema gostu, važan podatak.\n\nZatim upozorava na mnoštvo **pretpostavki** koje stoje iza kratkog teksta. Podrazumijeva se da će netko odnijeti janje u unutarnje dvorište Hrama gdje će biti obredno žrtvovano, da mu se neće slomiti kosti i da će netko nabaviti i pripremiti gorko zelje. Te stvari nisu zapisane jer su bile dio svakodnevnog života. „Pripremiti pashalnu večeru“ značilo je pripremiti sve što ona traži:\n\n- janje koje treba žrtvovati i ispeći,\n- **gorko zelje**,\n- **vino**,\n- dvoranu uređenu za sjedenje za stolom.\n\nMarko je smatrao da te pojedinosti nisu potrebne. Glavno mu je bilo da čitatelj zna kako je Isus imao posljednju večeru sa svojim učenicima, nakon koje odlazi u **Getsemanski vrt**, gdje će biti uhvaćen i gdje počinje ono što je najavljivao.",
+       "keywords": [
+        "blagovalište na katu",
+        "gorko zelje",
+        "pashalna večera",
+        "pretpostavke teksta"
+       ],
+       "entities": [
+        "Jeruzalem",
+        "Hram",
+        "Getsemanski vrt",
+        "Marko",
+        "Isus"
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ }
+}
