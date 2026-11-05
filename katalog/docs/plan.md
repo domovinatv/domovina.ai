@@ -87,4 +87,4 @@ procjena po ruti izlazi iz S4, ne iz pretpostavke.
 ## Gdje smo
 
 S0: plan, TODO i handoffi. S1 (05.11.2026., `ac07618`): kostur Workera (`/health`), D1 shema s
-keyset indeksima, parseri svih ulaza, stvarni fixturei; 134 testa. Sljedeće: S2, uvoznik.
+keyset indeksima, parseri svih ulaza, stvarni fixturei; 134 testa. S2 (`277d704`): uvoznik Tier 1 + Tier 2 u lokalni D1 (3412 + 253 epizode, 162 kanala, 22 Tier 2 epizode bez kanala zbog registryja), idempotentan; 174 testa. Sljedeće: S3, API v1.

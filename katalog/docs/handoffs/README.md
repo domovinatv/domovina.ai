@@ -33,8 +33,8 @@ Handoff se mijenja samo prema naprijed: gotovi `SN` se ne prepisuju, služe kao 
 |---|---|---|---|---|---|
 | S0 | Plan, TODO, handoffi | gotovo | 5c44d7d | — | 2026-11-05; odluke 1–11 |
 | S1 | Kostur, migracije, parseri, fixturei | gotovo | ac07618 | 134 / skipped 0 | 2026-11-05; odluke 100–123; `02a43d7` kostur + shema |
-| S2 | Uvoznik Tier 1 + Tier 2 | otvoreno | | | |
-| S3 | API v1 + ugovor + cache | | | | |
+| S2 | Uvoznik Tier 1 + Tier 2 | gotovo | 277d704 | 174 / skipped 0 | 2026-11-05; odluke 200–216; `e367767` uvoznik; D1: 3412 + 253 |
+| S3 | API v1 + ugovor + cache | otvoreno | | | |
 | S4 | Sintetička skala + izvještaj | | | | vrata: staging na računu |
 | S5 | Staging + latencija | | | | vrata: go/no-go |
 | S6 | Produkcija, ingest, drift-check | | | | vrata: produkcijski deploy |

@@ -16,9 +16,10 @@ Legenda: `[x]` gotovo · `[ ]` otvoreno · `[~]` u radu · `(!)` traži korisnik
 - [x] Migracije D1: `brands`, `channels`, `episodes`, `ingest_runs`; stupci `brand`, `tier`, `lang`, `published_date` od prvog dana → S1
 - [x] Tipovi + parseri za stvarne ulaze: `channels/data/index.json`, `channels/data/<slug>.json`, `data/<id>/info.json` (samo potrebna polja), `data/<id>/summary.json`, `data/<id>/episode.json` → S1
 - [x] Fixturei: 3 Tier 1 kanala (skraćeni listinzi), 5 `_unlisted` epizoda iz različitih kanala, isječak registryja → S1
-- [ ] Uvoznik `katalog import` (lokalni D1): Tier 1 iz listinga, Tier 2 iz `.r2_keys_cache.json` + `info.json`, kanal preko `channel_id` → registry slug → S2
-- [ ] Idempotentan upsert po YouTube ID-u; drugi uvoz istog ulaza = 0 promjena (test) → S2
-- [ ] Izvještaj uvoza: epizoda po tieru, epizode bez razriješenog kanala (s razlogom, ne tiho) → S2
+- [x] Uvoznik `katalog import` (lokalni D1): Tier 1 iz listinga, Tier 2 iz `.r2_keys_cache.json` + `info.json`, kanal preko `channel_id` → registry slug → S2
+- [x] Idempotentan upsert po YouTube ID-u; drugi uvoz istog ulaza = 0 promjena (test) → S2
+- [x] Izvještaj uvoza: epizoda po tieru, epizode bez razriješenog kanala (s razlogom, ne tiho) → S2
+- [ ] Registry: 7 YouTube kanala ima samo playliste (TV Jadran, Jutarnji list, HRT vijesti, Anze Tomic, VTV, RTL, NOVA TV), pa 22/253 Tier 2 epizode ostaju bez kanala; dodati `umbrella`/`channel` unos (fetch sesija; odluka 204, `docs/research/2026-11-05-uvoz-tier2.md`) → fetch
 - [ ] API v1 nad lokalnim D1: `days/:date`, `channels`, `channels/:slug/episodes`, `episodes/:id/card`, `directory` → S3
 - [ ] Keyset paginacija (cursor), limit stranice, nikad `OFFSET` → S3
 - [ ] JSON sheme odgovora u `katalog/contract/` + ugovorni testovi → S3
