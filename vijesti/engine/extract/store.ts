@@ -41,7 +41,11 @@ export async function saveMoments(db: SqlDb, videoId: string, rows: MomentRow[])
       [videoId],
     );
     let inserted = 0;
-    for (const r of rows) {
+    // Prihvaćeni trenuci idu prvi: odbačen trenutak s istim ključem (video,
+    // raspon, citat), npr. isti citat uz krivog govornika, inače bi ON CONFLICT
+    // zadržao njega, a valjani preskočio (odluka 214).
+    const ordered = [...rows.filter((r) => r.quoteCheck !== 'failed'), ...rows.filter((r) => r.quoteCheck === 'failed')];
+    for (const r of ordered) {
       if (r.videoId !== videoId) throw new Error(`trenutak za ${r.videoId} u zapisu za ${videoId}`);
       const res = await db.query<{ id: number }>(
         `INSERT INTO vijesti.moments

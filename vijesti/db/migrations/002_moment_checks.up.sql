@@ -9,7 +9,12 @@ ALTER TABLE vijesti.moments
   ADD COLUMN quote_match   text CHECK (quote_match IN ('exact', 'fuzzy')),
   -- Cueovi koje je model naveo (indeksi u titlu); mogu biti nevaljani (bad_cue_ref).
   ADD COLUMN cue_from      integer,
-  ADD COLUMN cue_to        integer,
+  ADD COLUMN cue_to        integer;
+-- Retci koji su preživjeli 002 dolje (pa opet gore): quote_match za exact/fuzzy
+-- je po definiciji jednak quote_check (odluka 214). Za failed i srt_only se
+-- izgubljeno ne izmišlja: takvi retci ruše migraciju, pa ih treba ponovno izvući.
+UPDATE vijesti.moments SET quote_match = quote_check WHERE quote_check IN ('exact', 'fuzzy');
+ALTER TABLE vijesti.moments
   ADD CONSTRAINT moments_reject_reason_consistent
     CHECK ((quote_check = 'failed') = (reject_reason IS NOT NULL)),
   ADD CONSTRAINT moments_quote_match_consistent

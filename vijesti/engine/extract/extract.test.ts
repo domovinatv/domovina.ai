@@ -58,6 +58,28 @@ describe('sekcije i prompt', () => {
     }
   });
 
+  it('citat preko granice sekcije prolazi (provjera ne zna za sekcije, prozor 5 s)', async () => {
+    const ep = await cdn().loadEpisode('pIx_7N-6HJ4');
+    const sections = splitSections(ep.cues, ep.article);
+    let n = 0;
+    for (const [k, s] of sections.entries()) {
+      const next = sections[k + 1];
+      const a = s.cueIds.at(-1);
+      const b = next?.cueIds[0];
+      if (a === undefined || b === undefined) continue;
+      const ca = ep.cues[a];
+      const cb = ep.cues[b];
+      if (!ca?.speaker || ca.speaker !== cb?.speaker || cb.startMs - ca.endMs > 5000) continue;
+      const quote = `${ca.tokens.slice(-3).join(' ')} ${cb.tokens.slice(0, 3).join(' ')}`;
+      // Model vidi samo svoju sekciju, pa navodi samo zadnji cue; citat izlazi u sljedeću.
+      const r = verifyQuote(ep.cues, { cueFrom: a, cueTo: a, speaker: ca.speaker, quote });
+      if (r.check === 'failed' && r.reason === 'negation_cut') continue;
+      expect(r, quote).toMatchObject({ check: 'exact', span: { cueFrom: a, cueTo: b } });
+      n++;
+    }
+    expect(n).toBeGreaterThan(0);
+  });
+
   it('bez članka: fiksni prozori od 10 min', async () => {
     const ep = await cdn().loadEpisode('pIx_7N-6HJ4');
     const sections = splitSections(ep.cues, null);

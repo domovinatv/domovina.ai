@@ -139,7 +139,8 @@ paralelni worktreeji ne sudare. Odluka se ne briše: zamijeni je novom koja je p
      NFD + brisanje kombinirajućih znakova, apostrofi se brišu (`don't → dont`), sve ostalo
      što nije slovo/znamenka je razmak. Ista funkcija ide na citat i na svaku riječ titla,
      pa svaki normalizirani token pamti cue i indeks riječi (za vrijeme). Test:
-     `engine/verify/quote.test.ts` („normalizacija”).
+     `engine/verify/quote.test.ts` („normalizacija”). **Dijakritika se od odluke 210
+     briše samo za pretragu; presuda traži ista slova.**
 203. **Prozor pretrage W = 5 s** oko [početak `cue_from`, kraj `cue_to`]: pretražuju se
      cueovi koji se s njim preklapaju. Citat izvan prozora je `failed: outside_window`;
      globalna pretraga postoji samo da razlikuje taj razlog od `not_found`. Kad se niz
@@ -159,7 +160,7 @@ paralelni worktreeji ne sudare. Odluka se ne briše: zamijeni je novom koja je p
      `legalno`/`ilegalno` (početak), `prodati`/`predati` (sredina), `1000000`/`1000001`,
      dvije izmjene u 10 riječi. Sve u `quote.test.ts`. Prvo se traži točno poklapanje.
      Revizija: popis i pravilo se mijenjaju samo s primjerom iz stvarnog odgovora modela
-     i testom koji pokazuje da značenje ostaje.
+     i testom koji pokazuje da značenje ostaje. **Dio (b) ukinut odlukom 210.**
 205. **Razlozi odbijanja** (`failed`, uvijek se zapisuju): `bad_cue_ref` (nepostojeći ili
      obrnut raspon), `span_too_long` (`cue_from..cue_to` > 120 s, da model ne „pokrije”
      cijelu sekciju i time ugasi prozor), `too_short` (< 4 tokena bez poštapalica),
@@ -201,3 +202,63 @@ paralelni worktreeji ne sudare. Odluka se ne briše: zamijeni je novom koja je p
      `extract.test.ts`): `pIx_7N-6HJ4` 10 sekcija / 20 exact, `P9sLks-f2mQ` 5 / 10
      srt_only, `x3w2BVZJ9vQ` 9 / 18 exact (en), `MGLq9v3AtvE` 6 / 12 exact, `b-nls1ck8EE`
      5 / 10 exact; 0 failed. To dokazuje lanac, ne kvalitetu izbora.
+210. **`fuzzy` je samo brisanje glasova oklijevanja; razlika u nastavku ili dijakritici
+     je `failed: word_form`.** Napad na fixtureima (`engine/verify/adversarial.test.ts`)
+     je pod pravilom 204(b) propustio 49 od 49 citata s jednom promijenjenom riječi
+     (`fuzzy`) i, zbog normalizacije 202, 91 od 91 s promijenjenom dijakritikom (`exact`).
+     U hrvatskom nastavak nosi lice, vrijeme i broj, a parovi iz samih fixturea mijenjaju
+     i riječ: `mislim`/`mislis`, `trebamo`/`trebalo`, `svijest`/`svijet`,
+     `postoje`/`postaje`, `probao`/`prosao`, `dvadeset`/`dvadesete`, `thousand`/`thousands`,
+     `influence`/`influencer`; dijakritika `križa`/`kriza`, `naš`/`nas`, `mlađih`/`mladih`.
+     Pravilo ne razlikuje sročnost od promjene značenja, a model ima titl u promptu, pa
+     doslovan citat ne treba ni jednu izmjenu. Token zato ima dva oblika (`t` bez
+     dijakritike za pretragu, `d` s njom za presudu, `normalize.ts`); poravnanje s
+     izmjenom do jedne riječi na 10 (najmanje 1) ostaje samo kao dijagnoza `word_form`
+     (`detail: titl→citat`), da S3 vidi koliko ih model radi. Cijena: ASCII citat pada
+     uvijek (0 od 495, prije 495 od 495), ostale varijante nepromijenjene (odluka 212).
+     Testovi: `quote.test.ts` („dijakritika mora biti ista”, „nastavak koji mijenja lice…”).
+     Revizija: S3, ako `word_form` na pravim odgovorima bude čest za izmjene koje ne mijenjaju
+     značenje; tada popis dopuštenih parova s primjerom i testom, ne opće pravilo.
+211. **`failed: negation_cut`: citat ne smije počinjati odmah iza niječnice ni završavati
+     odmah ispred nje** (isti govornik, preko poštapalica i granice cuea, bez interpunkcije
+     između; zarez/točka odvajaju, pa „Ne. Mislim da …” smije od „Mislim”). Zatvoren popis
+     `NEGATIONS` u `quote.ts`: hr `ne ni niti nit nisam nisi nije nismo niste nisu necu
+     neces nece necemo necete nemoj nemojte nikad nikada nimalo`, en `not no never nor
+     neither` i stegnuti oblici (`dont`, `isnt`, `cant`…). Doslovan podniz titla inače
+     prolazi kao `exact`, a obrće značenje: „da ga ne | izgubiš”, „nikad neću | zaboraviti”,
+     „nije | istina da …”. Stara provjera je na fixtureima propustila 155 od 155 takvih
+     citata i jedan s odrezanom niječnicom na kraju („pa možda i | nije”, `MGLq9v3AtvE`
+     c71). Cijena na simuliranim pravim citatima: 5 od 778 doslovnih i 10 od 335 „pola-pola”
+     (odluka 212), svi ručno pregledani kao stvarni rez uz niječnicu (cue podijeljen usred
+     rečenice); dvostruka niječnica („nisam | nikad bio”) se također odbija. Testovi:
+     `quote.test.ts` („negation_cut”), `adversarial.test.ts`. Revizija: S3, ako model često
+     počinje citat iza niječnice — tada prompt, ne popuštanje provjere.
+212. **Mjerenje rizika na 5 fixturea (bez modela, `npm run verify:measure`,
+     `docs/research/2026-11-05-provjera-citata.md`):** doslovni cue i par cueova istog
+     govornika prolaze 773 od 778 (99,4 %; 5 × `negation_cut`), s drugom interpunkcijom i
+     velikim slovima isto, od pola cuea do pola sljedećeg 325 od 335 (97,0 %; 10 ×
+     `negation_cut`); bez `ovaj/znači/dakle/ono` 17 od 229 (7,4 %), bez dijakritike 0 od 495.
+     `srt_only` je samo epizoda bez `words.json` (126 od 126 u `P9sLks-f2mQ`): na ostalima
+     0 `count_mismatch`, sva vremena unutar cuea i uzlazna. Brojke fiksira
+     `engine/verify/measure.test.ts`. Ograda: simulacija mjeri koliko provjera odbija
+     zadani tip izmjene, ne koliko ih model radi. Revizija: S3 mjeri isto na pravom Gemini
+     izlazu (udio po razlogu); ako `not_found` zbog izbačenih diskursnih riječi bude velik,
+     prvo prompt („ne izbacuj riječi”), ne širenje `FILLERS`.
+213. **Razdjelnik tisućica unutar broja se briše** (`300,000` = `300.000` = `300000`),
+     samo ispred točno tri znamenke, pa `3,5` i `12.30` ostaju dva tokena. Engleski
+     titl piše `300,000`, a model isti broj bez zareza: 5 od 242 citata `x3w2BVZJ9vQ`
+     padalo je na varijanti (b) prije ovoga, 0 poslije. Test: `quote.test.ts`
+     („normalizacija”), `measure.test.ts`. Broj riječima ≠ znamenke (`deset` ≠ `10`) i dalje.
+214. **Popravci pregleda koda S2.** (a) `span_too_long` vrijedi i za NAĐENI citat (vrijeme
+     iz riječi ili granice cueova): prozor uključuje svaki cue koji ga dodiruje, pa su dugi
+     susjedni cueovi citat s navedenim jednim cueom razvlačili preko 120 s. (b) `saveMoments`
+     upisuje prihvaćene trenutke prije odbačenih: odbačen i prihvaćen s istim ključem
+     (video, raspon, citat), npr. isti citat uz krivog pa pravog govornika, inače je
+     `ON CONFLICT DO NOTHING` zadržavao odbačeni (`engine/extract/store.test.ts`).
+     (c) Migracija 002 gore postavlja `quote_match = quote_check` za `exact`/`fuzzy` prije
+     CHECK-ova, pa 002 dolje → gore s takvim retcima prolazi; `failed`/`srt_only` nakon 002
+     dolje su izgubili razlog i podudaranje, i to se ne izmišlja: migracija pada u
+     transakciji (verzija ostaje 1), retke treba ponovno izvući (`db/migrate.test.ts`).
+     Provjereno bez promjene: prazan citat i citat od same interpunkcije su `too_short`,
+     citat preko cijelog prozora prolazi, cue od 0 ms daje `srt_only` s krajem +1 ms, citat
+     preko granice sekcije prolazi s rasponom u sljedećoj sekciji (`extract.test.ts`).

@@ -230,6 +230,25 @@ describe('migracije na PGlite', () => {
       expect(await cols()).toEqual(withS2);
     });
 
+    it('002 dolje → gore s podacima: exact/fuzzy se vraćaju, failed/srt_only ruše migraciju bez traga', async () => {
+      await moment({ quote_check: 'exact', start_ms: 1, end_ms: 2 });
+      await moment({ quote_check: 'fuzzy', start_ms: 3, end_ms: 4 });
+      expect(await migrateDown(db)).toEqual([2]);
+      expect(await migrateUp(db)).toEqual([2]);
+      const got = await db.query<{ quote_check: string; quote_match: string }>(
+        'SELECT quote_check, quote_match FROM vijesti.moments ORDER BY start_ms',
+      );
+      expect(got.rows).toEqual([
+        { quote_check: 'exact', quote_match: 'exact' },
+        { quote_check: 'fuzzy', quote_match: 'fuzzy' },
+      ]);
+      // srt_only nakon 002 dolje više ne zna je li tekst bio točan: ne izmišlja se.
+      await moment({ quote_check: 'srt_only', start_ms: 5, end_ms: 6 });
+      expect(await migrateDown(db)).toEqual([2]);
+      await expect(migrateUp(db)).rejects.toThrow(/moments_quote_match_consistent/);
+      expect(await appliedVersions(db)).toEqual([1]);
+    });
+
     it('runs: failed_calls ne može biti veći od calls', async () => {
       await expect(
         db.query(`INSERT INTO vijesti.runs (step, model, calls, failed_calls) VALUES ('x', 'm', 1, 2)`),
