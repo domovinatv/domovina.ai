@@ -100,12 +100,21 @@ export function createGeminiClient(opts: GeminiClientOptions): LlmClient {
           ok,
         });
 
-      const res = await opts.fetch(url, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json', 'x-goog-api-key': opts.apiKey },
-        body: JSON.stringify(body),
-      });
-      const text = await res.text();
+      let res: LlmFetchResponse;
+      let text: string;
+      try {
+        res = await opts.fetch(url, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json', 'x-goog-api-key': opts.apiKey },
+          body: JSON.stringify(body),
+        });
+        text = await res.text();
+      } catch (e) {
+        // Prekid (mreža, timeout, odgovor prekinut usred tijela) se broji kao
+        // neuspio poziv (odluka 107); tokeni nisu poznati.
+        await record({ tokensIn: 0, tokensOut: 0 }, false);
+        throw e;
+      }
       if (!res.ok) {
         await record({ tokensIn: 0, tokensOut: 0 }, false);
         throw new LlmResponseError(`Gemini HTTP ${String(res.status)}: ${text.slice(0, 300)}`, res.status);

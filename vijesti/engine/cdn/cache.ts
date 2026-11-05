@@ -1,6 +1,7 @@
 // Disk cache za CDN odgovore (`vijesti/.cache/cdn/<putanja>`). Per-epizoda
 // datoteke su immutable i čuvaju se zauvijek; promjenjive (episode.json,
 // listinzi) imaju rok, nakon kojeg se traže iznova.
+import { randomUUID } from 'node:crypto';
 import { mkdir, readFile, stat, writeFile, rename } from 'node:fs/promises';
 import { dirname, join, normalize, sep } from 'node:path';
 
@@ -35,7 +36,10 @@ export function createDiskCache(root: string, now: () => number = Date.now): Dis
       const file = safeJoin(root, path);
       await mkdir(dirname(file), { recursive: true });
       // Atomarno: prekinut zapis ne smije ostaviti pola datoteke u cacheu.
-      const tmp = `${file}.${String(process.pid)}.tmp`;
+      // Ime tmp datoteke je jedinstveno po zapisu: dva istodobna zapisa iste
+      // putanje u istom procesu dijelila su `<pid>.tmp` i drugi rename je
+      // padao s ENOENT (odluka 115).
+      const tmp = `${file}.${String(process.pid)}.${randomUUID()}.tmp`;
       await writeFile(tmp, body, 'utf8');
       await rename(tmp, file);
     },

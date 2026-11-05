@@ -95,3 +95,17 @@ paralelni worktreeji ne sudare. Odluka se ne briše: zamijeni je novom koja je p
 114. **`npm audit`: 10 moderate ranjivosti u lancu `eslint` → `minimatch`, samo dev.**
      Ne dira se dok popravak ne traži major skok. U produkcijski kod ne ulazi.
      Revizija: kad `eslint` objavi popravak ili kad portal (S6) uvede runtime ovisnosti.
+115. **Tmp datoteka disk cachea je jedinstvena po zapisu** (`<pid>.<uuid>.tmp`).
+     Dva istodobna zapisa iste putanje u istom procesu dijelila su `<pid>.tmp`, pa je
+     drugi `rename` padao s ENOENT (reproducirano testom, 8 paralelnih `set`).
+     Pobjeđuje zadnji `rename`; sadržaj je isti jer su per-epizoda datoteke immutable.
+116. **Dvosmislen početak traži i poklapanje kraja, inače cue ostaje bez vremena.**
+     Dopuna odluke 105: početak je dvosmislen kad ga dijeli više zapisa u `words.json`
+     ILI više SRT cue-ova (±1 ms). Prije je kratki cue uz samo jedan zapis (dugog
+     cue-a) dobivao taj zapis, a uz dva zapisa bez poklapanja kraja prvi od njih; uz
+     isti broj riječi to su pomaknuta vremena. Fixturei: bez promjene (svi `ok` ostaju).
+117. **Gemini: prekid se broji kao neuspio poziv.** `fetch` koji baci ili tijelo
+     odgovora prekinuto usred čitanja bilježe poziv s 0 tokena i `ok: false` prije
+     nego greška ide dalje, kako odluka 107 traži („HTTP, prekid, shema”). Isti prolaz
+     (S1, drugi agent) u loaderu: inline `null` u `episode.json` nije „ima” (`has()` i
+     `file()` se slažu), a neuspjela revalidacija popisa se ne pamti u memoizaciji.

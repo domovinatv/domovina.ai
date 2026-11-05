@@ -187,6 +187,34 @@ describe('Gemini klijent (lažni fetch)', () => {
     expect(recorder.get(runId)).toMatchObject({ calls: 4, failedCalls: 4 });
   });
 
+  it('prekid (fetch ili tijelo baci) se broji kao neuspio poziv i baca dalje', async () => {
+    const recorder = new MemoryRunRecorder();
+    const runId = await recorder.startRun({ step: 'x', model: 'm' });
+    const dead: LlmFetch = () => Promise.reject(new Error('ECONNRESET'));
+    const cut: LlmFetch = () =>
+      Promise.resolve({ status: 200, ok: true, text: () => Promise.reject(new Error('prekinuto')) });
+    for (const [fetch, msg] of [[dead, /ECONNRESET/], [cut, /prekinuto/]] as const) {
+      const llm = createGeminiClient({ fetch, apiKey: 'k', model: 'm', recorder });
+      await expect(llm.generate({ prompt: 'p', schema: MomentsSchema, runId })).rejects.toThrow(msg);
+    }
+    expect(recorder.get(runId)).toMatchObject({ calls: 2, failedCalls: 2, tokensIn: 0 });
+  });
+
+  it('HTTP greška ne odaje ključ u poruci', async () => {
+    const recorder = new MemoryRunRecorder();
+    const runId = await recorder.startRun({ step: 'x', model: 'm' });
+    const llm = createGeminiClient({
+      fetch: geminiFetch(500, { error: { message: 'interno' } }, []),
+      apiKey: 'tajni-kljuc',
+      model: 'm',
+      recorder,
+    });
+    const err = await llm.generate({ prompt: 'p', schema: MomentsSchema, runId }).catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(LlmResponseError);
+    expect((err as Error).message).not.toContain('tajni-kljuc');
+    expect((err as LlmResponseError).status).toBe(500);
+  });
+
   it('bez ključa se klijent ne stvara', () => {
     expect(() =>
       createGeminiClient({ fetch: geminiFetch(200, {}, []), apiKey: '', model: 'm', recorder: new MemoryRunRecorder() }),

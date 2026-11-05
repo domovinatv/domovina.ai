@@ -116,6 +116,15 @@ function assertId(id: string): void {
   if (!ID_RE.test(id)) throw new Error(`neispravan ID epizode: ${id}`);
 }
 
+/**
+ * Navodi li episode.json datoteku: na popisu `files` ili inline s vrijednošću.
+ * Inline `null` nije sadržaj, pa ne smije reći „ima” dok `file()` vraća null.
+ */
+function listedIn(bundle: EpisodeBundle, name: string): boolean {
+  const inline = bundle.inline[name];
+  return bundle.files.includes(name) || (inline !== undefined && inline !== null);
+}
+
 export function cacheBucket(nowMs: number): number {
   return Math.floor(nowMs / BUCKET_MS);
 }
@@ -184,25 +193,26 @@ export function createCdnClient(opts: CdnClientOptions): CdnClient {
     }));
   }
 
+  /** Memoiziran dohvat; neuspjeh se ne pamti (sljedeći poziv pokušava iznova). */
+  function remember(id: string, fresh: boolean) {
+    const p = loadBundle(id, fresh);
+    bundles.set(id, p);
+    p.catch(() => {
+      if (bundles.get(id) === p) bundles.delete(id);
+    });
+    return p;
+  }
+
   async function bundleState(id: string) {
     assertId(id);
-    let p = bundles.get(id);
-    if (!p) {
-      p = loadBundle(id, false);
-      bundles.set(id, p);
-      p.catch(() => bundles.delete(id));
-    }
-    return p;
+    return bundles.get(id) ?? remember(id, false);
   }
 
   /** Bundle koji navodi `name`, uz jednu revalidaciju kad cache kaže „nema”. */
   async function bundleFor(id: string, name: string) {
     let state = await bundleState(id);
-    const listed = (b: EpisodeBundle) => b.files.includes(name) || name in b.inline;
-    if (state.bundle && !listed(state.bundle) && state.fromCache) {
-      const p = loadBundle(id, true);
-      bundles.set(id, p);
-      state = await p;
+    if (state.bundle && !listedIn(state.bundle, name) && state.fromCache) {
+      state = await remember(id, true);
     }
     return state;
   }
@@ -223,7 +233,7 @@ export function createCdnClient(opts: CdnClientOptions): CdnClient {
 
   async function has(id: string, name: string): Promise<boolean> {
     const { bundle } = await bundleFor(id, name);
-    if (bundle) return bundle.files.includes(name) || name in bundle.inline;
+    if (bundle) return listedIn(bundle, name);
     return (await file(id, name)) !== null;
   }
 

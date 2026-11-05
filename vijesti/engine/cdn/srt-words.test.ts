@@ -108,6 +108,63 @@ describe('attachWords', () => {
     expect(timed[0]?.words).toEqual([{ text: 'mi', startMs: 1114590, endMs: 1114590 }]);
   });
 
+  describe('odluka 105/116: cue od 0 ms i isti početak', () => {
+    const file = (cues: { s: number; e: number; w: number[] }[]) =>
+      WordsFileSchema.parse({ v: 1, source: 'soniox', anchored: 1, cues });
+    const twoAtSameStart = parseSrt(
+      '1\n00:00:10,000 --> 00:00:10,000\n[SPEAKER_00] mi\n\n' +
+        '2\n00:00:10,000 --> 00:00:12,000\n[SPEAKER_01] da\n',
+    ).cues;
+
+    it('samostalan cue od 0 ms dobiva vremena', () => {
+      const srt = parseSrt('1\n00:00:05,000 --> 00:00:05,000\n[SPEAKER_00] mi\n').cues;
+      const timed = attachWords(srt, file([{ s: 5000, e: 5000, w: [5000, 5000] }]));
+      expect(timed[0]?.wordsStatus).toBe('ok');
+      expect(timed[0]?.words).toEqual([{ text: 'mi', startMs: 5000, endMs: 5000 }]);
+    });
+
+    it('zapisi obrnutim redom: svaki cue dobiva svoj zapis po kraju', () => {
+      const timed = attachWords(
+        twoAtSameStart,
+        file([
+          { s: 10000, e: 12000, w: [10500, 11900] },
+          { s: 10000, e: 10000, w: [10000, 10000] },
+        ]),
+      );
+      expect(timed.map((c) => c.words?.[0]?.startMs)).toEqual([10000, 10500]);
+    });
+
+    it('postoji samo zapis dugog cue-a: kratki ostaje bez vremena, ne dobiva tuđi', () => {
+      const timed = attachWords(twoAtSameStart, file([{ s: 10000, e: 12000, w: [10500, 11900] }]));
+      expect(timed.map((c) => c.wordsStatus)).toEqual(['missing', 'ok']);
+      expect(timed[0]?.words).toBeNull();
+    });
+
+    it('isti početak, kraj se ne poklapa ni s jednim zapisom: bez vremena, nikad pomaknuto', () => {
+      const timed = attachWords(
+        twoAtSameStart,
+        file([
+          { s: 10000, e: 15000, w: [10000, 10100] },
+          { s: 10000, e: 16000, w: [10200, 10300] },
+        ]),
+      );
+      expect(timed.map((c) => c.wordsStatus)).toEqual(['missing', 'missing']);
+      expect(timed.every((c) => c.words === null)).toBe(true);
+    });
+
+    it('kriv broj riječi na cue-u od 0 ms: count_mismatch, bez vremena', () => {
+      const timed = attachWords(
+        twoAtSameStart,
+        file([
+          { s: 10000, e: 10000, w: [10000, 10000, 10000, 10000] },
+          { s: 10000, e: 12000, w: [10500, 11900] },
+        ]),
+      );
+      expect(timed.map((c) => c.wordsStatus)).toEqual(['count_mismatch', 'ok']);
+      expect(timed[0]?.words).toBeNull();
+    });
+  });
+
   it('bez words.json svi cueovi su `missing`', () => {
     expect(wordsStats(attachWords(cues, null)).missing).toBe(3);
   });

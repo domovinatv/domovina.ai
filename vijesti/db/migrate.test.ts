@@ -42,6 +42,21 @@ describe('migracije na PGlite', () => {
 
     expect(await migrateDown(db, { steps: Infinity })).toEqual([1]);
     expect(await tables(db)).toEqual(['schema_migrations']);
+    // Odluka 108: nakon „dolje” u shemi ostaje samo knjigovodstvo runnera, bez
+    // ijednog drugog objekta (sekvence, indeksi, tipovi).
+    const leftovers = await db.query<{ relname: string }>(
+      `SELECT c.relname FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
+       WHERE n.nspname = 'vijesti' ORDER BY c.relname`,
+    );
+    expect(leftovers.rows.map((r) => r.relname)).toEqual([
+      'schema_migrations',
+      'schema_migrations_pkey',
+    ]);
+    const types = await db.query(
+      `SELECT 1 FROM pg_type t JOIN pg_namespace n ON n.oid = t.typnamespace
+       WHERE n.nspname = 'vijesti' AND t.typname NOT LIKE '%schema_migrations'`,
+    );
+    expect(types.rows).toHaveLength(0);
     expect(await appliedVersions(db)).toEqual([]);
 
     expect(await migrateUp(db)).toEqual([1]);
@@ -130,6 +145,30 @@ describe('migracije na PGlite', () => {
       await db.query('DELETE FROM vijesti.articles WHERE id = $1', [a.rows[0]?.id]);
       const left = await db.query('SELECT 1 FROM vijesti.article_sources');
       expect(left.rows).toHaveLength(0);
+    });
+
+    it('articles.status prima svih šest stanja iz plana', async () => {
+      const s = await db.query<{ id: number }>(
+        `INSERT INTO vijesti.stories (slug, title) VALUES ('st', 'St') RETURNING id`,
+      );
+      const states = ['draft', 'review', 'approved', 'published', 'corrected', 'rejected'];
+      for (const [i, st] of states.entries()) {
+        await db.query(
+          `INSERT INTO vijesti.articles (story_id, format, lang, slug, status)
+           VALUES ($1, $2, 'hr', $3, $4)`,
+          [s.rows[0]?.id, `f${String(i)}`, `slug-${String(i)}`, st],
+        );
+      }
+      await expect(
+        db.query(
+          `INSERT INTO vijesti.articles (story_id, format, slug, lang) VALUES ($1, 'x', 'y', 'de')`,
+          [s.rows[0]?.id],
+        ),
+      ).rejects.toThrow(/articles_lang_check/);
+    });
+
+    it('quote_check NULL se odbija (NOT NULL uz CHECK)', async () => {
+      await expect(moment({ quote_check: null })).rejects.toThrow(/null/i);
     });
 
     it('runs: failed_calls ne može biti veći od calls', async () => {
