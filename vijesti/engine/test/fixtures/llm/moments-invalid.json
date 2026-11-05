@@ -1,0 +1,7 @@
+{
+ "text": "{\"moments\": [{\"start_ms\": \"51750\", \"speaker\": \"SPEAKER_01\", \"quote\": \"Dakle, počeli smo srijedom.\"}]}",
+ "usage": {
+  "tokensIn": 1834,
+  "tokensOut": 96
+ }
+}

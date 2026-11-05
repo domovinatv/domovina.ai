@@ -89,6 +89,25 @@ describe('attachWords', () => {
     expect(wordsStats(timed)).toEqual({ cues: 3, ok: 1, countMismatch: 1, missing: 1 });
   });
 
+  it('dva cue-a s istim početkom uparuju se i po kraju (stvarni slučaj pIx_7N-6HJ4 18:34,590)', () => {
+    const srt = parseSrt(
+      '108\n00:18:34,590 --> 00:18:34,590\n[SPEAKER_00] mi\n\n' +
+        '109\n00:18:34,590 --> 00:18:48,930\n[SPEAKER_01] smo naučili da\n',
+    ).cues;
+    const words = WordsFileSchema.parse({
+      v: 1,
+      source: 'soniox',
+      anchored: 1,
+      cues: [
+        { s: 1114590, e: 1114590, w: [1114590, 1114590], a: 1 },
+        { s: 1114590, e: 1128930, w: [1114590, 1114800, 1114800, 1115200, 1115200, 1115500], a: 1 },
+      ],
+    });
+    const timed = attachWords(srt, words);
+    expect(timed.map((c) => c.wordsStatus)).toEqual(['ok', 'ok']);
+    expect(timed[0]?.words).toEqual([{ text: 'mi', startMs: 1114590, endMs: 1114590 }]);
+  });
+
   it('bez words.json svi cueovi su `missing`', () => {
     expect(wordsStats(attachWords(cues, null)).missing).toBe(3);
   });
