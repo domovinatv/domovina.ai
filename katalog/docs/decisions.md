@@ -836,3 +836,209 @@ pomoćne funkcije u `web/_worker.js`.
      provjerava redoslijed. Matcher je strogo `^/dani/\d{4}-\d{2}-\d{2}$` (dogovor s lancem
      `vijesti/`: ništa ne smije hvatati `/vijesti`). `/dani/<d>/en` ne postoji ni u Flutteru
      ni u workeru.
+
+## S10 (2026-11-06, „Svi” na /channels, Tier 2 /c/:slug, OG kanala u workeru)
+
+Flutter (`5f10a8a`), odluke 1000–1019:
+
+Flutter: `services/catalog_client.dart` (`directory()`, `channel()`, `channelEpisodes()`),
+`models/catalog_channel_page.dart`, `screens/channels/catalog_directory_view.dart`,
+`screens/channel/catalog_channel_body.dart`; izmjene u `channel_screen.dart`,
+`all_channels_screen.dart`, `router/app_router.dart`, `models/catalog_card.dart`,
+`episode_screen.dart`, `home/catalog_day_rail.dart`, `home/episode_rail_card.dart`,
+`catalog_day/catalog_day_screen.dart`.
+
+1000. **Tri nova upita, isti obrazac kao `lookup`/`day`.** `directory({limit, after, tier,
+      onUpdate})` (`/directory`, uz `tier` `/channels?tier=`), `channel(slug)` i
+      `channelEpisodes(slug, {limit, after, onUpdate})`. Sealed ishodi: `…Found` /
+      `…NotFound` (samo HTTP 404, za kanal i epizode) / `…Unavailable` (brend bez
+      endpointa, mreža, timeout 4 s, ostali 4xx/5xx, nečitljiv odgovor). Popis kanala nema
+      `NotFound`: prazan popis je `Found`. Svi idu kroz `getMutable`, bucket `episode`
+      (svaka stranica i kursor su svoj URL), kroz zajednički privatni `_getParsed`; nikad
+      ne bacaju, svaki korak ide u `log()`. `limit` se stisne na 1–100 (`maxListLimit`).
+1001. **Modeli u `models/catalog_channel_page.dart`:** `CatalogChannelInfo` (puni kanal iz
+      `channel.schema.json`), `CatalogDirectoryPage`, `CatalogChannelEpisodesPage`.
+      Obavezni su `slug`/`name`/`tier` (preko `CatalogChannel.tryParse`); neobavezna polja
+      krivog tipa postaju `null`, `processed_count` krivog tipa 0. Nečitljiva stavka se
+      preskače, ostatak stranice vrijedi. `CatalogChannelInfo.channel` vraća
+      `CatalogChannel`, pa pravilo rute živi na jednom mjestu.
+1002. **`CatalogChannel.hasChannelRoute` je `tier == 1 || tier == 2`, a `routeSlug` ovisi o
+      tieru.** Tier 1: podvlaka → crtica (kao do sada). Tier 2: slug doslovno. Razlog je
+      `yt-UCfT_PJPR2vuqqKcCgEf3scA` (neregistrirani kanal, `unregistered: true`): UC ID ima
+      vlastitu podvlaku, a katalog slug traži točno tako (`/channels/yt-UCfT-PJ…` je 404).
+      Neregistrirani kanali dobivaju link kao svi ostali: katalog ih ima kao kanal s
+      epizodama. Nepoznat tier (ugovor ga ne dopušta) ostaje bez rute.
+1003. **Ruta `/c/:slug` predaje izvorni slug (`ChannelScreen.catalogSlug`), ključ i dalje
+      `channel-$slug`.** `channelId` (`slug.replaceAll('-', '_')`) se ne može vratiti u
+      izvorni oblik. `ChannelScreen` prvo zove `channelCache.loadChannel(channelId)` kao
+      prije; tek kad taj future padne, a `CatalogClient.enabled`, tijelo crta
+      `CatalogChannelBody`. Tier 1 je zato bajt-identičan (isti zahtjev, isti redoslijed).
+      Cijena za Tier 2: jedan 404 na `channels/data/<id>.json` prije kataloga.
+      Preskakanje listinga kad ID nije u `index.json` odbačeno je jer indeks smije kasniti.
+1004. **Katalog 404 za slug s crticom pita i oblik s podvlakom.** Do kataloga se s Tier 1
+      kanalom dođe samo kad statični listing nije stigao (mreža, CDN). Katalog Tier 1 zna kao
+      `radio_mreznica`, pa bi `radio-mreznica` dao „Kanal nije pronađen” za kanal koji
+      postoji. Drugi upit ide samo nakon 404, a ne nakon „nedostupno”. Pogodak se crta istim
+      tijelom (zaglavlje i epizode iz kataloga, bez oznake „Ne pratimo stalno”).
+      Zaglavlje i prva stranica epizoda idu paralelno (`Future.wait`), jedan krug do kataloga.
+1005. **U kataloškom načinu nema praćenja, izloga oglasa ni preuzimanja vlasništva.**
+      `_catalogMode` se postavi kad listing padne. Tada se skrivaju `FollowButton`
+      (`channelFollowKey` radi nad ID-em listinga, a popis praćenih ga razrješava kroz
+      `channelCache`), ikona izloga (`SponsorCampaign.forChannel`) i claim. Za claim treba
+      `_resolvedUcId`, a njega daje samo listing. `PinkaSupportCard` je u grani uspjeha,
+      pa se u kataloškoj grani ni ne gradi. Dok listing još stiže, traka izgleda kao za
+      Tier 1 (prati se vidi kratko). Unaprijed se ne zna o kojem je kanalu riječ.
+1006. **Stanja `CatalogChannelBody`:** učitavanje; kanal; „Kanal nije pronađen” (katalog
+      404 za kanal ili za epizode, uz gumb „Svi kanali” → `drillDown('/channels')`);
+      „Kanal se trenutačno ne može učitati” (sve ostalo, uz „Pokušaj ponovno”). Ponovni
+      pokušaj pita samo katalog, ne i listing. Kad je listing pao zbog mreže, a katalog
+      se vrati, Tier 1 kanal se pokaže kroz katalog (1004) umjesto da ostane na grešci.
+      Brend bez kataloga i dalje vidi staru poruku `commonErrorWithDetails`.
+1007. **Zaglavlje kanala iz kataloga je iskreno i ne izgleda prazno ni s jednom epizodom.**
+      `PersonMonogram` (slika kad je ima, inače inicijali; Tier 2 je danas gotovo uvijek
+      bez slike), ime, „N obrađenih epizoda · zadnja <datum>”, oznaka „Ne pratimo
+      stalno” i okvir s objašnjenjem („…pa ovdje nije cijela njegova arhiva, nego samo
+      epizode koje smo obradili”). Zatim naslov „Obrađene epizode”, retci kao na `/dani/`
+      i, kad je popis pri kraju, „Kanal na YouTubeu” (`youtube_channel_id`). Na webu je
+      to poveznica van (`launchUrl`), a ne iframe, pa COEP pravilo ne vrijedi. Ime ide i
+      u traku (`_resolvedName`) i u `setPageMeta` (isti format kao za Tier 1).
+1008. **Tap na epizodu Tier 2 kanala poštuje jednostavni prikaz** (`_openVideo`: `/m/` ili
+      `/v/`), isto kao Tier 1. Handoff traži `drillDown('/v/<id>')`, ali `ChannelScreen` je
+      do 6. 9. 2026. imao baš taj bug (kanal je ignorirao `simpleMode`), pa isti ekran ne
+      smije imati dva pravila. Bez spremljenog prikaza ide se na `/v/`.
+1009. **Paginacija epizoda kanala i popisa „Svi”** je ista kao na `/dani/` (odluka 905).
+      Beskonačno listanje kreće kad je do dna manje od 1,5 ekrana, a gumb je rezerva.
+      Pad stranice ostavlja popis i nudi ponovni pokušaj. Duplikati se ne crtaju (ID
+      epizode, slug kanala). `onUpdate` ekrani ne koriste: zamjena prve stranice ispod
+      prsta korisnika izmijenila bi redoslijed. Revalidacija u pozadini ipak spremi novu
+      verziju za idući put. Dijeljeni widgeti su u `catalog_channel_body.dart`:
+      `CatalogLoadMoreFooter`, `CatalogMessage`, `CatalogEpisodeRow`, `CatalogOccasionalBadge`.
+1010. **`/channels`: zaseban red „Pratimo / Svi” iznad pretrage**, samo kad je
+      `CatalogClient.enabled`. Postojeći chipovi Sve/Kanali/Osobe ostaju ispod pretrage i
+      vrijede samo za „Pratimo”, koji je današnji popis bez ikakve promjene. Četiri ili pet
+      chipova u jednom redu ne stanu na uski mobitel, a „Sve” i „Svi” jedan do drugoga bili
+      bi nejasni. „Svi” nema pretragu ni sort. Katalog ih ne nudi, a filtriranje samo
+      učitanih stranica bi lagalo. Umjesto toga stoji objašnjenje „Svi kanali s barem
+      jednom obrađenom epizodom, najsvježiji prvi.” Glasačka traka na dnu ostaje u oba
+      prikaza.
+1011. **`?prikaz=svi` po uzoru na `?prikaz=osobe`.** Ruter šalje `showDirectory`, a ključ
+      stranice je `all-channels-directory`. Chip mijenja prikaz kroz `setState` i ne dira
+      URL, isto kao chip „Osobe”. `?prikaz=svi` na brendu bez kataloga tiho otvara
+      „Pratimo” bez chipova, isto kao `?prikaz=osobe` uz ugašen flag. Ovo je query
+      param na postojećoj ruti, pa AASA i Android allowlist ostaju isti.
+1012. **Scroll „Svi”:** `ScrollRestorer` s ključem `/channels?prikaz=svi` (ključ nosi
+      query). Popis bi se nakon remounta inače punio od prve stranice, pa bi restore od
+      2 s skočio na clampan offset. Zato `CatalogDirectoryView` pamti učitane stranice
+      i kursor u statičkom memou procesa, najviše 15 minuta. Remount crta isti popis
+      bez zahtjeva, pa `jumpTo` ima do čega skočiti. Epizode kanala imaju vlastiti
+      `ScrollRestorer` s ključem `/c/<slug>`, ali nemaju memo: kanal je kratak, a prva
+      stranica stiže iz `getMutable` spremišta.
+1013. **Tap na kanal u „Svi” → `drillDown('/c/<routeSlug>')`:** Tier 1 `radio-mreznica`, Tier 2
+      doslovno. Redak: monogram ili slika, ime, „N obrađenih epizoda · zadnja <datum>”,
+      oznaka „Ne pratimo stalno” samo uz Tier 2. `ChannelCard` se ne koristi: traži
+      `ChannelSummary` (cover dimenzije, trajanje, ocjena), kojeg katalog nema.
+1014. **Link kanala u breadcrumbu, railu i na `/dani/`.** Ekran epizode za Tier 2 sada
+      postavlja i `_channelSlug` i `_catalogChannelName`. Ime iz kataloga se zadržava jer
+      Tier 2 epizoda bez `info.json` nema `info.channel`, pa bi breadcrumb ostao bez
+      kanala. Tier 1 postavlja samo slug, kao prije. Ekran u obradi
+      (`findQueuedEpisode`) dobiva slug kroz `hasChannelRoute`, bez nove grane. Tier 2
+      slug sada ulazi u `_channelSupportRefs`/`_supportPath`. To je bezopasno jer Tier 2
+      nema kampanju. Ovim se mijenja odluka 802.
+1015. **Ime kanala na kartici raila i u retku `/dani/` je vlastiti `InkWell`.**
+      `EpisodeRailCard.onSubtitleTap` je novi neobavezni parametar (`null` = kao prije).
+      Unutarnji `InkWell` pobjeđuje vanjski, pa tap na ime vodi na `/c/<slug>`, a ostatak
+      kartice na epizodu. Ostali railovi (`Upravo stiglo`, `Najnovije`) i dalje nemaju
+      link na kanal. Mali cilj (jedan redak `labelSmall`) je svjesna cijena: kartica se
+      ne mijenja vizualno.
+1016. **`TvChannelScreen` se ne mijenja.** Za Tier 2 slug pokazuje postojeću
+      `tvChannelLoadError` poruku i ne puca. Na TV-u do Tier 2 kanala nema puta: TV
+      naslovnica otvara samo kanale iz indeksa, a TV nema „Svi” ni ekran `/dani/`.
+      Kataloški prikaz za D-pad (fokus, veličine) je zaseban posao.
+1017. **Novi ARB ključevi:** `channelsScopeFollowed`, `channelsScopeAll`, `channelDirectoryHint`,
+      `channelDirectoryEmpty`, `channelDirectoryUnavailableTitle`,
+      `channelDirectoryUnavailableBody`, `catalogLoadMore`, `catalogLoadMoreFailed`,
+      `channelCatalogEpisodeCount` (plural), `channelCatalogLatest`,
+      `channelCatalogOccasionalBadge`, `channelCatalogOccasionalBody`,
+      `channelCatalogEpisodesHeading`, `channelCatalogOpenYouTube`,
+      `channelCatalogNotFoundTitle`, `channelCatalogNotFoundBody`,
+      `channelCatalogUnavailableTitle`, `channelCatalogUnavailableBody`. `catalogDayLoadMore*`
+      ostaju uz `/dani/` (tekst „još epizoda” ne pristaje popisu kanala). Novih
+      analitičkih događaja nema, pa se pravni dokumenti ne mijenjaju.
+1018. **Testovi bez mreže (odluka 806).** `test/support/fake_catalog_channels.dart` je
+      lažni klijent s bilježenjem upita. Statični listing ide kroz `CdnJsonCache.instance`
+      s `MockClient`om; tijelo treba `charset=utf-8`, inače `package:http` „ž” dekodira kao
+      latin1. `catalog_channel_page_test.dart` ima stvarne skraćene fixturee od
+      6. 11. 2026. (`/directory`, `/channels/tribina`, `/channels/tribina/episodes`,
+      `yt-UC…`). Ruta se provjerava nad pravim `createRouter()` (`pageBuilder` uz
+      ručni `GoRouterState`), jer harness koji je samo prepisuje ne bi uhvatio
+      zaboravljen `catalogSlug`.
+1019. **Otvoreno:** (a) `TvChannelScreen` za Tier 2 (1016). (b) [riješeno u 1020–1026] Worker za `/c/<tier2-slug>`
+      danas nema OG ni noindex za nepostojeći slug, a sitemap Tier 2 kanale ne zna. To
+      radi lanac workera (`web/_worker.js`), ne ovaj paket. (c) Tier 1 i Tier 2 slug koji
+      se razlikuju samo u `-`/`_` (`foo-bar` i `foo_bar`) daju isti `channelId`, pa
+      pobjeđuje Tier 1 listing. Izmjereno 6. 11.: od 162 kanala (52 Tier 1, 110 Tier 2) takvog para nema; provjera:
+      `curl -s ".../directory?limit=100&cursor=<next>"` po svim stranicama, pa usporedba slugova
+      normaliziranih na `_`.
+
+Worker (`b5b83a0`), odluke 1020–1029:
+
+Kod: `web/_worker.js` (grana `/c/<slug>`, `catalogGet`, `fetchCatalogChannel`,
+`injectCatalogChannelTags`), testovi `scripts/test-social-tags.mjs` i
+`scripts/test-worker-katalog-kanal.mjs`.
+
+1020. **Katalog se pita tek kad statičnog listinga nema, i samo za goli `/c/<slug>`.**
+      Tier 1 ne plaća subrequest i izlaz mu je bajt-identičan (provjereno usporedbom
+      `HEAD:web/_worker.js` i novog workera nad `/`, `/c/radio-mreznica`, `/c/x/oglasi`,
+      `/dani/…`, `/channels`, `/vijesti`, s lažnim bindingom i bez). `/doniraj`, `/support`,
+      `/oglasi` i `/claim` ostaju kakvi su bili (Tier 2 nema kampanju ni izlog).
+1021. **Zaseban `injectCatalogChannelTags`, ne generalizirani `injectChannelTags`.**
+      Katalog ne daje opis, trajanje ni popis epizoda, pa bi zajednička funkcija bila
+      niz grana po izvoru, a Tier 1 izlaz bi bio izložen svakoj izmjeni. Isti naslov
+      (`<ime> — AI obrada podcasta`), isti `PodcastSeries` JSON-LD bez `workExample`
+      (epizode bi tražile drugi subrequest na `/channels/:slug/episodes`).
+1022. **Opis:** „AI-obrađene epizode kanala X: N epizoda, zadnja objavljena 5. studenoga
+      2026. Sažetci, transkripti i poglavlja na DOMOVINA.ai.” (`croPlural`, `hrLongDate`;
+      bez datuma rečenica završava točkom iza broja). Bez „Magisterium analiza” iz Tier 1
+      opisa, jer za Tier 2 epizode nije zajamčena. 0 epizoda → „Kanal X na DOMOVINA.ai: AI
+      sažetci, transkripti i poglavlja epizoda podcasta.”
+1023. **Slika:** `avatar` samo ako je `https://` URL (rebase s `cdn.domovina.ai` na brendov
+      CDN kao `fetchJson`), uz `twitter:card summary`; inače `og-image.png` s
+      `og:image:type/width/height` i `summary_large_image` (kao `/dani/`). `sameAs` samo uz
+      ispravan `UC…` ID; `inLanguage` iz `lang` kad je jezični kod, inače `hr`.
+1024. **Cache-Control uspjeha `public, max-age=3600, s-maxage=3600`, kao Tier 1.**
+      `processed_count` kasni najviše sat, a deploy purge ionako briše edge. Kanal koji
+      postane Tier 1 dobije listing i ide statičnim putem čim cache istekne.
+1025. **Tri ishoda kataloga (`fetchCatalogChannel`):** `{item}`; `{missing}` samo uz HTTP 404
+      **i** `error: "channel_not_found"`; `null` za sve ostalo (bez bindinga, brend bez
+      `CATALOG_API`, greška, 5xx, nečitljiv JSON, `version` ≠ "1", prazno ime, timeout 800 ms).
+      Drugi 404 (npr. kriva verzija API-ja) nije dokaz da kanala nema.
+1026. **Katalog 404 → plain SPA `no-store` + `X-Robots-Tag: noindex`** (po uzoru na 912:
+      zaglavlje, HTML ostaje jednak SPA fallbacku). Kanal s 0 obrađenih epizoda dobiva
+      tagove i noindex (tanka stranica). `null` → točno današnji odgovor, bez noindexa:
+      bez bindinga ne znamo postoji li kanal, a Flutter ga može prikazati.
+1027. **Zajednički `catalogGet(env, path)` za `/days/` i `/channels/`;** konstanta
+      preimenovana u `CATALOG_TIMEOUT_MS` (800 ms, odluka 910). `fetchCatalogDay` je
+      prepisan na njega bez promjene ponašanja (bajt-usporedba gore + harness).
+1028. **Sitemap: Tier 2 kanali NE ulaze u ovom paketu.** Bez bindinga worker ne zna popis,
+      a s njim bi trebao paginirani `GET /channels` (77 Tier 2 kanala danas, većinom 1–6
+      epizoda) u satnom rebuildu. Vraća se kad binding postoji (S11 ili kasnije) i kad se
+      odluči prag (npr. `processed_count ≥ 3`). AASA (`/c/*` → `*`) i Android allowlist
+      (`/c/`) već pokrivaju Tier 2.
+1029. **Testovi:** `test-social-tags.mjs` dobiva `/c/radio-mreznica` (Tier 1),
+      `/c/tribina` (Tier 2: prihvaća vlastiti OG ili, bez bindinga, plain SPA `no-store`, i
+      ispisuje koji je put) i nepoznat slug (SPA `no-store`). Lažni binding pokriva
+      `scripts/test-worker-katalog-kanal.mjs` (Node importa worker, `env.KATALOG` glumi
+      katalog; 60 provjera: Tier 1 bez poziva, Tier 2 tagovi, množina, escape, 404,
+      5xx/throw/timeout, podrute, brend bez `CATALOG_API`, `/vijesti`, `/dani/`). Jednom
+      provjereno i u workerdu: `wrangler pages dev web --service KATALOG=<stub>` uz lokalni
+      stub worker (`wrangler dev`) → `/c/tribina` 10/10 vlastiti OG; stub nije u repou.
+
+1030. **Kursor stranice je `?cursor=`, ne `?after=`** (`fd297aa`). API ga čita u
+      `parsePage` (`katalog/src/api/v1.ts`, `params.get("cursor")`), a nepoznate parametre
+      tiho odbacuje. Klijent je od S9 (`dayUrl`) slao `after`, pa je svaka sljedeća stranica
+      vraćala prvu; S9 `/dani/` to nije otkrio jer dan rijetko ima više od jedne stranice,
+      a testovi su provjeravali URL koji je klijent sam složio. Uhvaćeno u S10 pri provjeri
+      kolizije slugova: `curl -s ".../directory?limit=100&after=<next>"` vraća istu prvu
+      stranicu (`tribina`), s `cursor=` dvije stranice i 162 različita kanala. Pouka za
+      ugovor: ime parametra stoji u shemi samo kao opis polja `next`; idući put klijentski
+      test URL-a provjerava parametar prema `parsePage`, a ne prema sebi.
