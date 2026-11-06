@@ -448,3 +448,34 @@ kanala), nakon migracije `0003` i ponovnog uvoza.
      vidi kao CORS grešku; (c) ključ cachea nosi sirovi `pathname`, pa isti resurs može imati
      više zapisa (`%73ubclub`); (d) host koji nije u `brands` dobiva `DEFAULT_BRAND` i vlastiti
      ključ cachea, dakle proizvoljan `Host` puni cache (u produkciji to ograničava ruta zone).
+
+## S4 (2026-11-06, sintetička skala)
+
+Oblik stvarnog korpusa: [research/2026-11-06-raspodjela-korpusa.md](research/2026-11-06-raspodjela-korpusa.md).
+
+400. **Iznimka iz handlera je 500 `internal` u obliku ostalih grešaka** (zatvara 314 b):
+     JSON `{ok:false,error:"internal"}`, ACAO `*`, `no-store`, `console.error` s imenom,
+     porukom i putanjom bez upita. Omot je u `src/index.ts`, funkcija
+     `internalErrorResponse` u `v1.ts` (glavni modul izvozi samo handler, odluka 312).
+     Sprema se samo 200, pa 500 nikad ne ulazi u cache (`test/api/internal-error.test.ts`:
+     env bez `DB`, D1 koji baca u `all` i `batch`, sljedeći zahtjev je `miss`). Razlog: goli
+     500 iz runtimea web klijent vidi kao CORS grešku. `error.schema.json` dobiva kod
+     `internal`.
+401. **Sintetičke raspodjele žive u `src/synth/`** kao čisti TS bez Node i Workers API-ja,
+     da ih uvoze i vitest pool i Node 24. `s3.ts` je ograda za paginaciju (odluka 313,
+     brojke za N=5000 i sjeme `20261105` nepromijenjene); `korpus` je oblik stvarnog
+     kataloga i služi mjerenjima.
+402. **`korpus` skalira na više kanala, ne na dulje kanale.** Veličine kanala uzorkuju se
+     iz stvarnih po tieru (broj kanala ∝ N, ~44 na 1000 epizoda), udjeli po epizodi su
+     stalni, uz `max(1, round(N/50k))` divovskih kanala od 1000–3000 epizoda (najviše
+     N/10), vrući dan ~0,8 % N, bez datuma 0,05 % (stvarno 0, ali put mora postojati).
+     Razlog: korpus raste novim kanalima (stvarni najveći ima 320 epizoda), a divovi daju
+     duboke kursore.
+403. **Generator (`scripts/synth.ts`) piše izravno u SQLite** (`node:sqlite`) odvojenog
+     `--persist-to` direktorija pod `.wrangler/`, s migracijama kroz wrangler i istim
+     `UPSERT_*`/`channelParams`/`episodeParams` kao `applyPlan`. `.wrangler/state` (baza
+     S2 uvoza) je zabranjen, postojeći direktorij se briše samo uz `--force`. Razlog: 1M
+     kroz `getPlatformProxy` bilo bi ~5000 batcheva, a shema i stupci ovako ostaju
+     identični uvozniku.
+404. **Skripte u TS-u imaju vlastiti `scripts/tsconfig.json`** (Node + workers tipovi,
+     `@types/node@24.19.1`); `typecheck` pokriva oba projekta.
