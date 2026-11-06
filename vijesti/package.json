@@ -17,7 +17,8 @@
     "verify:measure": "tsx engine/verify/measure-cli.ts",
     "vijesti": "tsx engine/cli.ts",
     "eval": "tsx engine/eval/cli.ts",
-    "eval:report": "tsx engine/eval/cli.ts report"
+    "eval:report": "tsx engine/eval/cli.ts report",
+    "eval:drafts": "tsx engine/eval/cli.ts drafts"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.5.15",

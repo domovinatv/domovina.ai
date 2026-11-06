@@ -1,9 +1,16 @@
 // `npm run vijesti -- extract <videoId> [--fake] [--lang xx] [--db path]`
 // `npm run vijesti -- score <videoId> [--fake] [--channel slug] [--db path]`
+// `npm run vijesti -- write <videoId> [--fake] [--channel slug] [--db path]`
+// `npm run vijesti -- verify <articleId|videoId> [--fake] [--db path]`
+//
+// write      vijest iz trenutaka s ocjenom ≥ praga (odluke 413–425); nova verzija.
+// verify     provjera zadnje verzije članka (odluke 426–433); nova verzija. Broj
+//            je ID članka, sve ostalo ID videa. Čita samo bazu (ne CDN).
 //
 // --fake     lažni LLM (odluke 209, 313); za ID iz fixturea i lažni CDN nad
 //            engine/test/fixtures (bez mreže), inače pravi CDN, samo čitanje.
 //            `score --fake` čita osobe iz fixturea (bez mreže).
+//            Tok bez mreže: extract → score → write → verify, svi s --fake.
 // --lang     jezik snimke (odluka 200), inače iz episode.json / zadano hr.
 // --channel  slug kanala (inače se traži po listinzima, odluka 112).
 // --db       PGlite direktorij, zadano vijesti/.cache/vijesti.pglite.
@@ -37,6 +44,10 @@ import { createLlmFromConfig, describeLlmConfig, llmConfigFromEnv, loadDotEnv } 
 import type { RunRecorder } from './llm/runs.js';
 import type { LlmClient } from './llm/types.js';
 import { createFakeScoreLlm } from './score/fake-llm.js';
+import { formatVerifyReport, runVerify, type VerifyReport } from './verify/article.js';
+import { createFakeVerifyLlm } from './verify/article-fake-llm.js';
+import { createFakeWriteLlm } from './write/fake-llm.js';
+import { formatWriteReport, runWrite, type WriteReport } from './write/vijest.js';
 import { buildPersonIndex, loadPersons, parsePersons } from './score/persons.js';
 import { formatScoreReport, runScore, type ScoreReport } from './score/run.js';
 import { createFakeCdn } from './test/fake-cdn.js';
@@ -62,6 +73,8 @@ export class UsageError extends Error {
 export const USAGE = [
   'upotreba: vijesti extract <videoId> [--fake] [--lang xx] [--db path]',
   '          vijesti score <videoId> [--fake] [--channel slug] [--db path]',
+  '          vijesti write <videoId> [--fake] [--channel slug] [--db path]',
+  '          vijesti verify <articleId|videoId> [--fake] [--db path]',
 ].join('\n');
 
 export interface ScoreArgs {
@@ -106,6 +119,25 @@ export function parseExtractArgs(argv: string[]): ExtractArgs {
 export function parseScoreArgs(argv: string[]): ScoreArgs {
   const { videoId, fake, db, values } = parseCommon(argv, 'score', ['--channel']);
   return { videoId, fake, db, ...(values.channel !== undefined && { channel: values.channel }) };
+}
+
+export type WriteArgs = ScoreArgs;
+
+export function parseWriteArgs(argv: string[]): WriteArgs {
+  const { videoId, fake, db, values } = parseCommon(argv, 'write', ['--channel']);
+  return { videoId, fake, db, ...(values.channel !== undefined && { channel: values.channel }) };
+}
+
+export interface VerifyArgs {
+  /** Broj = ID članka; inače ID videa. */
+  target: { articleId: number } | { videoId: string };
+  fake: boolean;
+  db: string;
+}
+
+export function parseVerifyArgs(argv: string[]): VerifyArgs {
+  const { videoId, fake, db } = parseCommon(argv, 'verify', []);
+  return { target: /^\d+$/.test(videoId) ? { articleId: Number(videoId) } : { videoId }, fake, db };
 }
 
 export interface CliEnv {
@@ -173,9 +205,30 @@ export async function runScoreCli(args: ScoreArgs, env: CliEnv = {}): Promise<Sc
   });
 }
 
+export async function runWriteCli(args: WriteArgs, env: CliEnv = {}): Promise<WriteReport> {
+  const cdn = cliCdn(args, env);
+  return withDb(args.db, async (db) => {
+    const recorder = createSqlRunRecorder(db);
+    const llm = args.fake ? createFakeWriteLlm(recorder) : realLlm(recorder);
+    return runWrite({ cdn, llm, recorder, db }, { videoId: args.videoId, channel: args.channel });
+  });
+}
+
+export async function runVerifyCli(args: VerifyArgs): Promise<VerifyReport> {
+  return withDb(args.db, async (db) => {
+    const recorder = createSqlRunRecorder(db);
+    const llm = args.fake ? createFakeVerifyLlm(recorder) : realLlm(recorder);
+    return runVerify({ llm, recorder, db }, args.target);
+  });
+}
+
 async function main(argv: string[]): Promise<number> {
   try {
-    if (argv[0] === 'score') {
+    if (argv[0] === 'write') {
+      console.log(formatWriteReport(await runWriteCli(parseWriteArgs(argv))));
+    } else if (argv[0] === 'verify') {
+      console.log(formatVerifyReport(await runVerifyCli(parseVerifyArgs(argv))));
+    } else if (argv[0] === 'score') {
       console.log(formatScoreReport(await runScoreCli(parseScoreArgs(argv))));
     } else {
       console.log(formatReport(await runExtractCli(parseExtractArgs(argv))));

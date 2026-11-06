@@ -520,3 +520,126 @@ paralelni worktreeji ne sudare. Odluka se ne briše: zamijeni je novom koja je p
      `engine/cli.ts`: prvo `--dry-run`, pa `VIJESTI_LLM_BACKEND=agy npm run eval -- --channels
      mreze_rijeci,iva_kraljevic,catholic_futurist,domovina_tv --limit 5 --max-calls 500` u
      pozadini, pa `npm run eval:report -- --out docs/research/YYYY-MM-DD-f0-mjerenje.md`.
+413. **Format „vijest iz podcasta” ima stilski vodič `docs/stil.md`** (pravila V1–V14, zatvoren
+     popis kategorija). Generator (`engine/write/`, `step = write`, `PROMPT_VERSION =
+     write-vijest/1`, temperatura 0,3) piše jedan članak iz trenutaka JEDNE epizode. Izlaz po zod
+     shemi: `title`, `lead`, `body` (2–24 bloka `{type:'p', text}` ili `{type:'quote', moment:N}`),
+     `category` iz popisa. Test: „lažni generator prolazi shemu; verzija 1…”.
+414. **Ulaz generatora: prihvaćeni trenuci s ocjenom trenutne verzije ≥ `NEWS_SCORE_THRESHOLD`**,
+     najviše 12 (`MAX_WRITE_MOMENTS`, najbolji po ocjeni), u promptu redom snimke kao `t1…tn`
+     (kao odluka 306), uz naslov, kanal, datum iz listinga i govornike iz `summary.json`. Epizoda
+     bez trenutka iznad praga nema članak, poziv ni `runs` zapis; eval to bilježi kao `write=none`.
+     Test: „epizoda bez trenutka iznad praga: nema članka, poziva ni runa”. Revizija: prag (409).
+415. **Vodič i sistemska uputa se drže usklađenima testom.** `SYSTEM_PROMPT` sažima svako pravilo
+     pod istom oznakom V1–V14; test pada kad se oznake ili kategorije razlikuju ili kad se
+     `docs/stil.md` promijeni, a `STIL_SHA256` u `engine/write/prompt.ts` nije osvježen. Promjena
+     pravila uz to traži novi `PROMPT_VERSION`. Test: „stil.md i sistemska uputa su usklađeni”.
+416. **Kategorije: zatvoren popis od deset slugova** (`politika`, `gospodarstvo`, `vjera`,
+     `zdravlje`, `obrazovanje`, `znanost-tehnologija`, `kultura`, `sport`, `svijet`, `drustvo`),
+     redom prednosti kad tema pripada dvjema; bira se po temi glavne tvrdnje. Shema odbija ostalo
+     (`LlmSchemaError`, ništa upisano). Baza drži samo oblik sluga (CHECK), popis je u kodu i vodiču,
+     da nova kategorija ne traži migraciju. Test: „izlaz izvan sheme (kategorija izvan popisa)…”.
+417. **Citat je referenca na `moments.id`, nikad tekst modela.** Blok `quote` nosi `moment_id` i
+     oznaku `ref`; tekst citata, ime govornika i vrijeme pri prikazu (`body`, nacrti) dolaze iz
+     `moments`. U odlomcima nema navodnika (V5); prepričana izjava nije citat. Test: isti kao 413
+     (`body` sadrži „moments.quote” za svaki citat-blok).
+418. **Duljina 300–500 riječi se mjeri, ne prisiljava.** Broje se riječi leada, odlomaka i citata
+     kako se prikazuju (naslov ne), broj s razdjelnikom (`8,000`) je jedna riječ. Izvan raspona
+     članak se sprema, `word_count` i `verify.word_range.ok = false` ga označe za urednika; nema
+     ponovnog poziva (svaki troši kvotu). Revizija: ako pravi prolaz često promaši raspon.
+419. **Jedna priča po epizodi dok nema grupiranja (S9):** `stories.slug = video-<videoId>`, članak
+     `format = 'vijest'`, `lang = 'hr'`, slug `<naslov prve verzije, do 60 znakova>-<videoId>`
+     (jedinstven i kad se naslovi poklope; ID zadržava velika slova). Revizija: S9 (priča iz više
+     epizoda).
+420. **Engleska epizoda: članak na hrvatskom, citat ostaje izvorni.** Citat-blok upućuje na
+     engleski `moments.quote` i prikaz piše „izvornik (en), ne prijevod”; prijevod se nikad ne
+     stavlja u navodnike (V13), pa ga provjera citata (426) ukloni ako se pojavi. Za preklapanje
+     (430) se uz citat broji i `moments.claim` (hrvatski sažetak), inače bi svaka hrvatska
+     rečenica engleske epizode bila nepodržana.
+421. **Migracija 005: strukturirana verzija.** `article_versions` dobiva `lead`, `category`,
+     `content jsonb` (epizoda, naslov, lead, blokovi), `word_count`, `prompt_version`, `verify
+     jsonb`; CHECK da su `content`, `lead`, `category`, `word_count` svi postavljeni ili svi NULL
+     (urednička verzija bez strukture smije postojati) i da `verify` traži `content`. `body` ostaje
+     čitljiv tekst. Test: `db/migrate.test.ts` („005…”).
+422. **Verzije su nepromjenjive; svaka generacija i svaka izmjena je nova stavka.** `write` piše
+     verziju n+1 (`created_by = engine:write`, `run_id`, `prompt_version`); `verify` UVIJEK piše
+     novu verziju (`engine:verify`, i kad ništa ne ukloni) s rezultatom u `verify`. Izvori
+     (`article_sources`) = svi trenuci iz prompta, `position` = broj iza „t”; verify ih prenosi.
+     Ponovno izvlačenje ne briše trenutke na koje se verzija poziva (odluka 207, `ON DELETE
+     RESTRICT`). Citat-blok na `tN` koji ne postoji sprema se s `moment_id = NULL`, a briše ga tek
+     verify (423). Test: isti kao 413 (druga generacija = verzija 2), „lažni provjeravatelj…”.
+423. **Politika verifyja: automatski se uklanja samo ono što je mehanički krivo.** Rečenica s
+     tekstom u navodnicima koji nije doslovan citat izvora (`quote_not_verbatim`) i citat-blok bez
+     trenutka ili s trenutkom izvan izvora verzije (`quote_ref_missing`, `quote_ref_not_source`)
+     se brišu i zapisuju u `verify.removed` s tekstom. Tvrdnja bez potpore, krivo ime, krivi broj
+     i malo preklapanje OSTAJU, označeni `unsupported` s razlozima, za urednika. Naslov se nikad ne
+     briše, samo označi. Test: „provjeravatelj laže „podržano t1”…”.
+424. **Lažni generator i provjeravatelj su deterministički iz prompta.** `write --fake` slaže
+     vijest od riječi citata najbolje ocijenjenih trenutaka (dva citat-bloka, 300–500 riječi);
+     `verify --fake` uz rečenicu stavlja trenutak s najviše zajedničkih osnova (barem dvije),
+     inače podatke o epizodi. `lyingVerifyResponse` (testovi) kaže „podržano t1” za sve. Isti
+     `parseLlmJson` i brojanje poziva (`createResponderLlm`). Dokazuju tok, ne kvalitetu (kao 313).
+425. **Tok bez mreže kroz CLI:** `npm run vijesti -- write <videoId> --fake --db <d>` pa
+     `npm run vijesti -- verify <articleId|videoId> --fake --db <d>` (broj = ID članka, inače ID
+     videa; verify čita samo bazu, metapodaci epizode su snimljeni u `content.episode`). Test:
+     „extract → score → write → verify, sve --fake…”.
+426. **Verify: LLM sloj** (`step = verify`, `PROMPT_VERSION = verify-article/1`, temperatura 0):
+     rečenice naslova, leada i odlomaka numerirane `s1…sn` (citat-blokovi nisu rečenice; provjereni
+     su referencom), za svaku `supported_by` (brojevi `t`), `metadata` (rečenica govori samo o
+     epizodi) i `reason`. Nepostojeći ili ponovljen broj rečenice → `VerifyMismatchError`, run
+     `failed`, nema nove verzije (kao 312); izostavljena rečenica = `verifier_omitted`;
+     nepostojeći `t` u `supported_by` se odbacuje uz `unknown_moment_ref`. Verzija rezultata
+     `verify-article/1+d1`. Test: „nepostojeća rečenica u izlazu…”.
+427. **Normalizacija citata: samo razmaci, NFC i oblik navodnika/apostrofa** (`normalizeQuote`).
+     Interpunkcija i velika slova ostaju, pa „rečeno” ≠ „rečeno.”. Usporedba je jednakost s
+     `moments.quote` cijelog trenutka izvora, ne podniz: djelomičan citat u navodnicima se briše,
+     jer V5 navodnike u odlomcima ionako zabranjuje. To nije `verify/normalize.ts` (citat prema
+     titlu). Test: „citat: normalizacija samo razmaka i oblika navodnika”.
+428. **Imena: niz od barem dvije riječi velikim početnim slovom** (titule iz `NAME_TITLES` se
+     preskaču, zarez/dvotočka prekidaju niz) mora se naći u imenima govornika, entitetima i
+     citatima podupirućih trenutaka ili u metapodacima epizode. Riječ je isto ime u drugom padežu
+     kad dijeli početak od barem min(duljina) − 1 i 3 slova (`Horvatu`/`Horvat`, ne
+     `Marko`/`Marija`); na početku rečenice prva riječ smije biti obična („Prema Ivanu Horvatu”).
+     Tvrdnje (`claim`) ne ulaze: to je tekst modela. Ne provjerava se: pojedinačna riječ velikim
+     slovom usred rečenice (mjesto, ustanova) i ime s promjenom osnove (`Petar`/`Petra` da lažnu
+     uzbunu). Test: „imena: padeži da…”. Revizija: druga faza S4 (adversarijalni testovi).
+429. **Brojevi: znamenke (razdjelnik tisućica `.`, `,` ili razmak ispred točno tri znamenke,
+     decimalni zarez) i brojevi riječima od „dva” naviše, hrvatski i engleski, sa složenicama
+     („dvadeset pet”, „tri milijuna”).** „Jedan” se ne broji („jedan od”). Broj rečenice mora biti
+     među brojevima citata, imena i entiteta podupirućih trenutaka ili metapodataka (datum objave
+     daje dan, mjesec i godinu); korpus uključuje i sastavnice (3 i 3000000). Poznata rupa: dan
+     ili mjesec iz datuma prođe i kad je napisan krivi datum. Test: „brojevi: …”.
+430. **Preklapanje: udio sadržajnih osnova rečenice (riječi od 4+ slova bez dijakritike, prvih 5
+     slova, bez riječi izvještavanja „kaže/prema riječima/podcast/epizoda”) koje postoje u
+     podupirućim trenucima (citat, tvrdnja, govornik, entiteti) i metapodacima.** Ispod
+     `MIN_LEXICAL_OVERLAP = 0,4` rečenica je `low_overlap` i kad je LLM označi podržanom; rečenica
+     s manje od 3 osnove nema sud. Gleda se samo kad LLM tvrdi potporu. Privremeno: izmišljena
+     tvrdnja u testu ima 0, ispravno prepričavanje oko 1. Test: „preklapanje…”, „provjeravatelj
+     laže…”. Revizija: druga faza S4 i prvi pravi prolaz.
+431. **Stil se provjerava kao upozorenje, ne kao potpora.** Upitnik/uskličnik/navodnici u naslovu,
+     mamci, mišljenje, superlativ izvan navodnika, prvo ili drugo lice, emoji i riječ velikim
+     slovima koje nema u izvoru idu u `verify.style`; ništa se ne briše i status rečenice se ne
+     mijenja. Na lažnom generatoru se javlja `first_person` (riječi citata prepisane bez navodnika).
+432. **Rezultat verifyja je strukturiran** (`article_versions.verify`): `version`, `base_version`,
+     `run_id`, pravila (prag preklapanja, duljina osnove), `word_count` i raspon, po rečenici
+     `n`, dio, blok, tekst, `status`, `supported_by` (`moments.id`), `metadata`, `overlap`,
+     `problems[{code, detail}]`, zatim `removed`, `style` i `summary`. Rečenica je `supported`
+     samo kad LLM navede valjan trenutak ili metapodatke I nema nijednog problema.
+433. **Izostavljen ili netočan izlaz provjere se nikad ne popravlja tiho** (kao 312): presuda se
+     ne nagađa ni za izostavljene rečenice, a nepostojeći trenutak se ne preslikava na drugi.
+434. **`npm run eval` piše članak i provjeru nakon ocjene.** Korak `write` je gotov kad je zadnji
+     `write` run trenutne verzije `ok` (ili `none` bez trenutka ≥ praga); `verify` kad je `ok`
+     zadnji `verify` run NOVIJI od tog članka; neuspjeli se broje kao u 407 (`--attempts`).
+     Članak samo nad potpuno ocijenjenom epizodom. Procjena (dopuna 408): +1 poziv za članak (pravi
+     prompt kad je ocjena gotova, inače 800 + 150 po trenutku do 12, uz pretpostavku da epizoda
+     dobiva članak) i +1 za provjeru (isto + 1300 tokena članka); izlaz 2500 i 2000 tokena. Log
+     dobiva `write=` i `verify=`. Na 5 fixturea: 50 poziva (40 + 5 + 5), 5 nacrta, nastavak 0
+     poziva: `npm run eval -- --fake --max-calls 50`. Ocjena promijenjena nakon članka ne piše
+     novi članak sama (revizija kad ocjena dobije `f2`). Test: „pravi prolaz pa nastavak…”.
+435. **Izvoz nacrta: `npm run eval:drafts -- [--fake] [--db …] [--out file.md]`.** Zadnja verzija
+     svakog članka: naslov, epizoda s linkom, verzija i autor, kategorija, broj riječi i raspon,
+     sažetak provjere, lead, tijelo s citatima iz `moments.quote` uz ime, vrijeme i
+     `https://domovina.ai/v/<id>/t/<sec>`, zatim označene rečenice s razlozima, uklonjeno i stil.
+     Uz sažetak, epizode uzorka bez nacrta i svaki članak naredba `npm run eval:report -- --db …
+     --query "…"` koja reproducira brojke (kao 411). Test: „pravi prolaz pa nastavak…” (5 nacrta,
+     naredba sažetka daje istu tablicu).

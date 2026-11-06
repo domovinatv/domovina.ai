@@ -1,6 +1,10 @@
 // `npm run eval -- [--channels a,b] [--limit N] [--max-calls N] [--fake] [--dry-run]
 //                  [--db path] [--log path] [--attempts N] [--resample] [--now YYYY-MM-DD]`
 // `npm run eval:report -- [--fake] [--db path] [--out file.md] [--query "SQL"]`
+// `npm run eval:drafts -- [--fake] [--db path] [--out file.md]`
+//
+// Uz izvlačenje i ocjenu eval piše članak i provjeru (odluka 434); nacrti iz
+// baze idu u Markdown kroz `eval:drafts` (odluka 435).
 //
 // Odluke 405–412. Pravo pokretanje (ODGOĐENO, korisnik kaže kad; vidi
 // engine/cli.ts i .env.example) ide s `VIJESTI_LLM_BACKEND=agy` i obaveznim
@@ -32,6 +36,7 @@ import type { LlmClient, LlmPricing } from '../llm/types.js';
 import { buildPersonIndex, loadPersons, parsePersons } from '../score/persons.js';
 import { createFakeCdn, type FakeCdnOptions } from '../test/fake-cdn.js';
 import { createFakeEvalLlm } from './fake-llm.js';
+import { buildDrafts } from './drafts.js';
 import { buildEvalReport, markdownTable, readOnlyQuery } from './report.js';
 import { runEval, type EvalBackend, type EvalResult } from './run.js';
 
@@ -45,6 +50,7 @@ export const EVAL_USAGE = [
   'upotreba: npm run eval -- [--channels a,b] [--limit N] [--max-calls N] [--fake] [--dry-run]',
   '                          [--db path] [--log path] [--attempts N] [--resample] [--now YYYY-MM-DD]',
   '          npm run eval:report -- [--fake] [--db path] [--out file.md] [--query "SQL"]',
+  '          npm run eval:drafts -- [--fake] [--db path] [--out file.md]',
 ].join('\n');
 
 export interface EvalArgs {
@@ -123,6 +129,18 @@ export function parseEvalArgs(argv: string[], today: Date = new Date()): EvalArg
     attempts: values['--attempts'] === undefined ? 2 : positiveInt('--attempts', values['--attempts']),
     resample: set.has('--resample'),
     now,
+  };
+}
+
+export type DraftsArgs = Omit<ReportArgs, 'query'>;
+
+export function parseDraftsArgs(argv: string[]): DraftsArgs {
+  const [first, ...rest] = argv;
+  if (first !== 'drafts') throw new UsageError(EVAL_USAGE);
+  const { set, values } = scan(rest, ['--fake'], ['--db', '--out']);
+  return {
+    db: values['--db'] ?? (set.has('--fake') ? DEFAULT_FAKE_EVAL_DB : DEFAULT_EVAL_DB),
+    out: values['--out'] ?? null,
   };
 }
 
@@ -221,8 +239,22 @@ export async function runReportCli(args: ReportArgs, generatedAt?: Date): Promis
   });
 }
 
+export async function runDraftsCli(args: DraftsArgs, generatedAt?: Date): Promise<string> {
+  return withDb(args.db, async (db) => {
+    const md = await buildDrafts(db, { dbPath: args.db, ...(generatedAt && { generatedAt }) });
+    if (args.out) await writeFile(args.out, md, 'utf8');
+    return md;
+  });
+}
+
 async function main(argv: string[]): Promise<number> {
   try {
+    if (argv[0] === 'drafts') {
+      const args = parseDraftsArgs(argv);
+      const md = await runDraftsCli(args, new Date());
+      console.log(args.out ? `nacrti: ${args.out}` : md);
+      return 0;
+    }
     if (argv[0] === 'report') {
       const args = parseReportArgs(argv);
       const md = await runReportCli(args, new Date());
@@ -233,7 +265,9 @@ async function main(argv: string[]): Promise<number> {
     const res = await runEvalCli(args);
     console.log(res.text);
     if (!args.dryRun && res.exitCode === 0) {
-      console.log(`log: ${args.log}\nizvještaj: npm run eval:report -- --db '${args.db}'`);
+      console.log(
+        `log: ${args.log}\nizvještaj: npm run eval:report -- --db '${args.db}'\nnacrti: npm run eval:drafts -- --db '${args.db}' --out <file.md>`,
+      );
     }
     return res.exitCode;
   } catch (e) {

@@ -70,3 +70,31 @@ export async function loadRecordedResponses(dir: string): Promise<Record<string,
   }
   return out;
 }
+
+/**
+ * Lažni klijent koji odgovor DETERMINISTIČKI gradi iz zahtjeva (`write --fake`,
+ * `verify --fake`): isti `parseLlmJson`, isto brojanje poziva, trošak 0.
+ */
+export function createResponderLlm(
+  model: string,
+  recorder: RunRecorder,
+  respond: (req: GenerateRequest<z.ZodType>) => string,
+): LlmClient & { calls: number } {
+  const client = {
+    model,
+    calls: 0,
+    async generate<S extends z.ZodType>(req: GenerateRequest<S>): Promise<z.infer<S>> {
+      client.calls++;
+      const usage = { tokensIn: 0, tokensOut: 0 };
+      try {
+        const data = parseLlmJson(respond(req), req.schema);
+        await recorder.recordCall(req.runId, { model, ...usage, costUsd: 0, ok: true });
+        return data;
+      } catch (e) {
+        await recorder.recordCall(req.runId, { model, ...usage, costUsd: 0, ok: false });
+        throw e;
+      }
+    },
+  };
+  return client;
+}

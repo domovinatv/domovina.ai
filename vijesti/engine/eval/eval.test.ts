@@ -22,6 +22,7 @@ import {
   parseEvalArgs,
   parseReportArgs,
   runEvalCli,
+  runDraftsCli,
   runReportCli,
   type EvalArgs,
 } from './cli.js';
@@ -117,7 +118,7 @@ describe('uzorak', () => {
 });
 
 describe('npm run eval -- --fake (5 fixturea)', () => {
-  it('suhi prolaz: procjena 40 poziva, ništa pozvano ni upisano', async () => {
+  it('suhi prolaz: procjena 50 poziva, ništa pozvano ni upisano', async () => {
     let made = 0;
     const res = await runEvalCli(args({ dryRun: true }), {
       llm: (r) => {
@@ -127,9 +128,9 @@ describe('npm run eval -- --fake (5 fixturea)', () => {
     });
     expect(res.exitCode).toBe(0);
     expect(made).toBe(0);
-    expect(res.estimate).toMatchObject({ episodes: 5, todo: 5, done: 0, calls: 40, costUsd: 0 });
+    expect(res.estimate).toMatchObject({ episodes: 5, todo: 5, done: 0, calls: 50, costUsd: 0 });
     expect(res.estimate.apiEquivalentUsd).toBeGreaterThan(0);
-    expect(res.text).toMatch(/poziva: 40\n/);
+    expect(res.text).toMatch(/poziva: 50\n/);
     expect(res.text).toMatch(/--dry-run: ništa nije pozvano ni upisano/);
     expect(await runReportCli({ db: args().db, out: null, query: 'SELECT count(*) AS n FROM vijesti.eval_sample' })).toMatch(
       /\| 0 \|/,
@@ -138,7 +139,7 @@ describe('npm run eval -- --fake (5 fixturea)', () => {
 
   it('iznad --max-calls: exit 3 prije ijednog poziva', async () => {
     let made = 0;
-    const res = await runEvalCli(args({ maxCalls: 39 }), {
+    const res = await runEvalCli(args({ maxCalls: 49 }), {
       llm: (r) => {
         made++;
         return createFakeEvalLlm(r);
@@ -146,14 +147,14 @@ describe('npm run eval -- --fake (5 fixturea)', () => {
     });
     expect(res.exitCode).toBe(EXIT_OVER_BUDGET);
     expect(made).toBe(0);
-    expect(res.text).toMatch(/STOP: procjena 40 poziva je iznad --max-calls 39/);
+    expect(res.text).toMatch(/STOP: procjena 50 poziva je iznad --max-calls 49/);
   });
 
   it('pravi prolaz pa nastavak: drugi put 0 poziva; log ima redak po epizodi; izvještaj radi bez mreže', async () => {
-    const a = args({ maxCalls: 40 });
+    const a = args({ maxCalls: 50 });
     const first = await runEvalCli(a);
     expect(first.exitCode).toBe(0);
-    expect(first.callsMade).toBe(40);
+    expect(first.callsMade).toBe(50);
     expect(first.outcomes.map((o) => [o.videoId, o.extract, o.score, o.error])).toEqual([
       ['x3w2BVZJ9vQ', 'ok', 'ok', null],
       ['MGLq9v3AtvE', 'ok', 'ok', null],
@@ -167,7 +168,7 @@ describe('npm run eval -- --fake (5 fixturea)', () => {
     expect(second.text).toMatch(/uzorak iz baze/);
     const log = (await readFile(a.log, 'utf8')).trim().split('\n');
     expect(log).toHaveLength(5);
-    expect(log[0]).toMatch(/\tx3w2BVZJ9vQ\tcatholic_futurist\textract=ok\tscore=ok\tpoziva=10\t$/);
+    expect(log[0]).toMatch(/\tx3w2BVZJ9vQ\tcatholic_futurist\textract=ok\tscore=ok\twrite=ok\tverify=ok \(\d+ nepodržanih, \d+ uklonjeno\)\tpoziva=12\t$/);
 
     const out = join(dir, 'izvjestaj.md');
     const md = await runReportCli({ db: a.db, out, query: null }, NOW);
@@ -199,6 +200,15 @@ describe('npm run eval -- --fake (5 fixturea)', () => {
     const quoteSql = cmds.find((m) => m[1]?.includes('AS ishod'))?.[1] ?? '';
     const table = await runReportCli({ db: a.db, out: null, query: quoteSql });
     expect(md).toContain(table);
+
+    // Nacrti (odluka 435): po jedan za svaku epizodu s trenutkom ≥ praga, citati iz moments.quote s linkom.
+    const drafts = await runDraftsCli({ db: a.db, out: null }, NOW);
+    expect(drafts).toMatch(/^# Nacrti vijesti iz podcasta/);
+    expect(drafts).toContain('Nacrta: 5.');
+    expect(drafts.match(/^- Članak \d+, verzija 2 \(engine:verify, verify-article\/1\+d1\)/gm)).toHaveLength(5);
+    expect(drafts.match(/^> – .*https:\/\/domovina\.ai\/v\/[\w-]+\/t\/\d+/gm)?.length).toBeGreaterThanOrEqual(5);
+    const sumSql = [...drafts.matchAll(/Reprodukcija: `npm run eval:report -- --db '[^']+' --query "([^"]+)"`/g)][0]?.[1] ?? '';
+    expect(drafts).toContain(await runReportCli({ db: a.db, out: null, query: sumSql }));
   });
 
   it('greška jedne epizode ne ruši uzorak; nastavak pokuša još jednom pa odustane', async () => {
@@ -273,8 +283,8 @@ describe('npm run eval -- --fake (5 fixturea)', () => {
         pricing: { inPerMTok: 0, outPerMTok: 0 },
       };
       const r = await runEval(deps, opts);
-      expect(r.estimate).toMatchObject({ episodes: 1, calls: 11, seconds: 660, costUsd: 0 });
-      expect(r.text).toMatch(/trajanje: ~11 min 0 s \(60 s po pozivu, serijski\)/);
+      expect(r.estimate).toMatchObject({ episodes: 1, calls: 13, seconds: 780, costUsd: 0 });
+      expect(r.text).toMatch(/trajanje: ~13 min 0 s \(60 s po pozivu, serijski\)/);
       expect(r.text).toMatch(/\$0 \(pretplata\); API-ekvivalent po Vertex cjeniku \$0\.\d\d \(procjena\)/);
       expect((await db.query('SELECT 1 FROM vijesti.eval_sample')).rows).toHaveLength(0);
       expect((await runEval(deps, opts)).plans).toEqual(r.plans);

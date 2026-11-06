@@ -1,6 +1,6 @@
 // `npm run eval`: uzorak → plan (što je već gotovo) → procjena bez poziva →
-// izvlačenje i ocjena epizodu po epizodu (odluke 405–411). Nastavlja gdje je
-// stao: epizoda s uspjelim izvlačenjem i ocjenom se preskače, jer agy uzorak
+// izvlačenje, ocjena, članak i provjera epizodu po epizodu (odluke 405–411,
+// 434). Nastavlja gdje je stao: gotov korak se preskače, jer agy uzorak
 // traje satima. Greška jedne epizode se zapiše i ide se dalje. Napredak se NE
 // ispisuje po pozivu (globalno pravilo o tokenima): jedan redak po epizodi u
 // log datoteku i završni sažetak.
@@ -22,6 +22,21 @@ import {
   SYSTEM_PROMPT as SCORE_SYSTEM,
 } from '../score/prompt.js';
 import { prepareScore, runScore } from '../score/run.js';
+import { runVerify } from '../verify/article.js';
+import {
+  PROMPT_VERSION as VERIFY_PROMPT_VERSION,
+  SYSTEM_PROMPT as VERIFY_SYSTEM,
+  VerifyOutputSchema,
+} from '../verify/article-prompt.js';
+import { loadEligibleMoments } from '../write/store.js';
+import {
+  MAX_WRITE_MOMENTS,
+  PROMPT_VERSION as WRITE_PROMPT_VERSION,
+  SYSTEM_PROMPT as WRITE_SYSTEM,
+  WriteOutputSchema,
+} from '../write/prompt.js';
+import { prepareWrite, runWrite } from '../write/vijest.js';
+import { NEWS_SCORE_THRESHOLD } from '../score/formula.js';
 import {
   loadChannelSample,
   processingOrder,
@@ -48,6 +63,13 @@ export const ESTIMATE = {
   momentsPerSection: 2,
   scoreTokensPerMoment: 120,
   scoreBaseTokens: 1500,
+  /** Članak (odluka 434): podaci o epizodi i uputa bez trenutaka, pa po trenutku u promptu. */
+  writeBaseTokens: 800,
+  writeTokensPerMoment: 150,
+  writeOutTokens: 2500,
+  /** Provjera: isti trenuci uz ~500 riječi članka po rečenicama. */
+  verifyArticleTokens: 1300,
+  verifyOutTokens: 2000,
 } as const;
 
 /** Izlazni kod kad je procjena ili potrošnja iznad `--max-calls`. */
@@ -81,12 +103,15 @@ export interface EvalDeps {
   clock?: () => number;
 }
 
-export type StepState = 'done' | 'todo' | 'gave_up';
+/** `none`: korak nema posla (epizoda bez trenutka ≥ praga nema članak, odluka 414). */
+export type StepState = 'done' | 'todo' | 'gave_up' | 'none';
 
 export interface EpisodePlan {
   ep: SampledEpisode;
   extract: StepState;
   score: StepState;
+  write: StepState;
+  verify: StepState;
   calls: number;
   tokensIn: number;
   tokensOut: number;
@@ -114,6 +139,8 @@ export interface EpisodeOutcome {
   channel: string;
   extract: string;
   score: string;
+  write: string;
+  verify: string;
   calls: number;
   error: string | null;
 }
@@ -154,22 +181,28 @@ export function budgetedLlm(llm: LlmClient, max: number | null): LlmClient & { r
 }
 
 interface StatusRow {
+  id: number | string;
   status: string;
 }
 
-/** Zadnji run koraka je `ok` → done; inače broj neuspjelih zaredom od zadnjeg uspjeha. */
-async function stepHistory(db: SqlDb, step: string, videoId: string, version: string) {
+/**
+ * Zadnji run koraka je `ok` → done; inače broj neuspjelih zaredom od zadnjeg
+ * uspjeha. `afterId`: samo runovi noviji od njega (provjera nakon zadnjeg članka).
+ */
+async function stepHistory(db: SqlDb, step: string, videoId: string, version: string, afterId = 0) {
   const res = await db.query<StatusRow>(
-    `SELECT status FROM vijesti.runs WHERE step = $1 AND video_id = $2 AND prompt_version = $3 ORDER BY id DESC`,
-    [step, videoId, version],
+    `SELECT id, status FROM vijesti.runs
+     WHERE step = $1 AND video_id = $2 AND prompt_version = $3 AND id > $4 ORDER BY id DESC`,
+    [step, videoId, version, afterId],
   );
   const ok = res.rows[0]?.status === 'ok';
+  const lastOkId = Number(res.rows.find((r) => r.status === 'ok')?.id ?? 0);
   let failures = 0;
   for (const r of res.rows) {
     if (r.status === 'ok') break;
     failures++;
   }
-  return { ok, failures };
+  return { ok, failures, lastOkId };
 }
 
 async function pendingScores(db: SqlDb, videoId: string): Promise<number> {
@@ -181,17 +214,34 @@ async function pendingScores(db: SqlDb, videoId: string): Promise<number> {
   return Number(res.rows[0]?.n ?? 0);
 }
 
-export async function stepStates(
-  db: SqlDb,
-  videoId: string,
-  attempts: number,
-): Promise<{ extract: StepState; score: StepState }> {
+type Steps = Pick<EpisodePlan, 'extract' | 'score' | 'write' | 'verify'>;
+
+const state = (h: { ok: boolean; failures: number }, attempts: number): StepState =>
+  h.ok ? 'done' : h.failures >= attempts ? 'gave_up' : 'todo';
+
+/**
+ * Stanje četiri koraka (odluke 407, 434). Korak koji čeka prethodni nasljeđuje
+ * njegovo stanje (`todo` ili `gave_up`). Članak je gotov kad je zadnji `write`
+ * run trenutne verzije `ok`; provjera kad je `ok` zadnji `verify` run NOVIJI od
+ * tog članka. Bez trenutka ≥ praga članka nema (`none`).
+ */
+export async function stepStates(db: SqlDb, videoId: string, attempts: number): Promise<Steps> {
   const ex = await stepHistory(db, 'extract', videoId, EXTRACT_VERSION);
-  const extract: StepState = ex.ok ? 'done' : ex.failures >= attempts ? 'gave_up' : 'todo';
-  if (extract !== 'done') return { extract, score: extract };
-  if ((await pendingScores(db, videoId)) === 0) return { extract, score: 'done' };
-  const sc = await stepHistory(db, 'score', videoId, SCORE_PROMPT_VERSION);
-  return { extract, score: sc.failures >= attempts ? 'gave_up' : 'todo' };
+  const extract = state(ex, attempts);
+  if (extract !== 'done') return { extract, score: extract, write: extract, verify: extract };
+  if ((await pendingScores(db, videoId)) > 0) {
+    const sc = await stepHistory(db, 'score', videoId, SCORE_PROMPT_VERSION);
+    const score: StepState = sc.failures >= attempts ? 'gave_up' : 'todo';
+    return { extract, score, write: score, verify: score };
+  }
+  if ((await loadEligibleMoments(db, videoId, NEWS_SCORE_THRESHOLD)).length === 0) {
+    return { extract, score: 'done', write: 'none', verify: 'none' };
+  }
+  const wr = await stepHistory(db, 'write', videoId, WRITE_PROMPT_VERSION);
+  const write = state(wr, attempts);
+  if (write !== 'done') return { extract, score: 'done', write, verify: write };
+  const vr = await stepHistory(db, 'verify', videoId, VERIFY_PROMPT_VERSION, wr.lastOkId);
+  return { extract, score: 'done', write, verify: state(vr, attempts) };
 }
 
 const schemaTokens = (s: z.ZodType) => estimateTokens(JSON.stringify(toGeminiSchema(s)));
@@ -199,6 +249,8 @@ const schemaTokens = (s: z.ZodType) => estimateTokens(JSON.stringify(toGeminiSch
 async function planEpisode(deps: EvalDeps, ep: SampledEpisode, attempts: number): Promise<EpisodePlan> {
   const st = await stepStates(deps.db, ep.videoId, attempts);
   const plan: EpisodePlan = { ep, ...st, calls: 0, tokensIn: 0, tokensOut: 0, error: null };
+  // Trenutaka u promptu članka i provjere; dok ocjena nije gotova, gornja granica.
+  let writeMoments: number = MAX_WRITE_MOMENTS;
   try {
     let sections = 0;
     if (st.extract === 'todo') {
@@ -229,6 +281,30 @@ async function planEpisode(deps: EvalDeps, ep: SampledEpisode, attempts: number)
         plan.tokensOut += ESTIMATE.scoreOutTokens;
       }
     }
+    if (st.write === 'todo') {
+      // Pretpostavka dok ocjena nije gotova: epizoda dobiva članak (gornja granica poziva).
+      let tokensIn = estimateTokens(WRITE_SYSTEM) + ESTIMATE.writeBaseTokens + writeMoments * ESTIMATE.writeTokensPerMoment;
+      if (st.score === 'done') {
+        const prep = await prepareWrite({ cdn: deps.cdn, db: deps.db }, { videoId: ep.videoId, channel: ep.channel });
+        writeMoments = prep.moments.length;
+        tokensIn = prep.prompt === null ? 0 : estimateTokens(prep.prompt) + estimateTokens(prep.system);
+      }
+      if (tokensIn > 0) {
+        plan.calls += 1;
+        plan.tokensIn += tokensIn + schemaTokens(WriteOutputSchema);
+        plan.tokensOut += ESTIMATE.writeOutTokens;
+      }
+    }
+    if (st.verify === 'todo') {
+      plan.calls += 1;
+      plan.tokensIn +=
+        estimateTokens(VERIFY_SYSTEM) +
+        ESTIMATE.writeBaseTokens +
+        writeMoments * ESTIMATE.writeTokensPerMoment +
+        ESTIMATE.verifyArticleTokens +
+        schemaTokens(VerifyOutputSchema);
+      plan.tokensOut += ESTIMATE.verifyOutTokens;
+    }
   } catch (e) {
     plan.error = (e as Error).message;
     plan.calls = 0;
@@ -240,15 +316,16 @@ async function planEpisode(deps: EvalDeps, ep: SampledEpisode, attempts: number)
 
 function estimateOf(plans: EpisodePlan[], backend: EvalBackend, pricing: LlmPricing | null, now: Date): EvalEstimate {
   const live = plans.filter((p) => p.error === null);
+  const steps = (p: EpisodePlan) => [p.extract, p.score, p.write, p.verify];
   const calls = live.reduce((n, p) => n + p.calls, 0);
   const tokensIn = live.reduce((n, p) => n + p.tokensIn, 0);
   const tokensOut = live.reduce((n, p) => n + p.tokensOut, 0);
   const api = defaultPricing('vertex', DEFAULT_GEMINI_MODEL, 'global', now.getTime());
   return {
     episodes: plans.length,
-    done: live.filter((p) => p.extract === 'done' && p.score === 'done').length,
-    todo: live.filter((p) => p.extract === 'todo' || p.score === 'todo').length,
-    gaveUp: live.filter((p) => p.extract === 'gave_up' || p.score === 'gave_up').length,
+    done: live.filter((p) => steps(p).every((x) => x === 'done' || x === 'none')).length,
+    todo: live.filter((p) => steps(p).includes('todo')).length,
+    gaveUp: live.filter((p) => steps(p).includes('gave_up')).length,
     unrunnable: plans.length - live.length,
     calls,
     tokensIn,
@@ -279,14 +356,24 @@ export function formatEstimate(e: EvalEstimate, opts: { backend: EvalBackend; ma
     `Procjena (backend ${opts.backend}, bez poziva modela; tokeni = znakovi / 3, odluka 305):`,
     `  epizoda u uzorku: ${String(e.episodes)}  gotovih: ${String(e.done)}  za obradu: ${String(e.todo)}  odustalih: ${String(e.gaveUp)}  ne mogu se pokrenuti: ${String(e.unrunnable)}`,
     `  poziva: ${String(e.calls)}${opts.maxCalls === null ? '' : ` (--max-calls ${String(opts.maxCalls)})`}`,
-    `  tokena: ulaz ~${String(e.tokensIn)}, izlaz ~${String(e.tokensOut)} (pretpostavka ${String(ESTIMATE.extractOutTokens)}/${String(ESTIMATE.scoreOutTokens)} po pozivu)`,
+    `  tokena: ulaz ~${String(e.tokensIn)}, izlaz ~${String(e.tokensOut)} (pretpostavka izlaza po pozivu: izvlačenje ${String(ESTIMATE.extractOutTokens)}, ocjena ${String(ESTIMATE.scoreOutTokens)}, članak ${String(ESTIMATE.writeOutTokens)}, provjera ${String(ESTIMATE.verifyOutTokens)})`,
     `  trajanje: ~${formatDuration(e.seconds)} (${String(SECONDS_PER_CALL[opts.backend])} s po pozivu, serijski)`,
     `  trošak: ${cost}`,
   ].join('\n');
 }
 
 function logLine(o: EpisodeOutcome, at: number): string {
-  return [new Date(at).toISOString(), o.videoId, o.channel, `extract=${o.extract}`, `score=${o.score}`, `poziva=${String(o.calls)}`, o.error ?? ''].join('\t');
+  return [
+    new Date(at).toISOString(),
+    o.videoId,
+    o.channel,
+    `extract=${o.extract}`,
+    `score=${o.score}`,
+    `write=${o.write}`,
+    `verify=${o.verify}`,
+    `poziva=${String(o.calls)}`,
+    o.error ?? '',
+  ].join('\t');
 }
 
 async function loadSample(deps: EvalDeps, opts: EvalOptions): Promise<{ samples: ChannelSample[]; notes: string[] }> {
@@ -340,10 +427,12 @@ export async function runEval(deps: EvalDeps, opts: EvalOptions): Promise<EvalRe
       channel: p.ep.channel,
       extract: p.extract,
       score: p.score,
+      write: p.write,
+      verify: p.verify,
       calls: 0,
       error: p.error,
     };
-    const todo = p.error === null && (p.extract === 'todo' || p.score === 'todo');
+    const todo = p.error === null && [p.extract, p.score, p.write, p.verify].includes('todo');
     if (todo) {
       llm ??= budgetedLlm(deps.llm(), opts.maxCalls);
       const before = llm.used;
@@ -355,10 +444,27 @@ export async function runEval(deps: EvalDeps, opts: EvalOptions): Promise<EvalRe
           extractOk = r.failedSections === 0;
           o.extract = extractOk ? 'ok' : `djelomično (${String(r.failedSections)}/${String(r.sections)} sekcija bez izlaza)`;
         }
-        if (extractOk && p.score !== 'gave_up') {
+        let scoreOk = p.score === 'done';
+        if (extractOk && p.score === 'todo') {
           const s = await runScore({ ...runDeps, persons: deps.persons }, { videoId: p.ep.videoId, channel: p.ep.channel });
-          o.score = s.missing.length > 0 ? `djelomično (${String(s.missing.length)} bez ocjene)` : 'ok';
+          scoreOk = s.missing.length === 0;
+          o.score = scoreOk ? 'ok' : `djelomično (${String(s.missing.length)} bez ocjene)`;
         } else if (!extractOk) o.score = 'čeka izvlačenje';
+        // Članak i provjera (odluka 434): samo nad potpuno ocijenjenom epizodom.
+        let writeOk = p.write === 'done';
+        if (scoreOk && p.write === 'todo') {
+          const w = await runWrite(runDeps, { videoId: p.ep.videoId, channel: p.ep.channel });
+          writeOk = w.saved !== null;
+          o.write = writeOk ? 'ok' : 'none';
+          if (!writeOk) o.verify = 'none';
+        } else if (!scoreOk && p.write === 'todo') {
+          o.write = 'čeka ocjenu';
+          o.verify = 'čeka ocjenu';
+        }
+        if (writeOk && p.verify === 'todo') {
+          const v = await runVerify(runDeps, { videoId: p.ep.videoId });
+          o.verify = `ok (${String(v.result.summary.unsupported)} nepodržanih, ${String(v.result.summary.removed)} uklonjeno)`;
+        }
       } catch (e) {
         if (e instanceof BudgetExceededError) stoppedByBudget = true;
         o.error = (e as Error).message;
