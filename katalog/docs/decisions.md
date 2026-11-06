@@ -479,3 +479,36 @@ Oblik stvarnog korpusa: [research/2026-11-06-raspodjela-korpusa.md](research/202
      identični uvozniku.
 404. **Skripte u TS-u imaju vlastiti `scripts/tsconfig.json`** (Node + workers tipovi,
      `@types/node@24.19.1`); `typecheck` pokriva oba projekta.
+
+Mjerenje na 10k/100k/1M, projekcija, trošak i staging recept:
+[research/2026-11-06-f0-mjerenje-lokalno.md](research/2026-11-06-f0-mjerenje-lokalno.md).
+
+405. **Mjerenje ide kroz `scripts/measure.ts`** (`npm run measure -- --persist <dir>`).
+     Miss se mjeri drugim `Host` po ponavljanju, s oznakom pokretanja, jer `--persist-to`
+     čuva i Cache API na disku; prije mjerenja skripta provjeri da pet novih hostova daje
+     pet missova. Hit se mjeri zasebno. Lokalno trajanje (~1–2 ms) je SQLite na Macu i ne
+     ulazi u odluke; vrijedi latencija sa staginga (S5).
+406. **Tvrdi uvjet 2 potvrđen na 10k, 100k i 1M epizoda**: `rows_read` po stranici isti
+     na sve tri razine i na prvoj i na najdubljoj punoj stranici. Najveći je 206
+     (`channels/:slug/episodes?limit=100` na divu), oblik `2 × (limit + 1) + 2…4` za
+     popise epizoda i `limit + 3…4` za popise kanala; kartica 4. Nijedna ruta nije trebala
+     popravak.
+407. **Kapacitet i odluka 4.** 411 B po epizodi s indeksima (sintetika; stvarne 342 B, pa
+     je projekcija konzervativna), budžet 7 GB po bazi (70 % od 10 GB) → 17 M epizoda.
+     Shard po brendu stoji za DOMOVINA (3665 epizoda, ~9000 godišnje). Brend sa svjetskim
+     korpusom treba shard unutar brenda kad `kanala × epizoda po kanalu > 17 M` (500 000
+     kanala: 1 baza uz 23 epizode po kanalu, 2 uz 66, 5 uz 150); ključ je jezik/zemlja,
+     hash kanala unutar jezika kad jedan jezik sam prijeđe budžet. Fan-out preko shardova
+     ide u S14.
+408. **Trošak se dimenzionira po Worker zahtjevima, ne po D1 čitanju.** I scenarij 100×
+     (90 M zahtjeva, 1,42 mlrd. redaka mjesečno; najgori slučaj bez cachea 18,5 mlrd.) je
+     ispod 25 mlrd. uključenih redaka; Workers ~25 USD iznad paušala. Pretpostavke (DAU,
+     zahtjeva po sesiji, udio hita) revidiraju se stvarnim podacima iz ClickHousea u S5;
+     potrošnju ostalih Workera na računu treba provjeriti u nadzornoj ploči.
+409. **Staging**: `env.staging` s `workers_dev: true`, bez `routes`, Worker
+     `domovina-katalog-staging`, baza `katalog-staging`. Jednokratni uvoz stvarnih podataka
+     kroz `d1 export --local --no-schema` (četiri tablice podataka, bez `d1_migrations`) i
+     `d1 execute --remote --file`; recept je lokalno isproban (3833 naredbe, isti brojevi i
+     `rows_read`). `--remote` u `import.mjs` ostaje za S6. Novi rizik: dokumentacija jamči
+     Cache API samo na custom domenama, pa S5 provjerava `x-katalog-cache: hit` na
+     `workers.dev`; cache je po podatkovnom centru, pa će udio hita biti niži od 80 %.

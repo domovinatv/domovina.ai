@@ -35,7 +35,7 @@ Handoff se mijenja samo prema naprijed: gotovi `SN` se ne prepisuju, služe kao 
 | S1 | Kostur, migracije, parseri, fixturei | gotovo | ac07618 | 134 / skipped 0 | 2026-11-05; odluke 100–123; `02a43d7` kostur + shema |
 | S2 | Uvoznik Tier 1 + Tier 2 | gotovo | 277d704 | 174 / skipped 0 | 2026-11-05; odluke 200–216; `e367767` uvoznik; D1: 3412 + 253 |
 | S3 | API v1 + ugovor + cache | gotovo | 9806bb6 | 269 / skipped 0 | 2026-11-05; odluke 300–314; `d67b17e` API; varijante skrivene (`variant_of`, 0003); `wrangler dev` popravljen |
-| S4 | Sintetička skala + izvještaj | otvoreno | | | vrata: staging na računu |
+| S4 | Sintetička skala + izvještaj | gotovo | be80dc3 | 289 / skipped 0 | 2026-11-06; odluke 400–409; 500 omotan; `rows_read` isti na 10k/100k/1M; 411 B/epizodi; **vrata: staging čeka korisnika** |
 | S5 | Staging + latencija | | | | vrata: go/no-go |
 | S6 | Produkcija, ingest, drift-check | | | | vrata: produkcijski deploy |
 | S7 | Pipeline producer | | | | u `fetch.domovina.tv` |

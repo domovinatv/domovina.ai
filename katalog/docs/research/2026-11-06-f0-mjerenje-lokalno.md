@@ -5,7 +5,7 @@
 `rows_read` po zahtjevu ne raste s veličinom kataloga ni s dubinom kursora: na 10k, 100k i
 1M epizoda svaka ruta čita isti broj redaka (najskuplja, epizode diva uz limit 100, 205 na
 prvoj i 206 na najdubljoj punoj stranici na sve tri razine), pa tvrdi uvjet 2 vrijedi i
-nijedna ruta ne treba popravak. Baza ima 411 B po epizodi s indeksima (1M = 392 MB), dakle
+nijedna ruta ne treba popravak. Baza ima 411 B po epizodi s indeksima (1M = 411 MB, 392 MiB), dakle
 u jednu D1 bazu od 10 GB uz rezervu 30 % stane 17,0 M epizoda: DOMOVINA (3665 epizoda,
 ~9000 godišnje) je tri reda veličine ispod toga i shard po brendu joj je dovoljan
 desetljećima. Svjetski korpus od 500 000 kanala stane u jednu bazu samo uz današnju gustoću

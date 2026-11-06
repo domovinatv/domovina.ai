@@ -24,10 +24,10 @@ Legenda: `[x]` gotovo · `[ ]` otvoreno · `[~]` u radu · `(!)` traži korisnik
 - [x] Keyset paginacija (cursor), limit stranice, nikad `OFFSET` → S3
 - [x] JSON sheme odgovora u `katalog/contract/` + ugovorni testovi → S3
 - [x] Cache API + verzija u ključu cachea; purge strategija zapisana → S3
-- [ ] Sintetički generator (npr. 50k kanala / 1M epizoda) u lokalnom D1 → S4
-- [ ] Mjerenje `rows_read` po ruti (`meta.rows_read`), veličina baze po 100k epizoda, projekcija do limita 10 GB → S4
+- [x] Sintetički generator (npr. 50k kanala / 1M epizoda) u lokalnom D1 → S4
+- [x] Mjerenje `rows_read` po ruti (`meta.rows_read`), veličina baze po 100k epizoda, projekcija do limita 10 GB → S4
 <!-- doc-refs:ignore-start -->
-- [ ] Izvještaj `docs/research/YYYY-MM-DD-f0-mjerenje-lokalno.md` → S4
+- [x] Izvještaj `docs/research/YYYY-MM-DD-f0-mjerenje-lokalno.md` → S4
 <!-- doc-refs:ignore-end -->
 - [ ] (!) Korisnik odobrava staging na Cloudflare računu (D1 `katalog-staging`, Worker bez produkcijske rute) → S4
 - [ ] Staging deploy, uvoz stvarnih podataka, latencija iz HR (p50/p95, hladno/toplo) vs. statični `home.json` → S5
