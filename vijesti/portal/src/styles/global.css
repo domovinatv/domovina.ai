@@ -1,0 +1,377 @@
+/* Portal vijesti: tokeni iz brenda aplikacije (odluka 609). Vrijednosti su
+   prepisane iz packages/podcast_core/lib/brand/domovina_brand.dart (seed
+   #002F6C, accent #FF0000), lib/theme/app_theme.dart (krem #FAF7F2) i
+   web/index.html (tamna #111318 / #E2E2E9). */
+
+@font-face {
+  font-family: 'Playfair Display';
+  src: url('/fonts/PlayfairDisplay-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/Inter-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/Inter-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  color-scheme: light dark;
+  --brand: #002f6c;
+  --accent: #ff0000;
+  --bg: #faf7f2;
+  --surface: #ffffff;
+  --surface-2: #f5f1ea;
+  --border: #e3dccf;
+  --fg: #1a1b20;
+  --muted: #55575f;
+  --link: #002f6c;
+  --quote-bar: #002f6c;
+  --notice-bg: #fff4e5;
+  --notice-fg: #6b3a00;
+  --danger: #b3261e;
+  --ok: #1e6b35;
+  --font-head: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --font-text: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --measure: 40rem;
+  --gutter: 1rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #111318;
+    --surface: #1a1c22;
+    --surface-2: #22252c;
+    --border: #33363f;
+    --fg: #e2e2e9;
+    --muted: #a9abb5;
+    --link: #a8c8ff;
+    --quote-bar: #a8c8ff;
+    --notice-bg: #3a2a12;
+    --notice-fg: #ffd9a8;
+    --danger: #ffb4ab;
+    --ok: #8fd6a2;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--bg);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-text);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--link);
+}
+
+a:focus-visible,
+button:focus-visible,
+summary:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-head);
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0 0 0.5em;
+}
+
+.wrap {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+
+.skip {
+  position: absolute;
+  left: -999px;
+}
+.skip:focus {
+  left: var(--gutter);
+  top: 0.5rem;
+  background: var(--surface);
+  padding: 0.5rem 0.75rem;
+  z-index: 10;
+}
+
+/* Zaglavlje */
+.site-header {
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.site-header .bar {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.5rem;
+}
+.wordmark {
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 1.375rem;
+  letter-spacing: 0.02em;
+  color: var(--fg);
+  text-decoration: none;
+}
+.wordmark .ai {
+  color: var(--accent);
+}
+.wordmark .section {
+  color: var(--muted);
+  font-family: var(--font-text);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  margin-left: 0.4rem;
+  letter-spacing: 0;
+}
+/* Rubni razmak je UNUTAR scrolla (pravilo iz korijenskog CLAUDE.md). */
+.cat-nav {
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.cat-nav ul {
+  display: flex;
+  gap: 1.25rem;
+  list-style: none;
+  margin: 0 auto;
+  padding: 0.25rem var(--gutter) 0.75rem;
+  max-width: 72rem;
+  white-space: nowrap;
+}
+.cat-nav a {
+  color: var(--muted);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+.cat-nav a[aria-current='page'] {
+  color: var(--fg);
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-underline-offset: 0.35em;
+  text-decoration-thickness: 2px;
+}
+
+main {
+  padding: 1.5rem 0 3rem;
+}
+
+/* Kartice */
+.cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1.25rem;
+}
+@media (min-width: 48rem) {
+  .cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 72rem) {
+  .cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+.card {
+  border-top: 2px solid var(--fg);
+  padding-top: 0.75rem;
+}
+.card h3 {
+  font-size: 1.25rem;
+}
+.card h3 a {
+  color: var(--fg);
+  text-decoration: none;
+}
+.card h3 a:hover {
+  text-decoration: underline;
+}
+.card p {
+  margin: 0 0 0.5rem;
+  color: var(--muted);
+  font-size: 0.9375rem;
+}
+.kicker {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin: 0 0 0.35rem;
+}
+.kicker a {
+  color: inherit;
+  text-decoration: none;
+}
+.meta {
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+.lead-story {
+  margin-bottom: 2rem;
+}
+.lead-story h2 {
+  font-size: clamp(1.75rem, 6vw, 2.75rem);
+}
+.lead-story h2 a {
+  color: var(--fg);
+  text-decoration: none;
+}
+.lead-story p.lead {
+  font-size: 1.125rem;
+  max-width: var(--measure);
+}
+
+.section-title {
+  font-size: 1.5rem;
+  margin: 2.25rem 0 1rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--border);
+}
+.section-title a {
+  color: var(--fg);
+  text-decoration: none;
+}
+
+/* Članak */
+.article {
+  max-width: var(--measure);
+  margin: 0 auto;
+}
+.article h1 {
+  font-size: clamp(1.875rem, 7vw, 2.75rem);
+  overflow-wrap: anywhere;
+}
+.article .lead {
+  font-size: 1.1875rem;
+  font-weight: 600;
+  line-height: 1.5;
+  margin: 0 0 1rem;
+}
+.article .body p {
+  margin: 0 0 1.1em;
+}
+.quote {
+  margin: 1.5rem 0;
+  padding: 0.25rem 0 0.25rem 1rem;
+  border-left: 4px solid var(--quote-bar);
+}
+.quote blockquote {
+  margin: 0;
+  font-family: var(--font-head);
+  font-size: 1.25rem;
+  line-height: 1.45;
+}
+.quote blockquote p {
+  margin: 0;
+}
+.quote figcaption {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+.quote .who {
+  font-weight: 600;
+  color: var(--fg);
+}
+.quote audio {
+  display: block;
+  width: 100%;
+  max-width: 24rem;
+  height: 2.5rem;
+  margin-top: 0.5rem;
+}
+.box {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1rem;
+  margin: 1.5rem 0;
+  font-size: 0.9375rem;
+}
+.box h2 {
+  font-size: 1.125rem;
+}
+.box p {
+  margin: 0 0 0.5rem;
+}
+.box p:last-child {
+  margin-bottom: 0;
+}
+.button-link {
+  display: inline-block;
+  margin-top: 0.25rem;
+  padding: 0.6rem 1rem;
+  border-radius: 999px;
+  background: var(--brand);
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+}
+@media (prefers-color-scheme: dark) {
+  .button-link {
+    background: var(--link);
+    color: #0b1b33;
+  }
+}
+.notice {
+  background: var(--notice-bg);
+  color: var(--notice-fg);
+  border-radius: 6px;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+.corrections ol {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+.corrections li {
+  margin-bottom: 0.5rem;
+}
+
+.site-footer {
+  border-top: 1px solid var(--border);
+  padding: 1.5rem 0 2rem;
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+.site-footer p {
+  max-width: var(--measure);
+  margin: 0 0 0.5rem;
+}
+.empty {
+  color: var(--muted);
+}

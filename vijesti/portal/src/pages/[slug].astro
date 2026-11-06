@@ -1,0 +1,163 @@
+---
+// Članak (odluke 605, 610): tijelo iz blokova `content`, citat iz `moments`
+// (odluka 417), izvorna emisija iz `content.episode`, dnevnik ispravaka iz
+// `public_corrections`. Povučen članak: obavijest i razlog, bez teksta.
+import Quote from '../components/Quote.astro';
+import Base from '../layouts/Base.astro';
+import { CACHE_ARTICLE, CACHE_ERROR, CACHE_NOT_FOUND } from '../lib/cache.js';
+import { categoryLabel } from '../lib/categories.js';
+import { hrDate, hrDateTime, zagrebDay } from '../lib/format.js';
+import { articleBySlug, clipMediaFile, quotedMomentIds, type ArticlePage } from '../lib/public-data.js';
+import { portalConfig, publicRest } from '../lib/runtime.js';
+import { appEpisodeUrl, categoryPath } from '../lib/urls.js';
+
+const KIND_LABEL = {
+  quote: 'Ispravak citata',
+  fact: 'Ispravak činjenice',
+  attribution: 'Ispravak pripisivanja',
+  other: 'Ispravak',
+  retraction: 'Povlačenje',
+} as const;
+
+const base = import.meta.env.BASE_URL;
+const cfg = portalConfig();
+const slug = Astro.params.slug ?? '';
+let page: ArticlePage | null = null;
+let failed = false;
+let mediaFile: string | null = null;
+try {
+  page = await articleBySlug(publicRest(cfg), slug);
+  if (page?.kind === 'published') {
+    mediaFile = await clipMediaFile((i, init) => fetch(i, init), cfg.cdnBase, page.episode.videoId);
+  }
+} catch (e) {
+  console.error('[vijesti] članak:', e);
+  failed = true;
+}
+if (failed) {
+  Astro.response.status = 503;
+  Astro.response.headers.set('Cache-Control', CACHE_ERROR);
+} else if (!page) {
+  Astro.response.status = 404;
+  Astro.response.headers.set('Cache-Control', CACHE_NOT_FOUND);
+} else {
+  Astro.response.headers.set('Cache-Control', CACHE_ARTICLE);
+}
+const firstQuote = page?.kind === 'published' ? quotedMomentIds(page.content.blocks)[0] : undefined;
+const firstMoment = page?.kind === 'published' && firstQuote !== undefined ? page.moments.get(firstQuote) : undefined;
+const title =
+  page?.kind === 'published' ? page.version.title : page?.kind === 'retracted' ? 'Članak je povučen' : failed ? 'Vijesti nisu dostupne' : 'Članak nije pronađen';
+---
+<Base
+  title={title}
+  description={page?.kind === 'published' ? (page.version.lead ?? undefined) : undefined}
+  category={page?.kind === 'published' ? page.version.category : null}
+  noindex={page?.kind !== 'published'}
+>
+  {failed && <p class="notice" data-testid="load-error">Članak trenutno nije dostupan. Pokušaj ponovno za minutu.</p>}
+  {
+    !failed && !page && (
+      <div class="article">
+        <h1 data-testid="not-found">Članak nije pronađen</h1>
+        <p>Možda je adresa kriva. <a href={base}>Pogledaj najnovije vijesti.</a></p>
+      </div>
+    )
+  }
+  {
+    page?.kind === 'retracted' && (
+      <article class="article" data-testid="article" data-status="retracted">
+        <h1 data-testid="article-title">Članak je povučen</h1>
+        <div class="notice" data-testid="retraction-notice" role="note">
+          <p>
+            Uredništvo je povuklo ovaj članak
+            {page.retraction && (
+              <>
+                {' '}
+                <time datetime={zagrebDay(page.retraction.created_at)}>{hrDateTime(page.retraction.created_at)}</time>
+              </>
+            )}
+            . Tekst više nije dostupan.
+          </p>
+          {page.retraction && (
+            <p>
+              <strong>Razlog:</strong> <span data-testid="retraction-reason">{page.retraction.description}</span>
+            </p>
+          )}
+        </div>
+        {page.corrections.filter((c) => c.kind !== 'retraction').length > 0 && (
+          <section class="box corrections" data-testid="corrections">
+            <h2>Raniji ispravci</h2>
+            <ol>
+              {page.corrections
+                .filter((c) => c.kind !== 'retraction')
+                .map((c) => (
+                  <li data-testid="correction" data-kind={c.kind}>
+                    <time datetime={zagrebDay(c.created_at)}>{hrDateTime(c.created_at)}</time> · {KIND_LABEL[c.kind]}: {c.description}
+                  </li>
+                ))}
+            </ol>
+          </section>
+        )}
+      </article>
+    )
+  }
+  {
+    page?.kind === 'published' && (
+      <article class="article" data-testid="article" data-status={page.article.status}>
+        {page.version.category && (
+          <p class="kicker">
+            <a href={categoryPath(base, page.version.category)}>{categoryLabel(page.version.category)}</a>
+          </p>
+        )}
+        <h1 data-testid="article-title">{page.version.title}</h1>
+        <p class="lead" data-testid="article-lead">{page.version.lead}</p>
+        <p class="meta">
+          {page.article.published_at && (
+            <>
+              Objavljeno <time datetime={zagrebDay(page.article.published_at)}>{hrDateTime(page.article.published_at)}</time>
+            </>
+          )}
+          {page.article.status === 'corrected' && <span> · <a href="#ispravci">ispravljeno</a></span>}
+        </p>
+        <div class="body" data-testid="article-body">
+          {page.content.blocks.map((b) => {
+            if (b.type === 'p') return <p>{b.text}</p>;
+            const m = b.moment_id === null ? undefined : page.moments.get(b.moment_id);
+            return m ? <Quote moment={m} cdnBase={cfg.cdnBase} appBase={cfg.appBase} mediaFile={mediaFile} /> : null;
+          })}
+        </div>
+        <section class="box" data-testid="episode-source">
+          <h2>Izvorna emisija</h2>
+          <p data-testid="episode-title">{page.episode.title ?? 'Epizoda podcasta'}</p>
+          <p class="meta">
+            {page.episode.channelName && <span data-testid="episode-channel">{page.episode.channelName}</span>}
+            {page.episode.date && <span> · <time datetime={page.episode.date} data-testid="episode-date">{hrDate(page.episode.date)}</time></span>}
+          </p>
+          <a
+            class="button-link"
+            data-testid="listen-full"
+            href={appEpisodeUrl(cfg.appBase, page.episode.videoId, firstMoment?.start_ms ?? 0)}>Poslušaj cijeli razgovor</a
+          >
+        </section>
+        <aside class="box" data-testid="ai-label">
+          <p>
+            Ovaj je tekst napisala umjetna inteligencija iz snimke razgovora. Citati su doslovni i provjereni prema
+            snimci. Prije objave tekst je pregledao i odobrio urednik, koji za njega odgovara.
+          </p>
+        </aside>
+        {page.corrections.length > 0 && (
+          <section class="box corrections" id="ispravci" data-testid="corrections">
+            <h2>Ispravci</h2>
+            <ol>
+              {page.corrections.map((c) => (
+                <li data-testid="correction" data-kind={c.kind}>
+                  <time datetime={zagrebDay(c.created_at)}>{hrDateTime(c.created_at)}</time> · {KIND_LABEL[c.kind]}: {c.description}
+                </li>
+              ))}
+            </ol>
+          </section>
+        )}
+      </article>
+    )
+  }
+</Base>

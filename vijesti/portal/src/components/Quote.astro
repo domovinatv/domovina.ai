@@ -1,0 +1,44 @@
+---
+// Citat uz govornika, vrijeme u snimci i isječak (odluka 605): obični <audio>,
+// bez JS-a, `preload="none"` da stranica ne vuče medij dok čitatelj ne klikne.
+import { clock } from '../lib/format.js';
+import type { MomentRow } from '../lib/public-data.js';
+import { appEpisodeUrl, clipUrl } from '../lib/urls.js';
+
+interface Props {
+  moment: MomentRow;
+  cdnBase: string;
+  appBase: string;
+  /** Datoteka isječka (`audio.mp3` ili `video_h264.mp4`); null = bez playera. */
+  mediaFile: string | null;
+}
+const { moment, cdnBase, appBase, mediaFile } = Astro.props;
+const who = moment.speaker_name ?? 'Govornik';
+const at = clock(moment.start_ms);
+const original = moment.quote_lang !== 'hr';
+---
+<figure class="quote" data-testid="quote" data-moment-id={moment.id}>
+  <blockquote lang={moment.quote_lang}>
+    <p>„{moment.quote}”</p>
+  </blockquote>
+  <figcaption>
+    <span class="who" data-testid="quote-speaker">{who}</span>{', '}
+    <a
+      href={appEpisodeUrl(appBase, moment.video_id, moment.start_ms)}
+      data-testid="quote-time"
+      aria-label={`${at} u snimci, otvori razgovor na tom mjestu`}>{at}</a
+    >
+    {original && <span> (izvornik, {moment.quote_lang})</span>}
+    {
+      mediaFile && (
+        <audio
+          controls
+          preload="none"
+          data-testid="quote-audio"
+          src={clipUrl(cdnBase, moment.video_id, mediaFile, moment.start_ms, moment.end_ms)}
+          aria-label={`Poslušaj isječak: ${who}, ${at}`}
+        />
+      )
+    }
+  </figcaption>
+</figure>

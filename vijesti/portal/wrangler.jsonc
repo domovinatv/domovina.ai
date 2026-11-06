@@ -1,0 +1,19 @@
+// Worker portala vijesti. Produkcijske vrijednosti (anon ključ, URL-ovi) upisuje
+// S7; zadane su u src/lib/config.ts. `env.local` koristi `npm run portal:dev`
+// (CLOUDFLARE_ENV=local): PostgREST-shim i lažni CDN na 127.0.0.1:8790.
+{
+  "name": "domovina-vijesti",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "env": {
+    "local": {
+      "vars": {
+        "VIJESTI_REST_URL": "http://127.0.0.1:8790",
+        "VIJESTI_AUTH_URL": "http://127.0.0.1:8790",
+        "VIJESTI_ANON_KEY": "lokalni-anon-kljuc",
+        "VIJESTI_CDN_BASE": "http://127.0.0.1:8790/cdn",
+        "VIJESTI_APP_BASE": "https://domovina.ai"
+      }
+    }
+  }
+}

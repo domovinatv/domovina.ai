@@ -1,0 +1,29 @@
+---
+import { categoryLabel } from '../lib/categories.js';
+import { hrDateTime, zagrebDay } from '../lib/format.js';
+import type { ArticleCard } from '../lib/public-data.js';
+import { articlePath, categoryPath } from '../lib/urls.js';
+
+interface Props {
+  card: ArticleCard;
+  showCategory?: boolean;
+}
+const { card, showCategory = true } = Astro.props;
+const base = import.meta.env.BASE_URL;
+---
+<li class="card" data-testid="article-card" data-slug={card.slug}>
+  {
+    showCategory && card.category && (
+      <p class="kicker">
+        <a href={categoryPath(base, card.category)}>{categoryLabel(card.category)}</a>
+      </p>
+    )
+  }
+  <h3><a href={articlePath(base, card.slug)}>{card.title}</a></h3>
+  <p>{card.lead}</p>
+  <p class="meta">
+    {card.publishedAt && <time datetime={zagrebDay(card.publishedAt)}>{hrDateTime(card.publishedAt)}</time>}
+    {card.channelName && <span> · {card.channelName}</span>}
+    {card.corrected && <span> · ispravljeno</span>}
+  </p>
+</li>

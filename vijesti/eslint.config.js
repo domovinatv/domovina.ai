@@ -4,7 +4,7 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
-  { ignores: ['node_modules/', '.cache/', 'coverage/'] },
+  { ignores: ['node_modules/', '.cache/', 'coverage/', 'portal/dist/', 'portal/.astro/', 'portal/.wrangler/'] },
   js.configs.recommended,
   ...tseslint.configs.strictTypeChecked,
   {
@@ -20,7 +20,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ['eslint.config.js'],
+    files: ['eslint.config.js', 'portal/astro.config.mjs'],
     ...tseslint.configs.disableTypeChecked,
   },
 );

@@ -1,0 +1,41 @@
+---
+import ArticleCardView from '../../components/ArticleCard.astro';
+import Base from '../../layouts/Base.astro';
+import { CACHE_ERROR, CACHE_LIST, CACHE_NOT_FOUND } from '../../lib/cache.js';
+import { categoryLabel, isCategory } from '../../lib/categories.js';
+import { categoryArticles, type ArticleCard } from '../../lib/public-data.js';
+import { portalConfig, publicRest } from '../../lib/runtime.js';
+
+const category = Astro.params.category ?? '';
+const known = isCategory(category);
+let list: ArticleCard[] | null = null;
+if (!known) {
+  Astro.response.status = 404;
+  Astro.response.headers.set('Cache-Control', CACHE_NOT_FOUND);
+} else {
+  try {
+    list = await categoryArticles(publicRest(portalConfig()), category, 30);
+    Astro.response.headers.set('Cache-Control', CACHE_LIST);
+  } catch (e) {
+    console.error('[vijesti] kategorija:', e);
+    Astro.response.status = 503;
+    Astro.response.headers.set('Cache-Control', CACHE_ERROR);
+  }
+}
+const label = known ? categoryLabel(category) : 'Nepoznata kategorija';
+---
+<Base title={label} category={known ? category : null} noindex={!known}>
+  <h1 data-testid="category-title">{label}</h1>
+  {!known && <p class="empty" data-testid="not-found">Te kategorije nema.</p>}
+  {known && list === null && <p class="notice" data-testid="load-error">Vijesti trenutno nisu dostupne. Pokušaj ponovno za minutu.</p>}
+  {list !== null && list.length === 0 && <p class="empty" data-testid="empty">U ovoj kategoriji još nema vijesti.</p>}
+  {
+    list !== null && list.length > 0 && (
+      <ul class="cards">
+        {list.map((c) => (
+          <ArticleCardView card={c} showCategory={false} />
+        ))}
+      </ul>
+    )
+  }
+</Base>

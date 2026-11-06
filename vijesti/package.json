@@ -8,7 +8,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "check": "npm run typecheck && npm run lint && npm run test",
+    "check": "npm run typecheck && npm run lint && npm run portal:check && npm run portal:build && npm run test",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "test": "vitest run",
@@ -18,13 +18,21 @@
     "vijesti": "tsx engine/cli.ts",
     "eval": "tsx engine/eval/cli.ts",
     "eval:report": "tsx engine/eval/cli.ts report",
-    "eval:drafts": "tsx engine/eval/cli.ts drafts"
+    "eval:drafts": "tsx engine/eval/cli.ts drafts",
+    "portal:dev": "tsx portal/dev/dev.ts",
+    "portal:shim": "tsx portal/dev/serve-shim.ts",
+    "portal:build": "astro build --root portal",
+    "portal:check": "astro check --root portal"
   },
   "dependencies": {
+    "@astrojs/cloudflare": "^14.4.6",
     "@electric-sql/pglite": "^0.5.15",
+    "@supabase/supabase-js": "^2.119.0",
+    "astro": "^7.4.7",
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@astrojs/check": "^0.9.12",
     "@eslint/js": "^10.0.1",
     "@types/node": "^22.20.5",
     "eslint": "^10.14.0",
@@ -32,6 +40,7 @@
     "tsx": "^4.23.15",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.72.1",
-    "vitest": "^5.1.0"
+    "vitest": "^5.1.0",
+    "wrangler": "^4.158.0"
   }
 }

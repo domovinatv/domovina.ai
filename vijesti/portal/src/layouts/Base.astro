@@ -1,0 +1,76 @@
+---
+// Zajednički okvir javnih stranica i admina: bez JS-a, tema iz sustava.
+import '../styles/global.css';
+import { CATEGORY_LABELS, CATEGORY_SLUGS } from '../lib/categories.js';
+import { categoryPath, portalPath } from '../lib/urls.js';
+
+interface Props {
+  title: string;
+  description?: string | undefined;
+  /** Aktivna kategorija u navigaciji. */
+  category?: string | null;
+  noindex?: boolean;
+  nav?: boolean;
+}
+const { title, description, category = null, noindex = false, nav = true } = Astro.props;
+const base = import.meta.env.BASE_URL;
+const fullTitle = title === 'Vijesti' ? 'Vijesti | DOMOVINA.ai' : `${title} | DOMOVINA.ai Vijesti`;
+---
+<!doctype html>
+<html lang="hr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    {description && <meta name="description" content={description} />}
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#faf7f2" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#111318" media="(prefers-color-scheme: dark)" />
+    <link rel="preload" href="/vijesti/fonts/PlayfairDisplay-Bold.ttf" as="font" type="font/ttf" crossorigin />
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip" href="#sadrzaj">Preskoči na sadržaj</a>
+    <header class="site-header">
+      <div class="wrap bar">
+        <a class="wordmark" href={portalPath(base)} data-testid="home-link">
+          DOMOVINA<span class="ai">.ai</span><span class="section">Vijesti</span>
+        </a>
+      </div>
+      {
+        nav && (
+          <nav class="cat-nav" aria-label="Kategorije">
+            <ul>
+              <li>
+                <a href={portalPath(base)} aria-current={category === null ? 'page' : undefined}>
+                  Najnovije
+                </a>
+              </li>
+              {CATEGORY_SLUGS.map((c) => (
+                <li>
+                  <a href={categoryPath(base, c)} aria-current={category === c ? 'page' : undefined}>
+                    {CATEGORY_LABELS[c]}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )
+      }
+    </header>
+    <main id="sadrzaj" class="wrap">
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <div class="wrap">
+        <p>
+          Vijesti nastaju iz razgovora u podcastima koje obrađuje DOMOVINA.ai. Tekst piše umjetna inteligencija
+          iz snimke, citati su doslovni i provjereni prema snimci, a svaki članak prije objave pregleda i odobri
+          urednik.
+        </p>
+        <p><a href="https://domovina.ai/">Otvori DOMOVINA.ai</a></p>
+      </div>
+    </footer>
+  </body>
+</html>
