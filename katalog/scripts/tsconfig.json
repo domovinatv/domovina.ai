@@ -1,0 +1,11 @@
+{
+  // Node skripte u TypeScriptu (`node scripts/synth.ts`, type stripping).
+  // Odvojeno od korijenskog tsconfiga: ovdje su Node tipovi, tamo workerd.
+  // Workers tipovi su tu samo za `D1Database` u potpisima `src/ingest/write.ts`.
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "lib": ["es2024"],
+    "types": ["node", "@cloudflare/workers-types"]
+  },
+  "include": ["*.ts"]
+}

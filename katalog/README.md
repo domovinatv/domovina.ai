@@ -19,3 +19,9 @@ fixturei u `test/fixtures/` (stvarni, skraćeni) osvježava `npm run fixtures:re
 Uvoznik (S2): `npm run migrate:local && npm run import` puni LOKALNI D1 (`.wrangler/`, nije u
 gitu) iz CDN-a, key cachea i registryja u `../../fetch.domovina.tv/`; `-- --dry-run` samo
 ispiše izvještaj. Pravila: `docs/decisions.md` 200–216.
+
+Sintetički katalog (S4): `npm run synth -- --episodes 100000 --seed 1 --persist
+.wrangler/synth-100k` puni ODVOJEN lokalni D1 (nikad `.wrangler/state`) raspodjelom
+stvarnog korpusa skaliranom na N (`src/synth/korpus.ts`,
+`docs/research/2026-11-06-raspodjela-korpusa.md`); posluži ga `npx wrangler dev --local
+--persist-to .wrangler/synth-100k --port 8799`.
