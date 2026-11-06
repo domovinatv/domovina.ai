@@ -1,0 +1,259 @@
+/// Ekran `/dani/:datum` (S9): popis, paginacija po `next` kursoru, prazan
+/// dan s ponudom prethodnog, neispravan datum, katalog nedostupan / brend bez
+/// kataloga, prethodni/sljedeći dan kroz `goPeer` (ne iza današnjeg) i tap na
+/// epizodu na `/v/<id>`.
+library;
+
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
+
+import 'package:podcast_core/l10n/app_localizations.dart';
+import 'package:podcast_core/screens/catalog_day/catalog_day_screen.dart';
+import 'package:podcast_core/services/catalog_client.dart';
+
+import 'support/fake_catalog_days.dart';
+
+DateTime _clock() => DateTime(2026, 11, 6, 12, 38);
+
+late GoRouter _router;
+final List<String> _opened = [];
+
+Widget _harness(String initial) {
+  _router = GoRouter(
+    initialLocation: initial,
+    routes: [
+      GoRoute(
+        path: '/',
+        builder: (_, _) => const Scaffold(body: Text('home')),
+      ),
+      GoRoute(
+        path: '/dani/:datum',
+        pageBuilder: (_, state) {
+          final datum = state.pathParameters['datum']!;
+          return NoTransitionPage(
+            key: ValueKey('catalog-day-$datum'),
+            child: CatalogDayScreen(date: datum, clock: _clock),
+          );
+        },
+      ),
+      GoRoute(
+        path: '/v/:id',
+        builder: (_, state) {
+          _opened.add(state.pathParameters['id']!);
+          return const Scaffold(body: Text('epizoda'));
+        },
+      ),
+    ],
+  );
+  return MaterialApp.router(
+    routerConfig: _router,
+    localizationsDelegates: AppLocalizations.localizationsDelegates,
+    supportedLocales: AppLocalizations.supportedLocales,
+    locale: const Locale('hr'),
+  );
+}
+
+String _location() =>
+    _router.routerDelegate.currentConfiguration.uri.toString();
+
+List<CatalogCard> _cards(String prefix, int n, {String date = '2026-11-04'}) =>
+    [
+      for (var i = 0; i < n; i++)
+        fakeDayCard('$prefix${i.toString().padLeft(2, '0')}', date: date),
+    ];
+
+void main() {
+  late CatalogClient original;
+
+  setUp(() {
+    original = CatalogClient.instance;
+    _opened.clear();
+  });
+
+  tearDown(() => CatalogClient.instance = original);
+
+  testWidgets('popis: datum na hrvatskom, kanal, tap otvara /v/<id>', (
+    tester,
+  ) async {
+    CatalogClient.instance = FakeCatalogDays(
+      pages: {
+        '2026-11-04': fakeDayPage('2026-11-04', [
+          fakeDayCard('aaaaaaaaaaa', title: 'Prva', channel: 'Tribina'),
+          fakeDayCard('bbbbbbbbbbb', title: 'Druga'),
+        ]),
+      },
+    );
+    await tester.pumpWidget(_harness('/dani/2026-11-04'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('4. studenoga 2026.'), findsOneWidget);
+    expect(find.text('EPIZODE DANA'), findsOneWidget);
+    expect(find.text('Prva'), findsOneWidget);
+    expect(find.text('TRIBINA'), findsOneWidget);
+    expect(find.text('Učitaj još'), findsNothing, reason: 'next je null');
+
+    await tester.tap(find.text('Prva'));
+    await tester.pumpAndSettle();
+    expect(_opened, ['aaaaaaaaaaa']);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('paginacija: „Učitaj još” traži sljedeću stranicu po kursoru', (
+    tester,
+  ) async {
+    final fake = FakeCatalogDays(
+      pages: {
+        '2026-11-04': fakeDayPage('2026-11-04', _cards('p1_', 3), next: 'K1'),
+        '2026-11-04|K1': fakeDayPage('2026-11-04', _cards('p2_', 2)),
+      },
+    );
+    CatalogClient.instance = fake;
+    await tester.pumpWidget(_harness('/dani/2026-11-04'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Epizoda p1_02'), findsOneWidget);
+    expect(find.text('Učitaj još'), findsOneWidget);
+
+    await tester.tap(find.text('Učitaj još'));
+    await tester.pumpAndSettle();
+    expect(fake.asked, ['2026-11-04', '2026-11-04|K1']);
+    expect(find.text('Epizoda p2_01'), findsOneWidget);
+    expect(find.text('Učitaj još'), findsNothing);
+  });
+
+  testWidgets('beskonačno listanje: scroll do dna povuče sljedeću stranicu', (
+    tester,
+  ) async {
+    final fake = FakeCatalogDays(
+      pages: {
+        '2026-11-04': fakeDayPage('2026-11-04', _cards('p1_', 30), next: 'K1'),
+        '2026-11-04|K1': fakeDayPage('2026-11-04', _cards('p2_', 5)),
+      },
+    );
+    CatalogClient.instance = fake;
+    await tester.pumpWidget(_harness('/dani/2026-11-04'));
+    await tester.pumpAndSettle();
+    expect(fake.asked, ['2026-11-04']);
+
+    await tester.drag(find.byType(ListView), const Offset(0, -4000));
+    await tester.pumpAndSettle();
+    expect(fake.asked, ['2026-11-04', '2026-11-04|K1']);
+  });
+
+  testWidgets('pad sljedeće stranice: poruka i „Pokušaj ponovno”', (
+    tester,
+  ) async {
+    final fake = FakeCatalogDays(
+      pages: {
+        '2026-11-04': fakeDayPage('2026-11-04', _cards('p1_', 2), next: 'K1'),
+        '2026-11-04|K1': const CatalogDayUnavailable(),
+      },
+    );
+    CatalogClient.instance = fake;
+    await tester.pumpWidget(_harness('/dani/2026-11-04'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Učitaj još'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Nismo uspjeli učitati još epizoda.'), findsOneWidget);
+    expect(find.text('Pokušaj ponovno'), findsOneWidget);
+    expect(find.text('Epizoda p1_01'), findsOneWidget, reason: 'popis ostaje');
+  });
+
+  testWidgets('prazan dan: prazno stanje, gumb vodi na prethodni dan', (
+    tester,
+  ) async {
+    CatalogClient.instance = FakeCatalogDays();
+    await tester.pumpWidget(_harness('/dani/2026-11-06'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Za ovaj dan još nema epizoda'), findsOneWidget);
+    await tester.tap(find.widgetWithText(FilledButton, 'Prethodni dan'));
+    await tester.pumpAndSettle();
+    expect(_location(), '/dani/2026-11-05');
+    expect(find.text('5. studenoga 2026.'), findsOneWidget);
+  });
+
+  testWidgets('sljedeći dan ne ide iza današnjeg', (tester) async {
+    CatalogClient.instance = FakeCatalogDays();
+    await tester.pumpWidget(_harness('/dani/2026-11-06'));
+    await tester.pumpAndSettle();
+
+    final next = tester.widget<IconButton>(
+      find.widgetWithIcon(IconButton, Icons.chevron_right),
+    );
+    expect(next.onPressed, isNull);
+
+    await tester.tap(find.byTooltip('Prethodni dan'));
+    await tester.pumpAndSettle();
+    expect(_location(), '/dani/2026-11-05');
+
+    await tester.tap(find.byTooltip('Sljedeći dan'));
+    await tester.pumpAndSettle();
+    expect(_location(), '/dani/2026-11-06');
+  });
+
+  testWidgets('prethodni dan preko granice mjeseca', (tester) async {
+    CatalogClient.instance = FakeCatalogDays();
+    await tester.pumpWidget(_harness('/dani/2026-11-01'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Prethodni dan'));
+    await tester.pumpAndSettle();
+    expect(_location(), '/dani/2026-10-31');
+  });
+
+  testWidgets('nevaljan datum: stanje pogreške bez upita', (tester) async {
+    final fake = FakeCatalogDays();
+    CatalogClient.instance = fake;
+    await tester.pumpWidget(_harness('/dani/2026-02-30'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Neispravan datum'), findsOneWidget);
+    expect(find.byTooltip('Prethodni dan'), findsNothing);
+    expect(fake.asked, isEmpty);
+
+    await tester.tap(find.text('Natrag na početnu'));
+    await tester.pumpAndSettle();
+    expect(find.text('home'), findsOneWidget);
+  });
+
+  testWidgets('katalog nedostupan: „nije dostupno” i „Pokušaj ponovno”', (
+    tester,
+  ) async {
+    final fake = FakeCatalogDays(unavailable: true);
+    CatalogClient.instance = fake;
+    await tester.pumpWidget(_harness('/dani/2026-11-04'));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text('Popis epizoda po danima trenutačno nije dostupan'),
+      findsOneWidget,
+    );
+    fake
+      ..unavailable = false
+      ..pages['2026-11-04'] = fakeDayPage('2026-11-04', [
+        fakeDayCard('ccccccccccc'),
+      ]);
+    await tester.tap(find.text('Pokušaj ponovno'));
+    await tester.pumpAndSettle();
+    expect(find.text('Epizoda ccccccccccc'), findsOneWidget);
+  });
+
+  testWidgets('brend bez kataloga: „nije dostupno” bez upita, bez retryja', (
+    tester,
+  ) async {
+    final fake = FakeCatalogDays(baseUrl: '');
+    CatalogClient.instance = fake;
+    await tester.pumpWidget(_harness('/dani/2026-11-04'));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text('Popis epizoda po danima trenutačno nije dostupan'),
+      findsOneWidget,
+    );
+    expect(find.text('Pokušaj ponovno'), findsNothing);
+    expect(find.text('Natrag na početnu'), findsOneWidget);
+    expect(fake.asked, isEmpty);
+  });
+}

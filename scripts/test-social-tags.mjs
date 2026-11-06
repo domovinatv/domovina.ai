@@ -31,6 +31,10 @@ const VOTING_SLUG = 'podcast-inkubator';
 const SPONSOR_CHANNEL_SLUG = 'domovina-tv';
 const SPONSOR_VIDEO_ID = 'WRE248YCIeI';
 
+// Prošli dan za /dani/<datum> test i očekivani naslov (genitiv mjeseca).
+const DAY_DATE = '2026-11-04';
+const DAY_TITLE = 'Epizode 4. studenoga 2026.';
+
 const BASE = (process.argv[2] || 'https://domovina.ai').replace(/\/$/, '');
 
 const GREEN  = '\x1b[32m';
@@ -591,10 +595,99 @@ async function testCastReceiver(path) {
   return { ytId: path, passed, failed };
 }
 
+/**
+ * Epizode jednog dana — `/dani/YYYY-MM-DD`. Valjan prošli dan dobiva vlastiti
+ * OG (naslov s datumom na hrvatskom, canonical na sebe); nevaljan ili budući
+ * datum NE dobiva vlastite tagove i nosi `X-Robots-Tag: noindex`. Bez matchera
+ * u workeru ruta pada na SPA fallback i dobije generički OG naslovnice.
+ */
+async function testDayRoute(date, expectedTitle) {
+  const path = `/dani/${date}`;
+  const url = `${BASE}${path}`;
+  const label = expectedTitle ? path : `${path} (nevaljan)`;
+  console.log(`\n${BOLD}── ${label}${RESET}  ${url}`);
+  let res;
+  let html;
+  try {
+    res = await fetch(url, {
+      headers: { Accept: 'text/html', 'User-Agent': 'DominovinaBot/1.0 (social-tag-tester)' },
+      redirect: 'follow',
+    });
+    if (!res.ok) {
+      console.log(`  ${fail(`HTTP ${res.status}`)}`);
+      return { ytId: label, passed: 0, failed: 1 };
+    }
+    html = await res.text();
+  } catch (e) {
+    console.log(`  ${fail(`Network error: ${e.message}`)}`);
+    return { ytId: label, passed: 0, failed: 1 };
+  }
+
+  let passed = 0;
+  let failed = 0;
+  const check = (lbl, value, expected) => {
+    const lab = lbl.padEnd(26);
+    if (value === null || value.trim() === '') { console.log(`  ${fail(lab)} NEDOSTAJE`); failed++; return; }
+    const p = value.length > 70 ? value.slice(0, 67) + '…' : value;
+    if (expected !== undefined && !expected(value)) { console.log(`  ${fail(lab)} "${p}"`); failed++; return; }
+    console.log(`  ${ok(lab)} "${p}"`); passed++;
+  };
+  const robots = res.headers.get('x-robots-tag') || '';
+
+  if (expectedTitle) {
+    check('<title>',        extractTitle(html), (v) => v === `${expectedTitle} – DOMOVINA.ai`);
+    check('og:title',       extractMeta(html, 'property', 'og:title'), (v) => v === expectedTitle);
+    check('og:description', extractMeta(html, 'property', 'og:description'), (v) => v.length > 40 && v.includes(expectedTitle.replace(/^Epizode /, '')));
+    check('og:url',         extractMeta(html, 'property', 'og:url'), (v) => v === `https://domovina.ai${path}`);
+    check('canonical',      extractCanonical(html), (v) => v === `https://domovina.ai${path}`);
+    check('og:image',       extractMeta(html, 'property', 'og:image'), (v) => v === 'https://domovina.ai/og-image.png');
+    check('twitter:card',   extractMeta(html, 'name', 'twitter:card'), (v) => v === 'summary_large_image');
+    check('Cache-Control',  res.headers.get('cache-control'), (v) => /s-maxage=\d+/.test(v));
+    const n = countMeta(html, 'property', 'og:title');
+    check('og:title jednom', String(n), (v) => v === '1');
+  } else {
+    check('og:title (generički)', extractMeta(html, 'property', 'og:title'), (v) => !v.startsWith('Epizode '));
+    check('canonical (ne /dani/)', extractCanonical(html), (v) => !v.includes('/dani/'));
+    check('X-Robots-Tag',   robots, (v) => v.includes('noindex'));
+  }
+  return { ytId: label, passed, failed };
+}
+
+/**
+ * AASA `components`: auth exclusioni prvi, `/dani/*` eksplicitno (ugovor s
+ * Android intent filterom), `*` zadnji.
+ */
+async function testAasaDays() {
+  const path = '/.well-known/apple-app-site-association';
+  console.log(`\n${BOLD}── AASA /dani/*${RESET}  ${BASE}${path}`);
+  let json;
+  try {
+    const res = await fetch(`${BASE}${path}`);
+    json = await res.json();
+  } catch (e) {
+    console.log(`  ${fail(`Network/JSON error: ${e.message}`)}`);
+    return { ytId: 'AASA', passed: 0, failed: 1 };
+  }
+  let passed = 0;
+  let failed = 0;
+  const check = (lbl, good, detail) => {
+    const lab = lbl.padEnd(26);
+    if (good) { console.log(`  ${ok(lab)} ${detail}`); passed++; } else { console.log(`  ${fail(lab)} ${detail}`); failed++; }
+  };
+  const comps = json?.applinks?.details?.[0]?.components || [];
+  const keys = comps.map((c) => `${c.exclude ? '!' : ''}${c['/']}`);
+  const iDani = keys.indexOf('/dani/*');
+  const lastExclude = keys.reduce((acc, k, i) => (k.startsWith('!') ? i : acc), -1);
+  check('/dani/* naveden', iDani >= 0, keys.join(' '));
+  check('exclusioni prije /dani/*', iDani > lastExclude && lastExclude >= 2, `zadnji exclude @${lastExclude}, /dani/* @${iDani}`);
+  check('* zadnji', keys[keys.length - 1] === '*', keys[keys.length - 1] ?? 'nema');
+  return { ytId: 'AASA', passed, failed };
+}
+
 async function main() {
   console.log(`${BOLD}DOMOVINA.ai — Social Tag Tester${RESET}`);
   console.log(`Target: ${BOLD}${BASE}${RESET}`);
-  console.log(`Testira: homepage + ${VIDEO_IDS.length} epizoda + timestamp shareovi + /glasanje + izlog oglasa + cast receiver\n`);
+  console.log(`Testira: homepage + ${VIDEO_IDS.length} epizoda + timestamp shareovi + /glasanje + izlog oglasa + cast receiver + /dani/ + AASA\n`);
 
   const results = [];
   results.push(await testHomepage());
@@ -615,6 +708,11 @@ async function main() {
   // Izlog sponzorskih trenutaka — kanal i karta epizode.
   results.push(await testSponsorRoute(`/c/${SPONSOR_CHANNEL_SLUG}/oglasi`, 'Oglašavanje'));
   results.push(await testSponsorRoute(`/v/${SPONSOR_VIDEO_ID}/sponzoriraj`, 'Sponzorirajte'));
+  // Epizode jednog dana — valjan dan, nepostojeći datum, budući datum; AASA.
+  results.push(await testDayRoute(DAY_DATE, DAY_TITLE));
+  results.push(await testDayRoute('2026-02-30', null));
+  results.push(await testDayRoute(`${new Date().getUTCFullYear() + 2}-01-01`, null));
+  results.push(await testAasaDays());
   // Google Cast receiver — oba oblika URL-a, 200 bez COEP-a.
   results.push(await testCastReceiver('/cast-receiver.html'));
   results.push(await testCastReceiver('/cast-receiver'));

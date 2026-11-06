@@ -103,32 +103,36 @@ class CatalogCard {
       final json = jsonDecode(body);
       if (json is! Map) return null;
       if (json['version'] != supportedVersion) return null;
-      final item = json['item'];
-      if (item is! Map) return null;
-      final id = item['id'];
-      final title = item['title'];
-      final tier = item['tier'];
-      if (id is! String || id.isEmpty) return null;
-      if (title is! String || title.isEmpty) return null;
-      if (tier is! num || tier != tier.toInt()) return null;
-      final titleHr = item['title_hr'];
-      final date = item['date'];
       final catalog = json['catalog'];
-      final variantOf = item['variant_of'];
-      return CatalogCard(
-        id: id,
-        title: title,
-        titleHr: titleHr is String && titleHr.isNotEmpty ? titleHr : null,
-        date: date is String && date.isNotEmpty ? date : null,
-        tier: tier.toInt(),
-        channel: CatalogChannel.tryParse(item['channel']),
-        variantOf: variantOf is String && variantOf.isNotEmpty
-            ? variantOf
-            : null,
-        catalog: catalog is String ? catalog : null,
-      );
+      return fromItem(json['item'], catalog: catalog is String ? catalog : null);
     } catch (_) {
       return null;
     }
+  }
+
+  /// Jedna kartica (`card.schema.json`) — `item` iz `/episodes/:id/card` ili
+  /// stavka iz `items` popisa (`/days/:date`). Ista pravila kao [tryParse]:
+  /// `null` kad obavezna polja nedostaju, neobavezna krivog tipa → `null`.
+  static CatalogCard? fromItem(Object? item, {String? catalog}) {
+    if (item is! Map) return null;
+    final id = item['id'];
+    final title = item['title'];
+    final tier = item['tier'];
+    if (id is! String || id.isEmpty) return null;
+    if (title is! String || title.isEmpty) return null;
+    if (tier is! num || tier != tier.toInt()) return null;
+    final titleHr = item['title_hr'];
+    final date = item['date'];
+    final variantOf = item['variant_of'];
+    return CatalogCard(
+      id: id,
+      title: title,
+      titleHr: titleHr is String && titleHr.isNotEmpty ? titleHr : null,
+      date: date is String && date.isNotEmpty ? date : null,
+      tier: tier.toInt(),
+      channel: CatalogChannel.tryParse(item['channel']),
+      variantOf: variantOf is String && variantOf.isNotEmpty ? variantOf : null,
+      catalog: catalog,
+    );
   }
 }

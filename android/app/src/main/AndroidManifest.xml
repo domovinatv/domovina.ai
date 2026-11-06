@@ -77,6 +77,9 @@
                 <data android:pathPrefix="/c/" />
                 <data android:pathPrefix="/p/" />
                 <data android:pathPrefix="/handoff" />
+                <!-- Epizode jednog dana (/dani/YYYY-MM-DD); par u iOS AASA
+                     components je u web/_worker.js. -->
+                <data android:pathPrefix="/dani/" />
                 <!-- „Izborni dan" — javna ljestvica glasanja (/glasanje) i
                      deep-link na kandidata (/glasanje/<slug>). Par u iOS AASA
                      components je u web/_worker.js AASA_JSON. -->

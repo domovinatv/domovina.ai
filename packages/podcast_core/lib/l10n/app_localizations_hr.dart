@@ -4791,4 +4791,52 @@ class AppLocalizationsHr extends AppLocalizations {
 
   @override
   String get devRefreshAll => 'Osvježi sve podatke';
+
+  @override
+  String get homeRailCatalogToday => 'Danas u korpusu';
+
+  @override
+  String get homeRailCatalogYesterday => 'Jučer u korpusu';
+
+  @override
+  String homeRailCatalogOnDate(String date) {
+    return 'U korpusu · $date';
+  }
+
+  @override
+  String get catalogDayEyebrow => 'Epizode dana';
+
+  @override
+  String get catalogDayPrevious => 'Prethodni dan';
+
+  @override
+  String get catalogDayNext => 'Sljedeći dan';
+
+  @override
+  String get catalogDayEmptyTitle => 'Za ovaj dan još nema epizoda';
+
+  @override
+  String get catalogDayEmptyBody =>
+      'Nove epizode stižu tijekom noći. Pogledaj što je stiglo dan ranije.';
+
+  @override
+  String get catalogDayInvalidTitle => 'Neispravan datum';
+
+  @override
+  String get catalogDayInvalidBody =>
+      'Adresa mora sadržavati datum u obliku GGGG-MM-DD, npr. 2026-11-05.';
+
+  @override
+  String get catalogDayUnavailableTitle =>
+      'Popis epizoda po danima trenutačno nije dostupan';
+
+  @override
+  String get catalogDayUnavailableBody =>
+      'Pokušaj ponovno malo kasnije ili pogledaj naslovnicu.';
+
+  @override
+  String get catalogDayLoadMore => 'Učitaj još';
+
+  @override
+  String get catalogDayLoadMoreFailed => 'Nismo uspjeli učitati još epizoda.';
 }

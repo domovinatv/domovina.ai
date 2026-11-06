@@ -4745,4 +4745,52 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get devRefreshAll => 'Refresh all data';
+
+  @override
+  String get homeRailCatalogToday => 'Today in the corpus';
+
+  @override
+  String get homeRailCatalogYesterday => 'Yesterday in the corpus';
+
+  @override
+  String homeRailCatalogOnDate(String date) {
+    return 'In the corpus · $date';
+  }
+
+  @override
+  String get catalogDayEyebrow => 'Episodes of the day';
+
+  @override
+  String get catalogDayPrevious => 'Previous day';
+
+  @override
+  String get catalogDayNext => 'Next day';
+
+  @override
+  String get catalogDayEmptyTitle => 'No episodes for this day yet';
+
+  @override
+  String get catalogDayEmptyBody =>
+      'New episodes arrive overnight. See what arrived the day before.';
+
+  @override
+  String get catalogDayInvalidTitle => 'Invalid date';
+
+  @override
+  String get catalogDayInvalidBody =>
+      'The address must contain a date in the YYYY-MM-DD format, e.g. 2026-11-05.';
+
+  @override
+  String get catalogDayUnavailableTitle =>
+      'The list of episodes by day is not available right now';
+
+  @override
+  String get catalogDayUnavailableBody =>
+      'Try again a little later or go to the home page.';
+
+  @override
+  String get catalogDayLoadMore => 'Load more';
+
+  @override
+  String get catalogDayLoadMoreFailed => 'We couldn\'t load more episodes.';
 }

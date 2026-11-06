@@ -23,6 +23,7 @@ import '../../l10n/app_localizations.dart';
 import 'episode_rail_card.dart';
 import 'episodes_rail.dart';
 import 'favorites_rail.dart';
+import 'catalog_day_rail.dart';
 import 'followed_rail.dart';
 import 'footer.dart';
 import 'home_app_bar.dart';
@@ -669,6 +670,19 @@ class _ChannelGridViewState extends State<_ChannelGridView> {
                           .toList(),
                     ),
                   ),
+
+                // Rail „Danas u korpusu" — epizode koje su danas (ili, dok
+                // pipeline noću ne prođe, jučer i do 3 dana unatrag) ušle u
+                // katalog, oba tiera. Uz „Upravo stiglo" jer je isto pitanje
+                // „što je novo", ali iz kataloga, ne iz listinga. Sam se
+                // sakrije bez kataloga (Podcasterium) ili kad je sve prazno.
+                // Vidi catalog_day_rail.dart.
+                SliverToBoxAdapter(
+                  child: CatalogDayRail(
+                    isMobile: isMobile,
+                    onVideoTap: onVideoTap,
+                  ),
+                ),
 
                 // Rail "Osobe" — virtualni kanali (osobe). Sam se sakrije kad je
                 // PersonChannelFlag ugašen ili indeks nije dostupan, pa home

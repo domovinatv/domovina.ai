@@ -53,6 +53,12 @@ function brandFromEnv(env) {
     // domovina-rag; dok ga nema, fetchJson vrati null i /p/ unosi jednostavno
     // izostanu iz sitemapa. Vidi docs/plans/virtualni-kanali.md §4.1.
     PERSONS_API: e.PERSONS_API ?? 'https://mcp.domovina.ai/api/persons',
+    // Servis kataloga (katalog/, Worker + D1) — isto što i BrandConfig.catalog
+    // u Dartu. Prazno = brend nema katalog: /dani/<datum> pada na SPA fallback
+    // i ne ulazi u sitemap. Default vrijedi SAMO za DOMOVINA defaulte (bez
+    // SITE bindinga): brend koji postavi svoj SITE (Podcasterium) bez
+    // CATALOG_API nema katalog i nikad ne zove DOMOVINA katalog.
+    CATALOG_API: e.CATALOG_API ?? (e.SITE ? '' : 'https://domovina.ai/api/katalog/v1'),
     // Ime brenda: <title> sufiks, og:site_name, JSON-LD publisher/provider i
     // fallback za naslov/kanal epizode.
     APP_NAME: e.APP_NAME ?? 'DOMOVINA.ai',
@@ -233,7 +239,8 @@ const assetlinksJson = (b) => JSON.stringify([
 // reinstalacije appa ili refresha (do ~tjedan dana).
 //
 // appID = APPLE_TEAM_ID.IOS_BUNDLE_ID iz brenda; /glasanje* unosi samo uz
-// FEATURE_VOTING, airKUNA unos samo uz FEATURE_AIRKUNA.
+// FEATURE_VOTING, /dani/* samo uz CATALOG_API, airKUNA unos samo uz
+// FEATURE_AIRKUNA.
 const aasaJson = (b) => JSON.stringify({
   applinks: {
     apps: [],
@@ -252,6 +259,9 @@ const aasaJson = (b) => JSON.stringify({
           ...(b.FEATURE_VOTING ? [
             { '/': '/glasanje', comment: 'Izborni dan — javna ljestvica glasanja' },
             { '/': '/glasanje/*', comment: 'deep-link/share na kandidata' },
+          ] : []),
+          ...(b.CATALOG_API ? [
+            { '/': '/dani/*', comment: 'epizode jednog dana (/dani/YYYY-MM-DD), brend s katalogom' },
           ] : []),
           { '/': '*' },
         ],
@@ -601,6 +611,33 @@ export default {
       );
     }
 
+    // Epizode jednog dana — /dani/YYYY-MM-DD (katalog, GET /days/<datum>).
+    // Strogo: samo taj oblik (završnu kosu crtu već je 301-ica gore skinula),
+    // bez catch-alla. Brend bez kataloga (CATALOG_API prazan) ide na SPA
+    // fallback kao i prije. Nevaljan ili budući datum: SPA bez vlastitih
+    // tagova + X-Robots-Tag noindex (vidi dayRoute ispod).
+    const daniMatch = BRAND.CATALOG_API && path.match(/^\/dani\/(\d{4}-\d{2}-\d{2})$/);
+    if (daniMatch) {
+      const date = daniMatch[1];
+      const today = zagrebToday();
+      if (!isCalendarDate(date) || date > today) {
+        return noindex(htmlResponse(await (await indexPromise).text(), 'no-store'));
+      }
+      const day = await fetchCatalogDay(env, date);
+      const indexHtml = await (await indexPromise).text();
+      // Prošli dani se rijetko mijenjaju (kasni ingest): edge 1 dan (deploy
+      // purge ga ionako briše), browser 1 h kao i druge rute. Danas i jučer
+      // (UTC/Zagreb rub) još primaju epizode: 5 min.
+      const res = htmlResponse(
+        injectDayTags(indexHtml, date, day),
+        date < addDays(today, -1)
+          ? 'public, max-age=3600, s-maxage=86400'
+          : 'public, max-age=300, s-maxage=300',
+      );
+      // Katalog kaže da tog dana nema nijedne epizode → tanka stranica, ne indeksira se.
+      return day && day.count === 0 ? noindex(res) : res;
+    }
+
     // Cloudflare Pages "pretty URLs" — provjeri postoji li <path>.html.
     // Bez _redirects ovaj lookup je pouzdan (404 ako fajl ne postoji).
     if (path !== '/' && !path.endsWith('/')) {
@@ -772,6 +809,10 @@ async function buildSitemap(cache) {
       priority: '0.6',
     });
   }
+
+  // Dani (/dani/<datum>) — zadnjih SITEMAP_DAYS, računato bez subrequesta;
+  // samo za brend s katalogom. Prazan dan worker sam označi noindex.
+  urls.push(...sitemapDayUrls());
 
   // Epizode: prvo sve iz fragment cachea (bez ijednog subrequesta), pa dohvat
   // najviše SITEMAP_MAX_CHANNEL_FETCH kanala koji fale.
@@ -1758,6 +1799,188 @@ function injectSponsorTags(indexHtml, { title, desc, url, image, name }) {
   <meta name="twitter:image" content="${x(image)}">
   <meta name="twitter:label1" content="Kanal">
   <meta name="twitter:data1" content="${x(name)}">
+
+  <script type="application/ld+json">
+${jsonLd}
+  </script>`;
+
+  return stripHeadMeta(indexHtml).replace('</head>', `${tags}\n</head>`);
+}
+
+// --- Epizode jednog dana (/dani/YYYY-MM-DD) --------------------------------
+//
+// Dani se računaju u Europe/Zagreb (tako ih čita korisnik). Katalog (GET
+// /days/<datum>) daje broj epizoda i imena kanala za opis; zove se SAMO kroz
+// service binding `env.KATALOG` (Worker `domovina-katalog`), jer ruta
+// domovina.ai/api/katalog/* ne može biti meta same-zone fetch()-a iz ovog
+// workera (Cloudflare: „Routes cannot be the target of a same-zone fetch()
+// call") — običan fetch bi se vratio u Pages i dobio SPA HTML. Bez bindinga,
+// na grešci ili nakon CATALOG_DAY_TIMEOUT_MS: isti statični tagovi.
+const CATALOG_DAY_LIMIT = 100; // MAX_PAGE_SIZE kataloga; `next` ≠ null → „više od 100"
+const CATALOG_DAY_TIMEOUT_MS = 800;
+const SITEMAP_DAYS = 30;
+const HR_MONTHS_GEN = ['siječnja', 'veljače', 'ožujka', 'travnja', 'svibnja', 'lipnja',
+  'srpnja', 'kolovoza', 'rujna', 'listopada', 'studenoga', 'prosinca'];
+
+/** Današnji datum (YYYY-MM-DD) u Europe/Zagreb; UTC ako Intl zakaže. */
+function zagrebToday(now = new Date()) {
+  try {
+    const s = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Europe/Zagreb', year: 'numeric', month: '2-digit', day: '2-digit',
+    }).format(now);
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  } catch (_) {}
+  return now.toISOString().slice(0, 10);
+}
+
+/** Pravi kalendarski datum (2026-02-30 nije) — isto pravilo kao isIsoDate u katalogu. */
+function isCalendarDate(s) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
+  const d = new Date(`${s}T00:00:00Z`);
+  return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === s;
+}
+
+function addDays(date, n) {
+  return new Date(Date.parse(`${date}T00:00:00Z`) + n * 86400000).toISOString().slice(0, 10);
+}
+
+/** "2026-11-04" → "4. studenoga 2026." */
+function hrLongDate(date) {
+  const [y, m, d] = date.split('-').map(Number);
+  return `${d}. ${HR_MONTHS_GEN[m - 1]} ${y}.`;
+}
+
+function noindex(res) {
+  res.headers.set('X-Robots-Tag', 'noindex');
+  return res;
+}
+
+/** `/dani/` unosi za sitemap: zadnjih SITEMAP_DAYS dana, računato, bez subrequesta. */
+function sitemapDayUrls() {
+  if (!BRAND.CATALOG_API) return [];
+  const today = zagrebToday();
+  const urls = [];
+  for (let i = 0; i < SITEMAP_DAYS; i++) {
+    const date = addDays(today, -i);
+    urls.push({
+      loc: `${SITE}/dani/${date}`,
+      lastmod: date,
+      changefreq: i < 2 ? 'daily' : 'monthly',
+      priority: '0.4',
+    });
+  }
+  return urls;
+}
+
+/**
+ * Dan iz kataloga → { count, more, channels[], episodes[] }; null kad katalog
+ * nije dostupan (nema bindinga, greška, timeout, nečitljiv odgovor).
+ */
+async function fetchCatalogDay(env, date) {
+  const svc = env && env.KATALOG;
+  if (!svc || typeof svc.fetch !== 'function' || !BRAND.CATALOG_API) return null;
+  let timer;
+  try {
+    const work = (async () => {
+      const res = await svc.fetch(new Request(
+        `${BRAND.CATALOG_API}/days/${date}?limit=${CATALOG_DAY_LIMIT}`,
+        { headers: { Accept: 'application/json' } },
+      ));
+      if (!res.ok) return null;
+      return res.json();
+    })();
+    const timeout = new Promise((resolve) => { timer = setTimeout(() => resolve(null), CATALOG_DAY_TIMEOUT_MS); });
+    const body = await Promise.race([work, timeout]);
+    if (!body || body.version !== '1' || !Array.isArray(body.items)) return null;
+    const channels = [];
+    for (const it of body.items) {
+      const name = typeof it?.channel?.name === 'string' ? it.channel.name.trim() : '';
+      if (name && !channels.includes(name)) channels.push(name);
+    }
+    const episodes = body.items
+      .filter((it) => /^[A-Za-z0-9_-]{6,20}$/.test(String(it?.id ?? '')))
+      .slice(0, 10)
+      .map((it) => ({ id: it.id, title: String(it.title_hr || it.title || '').trim() }));
+    return { count: body.items.length, more: body.next != null, channels, episodes };
+  } catch (_) {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/** OG/Twitter/canonical + CollectionPage JSON-LD za /dani/<datum>. */
+function injectDayTags(indexHtml, date, day) {
+  const when = hrLongDate(date);
+  const title = `Epizode ${when}`;
+  const canonical = `${SITE}/dani/${date}`;
+  const image = `${SITE}/og-image.png`;
+  let desc;
+  if (day && day.count > 0) {
+    const n = day.count;
+    const lead = day.more
+      ? `Više od ${n} epizoda objavljenih`
+      : `${n} ${croPlural(n, 'epizoda objavljena', 'epizode objavljene', 'epizoda objavljenih')}`;
+    const shown = day.channels.slice(0, 3);
+    const rest = day.channels.length - shown.length;
+    const chText = shown.length === 0 ? ''
+      : ` — ${croPlural(day.channels.length, 'kanal', 'kanali', 'kanali')}: ${shown.join(', ')}`
+        + (rest > 0 ? ` i još ${rest}` : '');
+    desc = `${lead} ${when}${chText}. AI sažetci, transkripti i poglavlja na ${APP_NAME}.`;
+  } else if (day) {
+    desc = `Na dan ${when} na ${APP_NAME} nije objavljena nijedna epizoda.`;
+  } else {
+    desc = `Sve epizode objavljene ${when} na ${APP_NAME}: AI sažetci, transkripti i poglavlja podcasta.`;
+  }
+  if (desc.length > 300) desc = desc.slice(0, 297) + '…';
+
+  const episodes = day ? day.episodes : [];
+  const jsonLd = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: title,
+    url: canonical,
+    description: desc,
+    inLanguage: 'hr',
+    isPartOf: { '@type': 'WebSite', name: APP_NAME, url: SITE },
+    ...(episodes.length > 0 ? {
+      mainEntity: {
+        '@type': 'ItemList',
+        itemListElement: episodes.map((e, i) => ({
+          '@type': 'ListItem',
+          position: i + 1,
+          url: `${SITE}/v/${e.id}`,
+          ...(e.title ? { name: e.title } : {}),
+        })),
+      },
+    } : {}),
+  }, null, 2).replace(/</g, '\\u003c');
+
+  const tags = `
+  <title>${x(title)} – ${x(APP_NAME)}</title>
+  <meta name="description" content="${x(desc)}">
+  <link rel="canonical" href="${canonical}">
+
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="hr_HR">
+  <meta property="og:site_name" content="${x(APP_NAME)}">
+  <meta property="og:logo" content="${SITE}/og-image-square.png">
+  <meta property="og:title" content="${x(title)}">
+  <meta property="og:description" content="${x(desc)}">
+  <meta property="og:url" content="${canonical}">
+  <meta property="og:image" content="${image}">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="${x(title)} — ${x(APP_NAME)}">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="${x(title)}">
+  <meta name="twitter:description" content="${x(desc)}">
+  <meta name="twitter:image" content="${image}">
+  <meta name="twitter:image:alt" content="${x(title)} — ${x(APP_NAME)}">${
+    day ? `\n  <meta name="twitter:label1" content="Epizode">\n  <meta name="twitter:data1" content="${day.more ? `${day.count}+` : day.count}">` : ''
+  }
 
   <script type="application/ld+json">
 ${jsonLd}

@@ -7528,6 +7528,90 @@ abstract class AppLocalizations {
   /// In hr, this message translates to:
   /// **'Osvježi sve podatke'**
   String get devRefreshAll;
+
+  /// Naslov home raila s epizodama koje su danas ušle u katalog.
+  ///
+  /// In hr, this message translates to:
+  /// **'Danas u korpusu'**
+  String get homeRailCatalogToday;
+
+  /// Naslov home raila kad današnji dan još nema epizoda pa rail pokazuje jučerašnje.
+  ///
+  /// In hr, this message translates to:
+  /// **'Jučer u korpusu'**
+  String get homeRailCatalogYesterday;
+
+  /// Naslov home raila za stariji dan (do tri dana unatrag). {date} je dan i mjesec, npr. „3. studenoga”.
+  ///
+  /// In hr, this message translates to:
+  /// **'U korpusu · {date}'**
+  String homeRailCatalogOnDate(String date);
+
+  /// Mali naslov iznad datuma na ekranu /dani/:datum.
+  ///
+  /// In hr, this message translates to:
+  /// **'Epizode dana'**
+  String get catalogDayEyebrow;
+
+  /// Gumb i tooltip: otvori popis epizoda dan ranije.
+  ///
+  /// In hr, this message translates to:
+  /// **'Prethodni dan'**
+  String get catalogDayPrevious;
+
+  /// Tooltip: otvori popis epizoda dan kasnije (ne ide iza današnjeg).
+  ///
+  /// In hr, this message translates to:
+  /// **'Sljedeći dan'**
+  String get catalogDayNext;
+
+  /// Prazno stanje ekrana /dani/:datum.
+  ///
+  /// In hr, this message translates to:
+  /// **'Za ovaj dan još nema epizoda'**
+  String get catalogDayEmptyTitle;
+
+  /// Objašnjenje praznog stanja ekrana /dani/:datum.
+  ///
+  /// In hr, this message translates to:
+  /// **'Nove epizode stižu tijekom noći. Pogledaj što je stiglo dan ranije.'**
+  String get catalogDayEmptyBody;
+
+  /// Stanje pogreške kad adresa /dani/:datum ne nosi valjan datum.
+  ///
+  /// In hr, this message translates to:
+  /// **'Neispravan datum'**
+  String get catalogDayInvalidTitle;
+
+  /// Objašnjenje neispravnog datuma.
+  ///
+  /// In hr, this message translates to:
+  /// **'Adresa mora sadržavati datum u obliku GGGG-MM-DD, npr. 2026-11-05.'**
+  String get catalogDayInvalidBody;
+
+  /// Stanje kad katalog nije dostupan ili ga brend nema.
+  ///
+  /// In hr, this message translates to:
+  /// **'Popis epizoda po danima trenutačno nije dostupan'**
+  String get catalogDayUnavailableTitle;
+
+  /// Objašnjenje stanja „nije dostupno”.
+  ///
+  /// In hr, this message translates to:
+  /// **'Pokušaj ponovno malo kasnije ili pogledaj naslovnicu.'**
+  String get catalogDayUnavailableBody;
+
+  /// Gumb na dnu popisa epizoda dana: učitaj sljedeću stranicu.
+  ///
+  /// In hr, this message translates to:
+  /// **'Učitaj još'**
+  String get catalogDayLoadMore;
+
+  /// Poruka na dnu popisa kad sljedeća stranica nije stigla.
+  ///
+  /// In hr, this message translates to:
+  /// **'Nismo uspjeli učitati još epizoda.'**
+  String get catalogDayLoadMoreFailed;
 }
 
 class _AppLocalizationsDelegate

@@ -1236,5 +1236,19 @@
   "reelsShareFailed": "Couldn't prepare the video. Try again.",
   "reelsDownloadWide": "Download horizontal clip (16:9)",
   "reelsCopyWideLink": "Copy link to horizontal clip (16:9)",
-  "devRefreshAll": "Refresh all data"
+  "devRefreshAll": "Refresh all data",
+  "homeRailCatalogToday": "Today in the corpus",
+  "homeRailCatalogYesterday": "Yesterday in the corpus",
+  "homeRailCatalogOnDate": "In the corpus · {date}",
+  "catalogDayEyebrow": "Episodes of the day",
+  "catalogDayPrevious": "Previous day",
+  "catalogDayNext": "Next day",
+  "catalogDayEmptyTitle": "No episodes for this day yet",
+  "catalogDayEmptyBody": "New episodes arrive overnight. See what arrived the day before.",
+  "catalogDayInvalidTitle": "Invalid date",
+  "catalogDayInvalidBody": "The address must contain a date in the YYYY-MM-DD format, e.g. 2026-11-05.",
+  "catalogDayUnavailableTitle": "The list of episodes by day is not available right now",
+  "catalogDayUnavailableBody": "Try again a little later or go to the home page.",
+  "catalogDayLoadMore": "Load more",
+  "catalogDayLoadMoreFailed": "We couldn't load more episodes."
 }

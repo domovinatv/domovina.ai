@@ -8,6 +8,7 @@ import '../screens/channels/all_channels_screen.dart';
 import '../screens/channel/channel_screen.dart';
 import '../screens/person/person_screen.dart';
 import '../screens/episode_screen.dart';
+import '../screens/catalog_day/catalog_day_screen.dart';
 import '../screens/favorites/favorites_screen.dart';
 import '../screens/episode_simple_screen.dart';
 import '../screens/legal/privacy_screen.dart';
@@ -496,6 +497,21 @@ GoRouter createRouter() {
             child: PaywallScreen(
               trigger: UpgradeTriggerCopy.fromSlug(from),
             ),
+          );
+        },
+      ),
+      // Epizode jednog dana iz kataloga (`GET /days/:date`, oba tiera) —
+      // „Prikaži sve” raila „Danas u korpusu”. Ruta postoji i za brend bez
+      // kataloga: ekran tada sam kaže da popis nije dostupan, pa podijeljen
+      // link ne pada na naslovnicu. Ključ nosi samo datum; valjanost datuma
+      // provjerava ekran (stanje pogreške, ne 404).
+      GoRoute(
+        path: '/dani/:datum',
+        pageBuilder: (context, state) {
+          final datum = state.pathParameters['datum']!;
+          return NoTransitionPage(
+            key: ValueKey('catalog-day-$datum'),
+            child: CatalogDayScreen(date: datum),
           );
         },
       ),

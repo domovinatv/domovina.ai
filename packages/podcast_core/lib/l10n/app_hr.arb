@@ -6012,5 +6012,67 @@
   "devRefreshAll": "Osvježi sve podatke",
   "@devRefreshAll": {
     "description": "Skriveni gumb (uz ?osvjezi=1) koji briše sve spremljene podatke aplikacije i ponovno učita stranicu."
+  },
+  "homeRailCatalogToday": "Danas u korpusu",
+  "@homeRailCatalogToday": {
+    "description": "Naslov home raila s epizodama koje su danas ušle u katalog."
+  },
+  "homeRailCatalogYesterday": "Jučer u korpusu",
+  "@homeRailCatalogYesterday": {
+    "description": "Naslov home raila kad današnji dan još nema epizoda pa rail pokazuje jučerašnje."
+  },
+  "homeRailCatalogOnDate": "U korpusu · {date}",
+  "@homeRailCatalogOnDate": {
+    "description": "Naslov home raila za stariji dan (do tri dana unatrag). {date} je dan i mjesec, npr. „3. studenoga”.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "3. studenoga"
+      }
+    }
+  },
+  "catalogDayEyebrow": "Epizode dana",
+  "@catalogDayEyebrow": {
+    "description": "Mali naslov iznad datuma na ekranu /dani/:datum."
+  },
+  "catalogDayPrevious": "Prethodni dan",
+  "@catalogDayPrevious": {
+    "description": "Gumb i tooltip: otvori popis epizoda dan ranije."
+  },
+  "catalogDayNext": "Sljedeći dan",
+  "@catalogDayNext": {
+    "description": "Tooltip: otvori popis epizoda dan kasnije (ne ide iza današnjeg)."
+  },
+  "catalogDayEmptyTitle": "Za ovaj dan još nema epizoda",
+  "@catalogDayEmptyTitle": {
+    "description": "Prazno stanje ekrana /dani/:datum."
+  },
+  "catalogDayEmptyBody": "Nove epizode stižu tijekom noći. Pogledaj što je stiglo dan ranije.",
+  "@catalogDayEmptyBody": {
+    "description": "Objašnjenje praznog stanja ekrana /dani/:datum."
+  },
+  "catalogDayInvalidTitle": "Neispravan datum",
+  "@catalogDayInvalidTitle": {
+    "description": "Stanje pogreške kad adresa /dani/:datum ne nosi valjan datum."
+  },
+  "catalogDayInvalidBody": "Adresa mora sadržavati datum u obliku GGGG-MM-DD, npr. 2026-11-05.",
+  "@catalogDayInvalidBody": {
+    "description": "Objašnjenje neispravnog datuma."
+  },
+  "catalogDayUnavailableTitle": "Popis epizoda po danima trenutačno nije dostupan",
+  "@catalogDayUnavailableTitle": {
+    "description": "Stanje kad katalog nije dostupan ili ga brend nema."
+  },
+  "catalogDayUnavailableBody": "Pokušaj ponovno malo kasnije ili pogledaj naslovnicu.",
+  "@catalogDayUnavailableBody": {
+    "description": "Objašnjenje stanja „nije dostupno”."
+  },
+  "catalogDayLoadMore": "Učitaj još",
+  "@catalogDayLoadMore": {
+    "description": "Gumb na dnu popisa epizoda dana: učitaj sljedeću stranicu."
+  },
+  "catalogDayLoadMoreFailed": "Nismo uspjeli učitati još epizoda.",
+  "@catalogDayLoadMoreFailed": {
+    "description": "Poruka na dnu popisa kad sljedeća stranica nije stigla."
   }
 }
