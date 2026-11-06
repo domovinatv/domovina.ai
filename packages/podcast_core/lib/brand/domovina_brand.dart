@@ -31,6 +31,7 @@ const BrandConfig domovinaBrand = BrandConfig(
     wallet: 'https://wallet.domovina.ai',
     paymentIntents: 'https://mpt.domovina.ai',
     events: 'https://domovina.ai/api/state',
+    catalog: 'https://domovina.ai/api/katalog/v1',
   ),
   flags: FeatureFlags(
     // PRIVREMENO UGAŠENO (26.10.2026.): „Tko ide sljedeći” (glasanje o

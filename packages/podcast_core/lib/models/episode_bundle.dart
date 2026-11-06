@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'catalog_card.dart';
+
 /// `data/<id>/episode.json` — jedna datoteka po epizodi koju pipeline slaže
 /// nakon svakog uploada u `data/<id>/`.
 ///
@@ -27,6 +29,11 @@ import 'dart:convert';
 ///   tekstualna datoteka kao string). Titlovi, vrijeme po riječi i EN
 ///   prijevodi ostaju vani: to su 2/3 bajtova, a ne trebaju za prvi prikaz.
 ///
+/// - `channel` (aditivno od 6. 11. 2026., katalog odluke 705–707):
+///   `{slug, name, tier}` ([CatalogChannel]) ili `null` = katalog je epizodu
+///   vidio bez kanala. Nose ga samo epizode prvi put viđene nakon tog datuma;
+///   kod starih ključ izostaje = nepoznato ([channelKnown] je `false`).
+///
 /// Nepoznata verzija ili nečitljiv oblik → `null`, pa klijent ide starim
 /// putem (datoteku po datoteku). Stari put ostaje zauvijek.
 class EpisodeBundle {
@@ -36,7 +43,21 @@ class EpisodeBundle {
   final Set<String> files;
   final Map<String, Object> inline;
 
-  const EpisodeBundle({required this.files, required this.inline});
+  /// Je li bundle rekao išta o kanalu: ključ `channel` postoji i vrijednost
+  /// je `null` ili ispravan objekt. `false` za stare bundleove (ključ
+  /// izostaje) i za nečitljivu vrijednost — tada kanal treba pitati drugdje.
+  final bool channelKnown;
+
+  /// Kanal iz kataloga; `null` uz [channelKnown] znači „katalog epizodu ima
+  /// bez kanala”.
+  final CatalogChannel? channel;
+
+  const EpisodeBundle({
+    required this.files,
+    required this.inline,
+    this.channelKnown = false,
+    this.channel,
+  });
 
   static EpisodeBundle? tryParse(String body) {
     try {
@@ -46,7 +67,12 @@ class EpisodeBundle {
       final files = json['files'];
       if (files is! List) return null;
       final inline = json['inline'];
+      final rawChannel = json['channel'];
+      final channel = CatalogChannel.tryParse(rawChannel);
       return EpisodeBundle(
+        channelKnown: json.containsKey('channel') &&
+            (rawChannel == null || channel != null),
+        channel: channel,
         files: {for (final f in files) if (f is String) f},
         inline: {
           if (inline is Map<String, dynamic>)

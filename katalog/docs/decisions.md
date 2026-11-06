@@ -694,3 +694,78 @@ Produkcija (korisnik odobrio 6. 11. 2026. na vratima S5 → S6: „Da, sve odobr
      epizodu još nema u listingu: plan je vidi kao Tier 2 (`tier: 2`, kanal kroz resolver).
      Idući nightly `--all` je ispravi na Tier 1. Prihvaćeno: kartica i kanal su odmah
      točni, kriv je samo `tier` epizode do noći.
+
+## S8 (2026-11-06, CatalogClient u podcast_core, ekran epizode)
+
+800. **`Endpoints.catalog`** (`packages/podcast_core/lib/brand/brand_config.dart`), zadano
+     prazno kao `events`; DOMOVINA `https://domovina.ai/api/katalog/v1`, Podcasterium ga ne
+     postavlja (tvrdi uvjet 3). Sve što dolazi iz kataloga, i `episode.json` `channel`, ide
+     kroz `CatalogClient.enabled`: bez endpointa nema zahtjeva ni čitanja `channel`, pa je
+     ponašanje brenda bez kataloga isto kao prije S8.
+801. **Ekran epizode prvo traži kanal starim putem, katalog tek kad on ne nađe ništa.**
+     Redom: `index.json` po imenu (`channelIdForName`, kao do sada), pa `episode.json`
+     `channel`, pa `GET /episodes/:id/card` (`catalogChannelFor` u
+     `services/episode_catalog_lookup.dart`). Handoff je predlagao obrnuto (bundle →
+     kartica → stari put). Promijenjeno iz tri razloga: Tier 1 je zbog toga identičan
+     današnjem; 3670 starih epizoda bez ključa `channel`, kojima ime pogađa kanal, ne plaća
+     zahtjev za karticu; a bundle je ionako već učitan (dijeljeni `_bundles` u
+     `DataService`), pa za njega ne ide nijedan novi zahtjev. Cijena: kad ime pogodi krivi
+     kanal, katalog to ne ispravi, kao ni do sada. `channel: null` u bundleu znači „katalog
+     zna da kanala nema”, pa se kartica tada ne traži.
+802. **Kanal bez `/c/` rute (`channel.tier != 1`, Tier 2 do S10) dobiva samo ime.**
+     Breadcrumb ga pokazuje bez linka (`_Breadcrumb.showUnlinkedChannel`, odluku o čvoru
+     donosi `episodeBreadcrumbChannel`). Slug ne ulazi u
+     `_channelSupportRefs` ni u `_supportPath`; fallback ostaje `/c/kanal/support?uc=…`,
+     isti kao danas. Tier 1 iz kataloga daje `_channelSlug` s crticom
+     (`CatalogChannel.routeSlug`), kao i stari put. Kad S10 doda rutu, mijenja se samo
+     `CatalogChannel.hasChannelRoute`.
+803. **`_QueuedEpisodeScreen` prvo pita karticu** (`findQueuedEpisode`). Pogodak daje naslov
+     (`title_hr ?? title`), datum i kanal, a embed je dopušten jer je ID potvrđen u našem
+     katalogu. Slug Tier 1 iz kataloga je s crticom, slug iz listinga ostaje ID s podvlakom
+     kao prije; ruter oba vodi na isti kanal. Tier 2 epizoda bez `info.json` (resolver
+     `no_info_json`, podaci iz `summary.json`) sada dobiva YouTube embed, osim kad joj je
+     ID sintetički (odluka 808).
+804. **Katalog 404 uz dostupan katalog: i dalje `findVideoAsync`.** Kod S6/S7 pokazuje da
+     Tier 1 retke plana slaže `buildPlan` iz SVIH redaka listinga
+     (`katalog/src/ingest/plan.ts`), pa je listana epizoda u obradi u katalogu čim prođe
+     ingest. D1 ipak smije kasniti za listingom: KORAK 13.5 s exitom 1 ili 2 ostavlja rupu
+     do `drift-check --sync` u 08:45 (odluka 703). Taj pad ne košta ništa novo, jer je
+     `findVideoAsync` do S8 išao uvijek. Kad katalog nije dostupan (endpoint prazan,
+     mreža, timeout, 5xx, nečitljiv odgovor), ide se isto na `findVideoAsync`.
+805. **`CatalogClient.lookup` ide kroz `CdnJsonCache.getMutable`, bucket `episode`** (kao
+     `episode.json`: na webu najviše 150 zapisa, na nativeu 20 MB). Spremljena kartica
+     vraća se odmah i revalidira u pozadini. Timeout je 4 s, a 404 i greške se ne spremaju.
+     Da bi se 404 razlikovao od kvara, `getMutable` sada baca `CdnHttpException(statusCode,
+     url)`; `toString` je isti kao prije (`Exception: HTTP <kod>: <url>`). Timeout ne
+     prekida sam zahtjev: kasni odgovor se spremi za idući put.
+806. **Šav za testove**: `CatalogClient.instance` je statičko polje koje se smije
+     zamijeniti (obrazac `CdnJsonCache.instance`), npr. podklasom koja prepisuje `lookup`.
+     Logika ekrana je u čistim funkcijama `findQueuedEpisode(id, findVideo:, catalog:)` i
+     `catalogChannelFor(id, bundle:, catalog:)`. Testovi bez `AppBrand.init` rade s
+     DOMOVINA brendom, dakle s uključenim katalogom. Widget test ekrana epizode zato treba
+     postaviti `CatalogClient.instance = CatalogClient(baseUrl: '')` (staro ponašanje) ili
+     lažni klijent, inače zahtjev ode kroz `package:http`.
+807. **`EpisodeBundle.channelKnown`**: `true` samo kad ključ `channel` postoji i vrijednost
+     je `null` ili ispravan `{slug,name,tier}`. Nečitljiva vrijednost se tretira kao da
+     ključ izostaje (pita se kartica), a ostatak bundlea vrijedi i dalje. Verzija ostaje 1
+     (odluka 707).
+808. **Ekran u obradi ne ugrađuje sintetički ID** (pravilo iz korijenskog `CLAUDE.md`:
+     X i `_yt_matched:false` nemaju YouTube video). Embed, bočni player i poveznica
+     „Otvori na YouTubeu” idu samo uz `QueuedEpisodeListing.youtubeVideoId`; kad je
+     `null`, ekran pokazuje naslov, kanal i status bez playera. Kartica ne nosi izvor
+     epizode, pa `queuedYouTubeVideoIdForCard` hvata ono što ima: `variant_of` (embed
+     osnovnog ID-a, kao `PodcastInfo.youtubeVideoId`), slug kanala `x-…` (neregistrirani X
+     autor, `resolve.ts` `UNREGISTERED_PREFIX`) i oblik ID-a: bez 11 znakova base64url
+     nema embeda, a 11 malih heks znakova je RSS (`sha1(guid)[:11]`, `ingest_rss.mjs`) ili
+     beamly (zadnjih 11 znakova ObjectId-a, `ingest_beamly.mjs`); pravi YouTube ID takav je
+     s vjerojatnošću oko 2·10⁻⁷. Listing (`queuedYouTubeVideoIdForListing`) nosi
+     `youtube_url` = `info.webpage_url` (`generate_channel_index.js`), pa ne-YouTube host
+     (x.com, launchedfm.com, Spotify) i `source` različit od `youtube` gase embed. Ovo
+     vrijedi i za brend bez kataloga: za pravi YouTube ID ekran je isti kao prije S8, a
+     za sintetički je do sada nudio embed i poveznicu koji vode na YouTubeovo
+     „nedostupno”. Ostaje rupa: X ID (sha256 → 11 znakova) po obliku je
+     isti kao YouTubeov, pa X epizoda na praćenom kanalu bez `info.json` dobiva embed.
+     Praćenih X kanala danas nema, a X epizode imaju `info.json`. Potpuno rješenje je
+     polje izvora u kartici (`source` ili `yt_matched`), promjena ugovora `card.schema.json`.
+     Beamly epizoda s pravim YouTube ID-om (`_yt_matched: true`) u listingu ima
+     `webpage_url` epizode na launchedfm.com (`buildInfoJson`) i gubi embed. To je svjesna cijena: radije bez playera nego tuđi video.

@@ -12,7 +12,6 @@ import 'package:media_kit_video/media_kit_video.dart';
 import '../l10n/app_localizations.dart';
 import '../brand/app_brand.dart';
 import '../src/log.dart' show log;
-import '../models/channel_detail.dart' show ChannelVideo;
 import '../models/episode_status.dart';
 import '../models/person_hub.dart' show personSlug;
 import '../models/podcast_article.dart' show PodcastSection;
@@ -29,6 +28,7 @@ import '../services/episode_language.dart';
 import '../services/share_links.dart';
 import '../services/media_session.dart';
 import '../services/channel_cache.dart';
+import '../services/episode_catalog_lookup.dart';
 import '../services/data_service.dart';
 import '../services/cdn_config.dart';
 import '../services/ebook_service.dart';
@@ -228,9 +228,14 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
 /// mjesta gdje takva epizoda uopce postoji, a reprodukciju nudimo kroz
 /// ugradeni YouTube player.
 ///
-/// **Rule**: embed se nudi SAMO ako je ID nasao svoj red u channel listingu.
-/// Bez te provjere bi `/v/<bilo-koji-YouTube-ID>` ugradivao proizvoljan tudi
-/// video pod nasim brandom.
+/// **Rule**: embed se nudi SAMO ako je ID nasao svoj red u channel listingu
+/// ili u nasem katalogu (`CatalogClient`, katalog odluka 803). Bez te provjere
+/// bi `/v/<bilo-koji-YouTube-ID>` ugradivao proizvoljan tudi video pod nasim
+/// brandom. Redoslijed i pad na listinge: [findQueuedEpisode].
+///
+/// **Rule**: ni potvrđen ID se ne ugrađuje kad je sintetički (X, RSS, beamly
+/// bez YouTubea, varijanta): embed, bočni player i youtube.com poveznica idu
+/// SAMO uz [QueuedEpisodeListing.youtubeVideoId] (katalog odluka 808).
 class _QueuedEpisodeScreen extends StatefulWidget {
   final String youtubeId;
 
@@ -241,7 +246,7 @@ class _QueuedEpisodeScreen extends StatefulWidget {
 }
 
 class _QueuedEpisodeScreenState extends State<_QueuedEpisodeScreen> {
-  ({String channelId, String channelName, ChannelVideo video})? _listed;
+  QueuedEpisodeListing? _listed;
   bool _searching = true;
 
   @override
@@ -251,14 +256,21 @@ class _QueuedEpisodeScreenState extends State<_QueuedEpisodeScreen> {
   }
 
   Future<void> _find() async {
-    final hit = await channelCache.findVideoAsync(widget.youtubeId);
+    final hit = await findQueuedEpisode(
+      widget.youtubeId,
+      findVideo: channelCache.findVideoAsync,
+    );
     if (!mounted) return;
     setState(() {
       _listed = hit;
       _searching = false;
     });
     if (hit != null) {
-      setPageMeta(title: hit.video.displayTitle);
+      log(
+        'QueuedEpisode ${widget.youtubeId}: potvrđena (${hit.source.name}), '
+        'YouTube ${hit.youtubeVideoId ?? 'nema (sintetički ID)'}',
+      );
+      setPageMeta(title: hit.title);
     }
   }
 
@@ -284,6 +296,10 @@ class _QueuedEpisodeScreenState extends State<_QueuedEpisodeScreen> {
     // lijevo. Prag je isti (1100) da prijelaz između faza ne pomiče stupce.
     final wide = MediaQuery.sizeOf(context).width > 1100;
 
+    // Sintetički ID (X, RSS, beamly bez YouTubea) nema YouTube video iza
+    // sebe: bez embeda i bez youtube.com poveznice (katalog odluka 808).
+    final ytId = listed.youtubeVideoId;
+
     final content = SingleChildScrollView(
       child: Align(
         alignment: Alignment.topCenter,
@@ -295,22 +311,22 @@ class _QueuedEpisodeScreenState extends State<_QueuedEpisodeScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  listed.video.displayTitle,
+                  listed.title,
                   style: theme.textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  listed.video.date ?? listed.channelName,
+                  listed.date ?? listed.channelName,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
                 ),
                 const SizedBox(height: 16),
-                if (!wide) ...[
+                if (!wide && ytId != null) ...[
                   InAppYouTubePlayer(
-                    videoId: widget.youtubeId,
+                    videoId: ytId,
                     posterUrl: CdnConfig.thumbnailUrl(widget.youtubeId),
                   ),
                   const SizedBox(height: 20),
@@ -326,14 +342,15 @@ class _QueuedEpisodeScreenState extends State<_QueuedEpisodeScreen> {
                   ),
                   footnote: l.episodeStatusNotOnCdn(widget.youtubeId),
                 ),
-                const SizedBox(height: 16),
-                TextButton.icon(
-                  onPressed: () => openUrl(
-                    'https://www.youtube.com/watch?v=${widget.youtubeId}',
+                if (ytId != null) ...[
+                  const SizedBox(height: 16),
+                  TextButton.icon(
+                    onPressed: () =>
+                        openUrl('https://www.youtube.com/watch?v=$ytId'),
+                    icon: const Icon(Icons.open_in_new, size: 18),
+                    label: Text(l.episodeOpenOnYouTube),
                   ),
-                  icon: const Icon(Icons.open_in_new, size: 18),
-                  label: Text(l.episodeOpenOnYouTube),
-                ),
+                ],
               ],
             ),
           ),
@@ -346,19 +363,21 @@ class _QueuedEpisodeScreenState extends State<_QueuedEpisodeScreen> {
       appBar: AppBar(
         title: _Breadcrumb(
           channelName: listed.channelName,
-          channelSlug: listed.channelId,
-          episodeTitle: listed.video.displayTitle,
+          channelSlug: listed.channelSlug,
+          episodeTitle: listed.title,
+          // Tier 2 kanal iz kataloga nema `/c/` rutu (odluka 802): ime bez linka.
+          showUnlinkedChannel: listed.source == QueuedEpisodeSource.catalog,
         ),
         titleSpacing: 0,
       ),
       body: SafeArea(
         top: false,
-        child: wide
+        child: wide && ytId != null
             ? Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(child: content),
-                  _YouTubeSidePanel(youtubeId: widget.youtubeId),
+                  _YouTubeSidePanel(youtubeId: widget.youtubeId, videoId: ytId),
                 ],
               )
             : content,
@@ -619,24 +638,32 @@ class _LoadingScreen extends StatelessWidget {
 /// preko `channelCache.channelIdForName` — NIJE YouTube UC… id iz
 /// `info.channelId` (taj ne postoji kao `/c/:slug`). Dok se index ne učita
 /// (deep-link) slug je null pa se kanal-čvor sakrije.
+///
+/// [showUnlinkedChannel]: kanal je poznat iz kataloga, ali nema `/c/` rutu
+/// (Tier 2, katalog odluka 802) — čvor se prikaže kao ime bez linka. Zadano
+/// `false`, pa bez kataloga ponašanje ostaje isto.
 class _Breadcrumb extends StatelessWidget {
   final String channelName;
   final String? channelSlug;
   final String episodeTitle;
+  final bool showUnlinkedChannel;
 
   const _Breadcrumb({
     required this.channelName,
     required this.channelSlug,
     required this.episodeTitle,
+    this.showUnlinkedChannel = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final muted = theme.colorScheme.onSurfaceVariant;
-    final slug = channelSlug;
-    final hasChannel =
-        slug != null && slug.isNotEmpty && channelName.isNotEmpty;
+    final channel = episodeBreadcrumbChannel(
+      name: channelName,
+      slug: channelSlug,
+      showUnlinked: showUnlinkedChannel,
+    );
     final width = MediaQuery.sizeOf(context).width;
     // Mobitel (<600): breadcrumb je horizontalno skrolabilan i prikazuje PUNI
     // put (uklj. epizodu) — konzistentno sa skrolabilnim redom akcija. Na
@@ -677,12 +704,15 @@ class _Breadcrumb extends StatelessWidget {
       children: [
         crumb(AppLocalizations.of(context).ownershipCrumbHome,
             onTap: () => context.go('/')),
-        if (hasChannel) ...[
+        if (channel != null) ...[
           sep(),
           node(
             crumb(
-              channelName,
-              onTap: () => context.go('/c/$slug'),
+              channel.name,
+              onTap: switch (channel.route) {
+                final route? => () => context.go(route),
+                null => null,
+              },
               // Kad epizodu skrivamo (širina 600–760), kanal je zadnji čvor.
               current: !showEpisode,
             ),
@@ -813,6 +843,11 @@ class _EpisodeContentState extends State<_EpisodeContent>
   /// `_resolveChannelSlug`). Null dok se index ne učita ili ako nema matcha —
   /// breadcrumb tada sakrije kanal-čvor.
   String? _channelSlug;
+
+  /// Ime kanala iz kataloga kad kanal nema `/c/` rutu (Tier 2, katalog odluka
+  /// 802): breadcrumb ga pokazuje bez linka, a u [_channelSupportRefs] i
+  /// [_supportPath] ne ulazi. Null bez kataloga i za Tier 1.
+  String? _catalogChannelName;
 
   /// Cover-art za audio-only epizode (CORS-safe channel avatar square).
   /// Razrješava se iz channel indexa u [_resolveChannelSlug].
@@ -1514,7 +1549,36 @@ class _EpisodeContentState extends State<_EpisodeContent>
       if (id != null) _channelSlug = id.replaceAll('_', '-');
       _audioArtUrl = art;
     });
+    if (id == null) await _resolveCatalogChannel();
   }
+
+  /// Kanal iz kataloga kad ga `index.json` po imenu ne zna (Tier 2 epizoda,
+  /// ime kanala drukčije napisano): `episode.json` `channel`, pa kartica iz
+  /// `CatalogClient`. Tier 1 dobiva slug kao i [_resolveChannelSlug]; kanal
+  /// bez rute samo ime (katalog odluke 801–802). Brend bez kataloga ovdje ne
+  /// radi ništa.
+  Future<void> _resolveCatalogChannel() async {
+    final id = widget.data.youtubeId;
+    final channel = await catalogChannelFor(
+      id,
+      bundle: DataService(youtubeId: id).bundle,
+    );
+    if (!mounted || channel == null) return;
+    log('EpisodeScreen $id: kanal iz kataloga ${channel.slug} '
+        '(tier ${channel.tier})');
+    setState(() {
+      if (channel.hasChannelRoute) {
+        _channelSlug = channel.routeSlug;
+      } else {
+        _catalogChannelName = channel.name;
+      }
+    });
+  }
+
+  /// Ime kanala za breadcrumb: iz kataloga kad kanal nema rutu, inače kao
+  /// dosad iz `info.json`.
+  String get _breadcrumbChannelName =>
+      _catalogChannelName ?? widget.data.info.channel;
 
   /// Kandidati za kampanju kanala — fallback sticky trake "Zid podrške" kad
   /// epizoda nema vlastitu kampanju (UC… id iz info.json + naš interni
@@ -2613,9 +2677,10 @@ class _EpisodeContentState extends State<_EpisodeContent>
     final appBar = _episodeAppBar(
       leading: _backLeading(context),
       title: _Breadcrumb(
-        channelName: data.info.channel,
+        channelName: _breadcrumbChannelName,
         channelSlug: _channelSlug,
         episodeTitle: _title,
+        showUnlinkedChannel: _catalogChannelName != null,
       ),
       actions: [
         Padding(
@@ -2988,9 +3053,10 @@ class _EpisodeContentState extends State<_EpisodeContent>
           _episodeAppBar(
             leading: _backLeading(context),
             title: _Breadcrumb(
-              channelName: data.info.channel,
+              channelName: _breadcrumbChannelName,
               channelSlug: _channelSlug,
               episodeTitle: _title,
+              showUnlinkedChannel: _catalogChannelName != null,
             ),
             actions: [
               Padding(
@@ -3492,9 +3558,10 @@ class _EpisodeContentState extends State<_EpisodeContent>
         _episodeAppBar(
           leading: _backLeading(context),
           title: _Breadcrumb(
-            channelName: data.info.channel,
+            channelName: _breadcrumbChannelName,
             channelSlug: _channelSlug,
             episodeTitle: _title,
+            showUnlinkedChannel: _catalogChannelName != null,
           ),
           actions: [
             Padding(

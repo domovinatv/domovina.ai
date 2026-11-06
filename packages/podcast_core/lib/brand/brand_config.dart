@@ -115,6 +115,7 @@ class Endpoints {
     this.wallet = '',
     this.paymentIntents = '',
     this.events = '',
+    this.catalog = '',
   });
 
   /// Javna web stranica — baza za share linkove i OG.
@@ -144,6 +145,12 @@ class Endpoints {
   /// tuđu domenu (ili s riječima poput `analytics`/`track` u putanji)
   /// adblockeri blokiraju.
   final String events;
+
+  /// Servis kataloga (`katalog/`, Worker + D1), baza API-ja s verzijom, npr.
+  /// `https://domovina.ai/api/katalog/v1`. Prazno = brend nema katalog i
+  /// klijent ide samo statičnim putem (listinzi, `index.json`) — vidi
+  /// `CatalogClient`.
+  final String catalog;
 }
 
 /// Značajke koje brend uključuje. Zadano je sve UGAŠENO osim onoga što je

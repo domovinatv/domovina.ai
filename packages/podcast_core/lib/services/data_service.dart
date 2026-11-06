@@ -223,6 +223,11 @@ class DataService {
     return f;
   }
 
+  /// Isti [EpisodeBundle] koji čita [_get] (dijeljen po epizodi i sesiji), za
+  /// ekran koji iz njega treba nešto osim datoteka — npr. `channel` iz
+  /// kataloga. `null` kad ga nema ili je nečitljiv.
+  Future<EpisodeBundle?> bundle() => _bundle();
+
   /// `data/<id>/episode.json` ([EpisodeBundle]) — jednom po epizodi i sesiji.
   /// `null` (404, mreža, nepoznata verzija) znači stari put: datoteku po
   /// datoteku, s retryjem na 404. Promjenjiv je (pipeline ga prepisuje kad

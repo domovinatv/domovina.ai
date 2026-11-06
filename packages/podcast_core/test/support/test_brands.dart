@@ -19,9 +19,19 @@ BrandConfig brandWithoutPasskeys() => _domovinaWith(passkeys: false);
 /// trebaju brend u kojem `/glasanje*` postoji.
 BrandConfig brandWithVoting() => _domovinaWith(voting: true);
 
-BrandConfig _domovinaWith({bool? domainScore, bool? passkeys, bool? voting}) {
+/// DOMOVINA bez servisa kataloga (`endpoints.catalog == ''`), kao
+/// Podcasterium: `CatalogClient` ne šalje nijedan zahtjev (katalog odluka 800).
+BrandConfig brandWithoutCatalog() => _domovinaWith(catalog: '');
+
+BrandConfig _domovinaWith({
+  bool? domainScore,
+  bool? passkeys,
+  bool? voting,
+  String? catalog,
+}) {
   final d = domovinaBrand;
   final f = d.flags;
+  final e = d.endpoints;
   return BrandConfig(
     appName: d.appName,
     wordmark: d.wordmark,
@@ -39,7 +49,20 @@ BrandConfig _domovinaWith({bool? domainScore, bool? passkeys, bool? voting}) {
     splashAsset: d.splashAsset,
     defaultLocale: d.defaultLocale,
     defaultEpisodeLanguage: d.defaultEpisodeLanguage,
-    endpoints: d.endpoints,
+    endpoints: catalog == null
+        ? e
+        : Endpoints(
+            site: e.site,
+            cdn: e.cdn,
+            rag: e.rag,
+            meili: e.meili,
+            cutter: e.cutter,
+            certilia: e.certilia,
+            wallet: e.wallet,
+            paymentIntents: e.paymentIntents,
+            events: e.events,
+            catalog: catalog,
+          ),
     flags: FeatureFlags(
       voting: voting ?? f.voting,
       pinka: f.pinka,

@@ -27,6 +27,19 @@ import 'package:http/http.dart' as http;
 import '../src/log.dart' show log;
 import 'cdn_store.dart';
 
+/// Ne-200 odgovor bez spremljene kopije. Tekst (`toString`) je isti kao
+/// nekadašnji `Exception('HTTP <kod>: <url>')`, pa logovi ostaju isti; tip
+/// postoji da pozivatelj (npr. `CatalogClient`) razlikuje 404 od kvara.
+class CdnHttpException implements Exception {
+  const CdnHttpException(this.statusCode, this.url);
+
+  final int statusCode;
+  final String url;
+
+  @override
+  String toString() => 'Exception: HTTP $statusCode: $url';
+}
+
 class CdnJsonCache {
   CdnJsonCache({
     required CdnStore store,
@@ -78,8 +91,8 @@ class CdnJsonCache {
   }
 
   /// Promjenjiva datoteka. Vraća spremljeno tijelo ako postoji (i u pozadini
-  /// revalidira), inače ide na mrežu. Baca `Exception('HTTP <kod>: <url>')`
-  /// kad mreža vrati ne-200 a spremljenog nema — isto kao prije cachea.
+  /// revalidira), inače ide na mrežu. Baca [CdnHttpException] kad mreža vrati
+  /// ne-200 a spremljenog nema — tekst je isti kao prije (`HTTP <kod>: <url>`).
   ///
   /// [onUpdate] se zove samo kad je revalidacija donijela DRUGAČIJE tijelo od
   /// vraćenog.
@@ -96,9 +109,7 @@ class CdnJsonCache {
     final stored = await _store.get(bucket, url);
     if (stored == null) {
       final res = await _httpGet(url);
-      if (res.statusCode != 200) {
-        throw Exception('HTTP ${res.statusCode}: $url');
-      }
+      if (res.statusCode != 200) throw CdnHttpException(res.statusCode, url);
       _revalidated.add(url);
       unawaited(_store.put(bucket, url,
           StoredEntry(res.body, etag: res.headers['etag'])));
@@ -149,7 +160,7 @@ class CdnJsonCache {
 
   Future<String> _fetchOrThrow(String url) async {
     final res = await _httpGet(url);
-    if (res.statusCode != 200) throw Exception('HTTP ${res.statusCode}: $url');
+    if (res.statusCode != 200) throw CdnHttpException(res.statusCode, url);
     return res.body;
   }
 
