@@ -121,6 +121,20 @@ export function pendingSentences(v: EditorVersion, resolutions: readonly Resolut
   return (v.verify?.sentences ?? []).filter((s) => s.status !== 'supported' && !done.has(s.n));
 }
 
+/**
+ * Što objavljenom članku treba za ispravak (`correct_article`): nova verzija
+ * nakon objavljene, automatska provjera te verzije i razrješenje označenih
+ * rečenica. `null` = članak nije objavljen pa ispravka nema.
+ */
+export type CorrectionState = 'needs_edit' | 'needs_verify' | 'needs_resolution' | 'ready';
+
+export function correctionState(b: Pick<ArticleBundle, 'article' | 'latest' | 'resolutions'>): CorrectionState | null {
+  if (b.article.status !== 'published' && b.article.status !== 'corrected') return null;
+  if (b.latest.id === b.article.published_version_id) return 'needs_edit';
+  if (!b.latest.verify) return 'needs_verify';
+  return pendingSentences(b.latest, b.resolutions).length > 0 ? 'needs_resolution' : 'ready';
+}
+
 /** Blokovi za `save_editor_version` iz sadržaja verzije (citat bez trenutka ispada). */
 export function editableBlocks(v: EditorVersion): Block[] {
   return (v.content?.blocks ?? []).flatMap((b): Block[] =>

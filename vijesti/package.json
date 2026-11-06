@@ -22,7 +22,10 @@
     "portal:dev": "tsx portal/dev/dev.ts",
     "portal:shim": "tsx portal/dev/serve-shim.ts",
     "portal:build": "astro build --root portal",
-    "portal:check": "astro check --root portal"
+    "portal:check": "astro check --root portal",
+    "portal:preview": "tsx portal/dev/preview.ts",
+    "e2e": "playwright test -c portal/playwright.config.ts",
+    "lighthouse": "tsx portal/dev/lighthouse.ts"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^14.4.6",
@@ -34,9 +37,12 @@
   "devDependencies": {
     "@astrojs/check": "^0.9.12",
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.65.0",
     "@types/node": "^22.20.5",
+    "chrome-launcher": "^1.2.3",
     "eslint": "^10.14.0",
     "globals": "^17.14.0",
+    "lighthouse": "^13.6.0",
     "tsx": "^4.23.15",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.72.1",

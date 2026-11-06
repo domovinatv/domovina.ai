@@ -9,11 +9,13 @@ import { appEpisodeUrl, clipUrl, episodeBundleUrl, pickClipMedia } from '../../l
 import {
   ARCHIVE_STATUSES,
   QUEUE_STATUSES,
+  correctionState,
   createEditorApi,
   editableBlocks,
   pendingSentences,
   type ArticleBundle,
   type Block,
+  type CorrectionState,
   type EditorApi,
   type EditorMoment,
   type EditorVersion,
@@ -46,6 +48,13 @@ const CORRECTION_KINDS = [
   ['attribution', 'Pripisivanje'],
   ['other', 'Ostalo'],
 ] as const;
+
+const CORRECTION_HINT: Record<CorrectionState, string> = {
+  needs_edit: 'Ispravak: uredi članak i spremi novu verziju. Kad prođe automatsku provjeru, ovdje je objavljuješ kao ispravak.',
+  needs_verify: 'Nova verzija čeka automatsku provjeru (verify); ispravak se objavljuje tek nakon nje.',
+  needs_resolution: 'Prije objave ispravka razriješi označene rečenice nove verzije.',
+  ready: 'Nova verzija je provjerena: opiši ispravak i objavi je.',
+};
 
 type Child = Node | string | null | undefined | false;
 
@@ -346,6 +355,7 @@ class Admin {
     const b = this.bundle;
     const content = v.content;
     const blocks = content?.blocks ?? [];
+
     const res = isLatest && b ? b.resolutions : [];
     const pending = isLatest ? pendingSentences(v, res) : [];
     const wrap = h(
@@ -498,12 +508,27 @@ class Admin {
       );
     }
     bar.append(note);
-    if (s === 'published' || s === 'corrected') {
-      const kind = h('select', { testid: 'correct-kind', 'aria-label': 'Vrsta ispravka' }, ...CORRECTION_KINDS.map(([v, l]) => h('option', { value: v }, l)));
-      const desc = h('input', { testid: 'correct-description', placeholder: 'Što je ispravljeno i zašto', 'aria-label': 'Opis ispravka' });
-      const correct = button('Objavi ispravak', 'correct', () =>
-        void this.act('Ispravak je objavljen.', () => api.correct(article.id, latest.id, kind.value, desc.value)),
-      );
+    const corr = correctionState(b);
+    if (corr !== null) {
+      // Ispravak objavljuje NOVU verziju (odluka 525): bez nje gumb bi samo
+      // vratio „verzija je već objavljena”, pa se nudi tek kad je ima.
+      const correctRow =
+        corr === 'needs_edit'
+          ? h('p', { class: 'muted', testid: 'correct-hint', 'data-state': corr }, CORRECTION_HINT[corr])
+          : (() => {
+              const kind = h('select', { testid: 'correct-kind', 'aria-label': 'Vrsta ispravka' }, ...CORRECTION_KINDS.map(([v, l]) => h('option', { value: v }, l)));
+              const desc = h('input', { testid: 'correct-description', placeholder: 'Što je ispravljeno i zašto', 'aria-label': 'Opis ispravka' });
+              const correct = button(`Objavi v${String(latest.version)} kao ispravak`, 'correct', () =>
+                void this.act('Ispravak je objavljen.', () => api.correct(article.id, latest.id, kind.value, desc.value)),
+              );
+              if (corr !== 'ready') correct.disabled = true;
+              return h(
+                'div',
+                {},
+                h('p', { class: 'muted', testid: 'correct-hint', 'data-state': corr }, CORRECTION_HINT[corr]),
+                h('div', { class: 'row' }, kind, desc, correct),
+              );
+            })();
       const reason = h('input', { testid: 'retract-reason', placeholder: 'Razlog povlačenja (javno)', 'aria-label': 'Razlog povlačenja' });
       const retract = button(
         'Povuci članak',
@@ -511,10 +536,7 @@ class Admin {
         () => void this.act('Članak je povučen.', () => api.retract(article.id, reason.value)),
         'danger',
       );
-      bar.append(
-        h('div', { class: 'row' }, kind, desc, correct),
-        h('div', { class: 'row' }, reason, retract),
-      );
+      bar.append(correctRow, h('div', { class: 'row' }, reason, retract));
     }
     return bar;
   }

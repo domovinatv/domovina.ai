@@ -5,6 +5,6 @@
     "exactOptionalPropertyTypes": true,
     "types": ["node"]
   },
-  "include": [".astro/types.d.ts", "src/**/*", "dev/**/*", "test/**/*", "astro.config.mjs"],
-  "exclude": ["dist"]
+  "include": [".astro/types.d.ts", "src/**/*", "dev/**/*", "test/**/*", "e2e/**/*", "playwright.config.ts", "astro.config.mjs"],
+  "exclude": ["dist", "dist-local"]
 }

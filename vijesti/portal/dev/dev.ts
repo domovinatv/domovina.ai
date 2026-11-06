@@ -13,7 +13,7 @@ const shim = await startShim();
 const { dev } = await import('astro');
 const server = await dev({ root, server: { port, host: '127.0.0.1' } });
 console.log(`[portal] http://127.0.0.1:${String(port)}/vijesti/  (admin: /vijesti/admin, prijava: lokalni urednik)`);
-for (const a of shim.articles) console.log(`[portal] ${a.state.padEnd(9)} /vijesti/${a.slug}`);
+for (const a of shim.articles()) console.log(`[portal] ${a.state.padEnd(9)} /vijesti/${a.slug}`);
 
 const quit = () => {
   void Promise.allSettled([server.stop(), shim.stop()]).then(() => process.exit(0));

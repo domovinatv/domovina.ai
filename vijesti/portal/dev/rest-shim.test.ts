@@ -5,11 +5,11 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { describeError } from '../src/lib/errors.js';
 import { articleBySlug, categoryArticles, clipMediaFile, latestArticles } from '../src/lib/public-data.js';
 import { createRest, RestError } from '../src/lib/rest.js';
-import { createEditorApi, pendingSentences, editableBlocks } from '../src/scripts/admin/api.js';
+import { correctionState, createEditorApi, pendingSentences, editableBlocks } from '../src/scripts/admin/api.js';
 import { mintUnsignedJwt } from '../src/scripts/admin/auth-local.js';
 import { LOCAL_ANON_KEY, LOCAL_EDITOR_ID, LOCAL_STRANGER_ID } from './ids.js';
 import { buildSelect, createRestShim, type RestShim } from './rest-shim.js';
-import { SEED_RETRACTION_REASON, SEED_CORRECTION_DESCRIPTION, seededDb, type SeededArticle } from './seed.js';
+import { SEED_RETRACTION_REASON, SEED_CORRECTION_DESCRIPTION, seededDb, verifyArticle, type SeededArticle } from './seed.js';
 import { fetchViaShim } from './via-shim.js';
 
 const URL_BASE = 'http://127.0.0.1:8790';
@@ -33,7 +33,7 @@ describe('PostgREST-shim nad lokalnim seedom', () => {
   beforeAll(async () => {
     const s = await seededDb();
     articles = s.articles;
-    shim = createRestShim({ db: s.db, reset: reseed });
+    shim = createRestShim({ db: s.db, reset: reseed, verify: verifyArticle, seedInfo: () => articles });
   });
   afterAll(async () => {
     await shim.db().close();
@@ -170,5 +170,48 @@ describe('PostgREST-shim nad lokalnim seedom', () => {
     // Nakon reseta je baza opet početna.
     expect((await shim.handle({ method: 'POST', url: '/__shim/reset', headers: {} })).status).toBe(200);
     expect((await createEditorApi(editor()).article(id))?.article.status).toBe('review');
+  });
+
+  it('ispravak: tek nova, provjerena i razriješena verzija; /__shim/seed i /__shim/verify', async () => {
+    const info = JSON.parse(String((await shim.handle({ method: 'GET', url: '/__shim/seed', headers: {} })).body)) as SeededArticle[];
+    expect(info.map((a) => a.state)).toEqual(articles.map((a) => a.state));
+    const id = by('published').articleId;
+    const api = createEditorApi(editor());
+    const load = async () => {
+      const b = await api.article(id);
+      if (!b) throw new Error('nema članka');
+      return b;
+    };
+    let b = await load();
+    expect(correctionState(b)).toBe('needs_edit');
+    // Gumb bez nove verzije bi dobio ovu grešku: zato ga admin ne nudi.
+    const same = await api.correct(id, b.latest.id, 'fact', 'x').catch((e: unknown) => e);
+    expect(describeError(same).code).toBe('invalid_input');
+
+    await api.saveVersion({
+      articleId: id,
+      latestVersionId: b.latest.id,
+      title: b.latest.title,
+      lead: 'Novi uvod.',
+      category: b.latest.category ?? 'drustvo',
+      blocks: editableBlocks(b.latest),
+    });
+    b = await load();
+    expect(b.article.status).toBe('published');
+    expect(correctionState(b)).toBe('needs_verify');
+    const notVerified = await api.correct(id, b.latest.id, 'fact', 'x').catch((e: unknown) => e);
+    expect(describeError(notVerified).code).toBe('not_verified');
+
+    expect((await shim.handle({ method: 'POST', url: '/__shim/verify?article=x', headers: {} })).status).toBe(400);
+    expect((await shim.handle({ method: 'POST', url: `/__shim/verify?article=${String(id)}`, headers: {} })).status).toBe(200);
+    b = await load();
+    for (const s of pendingSentences(b.latest, b.resolutions)) await api.resolve(b.latest.id, s.n, 'verified', 'U redu.');
+    b = await load();
+    expect(correctionState(b)).toBe('ready');
+    await api.correct(id, b.latest.id, 'fact', 'Ispravljen uvod.');
+    b = await load();
+    expect(b.article.status).toBe('corrected');
+    expect(correctionState(b)).toBe('needs_edit');
+    expect(correctionState({ ...b, article: { ...b.article, status: 'review' } })).toBeNull();
   });
 });

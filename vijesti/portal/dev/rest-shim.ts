@@ -261,6 +261,10 @@ export interface RestShimOptions {
   db: PGlite;
   /** `POST /__shim/reset`: nova baza (npr. ponovni seed za e2e). */
   reset?: () => Promise<PGlite>;
+  /** `GET /__shim/seed`: opis trenutnog seeda (slugovi i stanja za e2e). */
+  seedInfo?: () => unknown;
+  /** `POST /__shim/verify?article=<id>`: automatska provjera zadnje verzije (engine izvan preglednika). */
+  verify?: (db: PGlite, articleId: number) => Promise<void>;
   now?: () => number;
 }
 
@@ -330,6 +334,17 @@ export function createRestShim(opts: RestShimOptions): RestShim {
       if (path.startsWith('/rest/v1/')) return await rest(req, path.slice('/rest/v1/'.length), url.searchParams);
       if (path.startsWith('/cdn/') && req.method === 'GET') return await cdnFile(path.slice('/cdn/'.length));
       if (path === '/__shim/health') return json(200, { ok: true });
+      if (path === '/__shim/seed' && req.method === 'GET') return json(200, opts.seedInfo?.() ?? null);
+      if (path === '/__shim/verify' && req.method === 'POST') {
+        const verify = opts.verify;
+        const id = url.searchParams.get('article') ?? '';
+        if (!verify) return pgrstError(404, 'PGRST000', 'verify nije podešen');
+        if (!/^\d+$/.test(id)) return pgrstError(400, 'PGRST100', 'article mora biti broj');
+        return await serial(async () => {
+          await verify(db, Number(id));
+          return json(200, { ok: true });
+        });
+      }
       if (path === '/__shim/reset' && req.method === 'POST') {
         if (!opts.reset) return pgrstError(404, 'PGRST000', 'reset nije podešen');
         const reset = opts.reset;

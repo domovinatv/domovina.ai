@@ -71,6 +71,16 @@ const editorBlocks = (v: StoredVersion): EditorBlock[] =>
     b.type === 'p' ? [{ type: 'p', text: b.text }] : b.moment_id === null ? [] : [{ type: 'quote', moment_id: b.moment_id }],
   );
 
+/**
+ * Automatska provjera zadnje verzije članka (lažni verify LLM), kao što bi je
+ * napravio engine (`npm run vijesti -- verify`). Shim je nudi kao
+ * `POST /__shim/verify?article=<id>` da e2e može nastaviti tok nakon uređivanja.
+ */
+export async function verifyArticle(db: PGlite, articleId: number): Promise<void> {
+  const recorder = createSqlRunRecorder(db);
+  await runVerify({ llm: createFakeVerifyLlm(recorder), recorder, db }, { articleId });
+}
+
 /** Napuni bazu (već migriranu ili praznu) lokalnim podacima; vraća članke. */
 export async function seed(db: PGlite): Promise<SeededArticle[]> {
   await migrateUp(db);
@@ -87,7 +97,7 @@ export async function seed(db: PGlite): Promise<SeededArticle[]> {
     if (!v) throw new Error(`članak ${String(articleId)} bez verzije`);
     return v;
   };
-  const verify = (articleId: number) => runVerify({ llm: createFakeVerifyLlm(recorder), recorder, db }, { articleId });
+  const verify = (articleId: number) => verifyArticle(db, articleId);
   const resolveAll = async (v: StoredVersion) => {
     for (const n of unsupported(v.verify)) {
       await ed((d) => resolveSentence(d, v.versionId, n, 'verified', 'Provjereno na snimci (lokalni seed).'));
