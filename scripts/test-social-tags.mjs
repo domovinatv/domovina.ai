@@ -756,10 +756,57 @@ async function testAasaDays() {
   return { ytId: 'AASA', passed, failed };
 }
 
+/**
+ * Portal vijesti — `/vijesti*` pripada Workeru `domovina-vijesti` (zonska ruta
+ * `domovina.ai/vijesti*`). Dopuštena su DVA ishoda: portal (200, canonical pod
+ * /vijesti, ili XML za rss/sitemap) ili osigurač glavnog workera bez rute
+ * (404 + `X-Robots-Tag: noindex`). Nikad Flutter SPA: ruter /vijesti ne zna i
+ * crawler bi dobio naslovnicu s generičkim OG-om (pravilo „svaka ruta koju
+ * Flutter zna mora znati i worker”, obrnuto).
+ */
+async function testVijestiRoute(path) {
+  const url = `${BASE}${path}`;
+  console.log(`\n${BOLD}── ${path}${RESET}  ${url}`);
+  let res;
+  let body;
+  try {
+    res = await fetch(url, {
+      headers: { Accept: 'text/html,application/xml', 'User-Agent': 'DominovinaBot/1.0 (social-tag-tester)' },
+      redirect: 'follow',
+    });
+    body = await res.text();
+  } catch (e) {
+    console.log(`  ${fail(`Network error: ${e.message}`)}`);
+    return { ytId: path, passed: 0, failed: 1 };
+  }
+  let passed = 0;
+  let failed = 0;
+  const check = (lbl, cond, detail) => {
+    const lab = lbl.padEnd(26);
+    if (cond) { console.log(`  ${ok(lab)} ${detail}`); passed++; } else { console.log(`  ${fail(lab)} ${detail}`); failed++; }
+  };
+  const flutter = body.includes('flutter_bootstrap') || body.includes('id="boot-intro"');
+  check('nije Flutter SPA', !flutter, flutter ? 'dobiven index.html aplikacije' : `HTTP ${res.status}`);
+  const robots = res.headers.get('x-robots-tag') || '';
+  const type = res.headers.get('content-type') || '';
+  if (res.status === 404) {
+    console.log(`  ${warn('osigurač glavnog workera (portal nije spojen na ovom hostu)')}`);
+    check('X-Robots-Tag', robots.includes('noindex'), robots || 'NEDOSTAJE');
+  } else if (/xml/.test(type)) {
+    check('portal: XML', res.status === 200 && body.trimStart().startsWith('<?xml'), `HTTP ${res.status} ${type}`);
+  } else {
+    const canonical = extractCanonical(body) || '';
+    check('portal: HTTP 200', res.status === 200, `HTTP ${res.status}`);
+    check('canonical pod /vijesti', canonical.startsWith('https://domovina.ai/vijesti'), canonical || 'NEDOSTAJE');
+    check('og:title', !!extractMeta(body, 'property', 'og:title'), extractMeta(body, 'property', 'og:title') || 'NEDOSTAJE');
+  }
+  return { ytId: path, passed, failed };
+}
+
 async function main() {
   console.log(`${BOLD}DOMOVINA.ai — Social Tag Tester${RESET}`);
   console.log(`Target: ${BOLD}${BASE}${RESET}`);
-  console.log(`Testira: homepage + ${VIDEO_IDS.length} epizoda + timestamp shareovi + /glasanje + izlog oglasa + cast receiver + /dani/ + AASA + /c/ kanali\n`);
+  console.log(`Testira: homepage + ${VIDEO_IDS.length} epizoda + timestamp shareovi + /glasanje + izlog oglasa + cast receiver + /dani/ + AASA + /c/ kanali + /vijesti\n`);
 
   const results = [];
   results.push(await testHomepage());
@@ -789,6 +836,9 @@ async function main() {
   results.push(await testChannelRoute(TIER1_CHANNEL.slug, 'tier1', TIER1_CHANNEL.name));
   results.push(await testChannelRoute(TIER2_CHANNEL.slug, 'tier2', TIER2_CHANNEL.name));
   results.push(await testChannelRoute(UNKNOWN_CHANNEL_SLUG, 'unknown', ''));
+  // Portal vijesti — portal ili 404 + noindex, nikad Flutter SPA.
+  results.push(await testVijestiRoute('/vijesti'));
+  results.push(await testVijestiRoute('/vijesti/rss.xml'));
   // Google Cast receiver — oba oblika URL-a, 200 bez COEP-a.
   results.push(await testCastReceiver('/cast-receiver.html'));
   results.push(await testCastReceiver('/cast-receiver'));

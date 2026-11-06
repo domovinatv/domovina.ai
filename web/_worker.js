@@ -357,6 +357,19 @@ export default {
     // 404 (fajl ne postoji u web/). Jedna ruta, jedan urlset.
     if (path === '/sitemap.xml') return handleSitemap();
 
+    // Portal vijesti — /vijesti i /vijesti/* pripadaju Workeru `domovina-vijesti`
+    // (vijesti/portal, Astro). U produkciji ga veže zonska ruta
+    // `domovina.ai/vijesti*`, koja ima prednost pred Pages projektom, pa ovaj
+    // worker te putanje tada uopće ne vidi. Ova grana je osigurač za slučaj bez
+    // rute (Preview, *.pages.dev, brend bez portala): kroz service binding
+    // VIJESTI ako postoji, inače 404 + noindex. NIKAD SPA fallback — Flutter
+    // ruter /vijesti ne zna i dao bi naslovnicu s generičkim OG-om. MORA biti
+    // prije ASSETS grane: /vijesti/rss.xml i sitemapi imaju ekstenziju.
+    // Odluka vijesti 7xx (vijesti/docs/decisions.md).
+    if (path === '/vijesti' || path.startsWith('/vijesti/')) {
+      return handleVijesti(request, env);
+    }
+
     // Cal.com booking proxy — drži CAL_API_KEY server-side (env secret), NIKAD
     // u web bundleu. Slotovi su javni (reflektiraju Google Calendar kolizije),
     // booking POST traži ključ. Flutter app zove same-origin /api/cal/*.
@@ -2209,4 +2222,29 @@ function x(s) {
     .replace(/"/g, '&quot;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
+}
+
+// --- Portal vijesti (/vijesti, /vijesti/*) ---------------------------------
+//
+// Vidi granu u fetch(): u produkciji ovaj kod ne radi (zonska ruta šalje
+// /vijesti* ravno Workeru `domovina-vijesti`). Binding VIJESTI dobiva izvorni
+// zahtjev netaknut (metoda, tijelo, kolačići admina), jer portal sam radi
+// prijavu i cache. Bez bindinga: 404 + noindex, nikad index.html Fluttera.
+async function handleVijesti(request, env) {
+  const svc = env && env.VIJESTI;
+  if (svc && typeof svc.fetch === 'function') {
+    try {
+      return await svc.fetch(request);
+    } catch (_) {
+      // pad na 404 ispod — bolje „nema” nego Flutter naslovnica na /vijesti
+    }
+  }
+  return noindex(new Response(
+    '<!doctype html><meta charset="utf-8"><meta name="robots" content="noindex">'
+      + '<title>Vijesti nisu dostupne</title><p>Portal vijesti ovdje nije dostupan.</p>',
+    {
+      status: 404,
+      headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' },
+    },
+  ));
 }
