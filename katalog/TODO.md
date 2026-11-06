@@ -29,8 +29,8 @@ Legenda: `[x]` gotovo · `[ ]` otvoreno · `[~]` u radu · `(!)` traži korisnik
 <!-- doc-refs:ignore-start -->
 - [x] Izvještaj `docs/research/YYYY-MM-DD-f0-mjerenje-lokalno.md` → S4
 <!-- doc-refs:ignore-end -->
-- [ ] (!) Korisnik odobrava staging na Cloudflare računu (D1 `katalog-staging`, Worker bez produkcijske rute) → S4
-- [ ] Staging deploy, uvoz stvarnih podataka, latencija iz HR (p50/p95, hladno/toplo) vs. statični `home.json` → S5
+- [x] (!) Korisnik odobrava staging na Cloudflare računu (D1 `katalog-staging`, Worker bez produkcijske rute) → S4
+- [x] Staging deploy, uvoz stvarnih podataka, latencija iz HR (p50/p95, hladno/toplo) vs. statični `home.json` → S5
 - [ ] (!) Odluka korisnika: idemo u produkciju (F1) ili ne → S5
 
 ## F1 — produkcija i Tier 2 u aplikaciji

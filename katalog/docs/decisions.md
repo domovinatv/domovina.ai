@@ -512,3 +512,38 @@ Mjerenje na 10k/100k/1M, projekcija, trošak i staging recept:
      `rows_read`). `--remote` u `import.mjs` ostaje za S6. Novi rizik: dokumentacija jamči
      Cache API samo na custom domenama, pa S5 provjerava `x-katalog-cache: hit` na
      `workers.dev`; cache je po podatkovnom centru, pa će udio hita biti niži od 80 %.
+
+## S5 (2026-11-06, staging i latencija)
+
+Korisnik je 6. 11. 2026. u chatu odobrio staging („Da, pokreni”). Izvještaj:
+[research/2026-11-06-staging-latencija.md](research/2026-11-06-staging-latencija.md).
+
+500. **Staging postoji na računu D.O.M.** (isti račun i zona kao `domovina-analytics`):
+     D1 `katalog-staging` (hint `eeur`, primarna u MXP), Worker `domovina-katalog-staging`
+     na `workers.dev`, bez rute i bez secreta. `database_id` je u `env.staging` u
+     `wrangler.jsonc`; `account_id` nije u konfiguraciji nego u `CLOUDFLARE_ACCOUNT_ID`
+     (`katalog/.dev.vars`). Ostaje podignut za S6; povratak je u izvještaju.
+501. **Rizici iz S4 zatvoreni na pravom D1 i edgeu**: Cache API daje `hit` i na
+     `workers.dev`; STRICT i `INDEXED BY sqlite_autoindex_*` prolaze; `rows_read` po
+     formuli iz 406 (33 / 65 / 4); HEAD 404; sirovi `pathname` je zaseban ključ (314 c
+     potvrđen, ostaje kao poznato ograničenje); tuđi `Host` na `workers.dev` Cloudflare
+     odbije s 403 prije Workera (314 d vrijedi samo na ruti zone).
+502. **Hit putanja u S6 ne ide u D1.** Mjereno iz HR (VIE): hit p50 ~51 ms, Worker bez D1
+     16–19 ms, CDN `HIT` 20 ms; razlika je jedno putovanje VIE → MXP za `catalogContext`
+     prije `cache.match`. Kontekst (brend po hostu, verzija kataloga) ide u memoriju
+     izolata s TTL-om ≤ 30 s (ili u Cache API), pa hit ne čita D1. Posljedica: novi
+     uvoz se vidi do 30 s kasnije, manje od `max-age=60`. Test: hit ne zove `DB`.
+503. **Miss u jednom putovanju je druga, manja izmjena** (~84 → ~50 ms): kontekst kao
+     podupit u upitu rute ili kroz `DB.batch`. D1 read replication se ne uključuje dok
+     502 i 503 nisu izmjereni.
+504. **F1 ostaje kako je planiran**, bez snapshota iz D1 na R2 kao primarnog puta. Prva
+     stranica kanala je 1,9 KB preko žice naspram 119 KB listinga; na optici je katalog
+     20–50 ms sporiji, na mobilnoj vezi brži. `home.json` ostaje statični snapshot.
+505. **Potrošnja računa** (30 dana do 6. 11.): 0,77 M Worker zahtjeva, 561 M pročitanih
+     D1 redaka (94 % `pipeline_domovina`); račun je na Workers Paid (besplatni plan
+     dopušta ~150 M redaka mjesečno). Katalog D1 kvotu ne ugrožava ni u scenariju 100×;
+     dimenzionira se po zahtjevima (408 vrijedi).
+506. **Latencija se mjeri skriptom `scripts/latency.ts`** (`npm run latency`): miss niz s
+     različitim stvarnim ključevima, hit niz s istim ključem, `health` i dva CDN URL-a,
+     50 zahtjeva po nizu. Ponovno pokretanje unutar TTL-a Worker cachea (3600 s) daje
+     prazan miss niz; pravi miss traži novu verziju kataloga.
