@@ -643,3 +643,139 @@ paralelni worktreeji ne sudare. Odluka se ne briše: zamijeni je novom koja je p
      Uz sažetak, epizode uzorka bez nacrta i svaki članak naredba `npm run eval:report -- --db …
      --query "…"` koja reproducira brojke (kao 411). Test: „pravi prolaz pa nastavak…” (5 nacrta,
      naredba sažetka daje istu tablicu).
+
+## S5 (2026-11-06)
+
+500. **API je Postgres, ne edge funkcija.** Čitanje: PostgREST nad shemom `vijesti` uz RLS.
+     Pisanje urednika: `SECURITY DEFINER` funkcije (Supabase ih izlaže kao `rpc`) sa
+     `SET search_path = vijesti, pg_temp`, koje same provjere ulogu, dopušteni prijelaz i
+     uvjete, u jednoj transakciji. Pravilo iz korijenskog `CLAUDE.md` („kroz RLS”) to dopušta;
+     isto ponašanje na PGliteu i Supabaseu, nema Deno koda. Edge funkcija dolazi tek kad
+     prijelaz treba nuspojavu izvan baze (S7: purge CDN-a, ping sitemapa), i tada zove istu SQL
+     funkciju. Izlaganje sheme `vijesti` u PostgREST-u (Supabase API settings) je posao S7.
+     Kod: `db/migrations/006_editorial.up.sql`, `db/editorial.ts`. Test: cijeli
+     `db/editorial.test.ts` (ista SQL na PGliteu).
+501. **Identitet bez sheme `auth`.** `vijesti.current_user_id()` čita
+     `current_setting('request.jwt.claims', true)::jsonb ->> 'sub'` (isto što `auth.uid()`);
+     vrijednost koja nije UUID daje NULL, ne grešku. Test: „bez uloge nema prijelaza…”.
+502. **Migracija 006 uvjetno stvara `anon`, `authenticated`, `service_role` (NOLOGIN,
+     `service_role` uz BYPASSRLS); `down` ih ne dira.** Na Supabaseu postoje i nisu naše, a uloga
+     je objekt klastera, ne sheme: brisanje bi srušilo druge baze ili tuđa prava. `down` samo
+     oduzima prava na shemi. Test: `db/migrate.test.ts` („006: uloge…”).
+503. **Uloge u `vijesti.staff` (`editor` | `admin`), `admin` ima sva prava urednika.**
+     `vijesti.has_role(text)` (SECURITY DEFINER, STABLE). Prvog admina upisuje vlasnik baze
+     izravno (SQL kao `postgres`/`service_role`); dalje `set_staff_role`, `remove_staff`,
+     `allow_channel`, `disallow_channel` (samo admin). Zadnji admin se ne može ukloniti ni
+     spustiti (`last_admin:`). Korisnik vidi svoj redak u `staff`, urednik sve. Test: „admin
+     vodi uloge; zadnji admin ostaje”.
+504. **Stroj stanja je tablica `article_transitions` i okidač `BEFORE UPDATE OF status` koji vrijedi
+     i za vlasnika baze.** Dodan `retracted` (zadržan `rejected`), 12 prijelaza iz plana S5.
+     Okidač brani i invarijante (`approved` ⇒ `approved_version_id`, `published`/`corrected` ⇒
+     `published_version_id`). Nepoznato stanje prepušta CHECK-u (`articles_status_check`, test iz
+     001 ostaje). `authenticated` nema UPDATE ni na jednoj tablici: jedini put su funkcije.
+     `transition_article` radi samo prijelaze u `review`, `draft`, `rejected` (odbijanje traži
+     obrazloženje); odobravanje, objava, ispravak i povlačenje imaju svoje funkcije s uvjetima.
+     `INSERT` članka okidač ne ograničava (članke stvara samo engine, kao `draft`). Test:
+     „nedopušteni prijelazi se odbijaju, i vlasniku”.
+505. **Dnevnik `article_events` piše okidač, ne funkcija.** Svaka promjena stanja (i vlasnikova)
+     ostavlja redak s `actor` (uuid ili NULL), `actor_label` (`editor:<uuid>`, `engine:verify`,
+     `db:<uloga>`), verzijom i bilješkom; funkcije kontekst predaju kroz lokalne postavke
+     transakcije `vijesti.event_*` i odmah ih brišu. Nastanak članka (verzija 1) je redak
+     `NULL → draft` s `created_by` verzije. Samo dodavanje: UPDATE, DELETE i TRUNCATE odbija
+     okidač i vlasniku (`append_only:`). Iznimka je brisanje cijelog članka (CASCADE nosi i
+     dnevnik), jer bi inače članak s ijednim retkom dnevnika bio neizbrisiv; brisanje članka je
+     vlasnikova operacija, klijent nema DELETE. Test: sretni put, „dnevnik je samo za
+     dodavanje…”, test iz 001 koji briše članak.
+506. **Odobrava se verzija, ne članak.** `articles.approved_version_id` i `published_version_id`
+     sa složenim FK-om `(id, x) → article_versions (article_id, id)`: tuđa verzija je nemoguća.
+     `approve_article(članak, verzija)` traži da je verzija ZADNJA (`stale_version:`) i spremna:
+     `verify` nije NULL, ima niz `sentences` i `base_version` manji od broja verzije (provjera te
+     verzije: engine uvijek piše novu verziju s provjerom sebe), a svaka rečenica koja nije
+     `supported` ima razrješenje (`unresolved:` s popisom brojeva). Uklonjeno, stil i raspon
+     riječi ne blokiraju (verify uklanja sam, stil je savjet); revizija nakon pravih nacrta.
+     Odobrena verzija je zato uvijek verzija `engine:verify`. Verzija se nikad ne mijenja: okidač
+     odbija UPDATE (`immutable:`) osim `run_id → NULL` iz FK-a. Test: sretni put, „dnevnik je
+     samo za dodavanje…”.
+507. **Razrješenje rečenice: `sentence_resolutions (version_id, n)` s `verified` (urednik je
+     tvrdnju provjerio u snimci ili drugom izvoru, bilješka kaže gdje) ili `no_claim` (rečenica
+     ne iznosi činjenicu).** Bilješka obavezna, `resolved_by` uuid, samo dodavanje
+     (`already_resolved:`), samo na zadnjoj verziji koja ima provjeru i samo za rečenicu koju je
+     provjera označila. `removed_in_next` nije potreban: nova verzija dobiva svoju provjeru, pa
+     razrješenje stare ne vrijedi za nju. Članak s nepotvrđenom rečenicom smije u `review`, ne
+     smije u `approved` (preporuka S4). Test: sretni put.
+508. **Urednička izmjena: `save_editor_version(članak, bazna_verzija, naslov, lead, kategorija,
+     blokovi)` (odstupanje od zadanog potpisa: bez `body` i `content`).** Tijelo i sadržaj računa
+     baza iz blokova i `moments` (odluka 417: citat je referenca; `body` napisan rukom bi se
+     razišao sa sadržajem); `episode` i `schema` se prepisuju iz prethodne verzije. Izvori: svi
+     trenutci prethodne verzije s istim pozicijama + novi citirani trenutci na kraju; citat smije
+     samo trenutak iste epizode koji nije `failed` (`invalid_quote:`), `ref` postavlja baza.
+     `word_count` je `_word_count` (isti uzorak kao `WORD_RE`; rubni slučaj „11h” se razlikuje
+     jer JS uzorak vraća unatrag), a mjerodavan broj dobiva verzija provjere. `created_by` je
+     tekst `editor:<uuid>` (ista konvencija kao `engine:*`, bez novog stupca); uuid je i u
+     dnevniku. `verify` je NULL, pa se verzija ne odobrava dok engine ne pokrene verify. Izmjena
+     je dopuštena u `draft`, `review`, `approved` (okidač vraća u `review`), `published` i
+     `corrected` (kandidat za ispravak; javno ostaje stara verzija), nije u `rejected` i
+     `retracted`. Test: „urednička verzija: citat samo iz iste epizode…”, sretni put.
+509. **Javno čitanje (`anon`, i `authenticated` bez uloge isto):** članci u `published`,
+     `corrected`, `retracted`; od verzija samo `published_version_id` objavljenog ili ispravljenog
+     članka; za povučen nijedna (vidi se priča s naslovom i obavijest u `corrections`);
+     `article_sources` i `moments` samo javne verzije; `stories` i `corrections` javnih članaka.
+     Nacrti, `runs`, `staff`, `sentence_resolutions`, `article_events`, `story_moments`, eval
+     tablice: ništa. Na `article_versions` prava po stupcu bez `verify`, `run_id`, `created_by`
+     (uuid urednika ne smije van), na `corrections` bez `created_by` i `replaced_version_id`.
+     Za `select=*` postoje pogledi `public_article_versions` i `public_corrections`
+     (`security_invoker = true`). Starije objavljene verzije nisu javne; revizija ako
+     transparentnost ispravka zatraži razliku verzija. Test: sretni put, „nova verzija na
+     odobrenom članku… povučen članak skriva tijelo”.
+510. **Urednik čita pune verzije kroz `editor_article_versions` (prava vlasnika,
+     `security_barrier`, filtar `has_role('editor')`),** jer `authenticated` na tablici nema
+     `verify`. Red čekanja za verify (S8) je pogled `versions_awaiting_verify`: zadnja verzija sa
+     sadržajem bez provjere, članak nije `rejected`/`retracted`; vide ga urednik i engine (uloge
+     koje nisu klijentske). Supabaseov linter takve poglede označi („security definer view”):
+     namjerno. Test: sretni put (red sadrži točno uredničku verziju; čitatelj nema pravo, korisnik
+     bez uloge vidi 0 redaka).
+511. **Greške: `RAISE EXCEPTION` (SQLSTATE P0001) s porukom `kod: tekst`.** Kodovi:
+     `forbidden`, `not_found`, `invalid_transition`, `invalid_state`, `invalid_input`,
+     `invalid_quote`, `stale_version`, `not_verified`, `unresolved`, `already_resolved`,
+     `channel_not_allowed`, `last_admin`, `append_only`, `immutable`. Klijent uspoređuje prefiks
+     do prve dvotočke (`parseEditorialError`), kao `PinkaClient` u aplikaciji. Greška prava
+     (`permission denied`) nije urednička i parser je ne prepoznaje. Test: „parseEditorialError”.
+512. **Objava samo s kanala na popisu `allowed_channels`** (plan §3, pristanak kreatora): kanal je
+     `content.episode.channel` odobrene verzije, inače `channel_not_allowed:`. Popis vodi admin;
+     veza s preuzimanjem kanala je S13. Test: sretni put.
+513. **Nova verzija na odobrenom članku ga vraća u `review`** (okidač `AFTER INSERT` na
+     `article_versions`, i za engine i za urednika), s retkom dnevnika (`created_by` nove verzije
+     kao oznaka) i brisanjem `approved_version_id`. Test: „nova verzija na odobrenom članku…”.
+514. **Ispravak: `correct_article(članak, verzija, vrsta, opis)` samo iz `published`/`corrected`,
+     za zadnju verziju koja nije već objavljena i spremna je kao kod odobravanja (506).** U jednoj
+     transakciji: redak `corrections` (vrsta + opis = što i zašto, `created_at` = kada,
+     `created_by` = tko, `version_id` = nova, `replaced_version_id` = dotad objavljena), nova
+     `published_version_id`, stanje `corrected`, dnevnik s opisom kao bilješkom. Vrsta
+     `retraction` je rezervirana za povlačenje. Javno: `public_corrections`. Test: sretni put.
+515. **Povlačenje: `retract_article(članak, razlog)` iz `published`/`corrected`,** redak
+     `corrections` vrste `retraction` (dodana u CHECK) s razlogom, `version_id` NULL,
+     `replaced_version_id` = objavljena. `published_version_id` ostaje kao interni trag; čitatelj
+     ne vidi nijednu verziju. Smije urednik (model uloga nema posebno pravo); revizija ako
+     povlačenje treba glavnog urednika. Test: „…povučen članak skriva tijelo”.
+516. **RLS je uključen na svim tablicama sheme, prava se prvo oduzimaju pa daju izričito**
+     (Supabase može imati zadana prava koja `anon`/`authenticated` daju sve izravno, ne kroz
+     PUBLIC; funkcije PostgreSQL inače daje PUBLIC-u). `service_role` dobiva ALL na tablicama
+     koje postoje u 006: nova migracija mora sama dati prava, uključiti RLS i dodati politiku
+     za svoje tablice. Interne `_` funkcije nemaju EXECUTE ni za koga osim vlasnika; okidači su
+     SECURITY DEFINER jer ih okida i `service_role`. Test: sretni put (čitatelj ne poziva
+     funkciju), „bez uloge…”.
+517. **Svaka funkcija zaključava članak (`FOR UPDATE`), a odobravanje, ispravak, izmjena i
+     razrješenje traže id ZADNJE verzije** (optimistička konkurentnost: urednik odobrava točno
+     ono što je vidio; između čitanja i odobravanja engine ili kolega može dodati verziju). Test:
+     „urednička verzija…” (`stale_version`).
+518. **`asUser(db, userId | null, fn)` u `db/editorial.ts`** radi isto što PostgREST: transakcija,
+     `SET LOCAL ROLE anon|authenticated`, `set_config('request.jwt.claims', …, true)`; greška
+     vraća transakciju. Testovi i budući alati koriste isti put kao klijent. Test: svi u
+     `db/editorial.test.ts`.
+519. **`vitest` `testTimeout`/`hookTimeout` 20 s.** Prvi PGlite test u datoteci pod punim
+     paralelnim opterećenjem traje oko 4,5 s (inicijalizacija WASM-a), tik uz zadanih 5 s; s
+     novom datotekom testova `eval` je pucao povremeno (sam traje 1 s). Migracija 006 traje 22 ms
+     i nije uzrok. Test: `npm run check` dvaput zaredom zelen.
+520. **`006 down` pada kad postoji povučen članak ili ispravak vrste `retraction`** (CHECK iz 001),
+     kao `002 down` s podacima: ništa se ne gubi bez traga. Uloge ostaju (502). Test:
+     `db/migrate.test.ts` („006: … povučen članak ruši dolje”).

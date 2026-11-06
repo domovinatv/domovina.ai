@@ -3,20 +3,30 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { PGlite } from '@electric-sql/pglite';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { clock, wordCount } from '../engine/write/text.js';
 import { appliedVersions, loadMigrations, migrateDown, migrateUp } from './migrate.js';
 
 const TABLES = [
+  'allowed_channels',
+  'article_events',
   'article_sources',
+  'article_transitions',
   'article_versions',
   'articles',
   'corrections',
+  'editor_article_versions',
   'eval_channels',
   'eval_sample',
   'moments',
+  'public_article_versions',
+  'public_corrections',
   'runs',
   'schema_migrations',
+  'sentence_resolutions',
+  'staff',
   'stories',
   'story_moments',
+  'versions_awaiting_verify',
 ];
 
 async function tables(db: PGlite): Promise<string[]> {
@@ -38,11 +48,11 @@ describe('migracije na PGlite', () => {
   });
 
   it('gore → dolje → gore', async () => {
-    expect(await migrateUp(db)).toEqual([1, 2, 3, 4, 5]);
+    expect(await migrateUp(db)).toEqual([1, 2, 3, 4, 5, 6]);
     expect(await tables(db)).toEqual(TABLES);
     expect(await migrateUp(db)).toEqual([]);
 
-    expect(await migrateDown(db, { steps: Infinity })).toEqual([5, 4, 3, 2, 1]);
+    expect(await migrateDown(db, { steps: Infinity })).toEqual([6, 5, 4, 3, 2, 1]);
     expect(await tables(db)).toEqual(['schema_migrations']);
     // Odluka 108: nakon „dolje” u shemi ostaje samo knjigovodstvo runnera, bez
     // ijednog drugog objekta (sekvence, indeksi, tipovi).
@@ -61,9 +71,9 @@ describe('migracije na PGlite', () => {
     expect(types.rows).toHaveLength(0);
     expect(await appliedVersions(db)).toEqual([]);
 
-    expect(await migrateUp(db)).toEqual([1, 2, 3, 4, 5]);
+    expect(await migrateUp(db)).toEqual([1, 2, 3, 4, 5, 6]);
     expect(await tables(db)).toEqual(TABLES);
-    expect(await appliedVersions(db)).toEqual([1, 2, 3, 4, 5]);
+    expect(await appliedVersions(db)).toEqual([1, 2, 3, 4, 5, 6]);
   });
 
   it('migracija koja padne ne ostavlja ništa (transakcija)', async () => {
@@ -77,7 +87,7 @@ describe('migracije na PGlite', () => {
       },
     ];
     await expect(migrateUp(db, { migrations })).rejects.toThrow(/nepostojeci_stupac/);
-    expect(await appliedVersions(db)).toEqual([1, 2, 3, 4, 5]);
+    expect(await appliedVersions(db)).toEqual([1, 2, 3, 4, 5, 6]);
     expect(await tables(db)).not.toContain('privremena');
   });
 
@@ -209,7 +219,7 @@ describe('migracije na PGlite', () => {
     });
 
     it('002 dolje vraća shemu iz 001, gore je opet stavlja', async () => {
-      expect(await migrateDown(db, { steps: 3 })).toEqual([5, 4, 3]);
+      expect(await migrateDown(db, { steps: 4 })).toEqual([6, 5, 4, 3]);
       const cols = async () =>
         (
           await db.query<{ column_name: string }>(
@@ -234,7 +244,7 @@ describe('migracije na PGlite', () => {
     });
 
     it('002 dolje → gore s podacima: exact/fuzzy se vraćaju, failed/srt_only ruše migraciju bez traga', async () => {
-      expect(await migrateDown(db, { steps: 3 })).toEqual([5, 4, 3]);
+      expect(await migrateDown(db, { steps: 4 })).toEqual([6, 5, 4, 3]);
       await moment({ quote_check: 'exact', start_ms: 1, end_ms: 2 });
       await moment({ quote_check: 'fuzzy', start_ms: 3, end_ms: 4 });
       expect(await migrateDown(db)).toEqual([2]);
@@ -304,13 +314,13 @@ describe('migracije na PGlite', () => {
     it('003 dolje briše stupce i ocjene, gore ih vraća prazne; 001 score bez skale se briše', async () => {
       const id = Number((await moment({ start_ms: 1, end_ms: 2 })).rows[0]?.id);
       await setScore(id, 0.7);
-      expect(await migrateDown(db, { steps: 3 })).toEqual([5, 4, 3]);
+      expect(await migrateDown(db, { steps: 4 })).toEqual([6, 5, 4, 3]);
       expect(await scoreCols()).toEqual(['score']);
       const after = await db.query<{ score: number | null }>('SELECT score FROM vijesti.moments WHERE id = $1', [id]);
       expect(after.rows[0]?.score).toBeNull();
       // Bez skale (001/002) score može biti bilo što; 003 gore to briše jer nema verziju.
       await db.query('UPDATE vijesti.moments SET score = 7 WHERE id = $1', [id]);
-      expect(await migrateUp(db)).toEqual([3, 4, 5]);
+      expect(await migrateUp(db)).toEqual([3, 4, 5, 6]);
       const back = await db.query<{ score: number | null; score_version: string | null }>(
         'SELECT score, score_version FROM vijesti.moments WHERE id = $1',
         [id],
@@ -337,14 +347,14 @@ describe('migracije na PGlite', () => {
           `INSERT INTO vijesti.eval_channels (channel, listed, episodes_30d, window_end) VALUES ('k', 2, 3, '2026-11-06')`,
         ),
       ).rejects.toThrow(/check/i);
-      expect(await migrateDown(db, { steps: 2 })).toEqual([5, 4]);
+      expect(await migrateDown(db, { steps: 3 })).toEqual([6, 5, 4]);
       const col = await db.query(
         `SELECT 1 FROM information_schema.columns
          WHERE table_schema = 'vijesti' AND table_name = 'runs' AND column_name = 'tokens_estimated'`,
       );
       expect(col.rows).toHaveLength(0);
       expect((await tables(db)).filter((t) => t.startsWith('eval_'))).toEqual([]);
-      expect(await migrateUp(db)).toEqual([4, 5]);
+      expect(await migrateUp(db)).toEqual([4, 5, 6]);
       expect((await tables(db)).filter((t) => t.startsWith('eval_'))).toEqual(['eval_channels', 'eval_sample']);
     });
 
@@ -380,17 +390,75 @@ describe('migracije na PGlite', () => {
           [art],
         ),
       ).rejects.toThrow(/check/i);
-      expect(await migrateDown(db)).toEqual([5]);
+      expect(await migrateDown(db, { steps: 2 })).toEqual([6, 5]);
       const cols = await db.query(
         `SELECT 1 FROM information_schema.columns
          WHERE table_schema = 'vijesti' AND table_name = 'article_versions' AND column_name IN ('content', 'verify', 'lead')`,
       );
       expect(cols.rows).toHaveLength(0);
-      expect(await migrateUp(db)).toEqual([5]);
+      expect(await migrateUp(db)).toEqual([5, 6]);
       const back = await db.query<{ n: number }>(
         `SELECT count(*)::int AS n FROM vijesti.article_versions WHERE content IS NULL AND verify IS NULL`,
       );
       expect(back.rows[0]?.n).toBe(2);
+    });
+
+    it('006: uloge, retracted, dnevnik; dolje briše sve osim uloga, povučen članak ruši dolje', async () => {
+      const roles = await db.query<{ rolname: string; rolbypassrls: boolean }>(
+        `SELECT rolname, rolbypassrls FROM pg_roles WHERE rolname IN ('anon', 'authenticated', 'service_role') ORDER BY 1`,
+      );
+      expect(roles.rows).toEqual([
+        { rolname: 'anon', rolbypassrls: false },
+        { rolname: 'authenticated', rolbypassrls: false },
+        { rolname: 'service_role', rolbypassrls: true },
+      ]);
+      const s = await db.query<{ id: number }>(`INSERT INTO vijesti.stories (slug, title) VALUES ('r', 'R') RETURNING id`);
+      const a = await db.query<{ id: number }>(
+        `INSERT INTO vijesti.articles (story_id, format, slug, status) VALUES ($1, 'vijest', 'r', 'retracted') RETURNING id`,
+        [s.rows[0]?.id],
+      );
+      // Nastanak članka (prva verzija) upisuje dnevnik.
+      await db.query(`INSERT INTO vijesti.article_versions (article_id, version, title, body, created_by) VALUES ($1, 1, 'N', 'T', 'engine:write')`, [
+        a.rows[0]?.id,
+      ]);
+      const ev = await db.query<{ to_status: string; actor_label: string }>('SELECT to_status, actor_label FROM vijesti.article_events');
+      expect(ev.rows).toEqual([{ to_status: 'retracted', actor_label: 'engine:write' }]);
+      await expect(migrateDown(db)).rejects.toThrow(/articles_status_check/);
+      expect(await appliedVersions(db)).toEqual([1, 2, 3, 4, 5, 6]);
+
+      await db.query('DELETE FROM vijesti.articles WHERE id = $1', [a.rows[0]?.id]);
+      expect(await migrateDown(db)).toEqual([6]);
+      const left = await db.query<{ proname: string }>(
+        `SELECT p.proname FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace WHERE n.nspname = 'vijesti'`,
+      );
+      expect(left.rows).toEqual([]);
+      const rls = await db.query(
+        `SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname = 'vijesti' AND c.relrowsecurity`,
+      );
+      expect(rls.rows).toHaveLength(0);
+      expect((await db.query(`SELECT 1 FROM pg_roles WHERE rolname = 'anon'`)).rows).toHaveLength(1);
+      await expect(
+        db.query(`INSERT INTO vijesti.articles (story_id, format, slug, status) VALUES ($1, 'v', 'x', 'retracted')`, [s.rows[0]?.id]),
+      ).rejects.toThrow(/articles_status_check/);
+      // Uloge već postoje: gore ih ne stvara ponovno.
+      expect(await migrateUp(db)).toEqual([6]);
+    });
+
+    it('006: broj riječi i vrijeme u bazi isti su kao u engine/write/text.ts', async () => {
+      const samples = [
+        'Pater Stjepan-Ivan, 8,000 ljudi; don’t',
+        'Đuro Šimić: „Velika” promjena – 3.5 posto, 2026. godine!',
+        'Rekao je: "ovo je 1. kolovoza u 11 sati", i otišao.',
+        '',
+      ];
+      for (const t of samples) {
+        const r = await db.query<{ n: number }>('SELECT vijesti._word_count($1) AS n', [t]);
+        expect(r.rows[0]?.n, t).toBe(wordCount(t));
+      }
+      for (const ms of [0, 5999, 61000, 3599999, 3723000, 36000000]) {
+        const r = await db.query<{ c: string }>('SELECT vijesti._clock($1) AS c', [ms]);
+        expect(r.rows[0]?.c, String(ms)).toBe(clock(ms));
+      }
     });
 
     it('runs: failed_calls ne može biti veći od calls', async () => {
