@@ -7,6 +7,8 @@ REVOKE ALL ON SCHEMA vijesti FROM anon, authenticated, service_role;
 
 DROP VIEW IF EXISTS vijesti.versions_awaiting_verify;
 DROP VIEW IF EXISTS vijesti.editor_article_versions;
+DROP VIEW IF EXISTS vijesti.public_stories;
+DROP VIEW IF EXISTS vijesti.public_moments;
 DROP VIEW IF EXISTS vijesti.public_corrections;
 DROP VIEW IF EXISTS vijesti.public_article_versions;
 
@@ -32,6 +34,8 @@ ALTER TABLE vijesti.corrections DISABLE ROW LEVEL SECURITY;
 ALTER TABLE vijesti.eval_channels DISABLE ROW LEVEL SECURITY;
 ALTER TABLE vijesti.eval_sample DISABLE ROW LEVEL SECURITY;
 
+DROP TRIGGER IF EXISTS corrections_no_truncate ON vijesti.corrections;
+DROP TRIGGER IF EXISTS corrections_append_only ON vijesti.corrections;
 DROP TRIGGER IF EXISTS article_versions_after_insert ON vijesti.article_versions;
 DROP TRIGGER IF EXISTS article_versions_immutable ON vijesti.article_versions;
 DROP TRIGGER IF EXISTS articles_status_log ON vijesti.articles;
@@ -66,6 +70,9 @@ DROP TABLE IF EXISTS vijesti.sentence_resolutions;
 DROP TABLE IF EXISTS vijesti.article_events;
 DROP FUNCTION IF EXISTS vijesti._article_events_no_truncate();
 DROP FUNCTION IF EXISTS vijesti._article_events_append_only();
+DROP FUNCTION IF EXISTS vijesti._sentence_resolutions_append_only();
+DROP FUNCTION IF EXISTS vijesti._corrections_append_only();
+DROP FUNCTION IF EXISTS vijesti._append_only_no_truncate();
 DROP TABLE IF EXISTS vijesti.article_transitions;
 DROP TABLE IF EXISTS vijesti.allowed_channels;
 DROP TABLE IF EXISTS vijesti.staff;

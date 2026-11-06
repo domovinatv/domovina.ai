@@ -20,6 +20,8 @@ const TABLES = [
   'moments',
   'public_article_versions',
   'public_corrections',
+  'public_moments',
+  'public_stories',
   'runs',
   'schema_migrations',
   'sentence_resolutions',
@@ -172,6 +174,8 @@ describe('migracije na PGlite', () => {
     });
 
     it('articles.status prima svih šest stanja iz plana', async () => {
+      // CHECK iz 001; od 006 članak nastaje samo kao nacrt (odluka 522).
+      expect(await migrateDown(db, { steps: 1 })).toEqual([6]);
       const s = await db.query<{ id: number }>(
         `INSERT INTO vijesti.stories (slug, title) VALUES ('st', 'St') RETURNING id`,
       );
@@ -414,16 +418,31 @@ describe('migracije na PGlite', () => {
       ]);
       const s = await db.query<{ id: number }>(`INSERT INTO vijesti.stories (slug, title) VALUES ('r', 'R') RETURNING id`);
       const a = await db.query<{ id: number }>(
-        `INSERT INTO vijesti.articles (story_id, format, slug, status) VALUES ($1, 'vijest', 'r', 'retracted') RETURNING id`,
+        `INSERT INTO vijesti.articles (story_id, format, slug) VALUES ($1, 'vijest', 'r') RETURNING id`,
         [s.rows[0]?.id],
       );
+      const art = a.rows[0]?.id;
       // Nastanak članka (prva verzija) upisuje dnevnik.
-      await db.query(`INSERT INTO vijesti.article_versions (article_id, version, title, body, created_by) VALUES ($1, 1, 'N', 'T', 'engine:write')`, [
-        a.rows[0]?.id,
-      ]);
-      const ev = await db.query<{ to_status: string; actor_label: string }>('SELECT to_status, actor_label FROM vijesti.article_events');
-      expect(ev.rows).toEqual([{ to_status: 'retracted', actor_label: 'engine:write' }]);
-      await expect(migrateDown(db)).rejects.toThrow(/articles_status_check/);
+      const v = await db.query<{ id: number }>(
+        `INSERT INTO vijesti.article_versions (article_id, version, title, body, created_by) VALUES ($1, 1, 'N', 'T', 'engine:write') RETURNING id`,
+        [art],
+      );
+      // Vlasnik do povlačenja: okidač traži odobrenu i objavljenu verziju i obavijest (odluka 523).
+      await db.query(`UPDATE vijesti.articles SET status = 'review' WHERE id = $1`, [art]);
+      await db.query(`UPDATE vijesti.articles SET status = 'approved', approved_version_id = $2 WHERE id = $1`, [art, v.rows[0]?.id]);
+      await db.query(`UPDATE vijesti.articles SET status = 'published', published_version_id = $2 WHERE id = $1`, [art, v.rows[0]?.id]);
+      await db.query(
+        `INSERT INTO vijesti.corrections (article_id, kind, description, replaced_version_id) VALUES ($1, 'retraction', 'Razlog.', $2)`,
+        [art, v.rows[0]?.id],
+      );
+      await db.query(`UPDATE vijesti.articles SET status = 'retracted' WHERE id = $1`, [art]);
+      const ev = await db.query<{ to_status: string; actor_label: string }>(
+        'SELECT to_status, actor_label FROM vijesti.article_events ORDER BY id',
+      );
+      expect(ev.rows.map((r) => r.to_status)).toEqual(['draft', 'review', 'approved', 'published', 'retracted']);
+      expect(ev.rows[0]?.actor_label).toBe('engine:write');
+      // Povučen članak ima obavijest vrste `retraction`, pa prvi pada CHECK ispravka.
+      await expect(migrateDown(db)).rejects.toThrow(/corrections_kind_check/);
       expect(await appliedVersions(db)).toEqual([1, 2, 3, 4, 5, 6]);
 
       await db.query('DELETE FROM vijesti.articles WHERE id = $1', [a.rows[0]?.id]);

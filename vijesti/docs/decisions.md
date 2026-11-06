@@ -779,3 +779,73 @@ paralelni worktreeji ne sudare. Odluka se ne briše: zamijeni je novom koja je p
 520. **`006 down` pada kad postoji povučen članak ili ispravak vrste `retraction`** (CHECK iz 001),
      kao `002 down` s podacima: ništa se ne gubi bez traga. Uloge ostaju (502). Test:
      `db/migrate.test.ts` („006: … povučen članak ruši dolje”).
+521. **`corrections` i `sentence_resolutions` su samo za dodavanje, i vlasniku baze** (napad S5:
+     retci ispravka nisu bili zaštićeni od UPDATE/DELETE, pa je `service_role` ili vlasnik mogao
+     tiho prepisati „što i zašto” ispravka; isto za urednikovo jamstvo uz nepotvrđenu rečenicu,
+     koje je 507 zvala „samo dodavanje”, a branila ga je samo funkcija). Okidači
+     `corrections_append_only` i `sentence_resolutions_append_only` odbijaju UPDATE i DELETE
+     (`append_only:`), a `*_no_truncate` TRUNCATE. Iznimka kao u 505: brisanje cijelog članka
+     (CASCADE; za `corrections` i UPDATE iz FK-a `version_id → SET NULL` u istoj naredbi), odnosno
+     brisanje verzije za razrješenje. Brisanje verzije ispravka bez brisanja članka zato pada
+     (FK `SET NULL` bio bi izmjena traga), a zamijenjenu verziju drži FK `replaced_version_id`.
+     Test: `db/editorial.adversarial.test.ts` („trag se ne mijenja ni ne briše…”, „iznimka
+     505/521…”).
+522. **Članak nastaje samo kao `draft`** bez `approved_version_id`, `published_version_id` i
+     `published_at` (napad S5: INSERT je primao bilo koje stanje, pa je engine ili vlasnik mogao
+     stvoriti objavljen članak mimo stroja stanja; 504 je to svjesno ostavila). Isti okidač
+     `articles_status_guard`, sada `BEFORE INSERT OR UPDATE`; nepoznato stanje i dalje prijavljuje
+     CHECK. `saveArticleVersion` radi nepromijenjen (`INSERT … ON CONFLICT DO UPDATE` ulazi kao
+     nacrt, konflikt ide kroz okidač UPDATE-a). Test iz 001 „šest stanja” provjerava CHECK na
+     shemi 005. Test: „INSERT sa stanjem…”, „engine (saveArticleVersion) i dalje radi…”.
+523. **Okidač stanja vrijedi za svaki UPDATE članka, ne samo `UPDATE OF status`** (napad S5:
+     `UPDATE articles SET published_version_id = <neprovjerena verzija>` bez promjene stanja je
+     prolazio, pa je vlasnik ili engine mogao tiho zamijeniti objavljeni tekst bez ispravka, ili
+     postaviti `published_version_id = NULL` na objavljen članak). Pravila: `approved_version_id`
+     se postavlja samo članku u `review`; `published_version_id` se prvi put postavlja samo
+     odobrenom članku i jednak je odobrenoj verziji; poslije se mijenja samo ako postoji redak
+     `corrections` (`version_id` = nova, `replaced_version_id` = stara, nije `retraction`);
+     `corrected` traži redak ispravka za objavljenu verziju, `retracted` obavijest o povlačenju.
+     Funkcije već rade tim redom (redak ispravka prije promjene verzije). Kršenje je
+     `invalid_state:`. Test: „objavljena verzija se ne mijenja tiho…”, matrica prijelaza vlasnika.
+524. **Javni trenutak je samo onaj koji objavljena verzija CITIRA (blok `quote` u `content`), ne
+     svaki među izvorima; javni stupci trenutka bez `run_id`, `score_run_id`, `score*`, `claim`,
+     `reject_reason`** (napad S5: izvori verzije su svi prihvatljivi trenutci epizode, a
+     `save_editor_version` i verify ih prenose dalje, pa je ispravak koji uklanja netočno pripisan
+     citat ostavljao taj trenutak, s imenom govornika, javno čitljivim; uz to su čitatelju bili
+     vidljivi `run_id` i ocjena modela). Politika `moments_read` traži `content -> 'blocks' @>
+     [{type: quote, moment_id}]`; prava po stupcu kao za `article_versions`, pogled
+     `public_moments` za `select=*`. Mijenja dio 509. `article_sources` objavljene verzije ostaju
+     javni (samo id-jevi); urednik čita ocjene kroz pogled kad ih zatreba sučelje (S9). Test:
+     „svaka relacija sheme…”, sretni put u `db/editorial.test.ts` (broj citiranih trenutaka).
+525. **`stories.title` nije javan** (napad S5: naslov priče je naslov prve, generatorove verzije,
+     dakle nacrt, i bio je čitljiv uz svaki objavljen i povučen članak). Javni stupci `id`, `slug`,
+     `created_at`, `updated_at`, pogled `public_stories`. Povučen članak se čitatelju vidi kroz
+     `slug` i obavijest u `public_corrections`; ako portal (S7) treba naslov povučenog članka,
+     dobiva ga iz zamijenjene verzije kroz izričit pogled, ne iz `stories`. Svjesno ostaje:
+     `articles.slug` je također iz naslova prve verzije (S4, `articleSlug`) i javan je;
+     prijedlog za S7 je slug iz odobrenog naslova pri objavi. Mijenja dio 509. Test: „svaka
+     relacija sheme…”.
+526. **`_nonblank` traži barem jedno slovo ili znamenku (`[[:alnum:]]`)** (napad S5: `btrim`
+     skida samo razmak, pa su tabulator, NBSP, zero-width razmak ili crtica prolazili kao
+     obrazloženje odbijanja, opis ispravka, razlog povlačenja i bilješka razrješenja). Vrijedi za
+     sve funkcije koje ga zovu (i naslov, lead, kanal). Test: „tekstualni argumenti se spremaju
+     doslovno…”.
+527. **Oznaka `db:<uloga>` u dnevniku je uloga pozivatelja, ne vlasnik funkcije** (napad S5:
+     `_actor_label` se zove iz SECURITY DEFINER okidača, gdje je `current_user` vlasnik, pa je
+     izravan upis kao `service_role` u dnevniku pisao `db:postgres`, suprotno 505). Sada
+     postavka `role` (SET ROLE, kako radi PostgREST), inače `session_user`. Uz to sve funkcije
+     sheme, i okidači TRUNCATE koji su bili bez nje, imaju `search_path = vijesti, pg_temp`;
+     test čita `pg_proc.proconfig` za svaku funkciju, provjerava da nijedna ne gradi SQL
+     dinamički (`EXECUTE`, `format`) i da `anon`, `authenticated`, `service_role` i PUBLIC nemaju
+     CREATE na shemi. Test: „service_role (engine) piše…”, „svaka funkcija sheme ima
+     search_path…”.
+528. **Adversarijalni testovi su zasebna datoteka nad minimalnom bazom**
+     (`db/editorial.adversarial.test.ts`, bez generatora), da svako stanje i svaki trenutak bude
+     pod kontrolom testa: svih 49 parova stanja kroz funkcije i izravno kao vlasnik (prolazi točno
+     tablica, isto stanje je no-op bez dnevnika), `authenticated` bez UPDATE/INSERT/DELETE/TRUNCATE
+     ni na jednoj tablici, svaka relacija sheme kao `anon` i kao prijavljeni bez uloge (nova
+     relacija bez očekivanja ruši test), curava `pg_temp` funkcija u WHERE, EXECUTE po ulozi za
+     svaku funkciju, lažan `sub`, eskalacija uloga, zastarjele verzije, SQL injection. Nad
+     migracijom iz `66d510a` (`git show 66d510a:vijesti/db/migrations/006_editorial.up.sql`, isto za `down`) pada 8 od 19 testova. Svjesno nepokriveno: istodobni prijelazi
+     (PGlite ima jednu vezu; zaključavanje je `FOR UPDATE`, 517) i `anon` s potpisanim `sub`
+     urednika (traži JWT tajnu; tko je ima, potpisuje i `authenticated`).

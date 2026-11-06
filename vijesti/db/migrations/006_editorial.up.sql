@@ -149,13 +149,16 @@ BEGIN
 END
 $$;
 
--- Oznaka autora za `created_by` i dnevnik: korisnik ili uloga baze.
+-- Oznaka autora za `created_by` i dnevnik: korisnik ili uloga baze. Zove se iz
+-- SECURITY DEFINER okidača, gdje je `current_user` vlasnik funkcije: uloga
+-- pozivatelja je postavka `role` (SET ROLE, kako radi PostgREST), inače
+-- `session_user` (odluka 527).
 CREATE FUNCTION vijesti._actor_label() RETURNS text
 LANGUAGE sql STABLE SET search_path = vijesti, pg_temp AS $$
   SELECT coalesce(
     nullif(current_setting('vijesti.actor_label', true), ''),
     'editor:' || vijesti.current_user_id()::text,
-    'db:' || current_user
+    'db:' || coalesce(nullif(current_setting('role'), 'none'), session_user)
   )
 $$;
 
@@ -171,13 +174,36 @@ BEGIN
   IF NOT EXISTS (SELECT 1 FROM vijesti.article_transitions WHERE to_status = NEW.status) THEN
     RETURN NEW;
   END IF;
-  IF NOT EXISTS (
+  -- Članak nastaje samo kao nacrt (odluka 522).
+  IF TG_OP = 'INSERT' THEN
+    IF NEW.status <> 'draft' OR NEW.approved_version_id IS NOT NULL
+       OR NEW.published_version_id IS NOT NULL OR NEW.published_at IS NOT NULL THEN
+      RAISE EXCEPTION 'invalid_state: članak se stvara samo kao nacrt, bez odobrene i objavljene verzije';
+    END IF;
+    RETURN NEW;
+  END IF;
+  IF NEW.status IS DISTINCT FROM OLD.status AND NOT EXISTS (
     SELECT 1 FROM vijesti.article_transitions WHERE from_status = OLD.status AND to_status = NEW.status
   ) THEN
-    IF NEW.status = OLD.status THEN
-      RETURN NEW; -- nije prijelaz
-    END IF;
     RAISE EXCEPTION 'invalid_transition: % → % nije dopušten (članak %)', OLD.status, NEW.status, OLD.id;
+  END IF;
+  -- Verzije i tragovi vrijede za svaki UPDATE, ne samo za promjenu stanja (odluka 523).
+  IF NEW.approved_version_id IS NOT NULL AND NEW.approved_version_id IS DISTINCT FROM OLD.approved_version_id
+     AND OLD.status <> 'review' THEN
+    RAISE EXCEPTION 'invalid_state: odobrena verzija se postavlja samo članku u pregledu (članak %)', OLD.id;
+  END IF;
+  IF NEW.published_version_id IS DISTINCT FROM OLD.published_version_id THEN
+    IF OLD.published_version_id IS NULL THEN
+      IF OLD.status <> 'approved' OR NEW.published_version_id IS DISTINCT FROM OLD.approved_version_id THEN
+        RAISE EXCEPTION 'invalid_state: objavljuje se samo odobrena verzija odobrenog članka (članak %)', OLD.id;
+      END IF;
+    ELSIF NOT EXISTS (
+      SELECT 1 FROM vijesti.corrections c
+      WHERE c.article_id = OLD.id AND c.kind <> 'retraction'
+        AND c.version_id = NEW.published_version_id AND c.replaced_version_id = OLD.published_version_id
+    ) THEN
+      RAISE EXCEPTION 'invalid_state: objavljena verzija se mijenja samo uz zapis ispravka (članak %)', OLD.id;
+    END IF;
   END IF;
   IF NEW.status = 'approved' AND NEW.approved_version_id IS NULL THEN
     RAISE EXCEPTION 'invalid_state: odobren članak mora imati odobrenu verziju (članak %)', OLD.id;
@@ -185,12 +211,25 @@ BEGIN
   IF NEW.status IN ('published', 'corrected') AND NEW.published_version_id IS NULL THEN
     RAISE EXCEPTION 'invalid_state: objavljen članak mora imati objavljenu verziju (članak %)', OLD.id;
   END IF;
+  IF NEW.status = 'corrected' AND NOT EXISTS (
+    SELECT 1 FROM vijesti.corrections c
+    WHERE c.article_id = OLD.id AND c.kind <> 'retraction' AND c.version_id = NEW.published_version_id
+  ) THEN
+    RAISE EXCEPTION 'invalid_state: ispravljen članak mora imati zapis ispravka objavljene verzije (članak %)', OLD.id;
+  END IF;
+  IF NEW.status = 'retracted' AND NOT EXISTS (
+    SELECT 1 FROM vijesti.corrections c WHERE c.article_id = OLD.id AND c.kind = 'retraction'
+  ) THEN
+    RAISE EXCEPTION 'invalid_state: povučen članak mora imati obavijest o povlačenju (članak %)', OLD.id;
+  END IF;
   RETURN NEW;
 END
 $$;
 
+-- Svaki INSERT i UPDATE, ne samo `UPDATE OF status`: inače bi vlasnik ili
+-- engine tiho zamijenio objavljenu verziju (odluke 504, 522, 523).
 CREATE TRIGGER articles_status_guard
-  BEFORE UPDATE OF status ON vijesti.articles
+  BEFORE INSERT OR UPDATE ON vijesti.articles
   FOR EACH ROW EXECUTE FUNCTION vijesti._articles_status_guard();
 
 CREATE FUNCTION vijesti._articles_status_log() RETURNS trigger
@@ -284,7 +323,7 @@ CREATE TRIGGER article_events_append_only
   FOR EACH ROW EXECUTE FUNCTION vijesti._article_events_append_only();
 
 CREATE FUNCTION vijesti._article_events_no_truncate() RETURNS trigger
-LANGUAGE plpgsql AS $$
+LANGUAGE plpgsql SET search_path = vijesti, pg_temp AS $$
 BEGIN
   RAISE EXCEPTION 'append_only: dnevnik prijelaza se ne mijenja (TRUNCATE)';
 END
@@ -293,6 +332,53 @@ $$;
 CREATE TRIGGER article_events_no_truncate
   BEFORE TRUNCATE ON vijesti.article_events
   FOR EACH STATEMENT EXECUTE FUNCTION vijesti._article_events_no_truncate();
+
+-- Zapis ispravka i povlačenja je javni trag: ne mijenja se ni ne briše, ni
+-- vlasniku. Iznimka kao za dnevnik: brisanje cijelog članka (CASCADE, uz FK
+-- `version_id → SET NULL` u istoj naredbi) (odluka 521).
+CREATE FUNCTION vijesti._corrections_append_only() RETURNS trigger
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = vijesti, pg_temp AS $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM vijesti.articles WHERE id = OLD.article_id) THEN
+    RETURN CASE WHEN TG_OP = 'DELETE' THEN OLD ELSE NEW END;
+  END IF;
+  RAISE EXCEPTION 'append_only: zapis ispravka se ne mijenja (%)', TG_OP;
+END
+$$;
+
+CREATE TRIGGER corrections_append_only
+  BEFORE UPDATE OR DELETE ON vijesti.corrections
+  FOR EACH ROW EXECUTE FUNCTION vijesti._corrections_append_only();
+
+-- Razrješenje rečenice je urednikovo jamstvo uz odobrenje: isto samo dodavanje.
+-- Iznimka: brisanje verzije (CASCADE iz brisanja članka) (odluka 521).
+CREATE FUNCTION vijesti._sentence_resolutions_append_only() RETURNS trigger
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = vijesti, pg_temp AS $$
+BEGIN
+  IF TG_OP = 'DELETE' AND NOT EXISTS (SELECT 1 FROM vijesti.article_versions WHERE id = OLD.version_id) THEN
+    RETURN OLD;
+  END IF;
+  RAISE EXCEPTION 'append_only: razrješenje rečenice se ne mijenja (%)', TG_OP;
+END
+$$;
+
+CREATE TRIGGER sentence_resolutions_append_only
+  BEFORE UPDATE OR DELETE ON vijesti.sentence_resolutions
+  FOR EACH ROW EXECUTE FUNCTION vijesti._sentence_resolutions_append_only();
+
+CREATE FUNCTION vijesti._append_only_no_truncate() RETURNS trigger
+LANGUAGE plpgsql SET search_path = vijesti, pg_temp AS $$
+BEGIN
+  RAISE EXCEPTION 'append_only: % se ne prazni (TRUNCATE)', TG_TABLE_NAME;
+END
+$$;
+
+CREATE TRIGGER corrections_no_truncate
+  BEFORE TRUNCATE ON vijesti.corrections
+  FOR EACH STATEMENT EXECUTE FUNCTION vijesti._append_only_no_truncate();
+CREATE TRIGGER sentence_resolutions_no_truncate
+  BEFORE TRUNCATE ON vijesti.sentence_resolutions
+  FOR EACH STATEMENT EXECUTE FUNCTION vijesti._append_only_no_truncate();
 
 -- Verzija se nikad ne mijenja (odobrava se verzija, odluka 506). Dopušteno je
 -- samo `run_id → NULL` iz FK-a pri brisanju runa.
@@ -399,8 +485,9 @@ $$;
 CREATE FUNCTION vijesti._nonblank(p_value text, p_what text) RETURNS text
 LANGUAGE plpgsql IMMUTABLE SET search_path = vijesti, pg_temp AS $$
 BEGIN
-  IF p_value IS NULL OR btrim(p_value) = '' THEN
-    RAISE EXCEPTION 'invalid_input: % ne smije biti prazno', p_what;
+  -- Razmak, tabulator ili NBSP nije obrazloženje: barem jedno slovo ili znamenka (odluka 526).
+  IF p_value IS NULL OR p_value !~ '[[:alnum:]]' THEN
+    RAISE EXCEPTION 'invalid_input: % ne smije biti prazno (barem jedno slovo ili znamenka)', p_what;
   END IF;
   RETURN p_value;
 END
@@ -767,6 +854,18 @@ CREATE VIEW vijesti.public_corrections WITH (security_invoker = true) AS
 SELECT id, article_id, version_id, kind, description, created_at
 FROM vijesti.corrections;
 
+-- Javni stupci trenutka: citat i vrijeme, bez ocjene, sažetka modela, razloga
+-- odbijanja i runova (odluka 524).
+CREATE VIEW vijesti.public_moments WITH (security_invoker = true) AS
+SELECT id, video_id, start_ms, end_ms, speaker, speaker_name, quote, quote_check, quote_match, quote_lang,
+       topics, entities, cue_from, cue_to, created_at
+FROM vijesti.moments;
+
+-- Naslov priče je naslov prve (generatorove) verzije, dakle nacrt (odluka 525).
+CREATE VIEW vijesti.public_stories WITH (security_invoker = true) AS
+SELECT id, slug, created_at, updated_at
+FROM vijesti.stories;
+
 -- Pune verzije (s provjerom) samo za urednike: prava vlasnika, filtar uloge.
 CREATE VIEW vijesti.editor_article_versions WITH (security_barrier = true) AS
 SELECT v.*
@@ -828,13 +927,17 @@ CREATE POLICY article_sources_read ON vijesti.article_sources FOR SELECT TO anon
     )
   );
 
+-- Trenutak je javan samo ako ga objavljena verzija CITIRA (blok `quote`), ne
+-- kad je samo među izvorima: ispravak koji uklanja citat ga skriva (odluka 524).
 CREATE POLICY moments_read ON vijesti.moments FOR SELECT TO anon, authenticated
   USING (
     vijesti.has_role('editor')
     OR EXISTS (
       SELECT 1 FROM vijesti.article_sources s
       JOIN vijesti.articles a ON a.published_version_id = s.version_id
+      JOIN vijesti.article_versions v ON v.id = s.version_id
       WHERE s.moment_id = moments.id AND a.status IN ('published', 'corrected')
+        AND v.content -> 'blocks' @> jsonb_build_array(jsonb_build_object('type', 'quote', 'moment_id', moments.id))
     )
   );
 
@@ -881,12 +984,17 @@ GRANT ALL ON ALL TABLES IN SCHEMA vijesti TO service_role;
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA vijesti TO service_role;
 
 -- Čitatelji: samo SELECT, nikad INSERT/UPDATE/DELETE (pisanje ide kroz funkcije).
-GRANT SELECT ON vijesti.articles, vijesti.stories, vijesti.moments, vijesti.article_sources TO anon, authenticated;
+GRANT SELECT ON vijesti.articles, vijesti.article_sources TO anon, authenticated;
+GRANT SELECT (id, slug, created_at, updated_at) ON vijesti.stories TO anon, authenticated;
+GRANT SELECT (id, video_id, start_ms, end_ms, speaker, speaker_name, quote, quote_check, quote_match, quote_lang,
+              topics, entities, cue_from, cue_to, created_at)
+  ON vijesti.moments TO anon, authenticated;
 GRANT SELECT (id, article_id, version, title, body, lead, category, content, word_count, prompt_version, created_at)
   ON vijesti.article_versions TO anon, authenticated;
 GRANT SELECT (id, article_id, version_id, kind, description, created_at)
   ON vijesti.corrections TO anon, authenticated;
-GRANT SELECT ON vijesti.public_article_versions, vijesti.public_corrections TO anon, authenticated;
+GRANT SELECT ON vijesti.public_article_versions, vijesti.public_corrections, vijesti.public_moments,
+  vijesti.public_stories TO anon, authenticated;
 GRANT SELECT ON vijesti.story_moments, vijesti.runs, vijesti.eval_channels, vijesti.eval_sample, vijesti.staff,
   vijesti.allowed_channels, vijesti.article_transitions, vijesti.article_events, vijesti.sentence_resolutions,
   vijesti.editor_article_versions, vijesti.versions_awaiting_verify TO authenticated;

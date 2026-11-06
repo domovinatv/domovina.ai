@@ -151,14 +151,16 @@ describe('urednički tok', () => {
     expect(Number(pub?.published_version_id)).toBe(v2.versionId);
     expect(pub?.published_at).not.toBeNull();
 
-    // Javno: članak, samo objavljena verzija, bez provjere; trenutci izvora vidljivi.
+    // Javno: članak, samo objavljena verzija, bez provjere; vidljivi samo citirani trenutci (odluka 524).
     const pubVersions = await anon((d) => d.query<{ id: number | string }>('SELECT id FROM vijesti.public_article_versions'));
     expect(pubVersions.rows.map((r) => Number(r.id))).toEqual([v2.versionId]);
     await expect(anon((d) => d.query('SELECT verify FROM vijesti.article_versions'))).rejects.toThrow(
       /permission denied/,
     );
     const pubMoments = await anon((d) => d.query<{ n: number }>('SELECT count(*)::int AS n FROM vijesti.moments'));
-    expect(pubMoments.rows[0]?.n).toBe(v2.sources.length);
+    const quoted = new Set((v2.content as ArticleContent).blocks.flatMap((b) => (b.type === 'quote' ? [b.moment_id] : [])));
+    expect(quoted.size).toBeGreaterThan(0);
+    expect(pubMoments.rows[0]?.n).toBe(quoted.size);
 
     // Urednička izmjena objavljenog članka: nova verzija bez provjere, javno i dalje v2.
     const content = v2.content as ArticleContent;
