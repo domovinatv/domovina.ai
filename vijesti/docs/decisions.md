@@ -1016,3 +1016,41 @@ paralelni worktreeji ne sudare. Odluka se ne briše: zamijeni je novom koja je p
      potrebi povuče (ručno, nema automatskog povlačenja). Pravne stranice su izvan navigacije
      kategorija, u podnožju svake stranice i u sitemapu; pravni tekst je neutralan, obraćanje
      čitatelju s „ti”. Test: `legal.spec.ts`.
+720. **Adresa članka (`articles.slug`) se nikad ne mijenja.** Nastaje pri stvaranju članka iz
+     naslova prve verzije + ID videa (`articleSlug`, odluka 419) i ostaje ista kroz uređivanje,
+     objavu, ispravak naslova i nove verzije enginea. URL je identitet članka: dijeljene
+     poveznice, `guid` u RSS-u, sitemap i News; promjena nakon objave bi ih sve slomila, a
+     ispravak naslova se vidi u dnevniku ispravaka. Svjesna cijena: adresa može nositi riječi
+     naslova nacrta koje je urednik kasnije promijenio. Ako to zasmeta, rješenje je jednokratno
+     postavljanje slug-a u `publish_article` PRIJE prve objave (nova migracija), nikad nakon nje.
+     Zaštita je u putevima pisanja: nijedna funkcija sheme ne piše slug, engine
+     `ON CONFLICT … DO UPDATE` ga ne dira. Okidač u bazi nije dodan (štitio bi samo od ručnog
+     UPDATE-a vlasnika, a tražio bi migraciju 007 i pomak svih testova „dolje”).
+     Test: `portal/dev/slug-stable.test.ts` (ispravak s novim naslovom, nova verzija enginea,
+     nijedna funkcija ne sadrži `slug =`).
+730. **Produkcijski paket se generira, ne piše ručno.** `db/bundle.ts` (`npm run db:bundle`)
+     spaja iste `db/migrations/*.up.sql` kao `migrateUp` i isto knjigovodstvo
+     (`schema_migrations`). Generirani `db/prod/vijesti-install.sql` je u repou jer korisnik
+     odobrava točan tekst koji ide u bazu; test pada ako se razlikuje od generiranog. Ništa u
+     repou se ne spaja na api.domovina.ai. Test: `db/bundle.test.ts`.
+731. **Jedna transakcija i provjera stanja umjesto `IF NOT EXISTS` po objektu.** Paket od N
+     traži da `schema_migrations` bude točno 1..N-1 (za prvu primjenu prazno), inače
+     `RAISE EXCEPTION` i ništa nije primijenjeno; polu-primijenjena shema je gora od odbijene.
+     Na kraju `NOTIFY pgrst, 'reload schema'`. `--from N` daje paket za kasnije migracije.
+     Test: ista shema kao `migrateUp` (stupci, ograničenja, indeksi, pogledi, funkcije s ACL-om,
+     okidači, RLS, politike, prava po stupcima), druga primjena pada bez promjene, `--from`
+     na krivoj bazi pada.
+732. **`db/prod/verify.sql` samo čita i javlja sve probleme odjednom:** migracije 1..N bez
+     rupa, RLS na svakoj tablici, `anon`/`authenticated` bez INSERT/UPDATE/DELETE/TRUNCATE,
+     `anon` čita javne relacije a ne čita urednički sloj, uredničke funkcije za `authenticated`
+     da, za `anon` ne, i `SET ROLE anon` ne vidi nijedan nacrt. Završava s `ROLLBACK`. Test ga
+     vrti nad ispravnom i nad namjerno pokvarenom shemom (pet problema, svih pet prijavljeno).
+733. **Izlaganje sheme je konfiguracija Supabasea, ne SQL:** `PGRST_DB_SCHEMAS` se dopunjuje s
+     `vijesti` (postojeće sheme ostaju) i servis se redeploya; prijava u admin traži
+     `https://domovina.ai/vijesti/admin` u `ADDITIONAL_REDIRECT_URLS`. Provjera nakon toga ide
+     curlom bez pisanja (200 na `articles`, 401/42501 na `staff` i na rpc kao anon; 406
+     `PGRST106` = shema nije izložena). Postupak korak po korak: `db/prod/README.md`.
+734. **Primjena kroz `psql -v ON_ERROR_STOP=1` u kontejneru baze, kao `postgres`**, ne kroz
+     Studio SQL editor: paket je jedna transakcija koja na prvoj grešci staje. Povratak dok u
+     shemi nema podataka: `DROP SCHEMA vijesti CASCADE` (uloge su Supabaseove i ostaju,
+     odluka 502). Javni repo: README nema adresu ni ključ hosta, samo zamjenske oznake.

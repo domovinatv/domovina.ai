@@ -17,6 +17,7 @@
     "verify:measure": "tsx engine/verify/measure-cli.ts",
     "vijesti": "tsx engine/cli.ts",
     "eval": "tsx engine/eval/cli.ts",
+    "db:bundle": "tsx db/bundle.ts",
     "eval:report": "tsx engine/eval/cli.ts report",
     "eval:drafts": "tsx engine/eval/cli.ts drafts",
     "portal:dev": "tsx portal/dev/dev.ts",
