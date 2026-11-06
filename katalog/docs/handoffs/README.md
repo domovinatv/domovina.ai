@@ -38,7 +38,7 @@ Handoff se mijenja samo prema naprijed: gotovi `SN` se ne prepisuju, služe kao 
 | S4 | Sintetička skala + izvještaj | gotovo | be80dc3 | 289 / skipped 0 | 2026-11-06; odluke 400–409; 500 omotan; `rows_read` isti na 10k/100k/1M; 411 B/epizodi; **vrata: staging čeka korisnika** |
 | S5 | Staging + latencija | gotovo | 371fa09 | 289 / skipped 0 | 2026-11-06; odluke 500–506; hit 51 ms (D1 kontekst +32 ms) → 502; **vrata: produkcija čeka korisnika** |
 | S6 | Produkcija, ingest, drift-check | gotovo | b1aaeba | 379 / skipped 0 | 2026-11-06; odluke 600–611; produkcija `domovina.ai/api/katalog/*`, 3670 epizoda kroz `--sync`; hit 22 ms / miss 48 ms; launchd 08:45 |
-| S7 | Pipeline producer | | | | u `fetch.domovina.tv` |
+| S7 | Pipeline producer | gotovo (potvrda nightlyja u S8) | 36e24a1 | 399 / skipped 0 | 2026-11-06; odluke 700–709; `ingest-episode` + fetch KORAK 13.5 (`run_pipeline.sh`, `build_episode_bundle.js` `channel`); `--all` 6,5 s, 0 promjena; mapa posijana 11:42 |
 | S8 | `CatalogClient`, ekran epizode | | | | |
 | S9 | „Danas u korpusu” + `/dani/` | | | | paralelno sa S10 |
 | S10 | `/channels` „Svi” + Tier 2 kanal | | | | paralelno sa S9 |

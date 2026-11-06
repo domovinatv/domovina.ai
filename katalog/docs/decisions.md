@@ -646,3 +646,51 @@ Produkcija (korisnik odobrio 6. 11. 2026. na vratima S5 → S6: „Da, sve odobr
      Reprodukcija: `npm run latency -- --base https://domovina.ai --out …`; sirovo u
      `research/2026-11-06-produkcija-latencija.json`. Token ingesta lokalno u
      `.dev.vars` (`INGEST_TOKEN=`), launchd ga čita odande.
+
+## S7 (2026-11-06, pipeline producer, rađeno iz fetch.domovina.tv)
+
+700. **Pipeline zove katalogov kod, ne slaže retke sam**: `scripts/ingest-episode.ts`
+     (`npm run ingest-episode -- <id…> | --all`) gradi plan istim `buildImportPlan` putem
+     kao uvoznik i `drift-check --sync`, pa šalje na `POST /ingest` sa `source: "pipeline"`.
+     `run_pipeline.sh` (fetch.domovina.tv, KORAK 13.5) ga poziva iz `katalog/` s tokenom iz
+     fetch `.env` (`INGEST_TOKEN`); fallback je `katalog/.dev.vars` kao u drift-checku.
+701. **Puni plan i za jednu epizodu**: redak kanala nosi `processed_count` i
+     `latest_published_date`, upsert ih prepisuje, a brojka Tier 2 kanala ovisi o svim
+     Tier 2 epizodama (kanal svake zna tek resolver). Šalju se samo retci traženih epizoda
+     i kanala na koje pokazuju, s brojkama iz punog plana (`selectRows`). Cijena: ~560
+     GET-ova na CDN, 3,3 s suho; `--all` s upisom 6,5 s, 8 poziva, 0 promjena kad je poravnato.
+702. **Prioritetni/reprocess run šalje svoj ID, ostali `--all`**: nightly tako usput
+     prenese i promjene zastavica bez novog ID-a (Magisterium, EN stižu izvan
+     `run_pipeline.sh`), koje drift-check (samo ID-evi) ne vidi.
+703. **Exit kodovi `ingest-episode`**: 0 upisano; 1 neki traženi ID nije u planu (nema
+     `article.json` u key cacheu ili listingu), ostali upisani; 2 ne mogu (token, mreža,
+     4xx/5xx, plan). Pipeline nastavlja u svim slučajevima; propušteno popravi
+     `drift-check --sync` u 08:45. Watchdog 5 min po pozivu, 60 s po HTTP zahtjevu.
+704. **CDN `fresh` način** (`createCdn({ fresh: true })`): `channels/*` uvijek, a 404
+     retry svugdje, s jedinstvenim busterom (`Date.now()`), jer se zove sekundama nakon
+     uploada: edge zna držati listing od prije KORAKA 13, a 404 zapamćen pod 5-minutnim
+     bucketom koji koristi i aplikacija. Uvoznik i drift-check ostaju na starom ponašanju.
+705. **Mapa kanala za `episode.json`** (`--channels-out`, u fetch repou
+     `.katalog_channels.json`, gitignored): `{v:1, generated_at, seeded_at, episodes:{id:
+     {channel:{slug,name,tier}|null, first_seen}}}` za SVE epizode plana. `channel.tier`
+     je tier kanala (Tier 2 epizoda na praćenom kanalu daje 1). Piše se atomarno i samo
+     kad je ingest uspio; u dry-runu ne.
+706. **`first_seen` drži pravilo „bez backfilla”** (fetch CLAUDE.md #4): pri prvom zapisu
+     (06.11.2026. 11:42, 3670 epizoda) sve dobivaju `null`; epizoda koje nema u prethodnoj
+     mapi dobiva vrijeme runa. `build_episode_bundle.js` piše `channel` samo za ne-`null`,
+     a `channel` ulazi u otisak samo tada, pa se 3671 starih bundleova ne dira (suhi
+     `--all`: 0 za provjeru). Backfill = posebna odluka.
+707. **`episode.json` `channel` je aditivan, verzija ostaje 1**: `null` = katalog epizodu
+     ima bez kanala, bez ključa = nepoznato. Provjereni čitači ignoriraju nepoznat ključ:
+     `EpisodeBundle.tryParse` (podcast_core), `EpisodeBundleSchema` (vijesti, zod
+     `z.object` odbacuje višak), `parseEpisodeManifest` (katalog), `isReady`
+     (domovina-push).
+708. **Redoslijed u `run_pipeline.sh`**: 12 … 12.68 → 13 (listinzi) → 13.5 (ingest + mapa)
+     → 12.7 (bundle). 13.5 za Tier 1 treba listing iz 13, a bundle mapu iz 13.5; ni 13 ni
+     13.5 ne pišu u `data/`, pa je bundle i dalje zadnji upload u `data/`. Bundle koji
+     `upload_to_r2.js` napravi u KORAKU 12 (još bez kanala) 12.7 prepiše jer se otisak
+     promijenio.
+709. **Fast-path s Tier 1 ID-em** (prioritetni job na praćenom kanalu) nema KORAK 13, pa
+     epizodu još nema u listingu: plan je vidi kao Tier 2 (`tier: 2`, kanal kroz resolver).
+     Idući nightly `--all` je ispravi na Tier 1. Prihvaćeno: kartica i kanal su odmah
+     točni, kriv je samo `tier` epizode do noći.

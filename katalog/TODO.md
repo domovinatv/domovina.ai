@@ -39,8 +39,8 @@ Legenda: `[x]` gotovo · `[ ]` otvoreno · `[~]` u radu · `(!)` traži korisnik
 - [x] `POST /api/katalog/v1/ingest` s tokenom (secret), batch upsert, idempotentno → S6
 - [x] `katalog drift-check`: R2 (`.r2_keys_cache.json`) ↔ D1; exit 0/1/2; Telegram samo kroz `scripts/telegram-notify.rb` → S6
 - [x] launchd tripwire za drift-check (LaunchAgent), tih kad je poravnato → S6
-- [ ] Pipeline nakon uploada zove ingest (sesija u `fetch.domovina.tv`) → S7
-- [ ] `episode.json` nosi `channel: {slug, name, tier}` (sesija u `fetch.domovina.tv`) → S7
+- [x] Pipeline nakon uploada zove ingest (sesija u `fetch.domovina.tv`) → S7 (KORAK 13.5; potvrda na prvom nightlyju u S8)
+- [x] `episode.json` nosi `channel: {slug, name, tier}` (sesija u `fetch.domovina.tv`) → S7 (samo nove epizode, odluka 706)
 - [ ] `podcast_core`: `Endpoints.catalog` (nullable; bez njega stari statični put), `CatalogClient` → S8
 - [ ] Ekran epizode: kanal iz `episodes/:id/card` / `episode.json`; `_QueuedEpisodeScreen` više ne zove `findVideoAsync` kad je katalog dostupan → S8
 - [ ] Podcasterium tripwire (`scripts/build-podcasterium-shell.sh`) zelen → S8
