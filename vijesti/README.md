@@ -54,7 +54,14 @@ npm run portal:dev     # shim (127.0.0.1:8790) + astro dev (127.0.0.1:4321/vijes
 npm run portal:shim    # samo shim + seed (VIJESTI_SHIM_PORT, zadano 8790)
 npm run portal:build   # produkcijski build (VIJESTI_AUTH_MODE=supabase)
 npm run portal:check   # astro check
+npm run portal:preview # lokalni produkcijski build (dist-local) + shim + astro preview na 127.0.0.1:4322
+npm run e2e            # Playwright (Chromium) nad portal:preview; prvi put: npx playwright install chromium
+npm run lighthouse     # Lighthouse mobile za članak i naslovnicu (lokalni Chrome), cilj članka ≥ 90
 ```
+
+e2e i Lighthouse nisu u `npm run check` (odluka 614); tko mijenja `portal/`, vrti i `npm run e2e`.
+Shim za e2e nudi i `GET /__shim/seed` (slugovi seeda) i `POST /__shim/verify?article=<id>`
+(automatska provjera kao engine). Mjerenje: [docs/research/2026-11-06-lighthouse-portal.md](docs/research/2026-11-06-lighthouse-portal.md).
 
 Lokalni podaci: `portal/dev/seed.ts` (pet članaka u pet stanja). Admin: `/vijesti/admin`, gumb
 „Prijavi se” mintira nepotpisan JWT urednika `11111111-1111-4111-8111-111111111111` (odluka 606).

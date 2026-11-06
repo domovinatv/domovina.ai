@@ -51,6 +51,10 @@ test.describe('naslovnica', () => {
 test.describe('članak', () => {
   test('naslov, uvod, citati, isječak, izvor, AI oznaka; bez JS-a', async ({ page }) => {
     const scripts: string[] = [];
+    const failed: string[] = [];
+    page.on('response', (r) => {
+      if (r.status() >= 400) failed.push(`${String(r.status())} ${r.url()}`);
+    });
     page.on('request', (r) => {
       if (r.resourceType() === 'script') scripts.push(r.url());
     });
@@ -91,6 +95,11 @@ test.describe('članak', () => {
     await expect(page.getByTestId('ai-label')).toContainText('umjetna inteligencija');
     await expect(page.getByTestId('corrections')).toHaveCount(0);
     await expect(page.locator('meta[name=robots]')).toHaveCount(0);
+
+    // Ikona je pod /vijesti (inače preglednik traži /favicon.ico s korijena).
+    await expect(page.locator('link[rel=icon]')).toHaveAttribute('href', '/vijesti/favicon.png');
+    expect((await page.request.get('/vijesti/favicon.png')).status()).toBe(200);
+    expect(failed).toEqual([]);
 
     // Javna stranica nema JS bundle (ni <script> ni zahtjev za skriptom).
     expect(await page.locator('script:not([type="application/ld+json"])').count()).toBe(0);

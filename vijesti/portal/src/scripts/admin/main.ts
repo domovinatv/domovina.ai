@@ -510,7 +510,7 @@ class Admin {
     bar.append(note);
     const corr = correctionState(b);
     if (corr !== null) {
-      // Ispravak objavljuje NOVU verziju (odluka 525): bez nje gumb bi samo
+      // Ispravak objavljuje NOVU verziju (odluka 514): bez nje gumb bi samo
       // vratio „verzija je već objavljena”, pa se nudi tek kad je ima.
       const correctRow =
         corr === 'needs_edit'

@@ -901,3 +901,40 @@ paralelni worktreeji ne sudare. Odluka se ne briše: zamijeni je novom koja je p
      u aplikaciji), preload naslovnog fonta, `font-display: swap`.
 610. **Povučen članak:** stranica 200 + `noindex`, naslov „Članak je povučen”, datum i razlog iz
      `public_corrections`, bez teksta i bez naslova nacrta (odluka 525).
+611. **e2e ide nad produkcijskim buildom, ne nad `astro dev`.** `npm run portal:preview`
+     (`portal/dev/preview.ts`) gradi portal u lokalnom načinu prijave (`VIJESTI_AUTH_MODE=local`,
+     `CLOUDFLARE_ENV=local`, varijable shima upečene u `wrangler.json`) u `portal/dist-local/`
+     (u gitignoreu, odvojeno od produkcijskog `portal/dist/`) i poslužuje ga kroz `astro preview`
+     u workerdu na `127.0.0.1:4322`, uz shim na 8790. Isti kod, inlinani CSS i zaglavlja kao
+     produkcija; razlikuju se samo prijava i adrese. Astro se pokreće programski (odluka iz dijela a:
+     CLI iz agenta se odvaja u pozadinu).
+612. **Playwright (`npm run e2e`, `portal/playwright.config.ts`, `portal/e2e/`):** Chromium, jedan
+     worker (shim je jedna PGlite baza), `webServer` diže `portal:preview` i gasi ga na kraju.
+     Testovi koji pišu kreću od `POST /__shim/reset`; slugove seeda čitaju iz `GET /__shim/seed`.
+     Svaki zahtjev izvan `127.0.0.1` se prekida i ruši test (automatski fixture), pa e2e dokazuje i
+     da stranica nema stranih resursa. 19 testova: 10 javnih (naslovnica, kategorija, članak s
+     isječkom i poveznicama, ispravak, povlačenje, 404, nacrti nisu javni, tamna tema, 390 px),
+     9 admin (bez uloge, neprijavljen, red → razrješenje → odobrenje → objava, uređivanje i povijest
+     verzija, `stale_version` u dvije kartice, ispravak, povlačenje, odbijanje, admin na 390 px).
+613. **Automatska provjera u e2e: `POST /__shim/verify?article=<id>`.** Verify je posao enginea,
+     ne preglednika; shim ga za lokalni tok pokreće s lažnim verify LLM-om (`verifyArticle` iz
+     `portal/dev/seed.ts`, isti put kao seed). Postoji samo u shimu, nikad u portalu.
+614. **e2e nije u `npm run check`.** Treba Chromium (`npx playwright install chromium`, ~100 MB,
+     ne dolazi s `npm ci`), zauzima fiksne portove 8790/4322 (sudar s `portal:dev`) i traje ~25 s;
+     `check` mora proći odmah nakon `npm ci` i bez mreže. `check` i dalje gradi portal
+     (`portal:build`). Pravilo: tko mijenja `portal/`, prije commita vrti i `npm run e2e`.
+615. **„Objavi ispravak” tek kad postoji nova verzija** (bug nađen e2e-om). `correct_article` (odluka 514) traži
+     zadnju verziju različitu od objavljene, provjerenu i razriješenu; admin je gumb nudio odmah i
+     nad objavljenom verzijom dobivao samo „Neki unos nije ispravan.”. Sada `correctionState`
+     (`src/scripts/admin/api.ts`: `needs_edit` → `needs_verify` → `needs_resolution` → `ready`)
+     bira uputu (`correct-hint`) i tek u `ready` omogućuje gumb „Objavi vN kao ispravak”.
+     Uređivanje objavljenog članka ne mijenja javnu stranicu dok se ispravak ne objavi.
+616. **Lighthouse (`npm run lighthouse`, `portal/dev/lighthouse.ts`):** npm paket `lighthouse` +
+     `chrome-launcher`, lokalni Chrome, zadani mobile profil, 3 ponavljanja i medijan, nad
+     `portal:preview`. Izlaz 1 ako je performance članka ispod 90. Izmjereno: članak i naslovnica
+     100/100/100/100 (simulate); s `LIGHTHOUSE_THROTTLING=devtools` članak 100, naslovnica 99.
+     Brojke, okolina i ograničenja (lokalni server ≠ rub Cloudflarea):
+     `docs/research/2026-11-06-lighthouse-portal.md`. Ponoviti nad produkcijom nakon S7.
+617. **Portal ima vlastitu ikonu** `/vijesti/favicon.png` (kopija `web/favicon.png`) i
+     `<link rel="icon">`: bez nje preglednik traži `/favicon.ico` s korijena, a 404 u konzoli je
+     Lighthouseu best practices 96.
