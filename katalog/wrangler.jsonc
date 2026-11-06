@@ -35,6 +35,9 @@
     "staging": {
       "name": "domovina-katalog-staging",
       "workers_dev": true,
+      // Custom domena za aplikaciju (odluka 507): Cloudflare sam napravi DNS zapis
+      // i certifikat. Host nije u `brands.host`, pa brend daje DEFAULT_BRAND.
+      "routes": [{ "pattern": "katalog-staging.domovina.ai", "custom_domain": true }],
       "vars": { "DEFAULT_BRAND": "domovina" },
       "d1_databases": [
         {

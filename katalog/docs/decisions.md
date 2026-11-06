@@ -547,3 +547,10 @@ Korisnik je 6. 11. 2026. u chatu odobrio staging („Da, pokreni”). Izvještaj
      različitim stvarnim ključevima, hit niz s istim ključem, `health` i dva CDN URL-a,
      50 zahtjeva po nizu. Ponovno pokretanje unutar TTL-a Worker cachea (3600 s) daje
      prazan miss niz; pravi miss traži novu verziju kataloga.
+507. **Staging ima custom domenu `katalog-staging.domovina.ai`** (`routes` s
+     `custom_domain: true` u `env.staging`; Cloudflare sam drži DNS zapis i certifikat),
+     da aplikacija u testiranju koristi čitljiv URL; `workers.dev` ostaje uključen.
+     Host nije u `brands.host`, pa brend daje `DEFAULT_BRAND`. Latencija ista kao na
+     `workers.dev` (hit ~51 ms, miss ~83 ms). Produkcija i dalje ide na isti origin
+     `domovina.ai/api/katalog/*` (plan); poddomena za produkciju je otvoreno pitanje za S6.
+     Povratak: `wrangler delete --env staging` miče i domenu.

@@ -16,7 +16,7 @@ Staging ostaje podignut za S6 (0 USD). Povratak je na dnu ovog dokumenta.
 |---|---|
 | Račun | D.O.M. (isti kao `domovina-analytics`, zona `domovina.ai`); ID samo u `katalog/.dev.vars` |
 | D1 | `katalog-staging`, `80c56ea0-0fa3-4bbc-9b36-31b1c8641bbf`, hint `eeur`, primarna u MXP, read replication isključen |
-| Worker | `domovina-katalog-staging`, https://domovina-katalog-staging.d-o-m.workers.dev, bez rute, bez secreta |
+| Worker | `domovina-katalog-staging`, **https://katalog-staging.domovina.ai** (custom domena, odluka 507) i https://domovina-katalog-staging.d-o-m.workers.dev; bez secreta |
 | Podaci | 1 brend, 162 kanala, 3670 epizoda, `ingest_runs` 5; 11 398 upisanih redaka |
 
 ```bash
@@ -138,6 +138,27 @@ curl -s -o /dev/null --compressed -w '%{size_download}\n' https://cdn.domovina.a
 Cache je po podatkovnom centru i po verziji kataloga: svaki uvoz (nightly) mijenja ključ, a
 prvi korisnik u svakom centru plati miss. Udio hita će biti niži od pretpostavke iz 408;
 stvarni broj daje tek produkcija.
+
+### Custom domena `katalog-staging.domovina.ai`
+
+Dodana nakon prvog mjerenja (odluka 507). Origin je dio ključa cachea, pa su na novoj
+domeni svi ključevi bili svježi i miss niz je pun:
+
+```bash
+cd katalog && npm run latency -- --base https://katalog-staging.domovina.ai --out .wrangler/measure/latency-custom-domain.json
+```
+
+| Ruta | miss p50 / p95 | hit p50 / p95 |
+|---|---|---|
+| `days/<dan>?limit=30` | 82,4 / 100,9 ms | 50,0 / 54,5 ms |
+| `channels/:slug/episodes?limit=30` | 83,5 / 92,4 ms | 50,4 / 53,8 ms |
+| `episodes/:id/card` | 81,0 / 97,5 ms | 51,2 / 59,8 ms |
+| `channels?limit=30…79` | 83,5 / 88,7 ms | 51,3 / 55,1 ms |
+| `health` | — | 17,5 / 35,3 ms |
+| CDN `home.json` / listing | — | 16,8 / 32,1 ms; 29,9 / 36,5 ms |
+
+Isto kao `workers.dev` unutar ~5 ms; custom domena ne mijenja sliku, i na njoj Cache API
+daje `hit` (VIE).
 
 ## Potrošnja računa (odluka 408)
 
