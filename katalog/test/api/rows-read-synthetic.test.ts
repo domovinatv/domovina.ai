@@ -3,7 +3,8 @@
 // `rows_read` ovisi o veličini stranice, a ne o veličini kataloga ni o dubini
 // stranice, i da varijante (`variant_of`) usred raspona ne napuhuju čitanje.
 //
-// Raspodjela je deterministička (mulberry32 sa stalnim sjemenom):
+// Raspodjela je deterministička (mulberry32 sa stalnim sjemenom), od S4 u
+// zajedničkom modulu `src/synth/s3.ts` (isti retci kao u S3):
 // - dugi rep: dva velika kanala (2340 + 30 i 1100 epizoda), 6 srednjih po 80,
 //   320 malih s 1–2 epizode, 140 epizoda bez kanala, 30 bez datuma;
 // - „vrući” dan s 300+ epizoda raznih kanala (više stranica i na limitu 100),
@@ -12,8 +13,17 @@
 //   `<9 znakova osnove>_<n>`), pa pada usred raspona koji popis čita.
 import { env } from "cloudflare:workers";
 import { describe, expect, it } from "vitest";
-import type { ChannelRow, EpisodeRow, ImportPlan } from "../../src/ingest/plan.ts";
+import type { EpisodeRow, ImportPlan } from "../../src/ingest/plan.ts";
 import { applyPlan } from "../../src/ingest/write.ts";
+import {
+  S3_BIG_A,
+  S3_BIG_B,
+  S3_EPISODES,
+  S3_HOT_DAY,
+  S3_QUIET_DAY,
+  S3_SEED,
+  synthesizeS3,
+} from "../../src/synth/s3.ts";
 import {
   api,
   brand,
@@ -30,127 +40,32 @@ import {
 
 const b = brand("s3-synth");
 
-const HOT_DAY = "2026-10-20";
-const QUIET_DAY = "2025-03-14";
-const BIG_A = "synth-big-a";
-const BIG_B = "synth-big-b";
-
-/** mulberry32: mali PRNG sa sjemenom, da je raspodjela ista u svakom pokretanju. */
-function prng(seed: number): () => number {
-  let a = seed >>> 0;
-  return () => {
-    a = (a + 0x6d2b79f5) >>> 0;
-    let t = a;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
-const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+const HOT_DAY = S3_HOT_DAY;
+const QUIET_DAY = S3_QUIET_DAY;
+const BIG_A = S3_BIG_A;
+const BIG_B = S3_BIG_B;
 
 interface Synthetic {
   readonly plan: ImportPlan;
   readonly episodes: readonly EpisodeRow[];
 }
 
+/** Raspodjela „s3” iz `src/synth/s3.ts` (S4): N = 5000, sjeme 20261105, uz fixture ID-eve. */
 function synthesize(): Synthetic {
-  const rnd = prng(20261105);
-  const pick = <T>(xs: readonly T[]): T => xs[Math.floor(rnd() * xs.length)] as T;
-  const used = new Set(plan.episodes.map((e) => e.id));
-  const newId = (): string => {
-    for (;;) {
-      let id = "s";
-      for (let i = 0; i < 10; i++) id += ALPHABET.charAt(Math.floor(rnd() * ALPHABET.length));
-      if (!used.has(id)) {
-        used.add(id);
-        return id;
-      }
-    }
-  };
-  // ~3 godine dana; razdioba prema novijim datumima (kvadrat), kao stvarni katalog.
-  const start = Date.UTC(2023, 10, 1);
-  const span = Date.UTC(2026, 10, 4) - start;
-  const randomDay = (): string =>
-    new Date(start + Math.floor((1 - (1 - rnd()) ** 2) * (span / 86_400_000)) * 86_400_000)
-      .toISOString()
-      .slice(0, 10);
-
-  const channelSpecs: { slug: string; tier: 1 | 2; count: number }[] = [
-    { slug: BIG_A, tier: 1, count: 2340 },
-    { slug: BIG_B, tier: 2, count: 1100 },
-  ];
-  for (let i = 0; i < 6; i++) channelSpecs.push({ slug: `synth-mid-${i}`, tier: i % 2 === 0 ? 1 : 2, count: 80 });
-  for (let i = 0; i < 320; i++) {
-    channelSpecs.push({ slug: `synth-small-${String(i).padStart(3, "0")}`, tier: 2, count: 1 + (i % 2) });
-  }
-
-  const episodes: EpisodeRow[] = [];
-  const row = (id: string, slug: string | null, tier: 1 | 2, date: string | null, variantOf: string | null) => {
-    episodes.push({
-      id,
-      channelSlug: slug,
-      title: `Sintetička ${id}`,
-      titleHr: null,
-      publishedDate: date,
-      durationSeconds: Math.round(rnd() * 7200 * 1000) / 1000,
-      tier,
-      lang: "hr",
-      magisteriumScore: null,
-      flags: 0,
-      variantOf,
-    });
-  };
-  for (const c of channelSpecs) {
-    for (let i = 0; i < c.count; i++) {
-      // Svaka 12. epizoda velikih kanala pada na vrući dan (≈ 290), ostale razasute.
-      const hot = c.count >= 1000 && i % 12 === 0;
-      row(newId(), c.slug, c.tier, hot ? HOT_DAY : randomDay(), null);
-    }
-  }
-  for (let i = 0; i < 140; i++) row(newId(), null, 2, i % 10 === 0 ? HOT_DAY : randomDay(), null);
-  for (let i = 0; i < 30; i++) row(newId(), pick([BIG_A, BIG_B, null]), 2, null, null);
-  // Parovi koji se razlikuju samo veličinom slova (BINARY: 'A' < 'a').
-  for (let i = 0; i < 10; i++) {
-    const base = `case${String(i).padStart(2, "0")}xyz`;
-    for (const id of [`${base}Q`, `${base}q`, `${base.toUpperCase()}q`]) {
-      used.add(id);
-      row(id, BIG_A, 1, HOT_DAY, null);
-    }
-  }
-  // Varijante: uz osnovnu epizodu (isti kanal i dan), pola na vrućem danu.
-  const bases = episodes.filter((e) => e.publishedDate !== null && e.channelSlug !== null);
-  const hotBases = bases.filter((e) => e.publishedDate === HOT_DAY);
-  for (let i = 0; i < 400; i++) {
-    const base = i % 2 === 0 ? pick(hotBases) : pick(bases);
-    let n = 1;
-    while (used.has(`${base.id.slice(0, 9)}_${n}`)) n++;
-    const id = `${base.id.slice(0, 9)}_${n}`;
-    used.add(id);
-    row(id, base.channelSlug, base.tier, base.publishedDate, base.id);
-  }
-  const synthetic = episodes.slice(0, 5000);
-  expect(synthetic).toHaveLength(5000);
-
-  // Kanali: brojevi i datum iz istih redaka, kao plan (bez varijanti, odluka 302).
-  const channels: ChannelRow[] = channelSpecs.map((c) => {
-    const own = synthetic.filter((e) => e.channelSlug === c.slug && e.variantOf === null);
-    const dates = own.map((e) => e.publishedDate).filter((d): d is string => d !== null);
-    return {
-      slug: c.slug,
-      youtubeChannelId: null,
-      name: `Sintetički ${c.slug}`,
-      tier: c.tier,
-      lang: "hr",
-      avatar: null,
-      processedCount: dates.length,
-      latestPublishedDate: dates.length === 0 ? null : dates.reduce((m, d) => (d > m ? d : m)),
-      unregistered: false,
-    };
+  const synth = synthesizeS3({
+    episodes: S3_EPISODES,
+    seed: S3_SEED,
+    reservedIds: plan.episodes.map((e) => e.id),
   });
+  expect(synth.episodes).toHaveLength(5000);
+  expect(synth.channels).toHaveLength(328);
   return {
-    plan: { ...plan, channels: [...plan.channels, ...channels], episodes: [...plan.episodes, ...synthetic] },
-    episodes: synthetic,
+    plan: {
+      ...plan,
+      channels: [...plan.channels, ...synth.channels],
+      episodes: [...plan.episodes, ...synth.episodes],
+    },
+    episodes: synth.episodes,
   };
 }
 
