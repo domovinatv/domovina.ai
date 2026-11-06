@@ -24,6 +24,7 @@
     "portal:build": "astro build --root portal",
     "portal:check": "astro check --root portal",
     "portal:preview": "tsx portal/dev/preview.ts",
+    "portal:release-check": "tsx portal/dev/release-check.ts",
     "e2e": "playwright test -c portal/playwright.config.ts",
     "lighthouse": "tsx portal/dev/lighthouse.ts"
   },

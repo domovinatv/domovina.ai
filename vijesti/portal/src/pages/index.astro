@@ -7,12 +7,14 @@ import { categoryLabel } from '../lib/categories.js';
 import { hrDateTime, zagrebDay } from '../lib/format.js';
 import { groupByCategory, latestArticles, type ArticleCard } from '../lib/public-data.js';
 import { portalConfig, publicRest } from '../lib/runtime.js';
+import { canonicalUrl, SITE_DESCRIPTION } from '../lib/seo.js';
 import { articlePath, categoryPath } from '../lib/urls.js';
 
 const base = import.meta.env.BASE_URL;
+const cfg = portalConfig();
 let list: ArticleCard[] | null = null;
 try {
-  list = await latestArticles(publicRest(portalConfig()), 30);
+  list = await latestArticles(publicRest(cfg), 30);
   Astro.response.headers.set('Cache-Control', CACHE_LIST);
 } catch (e) {
   console.error('[vijesti] naslovnica:', e);
@@ -22,7 +24,7 @@ try {
 const [top, ...rest] = list ?? [];
 const groups = groupByCategory(rest);
 ---
-<Base title="Vijesti" description="Vijesti iz hrvatskih podcasta: doslovni citati uz snimku, uz pregled urednika.">
+<Base title="Vijesti" description={SITE_DESCRIPTION} canonical={canonicalUrl(cfg.siteBase, base)} noindex={list === null}>
   {list === null && <p class="notice" data-testid="load-error">Vijesti trenutno nisu dostupne. Pokušaj ponovno za minutu.</p>}
   {list !== null && list.length === 0 && <p class="empty" data-testid="empty">Još nema objavljenih vijesti.</p>}
   {

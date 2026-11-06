@@ -29,6 +29,8 @@ export class RestError extends Error {
 
 /** Vrijednost filtera: `eq.x`. */
 export const eq = (v: string | number): string => `eq.${String(v)}`;
+/** Vrijednost filtera: `gte.x`. */
+export const gte = (v: string | number): string => `gte.${String(v)}`;
 /** `in.("a","b")` (navodnici: vrijednost smije imati zarez). */
 export const inList = (vs: readonly (string | number)[]): string =>
   `in.(${vs.map((v) => `"${String(v).replace(/["\\]/g, '\\$&')}"`).join(',')})`;

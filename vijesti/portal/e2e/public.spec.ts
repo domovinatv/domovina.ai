@@ -94,7 +94,8 @@ test.describe('članak', () => {
     await expect(source.getByTestId('episode-date')).toHaveAttribute('datetime', /^\d{4}-\d{2}-\d{2}$/);
     await expect(page.getByTestId('ai-label')).toContainText('umjetna inteligencija');
     await expect(page.getByTestId('corrections')).toHaveCount(0);
-    await expect(page.locator('meta[name=robots]')).toHaveCount(0);
+    // Indeksira se (odluka 700): robots bez noindex, uz veliki pregled slike za Discover.
+    await expect(page.locator('meta[name=robots]')).toHaveAttribute('content', 'index, follow, max-image-preview:large');
 
     // Ikona je pod /vijesti (inače preglednik traži /favicon.ico s korijena).
     await expect(page.locator('link[rel=icon]')).toHaveAttribute('href', '/vijesti/favicon.png');

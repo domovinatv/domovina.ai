@@ -1,0 +1,24 @@
+---
+// Vrijednost iz pravne konfiguracije (odluka 710). Prazno polje se NE skriva:
+// vidljiv rezervirani tekst „upisuje izdavač”, a `npm run portal:release-check`
+// ruši objavu dok takvo polje postoji.
+import type { LegalConfig } from '../lib/config.js';
+
+interface Props {
+  legal: LegalConfig;
+  field: keyof LegalConfig;
+  /** Prikaz kao poveznica e-pošte. */
+  mail?: boolean;
+}
+const { legal, field, mail = false } = Astro.props;
+const value = legal[field];
+---
+{
+  value === null ? (
+    <span class="placeholder" data-testid="legal-placeholder" data-field={field}>[upisuje izdavač]</span>
+  ) : mail ? (
+    <a href={`mailto:${value}`} data-testid={`legal-${field}`}>{value}</a>
+  ) : (
+    <span data-testid={`legal-${field}`}>{value}</span>
+  )
+}

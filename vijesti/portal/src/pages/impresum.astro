@@ -1,0 +1,64 @@
+---
+// Impresum elektroničke publikacije (odluka 710). Nakladnik, sjedište, glavni
+// urednik, kontakt i upis kod AEM-a dolaze iz konfiguracije (wrangler `vars`);
+// prazno polje je vidljivo „[upisuje izdavač]”.
+import LegalValue from '../components/LegalValue.astro';
+import Base from '../layouts/Base.astro';
+import { CACHE_LEGAL } from '../lib/legal-page.js';
+import { portalConfig } from '../lib/runtime.js';
+import { canonicalUrl, PUBLICATION_NAME } from '../lib/seo.js';
+import { portalPath } from '../lib/urls.js';
+
+const base = import.meta.env.BASE_URL;
+const cfg = portalConfig();
+const legal = cfg.legal;
+Astro.response.headers.set('Cache-Control', CACHE_LEGAL);
+---
+<Base
+  title="Impresum"
+  description="Impresum portala DOMOVINA.ai Vijesti: nakladnik, glavni urednik i kontakt."
+  nav={false}
+  canonical={canonicalUrl(cfg.siteBase, base, 'impresum')}
+>
+  <article class="article legal" data-testid="legal-page" data-page="impresum">
+    <h1>Impresum</h1>
+    <dl>
+      <dt>Naziv publikacije</dt>
+      <dd>{PUBLICATION_NAME}</dd>
+      <dt>Adresa</dt>
+      <dd>{canonicalUrl(cfg.siteBase, base)}</dd>
+      <dt>Nakladnik</dt>
+      <dd><LegalValue legal={legal} field="publisherName" /></dd>
+      <dt>Sjedište nakladnika</dt>
+      <dd><LegalValue legal={legal} field="publisherAddress" /></dd>
+      <dt>Glavni urednik</dt>
+      <dd><LegalValue legal={legal} field="editorInChief" /></dd>
+      <dt>Kontakt uredništva</dt>
+      <dd><LegalValue legal={legal} field="contactEmail" mail /></dd>
+      <dt>Upis u Upisnik pružatelja elektroničkih publikacija (Agencija za elektroničke medije)</dt>
+      <dd><LegalValue legal={legal} field="aemRegistration" /></dd>
+    </dl>
+
+    <h2>Kako nastaju tekstovi</h2>
+    <p>
+      Tekstove na ovom portalu piše umjetna inteligencija iz snimki razgovora u podcastima. Citati su doslovni i
+      provjereni prema prijepisu snimke, a svaki tekst prije objave pregleda i odobri urednik. Za objavljeni tekst
+      odgovara uredništvo. Postupak je opisan na stranici
+      <a href={portalPath(base, 'kako-nastaju-clanci')}>Kako nastaju članci</a>.
+    </p>
+
+    <h2>Ispravci i zahtjevi</h2>
+    <p>
+      Ako u tekstu pronađeš pogrešku, piši na <LegalValue legal={legal} field="contactEmail" mail />. Kako
+      ispravljamo i povlačimo tekstove, piše na stranici
+      <a href={portalPath(base, 'ispravci')}>Ispravci i povlačenje</a>.
+    </p>
+
+    <h2>Snimke i citati</h2>
+    <p>
+      Prava na snimke pripadaju njihovim autorima. Portal prenosi kratke doslovne citate radi izvještavanja, uz
+      ime govornika, naziv emisije i poveznicu na izvornu snimku. Objavljuju se samo tekstovi iz emisija s
+      popisa kanala koje je uredništvo odobrilo.
+    </p>
+  </article>
+</Base>

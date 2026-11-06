@@ -2,6 +2,8 @@
 // Zajednički okvir javnih stranica i admina: bez JS-a, tema iz sustava.
 import '../styles/global.css';
 import { CATEGORY_LABELS, CATEGORY_SLUGS } from '../lib/categories.js';
+import { portalConfig } from '../lib/runtime.js';
+import { absoluteUrl, fallbackOgImageUrl, jsonLdText, LEGAL_PAGES, PUBLICATION_NAME } from '../lib/seo.js';
 import { categoryPath, portalPath } from '../lib/urls.js';
 
 interface Props {
@@ -11,10 +13,34 @@ interface Props {
   category?: string | null;
   noindex?: boolean;
   nav?: boolean;
+  /** Apsolutni canonical (odluka 700); samo za stranice koje se indeksiraju. */
+  canonical?: string | undefined;
+  /** OG/Twitter slika; zadano slika naslovnice aplikacije. */
+  image?: string | undefined;
+  ogType?: 'website' | 'article';
+  publishedTime?: string | null | undefined;
+  modifiedTime?: string | null | undefined;
+  /** Strukturirani podaci (JSON-LD), npr. NewsArticle. */
+  jsonLd?: unknown;
 }
-const { title, description, category = null, noindex = false, nav = true } = Astro.props;
+const {
+  title,
+  description,
+  category = null,
+  noindex = false,
+  nav = true,
+  canonical,
+  image,
+  ogType = 'website',
+  publishedTime,
+  modifiedTime,
+  jsonLd,
+} = Astro.props;
 const base = import.meta.env.BASE_URL;
+const cfg = portalConfig();
 const fullTitle = title === 'Vijesti' ? 'Vijesti | DOMOVINA.ai' : `${title} | DOMOVINA.ai Vijesti`;
+const ogImage = image ?? fallbackOgImageUrl(cfg.siteBase);
+const rssUrl = absoluteUrl(cfg.siteBase, portalPath(base, 'rss.xml'));
 ---
 <!doctype html>
 <html lang="hr">
@@ -23,7 +49,29 @@ const fullTitle = title === 'Vijesti' ? 'Vijesti | DOMOVINA.ai' : `${title} | DO
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{fullTitle}</title>
     {description && <meta name="description" content={description} />}
-    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    {noindex ? <meta name="robots" content="noindex, nofollow" /> : <meta name="robots" content="index, follow, max-image-preview:large" />}
+    {!noindex && canonical && <link rel="canonical" href={canonical} />}
+    {
+      !noindex && (
+        <>
+          <meta property="og:site_name" content={PUBLICATION_NAME} />
+          <meta property="og:locale" content="hr_HR" />
+          <meta property="og:type" content={ogType} />
+          <meta property="og:title" content={title === 'Vijesti' ? PUBLICATION_NAME : title} />
+          {description && <meta property="og:description" content={description} />}
+          {canonical && <meta property="og:url" content={canonical} />}
+          <meta property="og:image" content={ogImage} />
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:title" content={title === 'Vijesti' ? PUBLICATION_NAME : title} />
+          {description && <meta name="twitter:description" content={description} />}
+          <meta name="twitter:image" content={ogImage} />
+          {publishedTime && <meta property="article:published_time" content={publishedTime} />}
+          {modifiedTime && <meta property="article:modified_time" content={modifiedTime} />}
+          <link rel="alternate" type="application/rss+xml" title={PUBLICATION_NAME} href={rssUrl} />
+        </>
+      )
+    }
+    {jsonLd !== undefined && <script type="application/ld+json" set:html={jsonLdText(jsonLd)} />}
     <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content="#faf7f2" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#111318" media="(prefers-color-scheme: dark)" />
@@ -70,7 +118,17 @@ const fullTitle = title === 'Vijesti' ? 'Vijesti | DOMOVINA.ai' : `${title} | DO
           iz snimke, citati su doslovni i provjereni prema snimci, a svaki članak prije objave pregleda i odobri
           urednik.
         </p>
-        <p><a href="https://domovina.ai/">Otvori DOMOVINA.ai</a></p>
+        <nav class="footer-links" aria-label="O portalu">
+          <ul>
+            {LEGAL_PAGES.map((p) => (
+              <li>
+                <a href={portalPath(base, p.slug)} data-testid={`footer-${p.slug}`}>{p.title}</a>
+              </li>
+            ))}
+            <li><a href={portalPath(base, 'rss.xml')} data-testid="footer-rss">RSS</a></li>
+            <li><a href="https://domovina.ai/">Otvori DOMOVINA.ai</a></li>
+          </ul>
+        </nav>
       </div>
     </footer>
   </body>

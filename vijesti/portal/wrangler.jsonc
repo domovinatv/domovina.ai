@@ -5,6 +5,17 @@
   "name": "domovina-vijesti",
   "compatibility_date": "2026-10-01",
   "compatibility_flags": ["nodejs_compat"],
+  // Produkcija (odluka 710). Prazno = „[upisuje izdavač]” u impresumu, a
+  // `npm run portal:release-check` (i build uz VIJESTI_RELEASE=1) pada dok je
+  // ijedno prazno. Anon ključ je javan (Supabase `apikey`), nije tajna.
+  "vars": {
+    "VIJESTI_ANON_KEY": "",
+    "VIJESTI_PUBLISHER_NAME": "",
+    "VIJESTI_PUBLISHER_ADDRESS": "",
+    "VIJESTI_EDITOR_IN_CHIEF": "",
+    "VIJESTI_CONTACT_EMAIL": "",
+    "VIJESTI_AEM_REGISTRATION": ""
+  },
   "env": {
     "local": {
       "vars": {

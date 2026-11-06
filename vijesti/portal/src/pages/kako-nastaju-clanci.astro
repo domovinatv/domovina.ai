@@ -1,0 +1,82 @@
+---
+// „Kako nastaju članci” (odluka 711): opis stvarnog toka enginea (odluke
+// 201–212, 306–310, 409–433, 506–515). Mijenja li se tok, mijenja se i ova stranica.
+import LegalValue from '../components/LegalValue.astro';
+import Base from '../layouts/Base.astro';
+import { CACHE_LEGAL } from '../lib/legal-page.js';
+import { portalConfig } from '../lib/runtime.js';
+import { canonicalUrl } from '../lib/seo.js';
+import { portalPath } from '../lib/urls.js';
+
+const base = import.meta.env.BASE_URL;
+const cfg = portalConfig();
+Astro.response.headers.set('Cache-Control', CACHE_LEGAL);
+---
+<Base
+  title="Kako nastaju članci"
+  description="Od razgovora u podcastu do objavljene vijesti: izdvajanje citata, provjera prema snimci, AI nacrt i urednički pregled."
+  nav={false}
+  canonical={canonicalUrl(cfg.siteBase, base, 'kako-nastaju-clanci')}
+>
+  <article class="article legal" data-testid="legal-page" data-page="kako-nastaju-clanci">
+    <h1>Kako nastaju članci</h1>
+    <p class="lead">
+      Svaki članak nastaje iz jednog razgovora u podcastu. Tekst piše umjetna inteligencija, citate stroj
+      provjerava prema snimci, a objavu odobrava urednik.
+    </p>
+
+    <h2>1. Izvor: razgovor koji je DOMOVINA.ai već obradila</h2>
+    <p>
+      Polazimo od epizoda koje aplikacija DOMOVINA.ai već nudi: uz snimku postoji prijepis s oznakom govornika
+      i, gdje ga ima, vremenom svake izgovorene riječi. Portal te podatke samo čita. Objavljuju se samo tekstovi
+      iz emisija s popisa kanala koje je uredništvo odobrilo.
+    </p>
+
+    <h2>2. Izdvojeni trenuci i provjera citata</h2>
+    <p>
+      Jezični model (trenutačno Google Gemini) prolazi razgovor dio po dio i predlaže izjave vrijedne vijesti, s
+      doslovnim citatom i govornikom. Svaki se citat zatim strojno uspoređuje s prijepisom na mjestu na kojem je
+      izgovoren. Citat se odbacuje ako se riječi ne podudaraju, ako ga je izgovorio drugi govornik, ako je
+      izvan tog dijela snimke, ako je prekratak ili ako je odrezan tik uz niječnicu („ne”, „nije”), pa bi mu se
+      promijenilo značenje. Jedina dopuštena razlika su glasovi oklijevanja poput „hm” i „eh”. Vrijeme citata
+      uzima se iz prijepisa, nikad od modela.
+    </p>
+
+    <h2>3. Ocjena</h2>
+    <p>
+      Prihvaćene izjave dobivaju ocjenu: koliko su nove u odnosu na ranije epizode iste emisije, koliko su
+      konkretne (brojke, datumi, imena, najave i odluke) i tko ih govori. Ocjenu računa formula iz procjene
+      modela i strojno prebrojenih obilježja. Razgovor bez izjave iznad praga ocjene nema članka.
+    </p>
+
+    <h2>4. Nacrt</h2>
+    <p>
+      Iz najbolje ocijenjenih izjava model piše nacrt vijesti u trećem licu, s naslovom, uvodom i kategorijom
+      iz zatvorenog popisa. Citat u nacrtu nije tekst modela nego poveznica na provjereni izdvojeni trenutak:
+      riječi, govornik i vrijeme uvijek dolaze iz prijepisa. Uz citat u članku stoji isječak snimke i vrijeme u
+      razgovoru, pa ga svatko može poslušati.
+    </p>
+
+    <h2>5. Strojna provjera nacrta</h2>
+    <p>
+      Svaka rečenica nacrta provjerava se prema izdvojenim izjavama. Rečenica s tekstom u navodnicima koji nije
+      doslovan citat automatski se briše. Rečenice za koje provjera ne nađe potporu, s imenom kojega nema u
+      izvoru ili s drukčijim brojem ostaju u nacrtu, ali označene, da ih urednik vidi.
+    </p>
+
+    <h2>6. Urednik</h2>
+    <p>
+      Urednik čita nacrt, mijenja ga po potrebi i za svaku označenu rečenicu odlučuje što s njom. Dok sve
+      označene rečenice nisu razriješene, članak se ne može odobriti. Svaka izmjena je nova verzija koja
+      ponovno prolazi strojnu provjeru. Objavljuje se točno ona verzija koju je urednik odobrio, a za
+      objavljeni tekst odgovara uredništvo.
+    </p>
+
+    <h2>7. Nakon objave</h2>
+    <p>
+      Ispravke objavljujemo na istoj adresi, s datumom i opisom onoga što je ispravljeno. Kako to radimo, piše
+      na stranici <a href={portalPath(base, 'ispravci')}>Ispravci i povlačenje</a>. Pogrešku možeš prijaviti na
+      <LegalValue legal={cfg.legal} field="contactEmail" mail />.
+    </p>
+  </article>
+</Base>

@@ -938,3 +938,81 @@ paralelni worktreeji ne sudare. Odluka se ne briše: zamijeni je novom koja je p
 617. **Portal ima vlastitu ikonu** `/vijesti/favicon.png` (kopija `web/favicon.png`) i
      `<link rel="icon">`: bez nje preglednik traži `/favicon.ico` s korijena, a 404 u konzoli je
      Lighthouseu best practices 96.
+
+## S7 (2026-11-06)
+
+700. **Canonical i robots.** Canonical je apsolutan iz `VIJESTI_SITE_BASE` (zadano
+     `https://domovina.ai`), ne iz `Astro.url`: iza service bindinga glavnog workera host
+     zahtjeva nije nužno javna domena. Stavlja se samo na stranice koje se indeksiraju
+     (naslovnica, kategorija, objavljen članak, pravne stranice), bez upita i bez kose crte na
+     kraju osim naslovnice. Indeksirane stranice nose `robots: index, follow,
+     max-image-preview:large` (Discover bez velike slike ne prikazuje karticu); povučen članak,
+     404, 503, admin i nepoznata kategorija nose `noindex` i nemaju ni canonical ni OG.
+     Test: `portal/e2e/seo.spec.ts`, `public.spec.ts` (robots na članku).
+701. **`NewsArticle` JSON-LD: autor je redakcija, ne osoba.** `author` je `Organization`
+     „Uredništvo DOMOVINA.ai Vijesti” s poveznicom na impresum: tekst piše model, odgovara
+     redakcija (glavni urednik), pa bi izmišljena osoba kao autor bila obmana čitatelja i
+     Googlea. `publisher` je DOMOVINA.ai s logom `/icons/Icon-512.png` (postoji na korijenu,
+     isti kao u JSON-LD-u glavnog workera). `isBasedOn` je `PodcastEpisode` s URL-om epizode u
+     aplikaciji i kanalom kao `PodcastSeries`; ispravci idu kao `correction`
+     (`CorrectionComment`). Povučen članak nema JSON-LD. Tekst ide kroz `jsonLdText`
+     (`<` → `<`), da naslov ne može zatvoriti `<script>`. Test: `portal/src/lib/seo.test.ts`,
+     `seo.spec.ts` (JSON-LD se parsira i odgovara naslovu).
+702. **`dateModified` je zadnji ispravak, inače objava** (povlačenje se ne broji). Nije
+     `articles.updated_at`: on se mijenja i kad engine ili urednik dodaju verziju koju čitatelj
+     još ne vidi. Isti datum je `lastmod` u sitemapu i `article:modified_time`.
+     Test: `seo.test.ts`, `portal/dev/seo-data.test.ts` (lastmod ispravljenog = ispravak).
+703. **`/vijesti/sitemap.xml`:** naslovnica, deset kategorija, pravne stranice i svi
+     `published`/`corrected` članci; povučeni nikad (sitemap i `noindex` bi si proturječili).
+     PostgREST se čita stranicu po stranicu (`selectAll`, 1000 redaka = Supabase `max-rows`), uz
+     gornju granicu od 50 000 URL-ova po datoteci; sitemap index nije napravljen (revizija kad
+     članaka bude više od ~45 000). Test: `seo-data.test.ts`, `seo.spec.ts`.
+704. **`/vijesti/news-sitemap.xml` (Google News):** članci s `published_at` u zadnjih 48 h
+     (datum prve objave: ispravak ne vraća stari članak u News), najviše 1000, ime publikacije
+     „DOMOVINA.ai Vijesti”, jezik `hr`. Ime mora odgovarati onome u Google Publisher Centeru kad
+     se publikacija prijavi. Test: `seo.test.ts` (prozor 48 h), `seo-data.test.ts`, `seo.spec.ts`.
+705. **`/vijesti/rss.xml` (RSS 2.0):** 30 najnovijih objavljenih, `description` je lead, ne
+     cijeli tekst: čitač feeda bi inače prikazivao AI članak bez oznake, citata uz snimku i
+     dnevnika ispravaka. `guid` je URL članka (stabilan, odluka 720), `atom:link rel=self`.
+     XML rute imaju isti cache kao popisi (608) i 503 `no-store` na grešku baze.
+706. **OG slika je postojeći `images/<id>/og-share.jpg` epizode**, provjeren HEAD-om (1,5 s,
+     paralelno s `episode.json`), inače `/og-image.png` aplikacije; isti redoslijed kao glavni
+     worker za `/v/<id>`, bez sekcijskih `og-t-*` (članak nema jednu sekciju). Cijena: jedan
+     dodatni zahtjev po renderu, koji rubni cache (608) skriva. Vlastite OG slike portala nisu
+     napravljene. Test: `seo.spec.ts` (lažni CDN nema sliku → zamjenska, nikad prazno).
+707. **Portal ne servira `/vijesti/robots.txt`:** pretraživači čitaju samo `/robots.txt` s
+     korijena domene (`web/robots.txt`, glavni worker). Tamo idu dva retka koja dodaje
+     orkestrator: `Sitemap: https://domovina.ai/vijesti/sitemap.xml` i
+     `Sitemap: https://domovina.ai/vijesti/news-sitemap.xml`. `/vijesti/admin` se ne zabranjuje
+     (`Disallow` bi sakrio `X-Robots-Tag: noindex` koji ga već drži izvan indeksa).
+710. **Podaci izdavača su konfiguracija, a prazno polje se vidi i ruši objavu.** Nakladnik,
+     sjedište, glavni urednik, e-pošta za ispravke i kreatore te upis kod AEM-a su wrangler
+     `vars` (`VIJESTI_PUBLISHER_NAME`, `…_ADDRESS`, `VIJESTI_EDITOR_IN_CHIEF`,
+     `VIJESTI_CONTACT_EMAIL`, `VIJESTI_AEM_REGISTRATION`), u `wrangler.jsonc` prazni dok ih
+     korisnik ne upiše (S7 vrata). Stranica prazno polje prikazuje kao „[upisuje izdavač]”
+     (`LegalValue`), nikad ga ne skriva. Tri ograde: (a) produkcijski build nakon gradnje
+     provjeri izlazni `dist/server/wrangler.json` i ispiše popis koji nedostaje, (b) uz
+     `VIJESTI_RELEASE=1` build pada, (c) `npm run portal:release-check` pada (exit 1) dok
+     ijedno polje ili `VIJESTI_ANON_KEY` nedostaje. `npm run check` namjerno samo upozorava, inače
+     ne bi bio zelen prije korisnikovog upisa. Lokalni build (`CLOUDFLARE_ENV=local`) se ne
+     provjerava. Test: `portal/test/release-check.test.ts`, `portal/test/build.test.ts`
+     (produkcijski izlaz ima prazan impresum i provjera ga vidi; `VIJESTI_RELEASE=1` ruši build),
+     `portal/e2e/legal.spec.ts` (pet polja kao rezervirani tekst).
+711. **„Kako nastaju članci” opisuje stvarni tok enginea**, bez koraka kojih nema: izvor je već
+     obrađena epizoda (prijepis s govornicima i vremenom riječi), samo kanali s popisa
+     dopuštenih (512); izdvajanje i strojna provjera citata (jedina dopuštena razlika su glasovi
+     oklijevanja, 210; govornik, prozor, prekratak citat, niječnica, 205/211; vrijeme iz
+     prijepisa, 206); ocjena (novost u odnosu na kanal, konkretnost, govornik; formula, prag,
+     306–310, 409); nacrt s citatom kao referencom na trenutak (417); provjera nacrta (briše samo
+     ne-doslovan tekst u navodnicima, ostalo označi, 423); urednik razrješava označene rečenice
+     i odobrava verziju (506). Model je imenovan („trenutačno Google Gemini”, 300) jer čitatelj
+     ima pravo znati tko piše. Prag i formula nisu brojkama na stranici: prag je privremen (315).
+     Promjena tih odluka mijenja i ovu stranicu (komentar u izvoru stranice).
+712. **Politika ispravaka opisuje ono što portal već radi:** ispravak na istoj adresi, oznaka
+     „ispravljeno”, dnevnik s datumom, vrstom i opisom koji se ne briše (514); povlačenje =
+     obavijest s datumom i razlogom bez teksta, izvan popisa, RSS-a i sitemapa, `noindex` (515,
+     610, 703). Kreator koji želi van: kanal se miče s popisa dopuštenih (`disallow_channel`),
+     pa objava iz njega više nije moguća (512); već objavljene članke uredništvo pregleda i po
+     potrebi povuče (ručno, nema automatskog povlačenja). Pravne stranice su izvan navigacije
+     kategorija, u podnožju svake stranice i u sitemapu; pravni tekst je neutralan, obraćanje
+     čitatelju s „ti”. Test: `legal.spec.ts`.

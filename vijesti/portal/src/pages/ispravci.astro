@@ -1,0 +1,59 @@
+---
+// Politika ispravaka i povlačenja (odluka 712): opisuje kako portal stvarno
+// prikazuje ispravak (`corrected`, dnevnik na dnu članka) i povlačenje (odluka 610).
+import LegalValue from '../components/LegalValue.astro';
+import Base from '../layouts/Base.astro';
+import { CACHE_LEGAL } from '../lib/legal-page.js';
+import { portalConfig } from '../lib/runtime.js';
+import { canonicalUrl } from '../lib/seo.js';
+import { portalPath } from '../lib/urls.js';
+
+const base = import.meta.env.BASE_URL;
+const cfg = portalConfig();
+Astro.response.headers.set('Cache-Control', CACHE_LEGAL);
+---
+<Base
+  title="Ispravci i povlačenje"
+  description="Kako DOMOVINA.ai Vijesti ispravlja i povlači članke i kako prijaviti pogrešku."
+  nav={false}
+  canonical={canonicalUrl(cfg.siteBase, base, 'ispravci')}
+>
+  <article class="article legal" data-testid="legal-page" data-page="ispravci">
+    <h1>Ispravci i povlačenje</h1>
+
+    <h2>Ispravak</h2>
+    <p>
+      Kad članak sadrži pogrešku, urednik objavljuje ispravljenu verziju na istoj adresi. Adresa članka se ne
+      mijenja ni kad se ispravi naslov. Uz datum objave članak tada nosi oznaku „ispravljeno”, a na dnu članka
+      stoji popis ispravaka: datum, vrsta ispravka (citat, činjenica, pripisivanje izjave ili drugo) i opis
+      onoga što je ispravljeno. Ispravci se ne brišu i ostaju vidljivi uz članak.
+    </p>
+
+    <h2>Povlačenje</h2>
+    <p>
+      Članak koji se ne može popraviti ispravkom uredništvo povlači. Na njegovoj adresi tada stoji obavijest
+      „Članak je povučen” s datumom i razlogom povlačenja, bez teksta članka. Povučen članak više nije na
+      naslovnici, u kategorijama, u RSS-u ni u kartama weba za tražilice, i tražilicama je označen da ga ne
+      indeksiraju.
+    </p>
+
+    <h2>Prijava pogreške</h2>
+    <p>
+      Pogrešku u citatu, činjenici ili imenu prijavi na <LegalValue legal={cfg.legal} field="contactEmail" mail />.
+      Navedi adresu članka i što misliš da nije točno. Svaki citat u članku ima vrijeme u razgovoru i poveznicu
+      na snimku, pa ga možeš provjeriti i sam.
+    </p>
+
+    <h2>Za autore podcasta</h2>
+    <p>
+      Ako si autor ili vlasnik emisije i ne želiš da portal piše o tvojim razgovorima, javi se na
+      <LegalValue legal={cfg.legal} field="contactEmail" mail />. Kanal uklanjamo s popisa dopuštenih, pa se iz
+      njega više ne može objaviti nijedan članak. Već objavljene članke iz te emisije uredništvo pregleda i po
+      potrebi povuče na način opisan gore.
+    </p>
+
+    <p>
+      Kako članci nastaju, piše na stranici <a href={portalPath(base, 'kako-nastaju-clanci')}>Kako nastaju članci</a>.
+    </p>
+  </article>
+</Base>

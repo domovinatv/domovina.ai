@@ -1,7 +1,8 @@
 // Čitanje javnih stranica kroz javne poglede (odluke 509, 524, 525): uvijek kao
 // `anon`, pa RLS sam skriva nacrte, starije verzije i necitirane trenutke.
 import type { ArticleContent, ContentBlock, EpisodeMeta } from '../../../engine/write/content.js';
-import { eq, inList, type FetchFn, type Rest } from './rest.js';
+import { eq, gte, inList, type FetchFn, type Rest } from './rest.js';
+import { dateModified } from './seo.js';
 import { episodeBundleUrl, pickClipMedia } from './urls.js';
 
 export interface ArticleRow {
@@ -110,6 +111,84 @@ export async function categoryArticles(rest: Rest, category: string, limit = 30)
     limit: String(limit),
   });
   return cards(rest, articles);
+}
+
+/** Stranica PostgREST-a: Supabase zadano vraća najviše 1000 redaka (`max-rows`). */
+export const REST_PAGE = 1000;
+
+/** Svi retci upita stranicu po stranicu, najviše `cap`. `order` mora biti jednoznačan. */
+export async function selectAll<T>(rest: Rest, relation: string, query: Record<string, string>, cap: number): Promise<T[]> {
+  const out: T[] = [];
+  while (out.length < cap) {
+    const limit = Math.min(REST_PAGE, cap - out.length);
+    const page = await rest.select<T>(relation, { ...query, limit: String(limit), offset: String(out.length) });
+    out.push(...page);
+    if (page.length < limit) break;
+  }
+  return out;
+}
+
+export interface SitemapArticle {
+  slug: string;
+  publishedAt: string | null;
+  /** Zadnji ispravak, inače objava (odluka 702). */
+  lastmod: string | null;
+}
+
+/**
+ * Svi objavljeni i ispravljeni članci za sitemap; povučeni nikad (odluka 703).
+ * Dva upita bez embeddinga (odluka 603): članci pa ispravci.
+ */
+export async function sitemapArticles(rest: Rest, cap: number): Promise<SitemapArticle[]> {
+  const articles = await selectAll<Pick<ArticleRow, 'id' | 'slug' | 'published_at'>>(
+    rest,
+    'articles',
+    { select: 'id,slug,published_at', status: LISTED, order: 'published_at.desc.nullslast,id.desc' },
+    cap,
+  );
+  if (articles.length === 0) return [];
+  const corrections = await selectAll<Pick<CorrectionRow, 'article_id' | 'kind' | 'created_at'>>(
+    rest,
+    'public_corrections',
+    { select: 'article_id,kind,created_at', kind: 'neq.retraction', order: 'id.asc' },
+    cap * 10,
+  );
+  const byArticle = new Map<number, { kind: string; created_at: string }[]>();
+  for (const c of corrections) {
+    const list = byArticle.get(c.article_id);
+    if (list) list.push(c);
+    else byArticle.set(c.article_id, [c]);
+  }
+  return articles.map((a) => ({
+    slug: a.slug,
+    publishedAt: a.published_at,
+    lastmod: dateModified(a.published_at, byArticle.get(a.id) ?? []),
+  }));
+}
+
+/** Članci objavljeni od `sinceIso` (news sitemap), najnoviji prvi. */
+export async function articlesSince(rest: Rest, sinceIso: string, limit: number): Promise<ArticleCard[]> {
+  const articles = await rest.select<ArticleRow>('articles', {
+    select: ARTICLE_COLS,
+    status: LISTED,
+    published_at: gte(sinceIso),
+    order: 'published_at.desc,id.desc',
+    limit: String(limit),
+  });
+  return cards(rest, articles);
+}
+
+/**
+ * Postoji li OG slika epizode (`og-share.jpg`); HEAD s prekidom, kao glavni
+ * worker za `/v/<id>`. Greška ili prekid = ne postoji (stranica uzima zamjensku).
+ */
+export async function urlExists(doFetch: FetchFn, url: string, timeoutMs = 1500): Promise<boolean> {
+  try {
+    const res = await doFetch(url, { method: 'HEAD', signal: AbortSignal.timeout(timeoutMs) });
+    return res.ok;
+  } catch {
+    return false;
+  }
 }
 
 /** Grupiranje za naslovnicu: kategorije redom prve pojave (najsvježija prva). */

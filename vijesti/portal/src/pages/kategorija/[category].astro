@@ -5,7 +5,10 @@ import { CACHE_ERROR, CACHE_LIST, CACHE_NOT_FOUND } from '../../lib/cache.js';
 import { categoryLabel, isCategory } from '../../lib/categories.js';
 import { categoryArticles, type ArticleCard } from '../../lib/public-data.js';
 import { portalConfig, publicRest } from '../../lib/runtime.js';
+import { canonicalUrl } from '../../lib/seo.js';
 
+const base = import.meta.env.BASE_URL;
+const cfg = portalConfig();
 const category = Astro.params.category ?? '';
 const known = isCategory(category);
 let list: ArticleCard[] | null = null;
@@ -14,7 +17,7 @@ if (!known) {
   Astro.response.headers.set('Cache-Control', CACHE_NOT_FOUND);
 } else {
   try {
-    list = await categoryArticles(publicRest(portalConfig()), category, 30);
+    list = await categoryArticles(publicRest(cfg), category, 30);
     Astro.response.headers.set('Cache-Control', CACHE_LIST);
   } catch (e) {
     console.error('[vijesti] kategorija:', e);
@@ -24,7 +27,13 @@ if (!known) {
 }
 const label = known ? categoryLabel(category) : 'Nepoznata kategorija';
 ---
-<Base title={label} category={known ? category : null} noindex={!known}>
+<Base
+  title={label}
+  description={known ? `${label}: vijesti iz hrvatskih podcasta s doslovnim citatima uz snimku.` : undefined}
+  category={known ? category : null}
+  noindex={!known || list === null}
+  canonical={known ? canonicalUrl(cfg.siteBase, base, 'kategorija', category) : undefined}
+>
   <h1 data-testid="category-title">{label}</h1>
   {!known && <p class="empty" data-testid="not-found">Te kategorije nema.</p>}
   {known && list === null && <p class="notice" data-testid="load-error">Vijesti trenutno nisu dostupne. Pokušaj ponovno za minutu.</p>}

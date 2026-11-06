@@ -7,8 +7,16 @@ import Base from '../layouts/Base.astro';
 import { CACHE_ARTICLE, CACHE_ERROR, CACHE_NOT_FOUND } from '../lib/cache.js';
 import { categoryLabel } from '../lib/categories.js';
 import { hrDate, hrDateTime, zagrebDay } from '../lib/format.js';
-import { articleBySlug, clipMediaFile, quotedMomentIds, type ArticlePage } from '../lib/public-data.js';
+import { articleBySlug, clipMediaFile, quotedMomentIds, urlExists, type ArticlePage } from '../lib/public-data.js';
 import { portalConfig, publicRest } from '../lib/runtime.js';
+import {
+  canonicalUrl,
+  dateModified,
+  episodeOgImageUrl,
+  fallbackOgImageUrl,
+  isoTime,
+  newsArticleJsonLd,
+} from '../lib/seo.js';
 import { appEpisodeUrl, categoryPath } from '../lib/urls.js';
 
 const KIND_LABEL = {
@@ -25,10 +33,18 @@ const slug = Astro.params.slug ?? '';
 let page: ArticlePage | null = null;
 let failed = false;
 let mediaFile: string | null = null;
+let ogImage: string | undefined;
 try {
   page = await articleBySlug(publicRest(cfg), slug);
   if (page?.kind === 'published') {
-    mediaFile = await clipMediaFile((i, init) => fetch(i, init), cfg.cdnBase, page.episode.videoId);
+    const doFetch = (i: string, init?: RequestInit) => fetch(i, init);
+    const episodeImage = episodeOgImageUrl(cfg.cdnBase, page.episode.videoId);
+    const [media, hasImage] = await Promise.all([
+      clipMediaFile(doFetch, cfg.cdnBase, page.episode.videoId),
+      urlExists(doFetch, episodeImage),
+    ]);
+    mediaFile = media;
+    ogImage = hasImage ? episodeImage : fallbackOgImageUrl(cfg.siteBase);
   }
 } catch (e) {
   console.error('[vijesti] članak:', e);
@@ -45,6 +61,23 @@ if (failed) {
 }
 const firstQuote = page?.kind === 'published' ? quotedMomentIds(page.content.blocks)[0] : undefined;
 const firstMoment = page?.kind === 'published' && firstQuote !== undefined ? page.moments.get(firstQuote) : undefined;
+const canonical = page?.kind === 'published' ? canonicalUrl(cfg.siteBase, base, page.article.slug) : undefined;
+const jsonLd =
+  page?.kind === 'published' && canonical && ogImage
+    ? newsArticleJsonLd({
+        url: canonical,
+        title: page.version.title,
+        lead: page.version.lead,
+        category: page.version.category,
+        publishedAt: page.article.published_at,
+        corrections: page.corrections,
+        image: ogImage,
+        episode: page.episode,
+        siteBase: cfg.siteBase,
+        appBase: cfg.appBase,
+        impresumUrl: canonicalUrl(cfg.siteBase, base, 'impresum'),
+      })
+    : undefined;
 const title =
   page?.kind === 'published' ? page.version.title : page?.kind === 'retracted' ? 'Članak je povučen' : failed ? 'Vijesti nisu dostupne' : 'Članak nije pronađen';
 ---
@@ -53,6 +86,12 @@ const title =
   description={page?.kind === 'published' ? (page.version.lead ?? undefined) : undefined}
   category={page?.kind === 'published' ? page.version.category : null}
   noindex={page?.kind !== 'published'}
+  canonical={canonical}
+  image={ogImage}
+  ogType="article"
+  publishedTime={page?.kind === 'published' ? isoTime(page.article.published_at) : undefined}
+  modifiedTime={page?.kind === 'published' ? dateModified(page.article.published_at, page.corrections) : undefined}
+  jsonLd={jsonLd}
 >
   {failed && <p class="notice" data-testid="load-error">Članak trenutno nije dostupan. Pokušaj ponovno za minutu.</p>}
   {
