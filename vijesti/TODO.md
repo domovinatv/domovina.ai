@@ -38,10 +38,10 @@ Legenda: `[x]` gotovo · `[ ]` otvoreno · `[~]` u radu · `(!)` traži korisnik
 - [x] Stanja: nacrt → pregled → odobreno → objavljeno → ispravljeno / povučeno → S5
 - [x] Dnevnik ispravaka (javan na članku) → S5
 - [x] API za portal i admin (smještaj po pravilu iz CLAUDE.md: pisanje u bazu = Supabase) → S5 (RLS + SECURITY DEFINER `rpc`, odluka 500; na pravom Supabaseu neisprobano → S7)
-- [ ] Astro SSR na Cloudflare Workers: naslovnica, članak, kategorija → S6
-- [ ] Audio isječak uz svaki citat, „Poslušaj cijeli razgovor” → `/v/<id>/t/<sec>` → S6
-- [ ] Admin urednika iza Supabase prijave (uloga `editor`) → S6
-- [ ] Playwright e2e + Lighthouse budžet → S6
+- [x] Astro SSR na Cloudflare Workers: naslovnica, članak, kategorija → S6
+- [x] Audio isječak uz svaki citat, „Poslušaj cijeli razgovor” → `/v/<id>/t/<sec>` → S6
+- [x] Admin urednika iza Supabase prijave (uloga `editor`) → S6 (lokalna prijava u e2e; prava Supabase prijava neisprobana → S7)
+- [x] Playwright e2e + Lighthouse budžet → S6 (19 e2e; Lighthouse mobile članak 100, lokalno)
 - [ ] News sitemap (48 h), RSS, canonical, robots, `NewsArticle` JSON-LD → S7
 - [ ] `/vijesti/*` kroz `web/_worker.js` (service binding) + `scripts/test-social-tags.mjs` → S7
 - [ ] Impresum, stranica „Kako nastaju članci” (AI + urednik), politika ispravaka → S7

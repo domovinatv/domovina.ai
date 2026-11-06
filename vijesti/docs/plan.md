@@ -121,4 +121,5 @@ S3 (2026-11-06, djelomično): ocjena vijesti, Vertex backend — `661ddc6`, 214 
 S4 prvi dio (2026-11-06): `agy` backend, `npm run eval`, izvještaj — `80e0402`, 240 testova.
 S4 drugi dio (2026-11-06): format „vijest”, verify, verzije, nacrti — `2ef1db4`, 257 testova, odluke 413–435.
 S5 (2026-11-06): urednički tok, ispravci, RLS i `rpc` funkcije u migraciji 006 — `ea8a472`, 286 testova, odluke 500–528.
-Sljedeće: S6 (portal i admin).
+S6 (2026-11-06): Astro portal, admin, lokalni PostgREST-shim, e2e 19/19, Lighthouse članak 100 — `5f844f6`, 311 testova, odluke 600–617.
+Sljedeće: S7 (distribucija, pravni sloj, Preview; vrata).
