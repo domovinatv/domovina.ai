@@ -18,7 +18,7 @@ import type { z } from 'zod';
 import { estimateTokens } from './estimate.js';
 import { toGeminiSchema } from './gemini.js';
 import type { RunRecorder } from './runs.js';
-import { LlmResponseError, LlmSchemaError, type GenerateRequest, type LlmClient } from './types.js';
+import { LlmSchemaError, LlmTimeoutError, type GenerateRequest, type LlmClient } from './types.js';
 import { parseLlmJson } from './validate.js';
 
 /** Model kao u pipelineu (`AGY_MODEL` u `fetch.domovina.tv/lib/agy_tmux.js`). */
@@ -89,7 +89,7 @@ export interface AgyClientOptions {
 }
 
 /** Nema izlazne datoteke do roka. Kod agyja to uključuje i ODBIJEN upit (nema `blockReason`). */
-export class AgyTimeoutError extends LlmResponseError {
+export class AgyTimeoutError extends LlmTimeoutError {
   constructor(message: string) {
     super(message);
     this.name = 'AgyTimeoutError';

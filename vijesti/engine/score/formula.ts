@@ -7,6 +7,13 @@ import { PROMPT_VERSION, type MomentScore } from './prompt.js';
 export const FORMULA_VERSION = 'f1';
 export const SCORE_VERSION = `${PROMPT_VERSION}+${FORMULA_VERSION}`;
 
+/**
+ * Prag ocjene za „vijest”: trenutak s ocjenom ≥ praga ide u članak.
+ * Privremeno, odluka 315: pravi prag određuje mjerenje F0 (`npm run eval`).
+ * Jedino mjesto u kodu s tom brojkom (odluka 409).
+ */
+export const NEWS_SCORE_THRESHOLD = 0.5;
+
 /** Novost i konkretnost nose 85 %, govornik je bonus. */
 export const WEIGHTS = { novelty: 0.45, concreteness: 0.4, speaker: 0.15 } as const;
 /** Konkretnost: sud modela i zatvoreni popisi obilježja. */

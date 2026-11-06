@@ -411,3 +411,112 @@ paralelni worktreeji ne sudare. Odluka se ne briše: zamijeni je novom koja je p
      klijentom, a ništa ne ide na Preview s pravim podacima (S7) dok korisnik nije odgovorio
      na pitanje iz mjerenja. Vertex i AI Studio ostaju u kodu kao izbor (`VIJESTI_LLM_BACKEND`).
      Revizija: kad mjerenje pokaže da je udio vijesti premali za portal.
+
+## S4 (2026-11-06)
+
+400. **Backend `agy` (`VIJESTI_LLM_BACKEND=agy`) po uzoru na `fetch.domovina.tv/lib/agy_tmux.js`.**
+     `agy -p` ne vraća odgovor, pa upit ide u datoteku `req-<pid>-<n>-<ms>.md` (odjeljci UPUTA,
+     SHEMA, ULAZ), agy u tmuxu dobije jednu rečenicu („Read the file X.md … Write ONLY the
+     resulting JSON to the file X.json”) i čeka se da X.json nastane i da mu se veličina
+     smiri (dvije provjere u 1,5 s). Prije svakog upita `/clear`; ako ekran i dalje pokazuje
+     stari upit (pipeline 29.10.: `/clear` prošao kao tekst), sesija se ubija i diže iznova.
+     Vlastita sesija `agyvij` (pipeline: `agyen`, `agyss`, `agyt`; glasovne: `agyg`), cilj
+     uvijek s `=` (točno ime, tmux inače radi prefix matching), `execFile` bez ljuske. Radni
+     direktorij `~/git/.agy-tmux/<sesija>` kao pipeline (agy pita za povjerenje, prvo pitanje
+     se potvrđuje samo). Model `gemini-3.8-flash-high` (zadano u pipelineu), u `runs.model` kao
+     `agy:<model>`; timeout 600 s. agy nema `responseJsonSchema` ni temperaturu: shema ide u
+     datoteku kao JSON Schema iz iste zod sheme, temperatura se ne prenosi. Pozivi jednog
+     klijenta su serijalizirani (red obećanja; greška ne blokira idući). Između procesa NEMA
+     brave: istodobno smije raditi samo jedan `npm run eval`. Env: `VIJESTI_AGY_SESSION`,
+     `VIJESTI_AGY_MODEL`, `VIJESTI_AGY_DIR`, `VIJESTI_AGY_TIMEOUT_SEC`. Kod: `engine/llm/agy.ts`.
+     Revizija: prvi pravi poziv (`npm run eval -- --max-calls 1`); nije isproban s pravim agyjem.
+401. **Tokeni agyja su procjena i to piše u bazi.** Ulaz = ⌈znakova datoteke upita / 3⌉
+     (uputa + shema + ulaz, odluka 305), izlaz = ⌈znakova izlazne datoteke / 3⌉, `cost_usd = 0`
+     (pretplata). `LlmCallRecord.tokensEstimated` i migracija 004 `runs.tokens_estimated
+     boolean NOT NULL DEFAULT false` (`OR` po pozivu: jedan procijenjeni poziv označi run).
+     Vertex/AI Studio zapisuju `false`. Izvještaj uz svaku takvu brojku piše „PROCJENA iz
+     znakova”. Test: „runs.tokens_estimated…”, `db/migrate.test.ts` („004…”).
+402. **Izlaz agyja ide kroz isti `parseLlmJson` + zod; ne popravlja se ništa osim omota.**
+     Skida se BOM i jedan ograđivač ```` ```json … ``` ```` oko cijelog teksta; proza oko
+     objekta se NE reže (pipelineov `parseLoose` reže `{…}`; ovdje bi to bio tihi popravak).
+     Sintaksno neispravan JSON nije „još piše”: kad stoji nepromijenjen 20 s, agy dobije kratki
+     potez da popravi SAMO sintaksu, najviše dvaput (kao pipeline, `n38M_g__TxQ` 29.10.), pa
+     `LlmSchemaError`. JSON koji se parsira ali ne prolazi shemu → `LlmSchemaError` odmah, bez
+     popravka (odluka 312). Oba slučaja su neuspio poziv.
+403. **Timeout je poziv, nepokrenuta sesija nije.** Bez izlaza do roka: Escape dvaput (da
+     zaglavljeni potez ne blokira idući), `AgyTimeoutError` (podklasa novog `LlmTimeoutError`),
+     poziv neuspio s procijenjenim ulaznim tokenima. Poruka kaže da i odbijen upit izgleda
+     ovako: agy nema `blockReason` (zamka iz `fetch.domovina.tv/docs/2026-10-28-vertex-iskljucen-agy-jedini-gemini.md`).
+     agy koji se ne digne u 60 s (prijava, nije instaliran) → `AgyStartError`, sesija ubijena,
+     upit nije poslan i ne broji se (kao token u odluci 300).
+404. **Testovi agyja nad lažnim slojem `AgyIo`** (tmux + datoteke + virtualni sat): uspjeh s
+     pitanjem povjerenja, ograđivač, timeout, ne-JSON s popravkom i bez, JSON izvan sheme,
+     dva istodobna poziva (nikad dva upita u letu, greška prvog ne blokira drugi), sesija koja
+     se ne digne, `/clear` koji ne očisti. Pravi tmux sloj se testira samo argv-om (ubrizgan
+     `exec`): `=agyvij` za sesiju, `=agyvij:` za panel. Test: `engine/llm/agy.test.ts`.
+405. **Uzorak po kanalu, deterministički** (`engine/eval/sample.ts`). Listing se slaže po
+     datumu (najnovije prvo, pa ID) i dijeli na svježu i stariju polovicu. Svježa daje
+     ⌈limit/2⌉ epizoda iz prvih 2 × toliko kandidata, starija ostatak iz 2 × toliko ravnomjerno
+     raspoređenih kandidata. Kandidat bez `diarized.srt` (po `episode.json`, inače po
+     datoteci) se odbija; među ostalima `words.json` (ili `words.<lang>.json`) ide prvi, inače
+     redoslijed listinga. Polovica bez dosta kandidata se puni iz druge. Ista epizoda u dva
+     listinga ide u prvi kanal. Obrada ide po kanalu i od starijih prema novijima, jer kontekst
+     novosti čita ranije epizode kanala iz baze (odluka 307). Bez `--fake` `--channels` je
+     obavezan (52 listinga po CDN-u nisu zadani uzorak). Test: „deterministički; words.json
+     ima prednost…”.
+406. **Izvlačenje preživi jedan timeout sekcije, ne dva zaredom.** Jedan timeout je vjerojatno
+     odbijen upit za tu sekciju: sekcija se broji kao neuspjela (kao `LlmSchemaError`, odluka
+     208), ostale se upisuju, run je `failed`. Dva zaredom (`MAX_CONSECUTIVE_TIMEOUTS`) znače
+     da agy ne odgovara i izvlačenje baca, jer bi inače svaka sekcija čekala 10 min. Ostale
+     greške (HTTP 400, mreža) i dalje bacaju odmah. Test: „jedan timeout = neuspjela sekcija…”.
+407. **Eval nastavlja gdje je stao.** Uzorak kanala se sprema (`vijesti.eval_sample`, migracija
+     004) i idući put čita iz baze, jer se svježe epizode mijenjaju svaki dan (`--resample` za
+     novi). Korak je gotov kad je ZADNJI run tog koraka, videa i verzije prompta `ok`; ocjena je
+     gotova kad nijedan prihvaćen trenutak nema ocjenu trenutne verzije. Neuspjeli runovi
+     zaredom od zadnjeg uspjeha se broje: nakon `--attempts` (zadano 2) korak se preskače
+     („odustalih”). Prekinut proces ostavi run `running`, koji se broji kao neuspjeh.
+     Djelomično izvlačenje (neuspjele sekcije) ne ide u ocjenu: idući prolaz ga ponavlja.
+     Epizoda koja se ne može pripremiti (nema titla, krivi jezik) se ne pokreće; greška u radu
+     se zapiše u log i ide se na iduću. Test: „greška jedne epizode ne ruši uzorak…”,
+     „pravi prolaz pa nastavak…”.
+408. **Procjena prije poziva i ograda `--max-calls`.** Pozivi i ulazni tokeni izvlačenja su iz
+     pravih promptova (`prepareExtract`) uz uputu i shemu; ocjena izvučene epizode iz pravog
+     prompta (`prepareScore`), neizvučene iz pretpostavke (1500 tokena konteksta + 2 trenutka
+     po sekciji × 120 tokena). Izlaz: 2000 tokena po pozivu izvlačenja, 3000 po ocjeni (uz
+     „thinking”). Trajanje: agy 60 s po pozivu (23–124 s u pipelineu 28.10.), Vertex/AI Studio
+     15 s (pretpostavka), lažni 0. Trošak: cijena backenda (agy $0) i API-ekvivalent po zadanom
+     Vertex cjeniku (odluka 304). Procjena iznad `--max-calls` → exit 3 prije ijednog poziva;
+     u radu omot `budgetedLlm` ne šalje poziv preko ograde (exit 3, ponovno pokretanje
+     nastavlja). Bez `--fake` i `--dry-run` `--max-calls` je obavezan. Primjer 6.11.2026. na
+     pravom CDN-u (samo čitanje): 5 epizoda `mreze_rijeci` → 84 poziva
+     (`npm run eval -- --channels mreze_rijeci --dry-run`, rezultat ovisi o danu). Revizija:
+     prvi agy uzorak (`sekundi` i tokeni u izvještaju) ispravlja 60 s i 2000/3000.
+409. **Prag ocjene je jedna konstanta `NEWS_SCORE_THRESHOLD = 0,5`** u `engine/score/formula.ts`,
+     s komentarom „privremeno, odluka 315”. Izvještaj ga čita odatle i piše u zaglavlje da je
+     privremen. Revizija: odgovor korisnika nakon mjerenja F0.
+410. **`npm run eval -- --fake`: 5 fixturea bez mreže.** Lažni CDN nad `engine/test/fixtures`,
+     osobe iz fixturea, kanali fixturea kao zadani (`catholic_futurist`, `domovina_tv`,
+     `iva_kraljevic`, `mreze_rijeci`), zasebna baza `.cache/eval-fake.pglite` (nikad ista kao
+     pravi uzorak). Lažni LLM je spoj lažnog izvlačenja (209) i ocjene (313) po imenu poziva,
+     s tokenima procijenjenim iz znakova i oznakom procjene, pa izvještaj prolazi istu granu
+     kao agy. Daje 40 poziva, 70 trenutaka, svi iznad praga: brojke dokazuju tok, ne kvalitetu.
+     Test: „pravi prolaz pa nastavak…” (`npm run eval -- --fake --max-calls 40`).
+411. **Izvještaj iz baze, uz svaku tablicu naredba koja je reproducira.** `npm run eval:report
+     -- [--db …] [--out file.md]` piše Markdown: uzorak, trenuci po epizodi, ishod i razlog
+     provjere citata, udio iznad praga, raspodjela ocjena, 10 najboljih i 10 najlošijih
+     trenutaka doslovno s `https://domovina.ai/v/<id>/t/<sec>`, dotok i „vijesti dnevno”, trošak
+     i trajanje. Svaka tablica ima `npm run eval:report -- --db '…' --query "<SQL>"`; `--query`
+     ide u read-only transakciji (DELETE pada). Brojke su izlaz Postgresa (decimalna točka),
+     da se poklope s `--query`. „Vijesti dnevno” = Σ po kanalu (epizoda u zadnjih 30 dana iz
+     listinga / 30) × (izvučenih epizoda uzorka s barem jednim trenutkom ≥ prag / izvučenih
+     epizoda uzorka); pretpostavka je jedna vijest po epizodi (generator S4 piše članak iz
+     trenutaka jedne epizode). Dotok se mjeri pri uzorkovanju (`vijesti.eval_channels`).
+     Trošak po epizodi: stvarni (agy $0) i API-ekvivalent, oba označena kao procjena kad su
+     tokeni procijenjeni; sekunde po pozivu iz `runs.started_at/finished_at`.
+412. **Bez ispisa napretka.** Eval ne piše ništa po pozivu (globalno pravilo o tokenima, incident
+     30.9.2026.): procjena na početku, jedan redak po obrađenoj epizodi u log (`<db>.log`, TAB:
+     vrijeme, video, kanal, ishod izvlačenja, ishod ocjene, poziva, greška) i završni sažetak.
+     Pravo pokretanje je odgođeno (odluka 315); naredbe su u `.env.example` i u komentaru
+     `engine/cli.ts`: prvo `--dry-run`, pa `VIJESTI_LLM_BACKEND=agy npm run eval -- --channels
+     mreze_rijeci,iva_kraljevic,catholic_futurist,domovina_tv --limit 5 --max-calls 500` u
+     pozadini, pa `npm run eval:report -- --out docs/research/YYYY-MM-DD-f0-mjerenje.md`.

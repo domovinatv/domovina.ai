@@ -56,3 +56,14 @@ export class LlmResponseError extends Error {
     this.name = 'LlmResponseError';
   }
 }
+
+/**
+ * Nema odgovora do roka (agy: i odbijen upit, odluka 402). Zahtjev je poslan i
+ * broji se kao neuspio poziv; izvlačenje ga tretira kao neuspjelu sekciju.
+ */
+export class LlmTimeoutError extends LlmResponseError {
+  constructor(message: string) {
+    super(message);
+    this.name = 'LlmTimeoutError';
+  }
+}

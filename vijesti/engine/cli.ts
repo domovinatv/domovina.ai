@@ -7,7 +7,22 @@
 // --lang     jezik snimke (odluka 200), inače iz episode.json / zadano hr.
 // --channel  slug kanala (inače se traži po listinzima, odluka 112).
 // --db       PGlite direktorij, zadano vijesti/.cache/vijesti.pglite.
-// Bez --fake ide pravi Gemini (Vertex ili AI Studio, vijesti/.env) i troši kvotu.
+// Bez --fake ide pravi Gemini (Vertex, AI Studio ili agy, vijesti/.env) i troši kvotu.
+//
+// Mjerenje F0 na uzorku ide kroz `npm run eval` (engine/eval/cli.ts), ne kroz
+// ovu naredbu. Pravo pokretanje je ODGOĐENO (odluka 315, korisnik kaže kad);
+// točne naredbe, iz vijesti/:
+//
+//   VIJESTI_LLM_BACKEND=agy npm run eval -- \
+//     --channels mreze_rijeci,iva_kraljevic,catholic_futurist,domovina_tv --limit 5 --dry-run
+//   VIJESTI_LLM_BACKEND=agy npm run eval -- \
+//     --channels mreze_rijeci,iva_kraljevic,catholic_futurist,domovina_tv --limit 5 --max-calls 500
+//   npm run eval:report -- --out docs/research/YYYY-MM-DD-f0-mjerenje.md
+//
+// Prvi redak ispiše procjenu (poziva, tokena, trajanja uz 60 s po agy pozivu,
+// trošak $0 i API-ekvivalent) i ne zove model. Drugi staje s exit 3 ako je
+// procjena iznad --max-calls; inače radi satima (serijski agy), pa ide u
+// pozadinu bez praćenja napretka, a ponovno pokretanje nastavlja gdje je stao.
 import { mkdir, readFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';

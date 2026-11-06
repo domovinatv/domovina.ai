@@ -3,7 +3,7 @@
 import type { SqlDb } from '../../db/sql.js';
 import type { CdnClient, LoadedEpisode } from '../cdn/loader.js';
 import type { RunRecorder } from '../llm/runs.js';
-import { LlmSchemaError, type LlmClient } from '../llm/types.js';
+import { LlmSchemaError, LlmTimeoutError, type LlmClient } from '../llm/types.js';
 import { verifyQuote, type QuoteCheck, type VerifyOptions } from '../verify/quote.js';
 import { assertTextLang, decideQuoteLang, QuoteLangError, type LangSource } from './lang.js';
 import {
@@ -22,6 +22,13 @@ export interface ExtractDeps {
   recorder: RunRecorder;
   db: SqlDb;
 }
+
+/**
+ * Toliko timeouta ZA REDOM prekida izvlačenje (odluka 406): jedan je vjerojatno
+ * odbijen upit za tu sekciju, dva znače da agy ne odgovara i daljnje čekanje
+ * (do 10 min po sekciji) ništa ne donosi.
+ */
+export const MAX_CONSECUTIVE_TIMEOUTS = 2;
 
 export interface ExtractOptions {
   videoId: string;
@@ -108,6 +115,7 @@ export async function runExtract(deps: ExtractDeps, opts: ExtractOptions): Promi
   const rows: MomentRow[] = [];
   let calls = 0;
   let failedSections = 0;
+  let timeoutsInRow = 0;
   try {
     for (const { section, prompt } of prep.prompts) {
       calls++;
@@ -124,10 +132,16 @@ export async function runExtract(deps: ExtractDeps, opts: ExtractOptions): Promi
       } catch (e) {
         if (e instanceof LlmSchemaError) {
           failedSections++;
+          timeoutsInRow = 0;
+          continue;
+        }
+        if (e instanceof LlmTimeoutError && ++timeoutsInRow < MAX_CONSECUTIVE_TIMEOUTS) {
+          failedSections++;
           continue;
         }
         throw e;
       }
+      timeoutsInRow = 0;
       for (const m of out.moments) {
         const v = verifyQuote(
           ep.cues,
