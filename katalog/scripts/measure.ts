@@ -172,7 +172,8 @@ function readStorage(file: string): { storage: Storage; targets: Targets } {
   return {
     storage: {
       file,
-      fileBytes: statSync(file).size,
+      // WAL drži nepreneseni dio dok ga workerd ne checkpointa, pa se broji i on.
+      fileBytes: statSync(file).size + (existsSync(`${file}-wal`) ? statSync(`${file}-wal`).size : 0),
       pageSize,
       pageCount,
       freelistCount,
@@ -251,8 +252,11 @@ function stats(xs: readonly number[]): Stats {
   };
 }
 
+// `--persist-to` čuva i Cache API na disku, pa bi drugo pokretanje nad istom bazom
+// (ista verzija kataloga) s istim imenima hostova dobilo HIT. Zato oznaka pokretanja.
+const RUN = Date.now().toString(36);
 let hostSeq = 0;
-const missHost = (): string => `m${++hostSeq}.measure.test`;
+const missHost = (): string => `m${++hostSeq}-${RUN}.measure.test`;
 
 interface Timing {
   readonly miss: Stats;
@@ -271,7 +275,7 @@ async function timing(port: number, path: string, reps: number): Promise<Timing>
     miss.push(g.ms);
   }
   // Zagrijavanje: upis u cache ide kroz waitUntil, pa se ponavlja do prvog hita.
-  const host = `hit${++hostSeq}.measure.test`;
+  const host = `hit${++hostSeq}-${RUN}.measure.test`;
   let warm = await get(port, path, host);
   for (let i = 0; i < 50 && warm.cache !== "hit"; i++) warm = await get(port, path, host);
   if (warm.cache !== "hit") fail(`${path}: cache nije dao hit ni nakon 50 pokušaja`);
@@ -404,6 +408,22 @@ async function runCase(port: number, c: Case, limit: number | null, reps: number
 
 // ---- wrangler dev ----------------------------------------------------------
 
+/**
+ * Provjera prije mjerenja: pet novih hostova na istoj putanji mora dati pet
+ * `miss`. Ako cache ne razlikuje host (npr. promjena ključa u `cacheKey`),
+ * MISS se ovom skriptom ne može izmjeriti i skripta staje.
+ */
+async function hostIsolation(port: number): Promise<void> {
+  const path = `${PREFIX}/channels?limit=1`;
+  let streak = 0;
+  for (let i = 0; i < 100 && streak < 5; i++) {
+    const g = await get(port, path, missHost());
+    streak = g.cache === "miss" ? streak + 1 : 0;
+    if (streak < 5) await new Promise((r) => setTimeout(r, 100));
+  }
+  if (streak < 5) fail("cache ne razlikuje Host; MISS se ne može izmjeriti");
+}
+
 async function startDev(dir: string, port: number): Promise<ChildProcess> {
   const wrangler = join(KATALOG, "node_modules", ".bin", "wrangler");
   const child = spawn(wrangler, ["dev", "--local", "--persist-to", dir, "--port", String(port), "--show-interactive-dev-session=false"], {
@@ -505,6 +525,7 @@ async function main(): Promise<void> {
   const child = values["no-serve"] ? null : await startDev(dir, port);
   const results: CaseResult[] = [];
   try {
+    await hostIsolation(port);
     for (const limit of LIMITS) {
       for (const c of cases(targets, limit, deep)) results.push(await runCase(port, c, limit, reps, deep));
     }
