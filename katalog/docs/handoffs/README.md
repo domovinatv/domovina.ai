@@ -37,7 +37,7 @@ Handoff se mijenja samo prema naprijed: gotovi `SN` se ne prepisuju, služe kao 
 | S3 | API v1 + ugovor + cache | gotovo | 9806bb6 | 269 / skipped 0 | 2026-11-05; odluke 300–314; `d67b17e` API; varijante skrivene (`variant_of`, 0003); `wrangler dev` popravljen |
 | S4 | Sintetička skala + izvještaj | gotovo | be80dc3 | 289 / skipped 0 | 2026-11-06; odluke 400–409; 500 omotan; `rows_read` isti na 10k/100k/1M; 411 B/epizodi; **vrata: staging čeka korisnika** |
 | S5 | Staging + latencija | gotovo | 371fa09 | 289 / skipped 0 | 2026-11-06; odluke 500–506; hit 51 ms (D1 kontekst +32 ms) → 502; **vrata: produkcija čeka korisnika** |
-| S6 | Produkcija, ingest, drift-check | | | | vrata: produkcijski deploy |
+| S6 | Produkcija, ingest, drift-check | gotovo | b1aaeba | 379 / skipped 0 | 2026-11-06; odluke 600–611; produkcija `domovina.ai/api/katalog/*`, 3670 epizoda kroz `--sync`; hit 22 ms / miss 48 ms; launchd 08:45 |
 | S7 | Pipeline producer | | | | u `fetch.domovina.tv` |
 | S8 | `CatalogClient`, ekran epizode | | | | |
 | S9 | „Danas u korpusu” + `/dani/` | | | | paralelno sa S10 |

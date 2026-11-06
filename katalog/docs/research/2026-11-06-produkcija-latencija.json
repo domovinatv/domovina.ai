@@ -1,0 +1,257 @@
+{
+  "at": "2026-11-06T10:20:13.307Z",
+  "base": "https://domovina.ai",
+  "reps": 50,
+  "first": {
+    "api": {
+      "ms": 68,
+      "colo": "VIE",
+      "url": "https://domovina.ai/api/katalog/v1/health"
+    },
+    "cdn": {
+      "ms": 126,
+      "colo": "VIE",
+      "url": "https://cdn.domovina.ai/channels/data/home.json"
+    }
+  },
+  "routes": {
+    "days/2026-11-06": {
+      "miss": {
+        "stats": {
+          "n": 50,
+          "p50": 47.7,
+          "p95": 57.9,
+          "min": 41.1,
+          "max": 62.3,
+          "mean": 48.8
+        },
+        "cache": {
+          "miss": 50
+        },
+        "colo": {
+          "VIE": 50
+        },
+        "bytesMedian": 1311,
+        "status": {
+          "200": 50
+        }
+      },
+      "missWasHit": 0,
+      "hit": {
+        "stats": {
+          "n": 50,
+          "p50": 22.1,
+          "p95": 26,
+          "min": 18.8,
+          "max": 28.1,
+          "mean": 22.5
+        },
+        "cache": {
+          "hit": 50
+        },
+        "colo": {
+          "VIE": 50
+        },
+        "bytesMedian": 75,
+        "status": {
+          "200": 50
+        }
+      },
+      "warmups": 1
+    },
+    "channels/:slug/episodes": {
+      "miss": {
+        "stats": {
+          "n": 50,
+          "p50": 49.3,
+          "p95": 61.3,
+          "min": 43.9,
+          "max": 64.9,
+          "mean": 50.4
+        },
+        "cache": {
+          "miss": 50
+        },
+        "colo": {
+          "VIE": 50
+        },
+        "bytesMedian": 10500,
+        "status": {
+          "200": 50
+        }
+      },
+      "missWasHit": 0,
+      "hit": {
+        "stats": {
+          "n": 50,
+          "p50": 22.7,
+          "p95": 28.2,
+          "min": 19,
+          "max": 30.6,
+          "mean": 22.8
+        },
+        "cache": {
+          "hit": 50
+        },
+        "colo": {
+          "VIE": 50
+        },
+        "bytesMedian": 9423,
+        "status": {
+          "200": 50
+        }
+      },
+      "warmups": 1
+    },
+    "episodes/:id/card": {
+      "miss": {
+        "stats": {
+          "n": 50,
+          "p50": 49.2,
+          "p95": 58.2,
+          "min": 42,
+          "max": 64.2,
+          "mean": 50
+        },
+        "cache": {
+          "miss": 50
+        },
+        "colo": {
+          "VIE": 50
+        },
+        "bytesMedian": 371,
+        "status": {
+          "200": 50
+        }
+      },
+      "missWasHit": 0,
+      "hit": {
+        "stats": {
+          "n": 50,
+          "p50": 23.4,
+          "p95": 31.1,
+          "min": 19.9,
+          "max": 34.6,
+          "mean": 24
+        },
+        "cache": {
+          "hit": 50
+        },
+        "colo": {
+          "VIE": 50
+        },
+        "bytesMedian": 348,
+        "status": {
+          "200": 50
+        }
+      },
+      "warmups": 1
+    },
+    "channels": {
+      "miss": {
+        "stats": {
+          "n": 50,
+          "p50": 48.3,
+          "p95": 54.7,
+          "min": 43.4,
+          "max": 57.1,
+          "mean": 48.5
+        },
+        "cache": {
+          "miss": 50
+        },
+        "colo": {
+          "VIE": 50
+        },
+        "bytesMedian": 12803,
+        "status": {
+          "200": 50
+        }
+      },
+      "missWasHit": 0,
+      "hit": {
+        "stats": {
+          "n": 50,
+          "p50": 24.1,
+          "p95": 31.2,
+          "min": 21,
+          "max": 254.1,
+          "mean": 29.4
+        },
+        "cache": {
+          "hit": 50
+        },
+        "colo": {
+          "VIE": 50
+        },
+        "bytesMedian": 7114,
+        "status": {
+          "200": 50
+        }
+      },
+      "warmups": 1
+    }
+  },
+  "cdn": {
+    "home.json": {
+      "stats": {
+        "n": 50,
+        "p50": 18.1,
+        "p95": 28.4,
+        "min": 15.5,
+        "max": 35.6,
+        "mean": 19.5
+      },
+      "cache": {
+        "HIT": 50
+      },
+      "colo": {
+        "VIE": 50
+      },
+      "bytesMedian": 28744,
+      "status": {
+        "200": 50
+      }
+    },
+    "nanovoroeni.json (listing)": {
+      "stats": {
+        "n": 50,
+        "p50": 31.8,
+        "p95": 41.8,
+        "min": 28.1,
+        "max": 45.6,
+        "mean": 32.6
+      },
+      "cache": {
+        "HIT": 50
+      },
+      "colo": {
+        "VIE": 50
+      },
+      "bytesMedian": 622543,
+      "status": {
+        "200": 50
+      }
+    }
+  },
+  "health": {
+    "stats": {
+      "n": 50,
+      "p50": 19.1,
+      "p95": 27.8,
+      "min": 15.5,
+      "max": 55.3,
+      "mean": 20.6
+    },
+    "cache": {
+      "—": 50
+    },
+    "colo": {
+      "VIE": 50
+    },
+    "bytesMedian": 43,
+    "status": {
+      "200": 50
+    }
+  }
+}

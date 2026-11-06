@@ -31,14 +31,14 @@ Legenda: `[x]` gotovo · `[ ]` otvoreno · `[~]` u radu · `(!)` traži korisnik
 <!-- doc-refs:ignore-end -->
 - [x] (!) Korisnik odobrava staging na Cloudflare računu (D1 `katalog-staging`, Worker bez produkcijske rute) → S4
 - [x] Staging deploy, uvoz stvarnih podataka, latencija iz HR (p50/p95, hladno/toplo) vs. statični `home.json` → S5
-- [ ] (!) Odluka korisnika: idemo u produkciju (F1) ili ne → S5
+- [x] (!) Odluka korisnika: idemo u produkciju (F1) ili ne → S5 (da, 6. 11. 2026., ruta na istom originu)
 
 ## F1 — produkcija i Tier 2 u aplikaciji
 
-- [ ] (!) Produkcijski D1 + ruta `domovina.ai/api/katalog/*` (deploy pokreće korisnik ili uz njegov izričit da) → S6
-- [ ] `POST /api/katalog/v1/ingest` s tokenom (secret), batch upsert, idempotentno → S6
-- [ ] `katalog drift-check`: R2 (`.r2_keys_cache.json`) ↔ D1; exit 0/1/2; Telegram samo kroz `scripts/telegram-notify.rb` → S6
-- [ ] launchd tripwire za drift-check (LaunchAgent), tih kad je poravnato → S6
+- [x] (!) Produkcijski D1 + ruta `domovina.ai/api/katalog/*` (deploy pokreće korisnik ili uz njegov izričit da) → S6
+- [x] `POST /api/katalog/v1/ingest` s tokenom (secret), batch upsert, idempotentno → S6
+- [x] `katalog drift-check`: R2 (`.r2_keys_cache.json`) ↔ D1; exit 0/1/2; Telegram samo kroz `scripts/telegram-notify.rb` → S6
+- [x] launchd tripwire za drift-check (LaunchAgent), tih kad je poravnato → S6
 - [ ] Pipeline nakon uploada zove ingest (sesija u `fetch.domovina.tv`) → S7
 - [ ] `episode.json` nosi `channel: {slug, name, tier}` (sesija u `fetch.domovina.tv`) → S7
 - [ ] `podcast_core`: `Endpoints.catalog` (nullable; bez njega stari statični put), `CatalogClient` → S8

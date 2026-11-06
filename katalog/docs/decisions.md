@@ -627,3 +627,22 @@ Kod: `src/api/context.ts` (memorija konteksta), `src/api/ingest.ts` (`POST /inge
      OFFSET-a. `rows_read` ≤ limit + 1 + kontekst (≤ 3) na svakoj stranici, kako god duboko
      (test sa stranicom 37 nad 627 epizoda). `bad_limit` za sve izvan `^\d{1,4}$` i 1–5000,
      `bad_after` za prazan `after=`. `no-store`, bez Cache API, bez omotnice `version`/`catalog`.
+
+Produkcija (korisnik odobrio 6. 11. 2026. na vratima S5 → S6: „Da, sve odobravam”, ruta na istom originu):
+
+608. **Produkcija je na istom originu `domovina.ai/api/katalog/*`**, ne na poddomeni (507
+     zatvoreno): Worker `domovina-katalog` s rutom na zoni, D1 `katalog`
+     (`a841df13-…`, hint `eeur`), secret `INGEST_TOKEN`. Pages i dalje servira sve
+     ostalo (provjereno: `/` i `/v/<id>` 200 `text/html`, `/api/katalog/v1/health` 200 JSON).
+     Povratak: `wrangler delete` (miče i rutu) + `wrangler d1 delete katalog`.
+609. **Brend se u praznu bazu upisuje ručno prije prvog ingesta** (`INSERT INTO brands
+     VALUES ('domovina','domovina.ai')`): ingest razrješava brend po hostu i bez retka
+     vraća `brand_not_found`. Novi brend (S14) isto, ili kroz uvoznik.
+610. **Prvo punjenje produkcije je `drift-check --sync`**, ne export lokalnog D1 kao u S5:
+     isti put kojim će ići svaki popravak. 162 kanala i 3670 epizoda u 8 poziva; zato je
+     prva verzija kataloga `8` (svaki poziv s promjenama diže verziju).
+611. **Izmjereno na produkciji iz HR (VIE), 50 zahtjeva po nizu**: hit p50 22–24 ms
+     (S5: 51), miss 48–49 ms (S5: 84), `health` 19 ms, CDN `home.json` 18 ms.
+     Reprodukcija: `npm run latency -- --base https://domovina.ai --out …`; sirovo u
+     `research/2026-11-06-produkcija-latencija.json`. Token ingesta lokalno u
+     `.dev.vars` (`INGEST_TOKEN=`), launchd ga čita odande.
