@@ -591,6 +591,26 @@ export default {
           'public, max-age=3600, s-maxage=3600',
         );
       }
+      // Tier 2 (kanal bez listinga, samo u katalogu) — samo goli /c/<slug>,
+      // i tek nakon listinga, da Tier 1 ne plaća subrequest. Kartica ide kroz
+      // binding KATALOG (vidi fetchCatalogChannel); bez njega, na grešci ili
+      // timeoutu ostaje plain SPA kao i prije. Katalog 404 = kanala nema ni
+      // ondje: SPA + noindex, kao nevaljan /dani/ datum.
+      if (cMatch) {
+        const catalog = await fetchCatalogChannel(env, slug);
+        if (catalog && catalog.item) {
+          const indexHtml = await (await indexPromise).text();
+          const res = htmlResponse(
+            injectCatalogChannelTags(indexHtml, slug, catalog.item),
+            'public, max-age=3600, s-maxage=3600',
+          );
+          // Kanal bez ijedne obrađene epizode je tanka stranica.
+          return catalog.item.processedCount > 0 ? res : noindex(res);
+        }
+        if (catalog && catalog.missing) {
+          return noindex(htmlResponse(await (await indexPromise).text(), 'no-store'));
+        }
+      }
       // Kanal ne postoji na CDN-u ili je listing nedostupan — plain SPA.
       return htmlResponse(await (await indexPromise).text(), 'no-store');
     }
@@ -1815,9 +1835,9 @@ ${jsonLd}
 // domovina.ai/api/katalog/* ne može biti meta same-zone fetch()-a iz ovog
 // workera (Cloudflare: „Routes cannot be the target of a same-zone fetch()
 // call") — običan fetch bi se vratio u Pages i dobio SPA HTML. Bez bindinga,
-// na grešci ili nakon CATALOG_DAY_TIMEOUT_MS: isti statični tagovi.
+// na grešci ili nakon CATALOG_TIMEOUT_MS: isti statični tagovi.
 const CATALOG_DAY_LIMIT = 100; // MAX_PAGE_SIZE kataloga; `next` ≠ null → „više od 100"
-const CATALOG_DAY_TIMEOUT_MS = 800;
+const CATALOG_TIMEOUT_MS = 800;
 const SITEMAP_DAYS = 30;
 const HR_MONTHS_GEN = ['siječnja', 'veljače', 'ožujka', 'travnja', 'svibnja', 'lipnja',
   'srpnja', 'kolovoza', 'rujna', 'listopada', 'studenoga', 'prosinca'];
@@ -1873,40 +1893,160 @@ function sitemapDayUrls() {
 }
 
 /**
- * Dan iz kataloga → { count, more, channels[], episodes[] }; null kad katalog
- * nije dostupan (nema bindinga, greška, timeout, nečitljiv odgovor).
+ * GET <CATALOG_API><path> kroz binding KATALOG → { ok, status, body } (body je
+ * null kad odgovor nije JSON); null kad katalog nije dostupan (brend bez
+ * CATALOG_API, nema bindinga, mrežna greška, timeout CATALOG_TIMEOUT_MS).
  */
-async function fetchCatalogDay(env, date) {
+async function catalogGet(env, path) {
   const svc = env && env.KATALOG;
   if (!svc || typeof svc.fetch !== 'function' || !BRAND.CATALOG_API) return null;
   let timer;
   try {
     const work = (async () => {
       const res = await svc.fetch(new Request(
-        `${BRAND.CATALOG_API}/days/${date}?limit=${CATALOG_DAY_LIMIT}`,
+        `${BRAND.CATALOG_API}${path}`,
         { headers: { Accept: 'application/json' } },
       ));
-      if (!res.ok) return null;
-      return res.json();
+      let body = null;
+      try { body = await res.json(); } catch (_) {}
+      return { ok: res.ok, status: res.status, body };
     })();
-    const timeout = new Promise((resolve) => { timer = setTimeout(() => resolve(null), CATALOG_DAY_TIMEOUT_MS); });
-    const body = await Promise.race([work, timeout]);
-    if (!body || body.version !== '1' || !Array.isArray(body.items)) return null;
-    const channels = [];
-    for (const it of body.items) {
-      const name = typeof it?.channel?.name === 'string' ? it.channel.name.trim() : '';
-      if (name && !channels.includes(name)) channels.push(name);
-    }
-    const episodes = body.items
-      .filter((it) => /^[A-Za-z0-9_-]{6,20}$/.test(String(it?.id ?? '')))
-      .slice(0, 10)
-      .map((it) => ({ id: it.id, title: String(it.title_hr || it.title || '').trim() }));
-    return { count: body.items.length, more: body.next != null, channels, episodes };
+    const timeout = new Promise((resolve) => { timer = setTimeout(() => resolve(null), CATALOG_TIMEOUT_MS); });
+    return await Promise.race([work, timeout]);
   } catch (_) {
     return null;
   } finally {
     clearTimeout(timer);
   }
+}
+
+/**
+ * Dan iz kataloga → { count, more, channels[], episodes[] }; null kad katalog
+ * nije dostupan (nema bindinga, greška, timeout, nečitljiv odgovor).
+ */
+async function fetchCatalogDay(env, date) {
+  const r = await catalogGet(env, `/days/${date}?limit=${CATALOG_DAY_LIMIT}`);
+  if (!r || !r.ok) return null;
+  const body = r.body;
+  if (!body || body.version !== '1' || !Array.isArray(body.items)) return null;
+  const channels = [];
+  for (const it of body.items) {
+    const name = typeof it?.channel?.name === 'string' ? it.channel.name.trim() : '';
+    if (name && !channels.includes(name)) channels.push(name);
+  }
+  const episodes = body.items
+    .filter((it) => /^[A-Za-z0-9_-]{6,20}$/.test(String(it?.id ?? '')))
+    .slice(0, 10)
+    .map((it) => ({ id: it.id, title: String(it.title_hr || it.title || '').trim() }));
+  return { count: body.items.length, more: body.next != null, channels, episodes };
+}
+
+/**
+ * Kartica kanala iz kataloga (GET /channels/<slug>) za Tier 2 kanal, koji nema
+ * statični listing. Tri ishoda:
+ *   { item }        — kanal postoji (polja provjerena i normalizirana);
+ *   { missing: true } — katalog je odgovorio 404 `channel_not_found`;
+ *   null            — katalog nije dostupan ili je odgovor nečitljiv.
+ * Drugi 404 (npr. kriva verzija API-ja) NIJE „kanala nema", nego null.
+ */
+async function fetchCatalogChannel(env, slug) {
+  const r = await catalogGet(env, `/channels/${encodeURIComponent(slug)}`);
+  if (!r) return null;
+  if (r.status === 404 && r.body && r.body.error === 'channel_not_found') return { missing: true };
+  if (!r.ok) return null;
+  const body = r.body;
+  const it = body && body.version === '1' ? body.item : null;
+  const name = typeof it?.name === 'string' ? it.name.replace(/\s+/g, ' ').trim() : '';
+  if (!name) return null;
+  const count = Number(it.processed_count);
+  const latest = typeof it.latest_published_date === 'string'
+    && isCalendarDate(it.latest_published_date) ? it.latest_published_date : null;
+  // Avatar s CDN-a pipelinea prati brendov CDN, kao i fetchJson.
+  let avatar = typeof it.avatar === 'string' && /^https:\/\/\S+$/.test(it.avatar) ? it.avatar : null;
+  if (avatar && CDN !== DATA_CDN_ORIGIN && avatar.startsWith(`${DATA_CDN_ORIGIN}/`)) {
+    avatar = `${CDN}/${avatar.slice(DATA_CDN_ORIGIN.length + 1)}`;
+  }
+  const ytId = typeof it.youtube_channel_id === 'string'
+    && /^UC[A-Za-z0-9_-]{22}$/.test(it.youtube_channel_id) ? it.youtube_channel_id : null;
+  const lang = typeof it.lang === 'string' && /^[a-z]{2,3}(-[A-Za-z]{2})?$/.test(it.lang) ? it.lang : 'hr';
+  return {
+    item: {
+      name,
+      processedCount: Number.isInteger(count) && count > 0 ? count : 0,
+      latest,
+      avatar,
+      youtubeUrl: ytId ? `https://www.youtube.com/channel/${ytId}` : null,
+      lang,
+    },
+  };
+}
+
+/**
+ * OG/Twitter/canonical + PodcastSeries JSON-LD za Tier 2 kanal (/c/<slug> iz
+ * kataloga). Zaseban od injectChannelTags, da Tier 1 izlaz ostane
+ * bajt-identičan: katalog ne daje opis, trajanje ni popis epizoda.
+ */
+function injectCatalogChannelTags(indexHtml, slug, ch) {
+  const { name, processedCount: n, latest, avatar } = ch;
+  const title = `${name} — AI obrada podcasta`;
+  let desc = n > 0
+    ? `AI-obrađene epizode kanala ${name}: ${n} ${croPlural(n, 'epizoda', 'epizode', 'epizoda')}`
+      + (latest ? `, zadnja objavljena ${hrLongDate(latest)}` : '.')
+      + ` Sažetci, transkripti i poglavlja na ${APP_NAME}.`
+    : `Kanal ${name} na ${APP_NAME}: AI sažetci, transkripti i poglavlja epizoda podcasta.`;
+  if (desc.length > 300) desc = desc.slice(0, 297) + '…';
+
+  const canonical = `${SITE}/c/${slug}`;
+  const image = avatar || `${SITE}/og-image.png`;
+  // Avatari su kvadratni → "summary"; brend banner je 1200×630 → large.
+  const twitterCard = avatar ? 'summary' : 'summary_large_image';
+
+  const jsonLd = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'PodcastSeries',
+    name,
+    url: canonical,
+    description: desc,
+    inLanguage: ch.lang,
+    image,
+    ...(ch.youtubeUrl ? { sameAs: ch.youtubeUrl } : {}),
+    publisher: {
+      '@type': 'Organization',
+      name: APP_NAME,
+      logo: { '@type': 'ImageObject', url: `${SITE}/icons/Icon-512.png` },
+    },
+  }, null, 2).replace(/</g, '\\u003c');
+
+  const tags = `
+  <title>${x(title)} – ${x(APP_NAME)}</title>
+  <meta name="description" content="${x(desc)}">
+  <link rel="canonical" href="${canonical}">
+
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="hr_HR">
+  <meta property="og:site_name" content="${x(APP_NAME)}">
+  <meta property="og:logo" content="${SITE}/og-image-square.png">
+  <meta property="og:title" content="${x(title)}">
+  <meta property="og:description" content="${x(desc)}">
+  <meta property="og:url" content="${canonical}">
+  <meta property="og:image" content="${x(image)}">${
+    avatar ? '' : '\n  <meta property="og:image:type" content="image/png">\n  <meta property="og:image:width" content="1200">\n  <meta property="og:image:height" content="630">'
+  }
+  <meta property="og:image:alt" content="${x(name)} — ${x(APP_NAME)}">
+
+  <meta name="twitter:card" content="${twitterCard}">
+  <meta name="twitter:title" content="${x(title)}">
+  <meta name="twitter:description" content="${x(desc)}">
+  <meta name="twitter:image" content="${x(image)}">
+  <meta name="twitter:image:alt" content="${x(name)} — ${x(APP_NAME)}">${
+    n > 0 ? `\n  <meta name="twitter:label1" content="Epizode">\n  <meta name="twitter:data1" content="${n}">` : ''
+  }
+
+  <script type="application/ld+json">
+${jsonLd}
+  </script>`;
+
+  return stripHeadMeta(indexHtml).replace('</head>', `${tags}\n</head>`);
 }
 
 /** OG/Twitter/canonical + CollectionPage JSON-LD za /dani/<datum>. */

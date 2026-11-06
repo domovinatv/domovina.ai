@@ -35,6 +35,15 @@ const SPONSOR_VIDEO_ID = 'WRE248YCIeI';
 const DAY_DATE = '2026-11-04';
 const DAY_TITLE = 'Epizode 4. studenoga 2026.';
 
+// Kanali za /c/<slug>: Tier 1 ima statični listing (vlastiti OG), Tier 2 je
+// samo u katalogu (crtice u slugu, bez listinga). Dok Pages projekt nema
+// binding KATALOG (S11), Tier 2 ide statičnim putem = plain SPA (no-store);
+// s bindingom dobiva vlastiti OG. Test prihvaća oba ishoda i kaže koji je.
+// Lažni binding pokriva scripts/test-worker-katalog-kanal.mjs.
+const TIER1_CHANNEL = { slug: 'radio-mreznica', name: 'Radio Mrežnica' };
+const TIER2_CHANNEL = { slug: 'tribina', name: 'Tribina' };
+const UNKNOWN_CHANNEL_SLUG = 'nepostojeci-kanal-s10';
+
 const BASE = (process.argv[2] || 'https://domovina.ai').replace(/\/$/, '');
 
 const GREEN  = '\x1b[32m';
@@ -654,6 +663,69 @@ async function testDayRoute(date, expectedTitle) {
 }
 
 /**
+ * Kanal — `/c/<slug>`. `tier1`: listing → vlastiti OG (PodcastSeries).
+ * `tier2`: katalog → vlastiti OG, ili (bez bindinga) plain SPA no-store.
+ * `unknown`: plain SPA no-store, bez tagova kanala. Nikad 5xx.
+ */
+async function testChannelRoute(slug, kind, name) {
+  const path = `/c/${slug}`;
+  const url = `${BASE}${path}`;
+  const label = `${path} (${kind})`;
+  console.log(`\n${BOLD}── ${label}${RESET}  ${url}`);
+  let res;
+  let html;
+  try {
+    res = await fetch(url, {
+      headers: { Accept: 'text/html', 'User-Agent': 'DominovinaBot/1.0 (social-tag-tester)' },
+      redirect: 'follow',
+    });
+    if (!res.ok) {
+      console.log(`  ${fail(`HTTP ${res.status}`)}`);
+      return { ytId: label, passed: 0, failed: 1 };
+    }
+    html = await res.text();
+  } catch (e) {
+    console.log(`  ${fail(`Network error: ${e.message}`)}`);
+    return { ytId: label, passed: 0, failed: 1 };
+  }
+
+  let passed = 0;
+  let failed = 0;
+  const check = (lbl, value, expected) => {
+    const lab = lbl.padEnd(26);
+    if (value === null || value.trim() === '') { console.log(`  ${fail(lab)} NEDOSTAJE`); failed++; return; }
+    const p = value.length > 70 ? value.slice(0, 67) + '…' : value;
+    if (expected !== undefined && !expected(value)) { console.log(`  ${fail(lab)} "${p}"`); failed++; return; }
+    console.log(`  ${ok(lab)} "${p}"`); passed++;
+  };
+  const ogTitle = extractMeta(html, 'property', 'og:title');
+  const ownTitle = `${name} — AI obrada podcasta`;
+  const own = kind === 'tier1' || (kind === 'tier2' && ogTitle === ownTitle);
+  check('Content-Type HTML', res.headers.get('content-type'), (v) => v.includes('text/html'));
+
+  if (own) {
+    if (kind === 'tier2') console.log(`  ${warn('katalog u workeru (binding KATALOG) — vlastiti OG')}`);
+    check('og:title',       ogTitle, (v) => v === ownTitle);
+    check('<title>',        extractTitle(html), (v) => v === `${ownTitle} – DOMOVINA.ai`);
+    // Tier 1 opis zna biti autorov (description iz listinga), pa ime nije obavezno.
+    check('og:description', extractMeta(html, 'property', 'og:description'),
+      (v) => (kind === 'tier1' ? v.length > 20 : v.length > 40 && v.includes(name)));
+    check('canonical',      extractCanonical(html), (v) => v === `https://domovina.ai${path}`);
+    check('og:url',         extractMeta(html, 'property', 'og:url'), (v) => v === `https://domovina.ai${path}`);
+    check('og:image',       extractMeta(html, 'property', 'og:image'), (v) => v.startsWith('https://'));
+    check('JSON-LD',        (html.match(/"@type": "PodcastSeries"/) || [null])[0]);
+    check('Cache-Control',  res.headers.get('cache-control'), (v) => /s-maxage=\d+/.test(v));
+    check('og:title jednom', String(countMeta(html, 'property', 'og:title')), (v) => v === '1');
+  } else {
+    if (kind === 'tier2') console.log(`  ${warn('statični put (bez bindinga KATALOG) — plain SPA')}`);
+    check('og:title (generički)',  ogTitle, (v) => !v.endsWith('AI obrada podcasta'));
+    check('canonical (ne /c/)',    extractCanonical(html), (v) => !v.includes('/c/'));
+    check('Cache-Control no-store', res.headers.get('cache-control'), (v) => v === 'no-store');
+  }
+  return { ytId: label, passed, failed };
+}
+
+/**
  * AASA `components`: auth exclusioni prvi, `/dani/*` eksplicitno (ugovor s
  * Android intent filterom), `*` zadnji.
  */
@@ -687,7 +759,7 @@ async function testAasaDays() {
 async function main() {
   console.log(`${BOLD}DOMOVINA.ai — Social Tag Tester${RESET}`);
   console.log(`Target: ${BOLD}${BASE}${RESET}`);
-  console.log(`Testira: homepage + ${VIDEO_IDS.length} epizoda + timestamp shareovi + /glasanje + izlog oglasa + cast receiver + /dani/ + AASA\n`);
+  console.log(`Testira: homepage + ${VIDEO_IDS.length} epizoda + timestamp shareovi + /glasanje + izlog oglasa + cast receiver + /dani/ + AASA + /c/ kanali\n`);
 
   const results = [];
   results.push(await testHomepage());
@@ -713,6 +785,10 @@ async function main() {
   results.push(await testDayRoute('2026-02-30', null));
   results.push(await testDayRoute(`${new Date().getUTCFullYear() + 2}-01-01`, null));
   results.push(await testAasaDays());
+  // Kanal — Tier 1 (listing), Tier 2 (katalog ili statični put), nepoznat.
+  results.push(await testChannelRoute(TIER1_CHANNEL.slug, 'tier1', TIER1_CHANNEL.name));
+  results.push(await testChannelRoute(TIER2_CHANNEL.slug, 'tier2', TIER2_CHANNEL.name));
+  results.push(await testChannelRoute(UNKNOWN_CHANNEL_SLUG, 'unknown', ''));
   // Google Cast receiver — oba oblika URL-a, 200 bez COEP-a.
   results.push(await testCastReceiver('/cast-receiver.html'));
   results.push(await testCastReceiver('/cast-receiver'));
