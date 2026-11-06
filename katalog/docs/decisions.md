@@ -1042,3 +1042,30 @@ Kod: `web/_worker.js` (grana `/c/<slug>`, `catalogGet`, `fetchCatalogChannel`,
       stranicu (`tribina`), s `cursor=` dvije stranice i 162 različita kanala. Pouka za
       ugovor: ime parametra stoji u shemi samo kao opis polja `next`; idući put klijentski
       test URL-a provjerava parametar prema `parsePage`, a ne prema sebi.
+
+## S11 — release (6. 11. 2026.)
+
+1100. **Binding `KATALOG` ide u korijenski `wrangler.toml`** (`[[services]]`, `35a651e`), ne u
+      dashboard: projekt `domovina-ai` već ima `wrangler.toml` s `pages_build_output_dir`,
+      pa je datoteka izvor istine za bindinge, a tajne (`CAL_API_KEY`, Supabase) ostaju
+      Pages secrets i deploy ih ne dira. Lokalno `wrangler pages dev web` binding prijavi kao
+      `local [not connected]` i worker padne na statične tagove; `test-social-tags.mjs`
+      225/233 (pada samo `/glasanje`, namjerno), isto kao prije bindinga.
+1101. **Deploy v2.0.220 s `main`, uz korisnikov izričit da u sesiji.** Provjera po verziji,
+      ne statusu: `main.dart.js` → `DOMOVINA v2.0.220`, `wrangler pages deployment list` →
+      `Production │ main │ 35a651e`. Bump (`log.dart`, `pubspec.yaml` 2.0.220+242) je
+      zaseban commit `0bfc0a5`.
+1102. **Produkcija nakon deploya (izmjereno 6. 11. oko 14:20):** `/dani/2026-11-05` OG
+      „7 epizoda objavljenih 5. studenoga 2026. — kanali: Radio Mrežnica, Oraetlabora
+      Međugorje, Tribina i još 4.” (binding radi); `/c/tribina` `og:title` „Tribina — AI
+      obrada podcasta”; `/c/nema-ga-xyz` 200 + `X-Robots-Tag: noindex`; `/vijesti` 404 +
+      noindex. `GET /directory?limit=30` s `?cursor=` do kraja: 6 stranica, 162 slug,
+      162 jedinstvena. U pregledniku (Brave): `/dani/2026-11-05` 7 redaka, Tier 2 epizoda
+      `_YOkTkbrh_k` reproducira i breadcrumb vodi na `/c/tribina` sa 6 epizoda.
+1103. **Potvrda S7 na nightlyju i smoke vrata nightly builda nisu mogli u S11:** sesija je
+      bila 6. 11. popodne, a prvi nightly s KORAKOM 13.5 i prvi store build za v2.0.220
+      vrte se 7. 11. u 03:00. Oboje je prvi korak S12.
+1104. **Promocija store buildova nije dio S11:** web nosi sve tri promjene; native
+      buildovi dobivaju isti kod kroz nightly, a promocija u produkciju ide tek nakon
+      `result=pass` (smoke vrata) i korisnikovog da, izvan ovog lanca.
+

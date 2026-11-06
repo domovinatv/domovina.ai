@@ -41,8 +41,8 @@ Handoff se mijenja samo prema naprijed: gotovi `SN` se ne prepisuju, služe kao 
 | S7 | Pipeline producer | gotovo (potvrda nightlyja u S8) | 36e24a1 | 399 / skipped 0 | 2026-11-06; odluke 700–709; `ingest-episode` + fetch KORAK 13.5 (`run_pipeline.sh`, `build_episode_bundle.js` `channel`); `--all` 6,5 s, 0 promjena; mapa posijana 11:42 |
 | S8 | `CatalogClient`, ekran epizode | gotovo | 0c81b06 | 399 / skipped 0; flutter 751 + 1 baseline | 2026-11-06; odluke 800–808; Tier 2 kanal bez linka do S10; sintetički ID bez embeda; **potvrda S7 na nightlyju prenesena u S9** |
 | S9 | „Danas u korpusu” + `/dani/` | gotovo | 3f910b2 | 399 / skipped 0; flutter 781 + 1 baseline | 2026-11-06; odluke 900–915; OG broj epizoda čeka binding `KATALOG` (S11); potvrda S7 prenesena dalje |
-| S10 | `/channels` „Svi” + Tier 2 kanal | gotovo | fd297aa | 399 / skipped 0; flutter 812 + 1 baseline; worker 60/60 | 2026-11-06; odluke 1000–1030; `b5b83a0` worker OG, `5f10a8a` Flutter; kursor `?after=`→`?cursor=` (1030, kvar od S9); **potvrda S7 na nightlyju → S11** |
-| S11 | Release | | | | vrata: korisnik |
+| S10 | `/channels` „Svi” + Tier 2 kanal | gotovo | fd297aa | 399 / skipped 0; flutter 812 + 1 baseline; worker 60/60 | 2026-11-06; odluke 1000–1030; `b5b83a0` worker OG, `5f10a8a` Flutter; kursor `?after=`→`?cursor=` (1030, kvar od S9); potvrda S7 → S11 → S12 |
+| S11 | Release | gotovo (nightly smoke + potvrda S7 → S12) | 0bfc0a5 | 399 / skipped 0; flutter 812 + 1 baseline; worker 60/60 | 2026-11-06; odluke 1100–1104; web v2.0.220 Production/`main`; binding `KATALOG` live (`/dani/` OG s brojem, `/c/tribina` OG, noindex); `directory` 162/162 jedinstveno; **potvrda S7 na nightlyju 7. 11. → S12** |
 | S12 | `/home` na serveru | | | | vrata: Tier 2 u heru |
 | S13 | Facete (Meili) + dizajn rangiranja | | | | |
 | S14 | Brendovi i shardovi | | | | |

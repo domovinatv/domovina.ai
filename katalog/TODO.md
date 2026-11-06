@@ -47,11 +47,12 @@ Legenda: `[x]` gotovo · `[ ]` otvoreno · `[~]` u radu · `(!)` traži korisnik
 - [ ] Polje izvora (`source`/`yt_matched`) u `card.schema.json`, da se X epizoda bez `info.json` na praćenom kanalu ne ugradi kao YouTube (odluka 808) → kasnije
 - [x] Rail „Danas u korpusu” + ruta `/dani/:datum` → S9
 - [x] `/dani/` u `web/_worker.js` (OG), AASA components i Android intent filter, sitemap → S9
-- [ ] (!) Service binding `KATALOG` → Worker `domovina-katalog` na Pages projektu `domovina-ai` (`wrangler.toml` + `docs/worker-env-bindings.md`), da OG `/dani/` nosi broj epizoda (odluka 910) → S11
+- [x] (!) Service binding `KATALOG` → Worker `domovina-katalog` na Pages projektu `domovina-ai` (`wrangler.toml` + `docs/worker-env-bindings.md`), da OG `/dani/` nosi broj epizoda (odluka 910) → S11 (`35a651e`, live v2.0.220)
 - [x] `/channels` filtar „Pratimo / Svi” nad `directory`, paginacija → S10
 - [x] `/c/:slug` za Tier 2 kanal (obrađene epizode iz API-ja); OG u workeru → S10
-- [ ] `TvChannelScreen` za Tier 2 kanal (odluka 1016) i Tier 2 kanali u sitemapu (odluka 1028, traži binding `KATALOG`) → kasnije
-- [ ] (!) Release: web deploy s `main` + provjera verzije na produkciji, nightly store build → S11
+- [ ] `TvChannelScreen` za Tier 2 kanal (odluka 1016) i Tier 2 kanali u sitemapu (odluka 1028; binding `KATALOG` postoji od S11, čeka prag) → kasnije
+- [x] (!) Release: web deploy s `main` + provjera verzije na produkciji → S11 (v2.0.220, 6. 11.)
+- [ ] Nightly store build za HEAD v2.0.220 prošao smoke vrata (7. 11. u 03:00) + potvrda S7 na nightlyju → provjera na početku S12
 
 ## F2 — katalog računa server
 
