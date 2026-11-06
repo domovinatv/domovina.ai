@@ -2,6 +2,15 @@ name = "domovina-ai"
 pages_build_output_dir = "build/web"
 compatibility_date = "2026-01-01"
 
+# Katalog (Worker domovina-katalog, katalog/): /dani/* OG i OG Tier 2 kanala na
+# /c/*. Ruta domovina.ai/api/katalog/* nije dosežna same-zone fetch()-em iz
+# Pages workera, pa web/_worker.js (catalogGet) zove katalog SAMO kroz ovaj
+# binding; bez njega statični tagovi. Odluke 910, 1020–1026;
+# docs/worker-env-bindings.md.
+[[services]]
+binding = "KATALOG"
+service = "domovina-katalog"
+
 # --- Brend workera (web/_worker.js) — env bindinzi po Pages projektu ----------
 # Jedan _worker.js služi više brendova; svaki Pages projekt postavlja svoje
 # vrijednosti u Cloudflare dashboardu (Settings → Environment variables) ili

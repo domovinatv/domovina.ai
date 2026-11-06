@@ -48,9 +48,28 @@ uspoređuju kao string: samo točno `"true"` uključuje; `"1"`, `"TRUE"`,
 | `ANDROID_PACKAGE` | `ai.domovina` | `package_name` u `/.well-known/assetlinks.json` |
 | `ANDROID_SHA256` | dva otiska (Play App Signing key, upload key) — vidi `wrangler.toml` | `sha256_cert_fingerprints` u `/.well-known/assetlinks.json`; zarezom odvojeno |
 | `WEBAUTHN_ORIGINS` | 15 origina domovina/pinka ekosustava — vidi `wrangler.toml` | `origins` u `/.well-known/webauthn`; zarezom odvojeno |
+| `CATALOG_API` | `https://domovina.ai/api/katalog/v1` (prazno kad je postavljen `SITE`, tj. drugi brend) | bazni URL kataloga za `/dani/*` OG, `/dani/` u sitemapu i OG Tier 2 kanala na `/c/*`; prazan string gasi sve troje |
 
 Tajne koje worker već čita iz env-a i **nisu** brend (ostaju Pages secrets po
 projektu): `CAL_API_KEY`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`.
+
+## Service binding `KATALOG` (od S11 kataloga, 6. 11. 2026.)
+
+`[[services]] binding = "KATALOG"`, `service = "domovina-katalog"` u
+`wrangler.toml`. Worker `domovina-katalog` (`katalog/`) živi na ruti
+`domovina.ai/api/katalog/*`, a ruta ne može biti meta same-zone `fetch()`-a iz
+Pages workera (vratio bi se u Pages i dobio SPA HTML), pa `catalogGet` u
+`web/_worker.js` zove katalog SAMO kroz binding. Služi:
+
+- `/dani/<datum>`: `og:description` s brojem epizoda i imenima kanala;
+- `/c/<tier2-slug>`: OG s imenom i brojem epizoda, a nepostojeći slug dobiva
+  `X-Robots-Tag: noindex`.
+
+Bez bindinga (drugi brend, greška, timeout 800 ms) obje rute padaju na
+statične tagove odnosno plain SPA; ništa ne puca. Provjera nakon deploya:
+`curl -s https://domovina.ai/dani/<jučer> | grep -o '<meta property="og:description"[^>]*>'`
+mora spominjati epizode, `curl -s https://domovina.ai/c/tribina | grep -o '<meta property="og:title"[^>]*>'`
+mora sadržavati „Tribina”.
 
 ## Zastavice
 
