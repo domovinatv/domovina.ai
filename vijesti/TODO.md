@@ -35,9 +35,9 @@ Legenda: `[x]` gotovo · `[ ]` otvoreno · `[~]` u radu · `(!)` traži korisnik
 - [x] Stilski vodič HR (treće lice, pravopis IHJJ, bez emojija, bez superlativa bez izvora) → S4
 - [x] Verify: svaka rečenica ima izvorni trenutak ili ide uredniku označena → S4
 - [x] Verzije članka (svaka promjena nova verzija, izvori po verziji) → S4
-- [ ] Stanja: nacrt → pregled → odobreno → objavljeno → ispravljeno / povučeno → S5
-- [ ] Dnevnik ispravaka (javan na članku) → S5
-- [ ] API za portal i admin (smještaj po pravilu iz CLAUDE.md: pisanje u bazu = Supabase) → S5
+- [x] Stanja: nacrt → pregled → odobreno → objavljeno → ispravljeno / povučeno → S5
+- [x] Dnevnik ispravaka (javan na članku) → S5
+- [x] API za portal i admin (smještaj po pravilu iz CLAUDE.md: pisanje u bazu = Supabase) → S5 (RLS + SECURITY DEFINER `rpc`, odluka 500; na pravom Supabaseu neisprobano → S7)
 - [ ] Astro SSR na Cloudflare Workers: naslovnica, članak, kategorija → S6
 - [ ] Audio isječak uz svaki citat, „Poslušaj cijeli razgovor” → `/v/<id>/t/<sec>` → S6
 - [ ] Admin urednika iza Supabase prijave (uloga `editor`) → S6

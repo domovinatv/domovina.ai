@@ -35,7 +35,7 @@ Handoff se mijenja samo prema naprijed: gotovi `SN` se ne prepisuju, služe kao 
 | S2 | Trenuci + provjera citata | gotovo | 336426f | 167 / skipped 0 | 2026-11-05; odluke 200–214; 843 napada odbijena, mjerenje u research/2026-11-05-provjera-citata.md |
 | S3 | Ocjena vijesti + mjerenje | djelomično | 661ddc6 | 214 / skipped 0 | 2026-11-06; odluke 300–315; ocjena gotova, mjerenje kroz `agy` ODGOĐENO (korisnik), vrata pomaknuta prije S7 |
 | S4 | Format „vijest” + verify | gotovo | 2ef1db4 | 257 / skipped 0 | 2026-11-06; odluke 400–435; agy/eval (prvi dio) + format, verify, verzije; --fake 5 nacrta (5 fixturea), pravih 10 nakon odgođenog mjerenja |
-| S5 | Urednički tok + API | | | | |
+| S5 | Urednički tok + API | gotovo | ea8a472 | 286 / skipped 0 | 2026-11-06; odluke 500–528; RLS + SECURITY DEFINER `rpc` (PGlite), 19 adversarijalnih testova; Supabase neisprobano (S7) |
 | S6 | Portal (Astro) + admin | | | | |
 | S7 | Distribucija + pravni sloj + Preview | | | | vrata: korisnik |
 | S8 | Dnevni job + prvih 30 članaka | | | | vrata: korisnik |

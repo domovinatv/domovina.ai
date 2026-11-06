@@ -120,4 +120,5 @@ S2 (2026-11-05): trenuci, provjera citata, `vijesti extract` — `336426f`, 167 
 S3 (2026-11-06, djelomično): ocjena vijesti, Vertex backend — `661ddc6`, 214 testova; mjerenje kroz `agy` odgođeno (odluka 315), vrata pomaknuta prije S7.
 S4 prvi dio (2026-11-06): `agy` backend, `npm run eval`, izvještaj — `80e0402`, 240 testova.
 S4 drugi dio (2026-11-06): format „vijest”, verify, verzije, nacrti — `2ef1db4`, 257 testova, odluke 413–435.
-Sljedeće: S5 (urednički tok i API).
+S5 (2026-11-06): urednički tok, ispravci, RLS i `rpc` funkcije u migraciji 006 — `ea8a472`, 286 testova, odluke 500–528.
+Sljedeće: S6 (portal i admin).
