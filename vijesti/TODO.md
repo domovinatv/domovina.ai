@@ -20,12 +20,13 @@ Legenda: `[x]` gotovo · `[ ]` otvoreno · `[~]` u radu · `(!)` traži korisnik
 - [x] Provjera citata prema `words.json`: normalizacija (dijakritika, interpunkcija, razmaci), dopušteno odstupanje, SRT fallback s oznakom niže sigurnosti → S2
 - [x] Odbačeni trenuci zapisani s razlogom, ne izgubljeni → S2
 - [x] `vijesti extract <id>` CLI → S2
-- [ ] Ocjena vijesti (novost, tko govori, konkretna tvrdnja) → S3
-- [ ] (!) Mjerenje na uzorku: koliko epizoda, procjena poziva prije pokretanja → S3
+- [x] Ocjena vijesti (novost, tko govori, konkretna tvrdnja) → S3
+- [ ] Backend `agy` (tmux, po uzoru na `fetch.domovina.tv/lib/agy_tmux.js`) + `npm run eval` (`--channels`, `--limit`, `--max-calls`, procjena prije poziva), testirano bez pravih poziva → S4 (prvi dio)
+- [ ] (!) ODGOĐENO (korisnik 6.11., odluka 315): pravo mjerenje kroz `agy` na uzorku ~40 epizoda / 8 kanala (~440 poziva, 5–8 h, $0). Korisnik kaže kad; pokreće se noću s `run_in_background`, bez praćenja napretka → kasnije, prije S7
 <!-- doc-refs:ignore-start -->
 - [ ] Izvještaj `docs/research/YYYY-MM-DD-f0-mjerenje.md`, svaka brojka s naredbom → S3
 <!-- doc-refs:ignore-end -->
-- [ ] (!) Odluka korisnika: nastavljamo li na F1 → S3
+- [ ] (!) Odluka korisnika: nastavljamo li na F1 i s kojim pragom ocjene (nakon mjerenja; do tada privremeni prag) → prije S7
 
 ## F1 — prvi format i javna objava
 

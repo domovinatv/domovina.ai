@@ -117,4 +117,5 @@ je udio vijesti premali za portal). Zato S3 mjeri prije nego išta ide javno.
 S0 (2026-11-05): plan, TODO, handoffi.
 S1 (2026-11-05): kostur, CDN loader, 5 fixturea, shema, `LlmClient` — `4b9f74d`, 86 testova.
 S2 (2026-11-05): trenuci, provjera citata, `vijesti extract` — `336426f`, 167 testova.
-Sljedeće: S3 (vrata).
+S3 (2026-11-06, djelomično): ocjena vijesti, Vertex backend — `661ddc6`, 214 testova; mjerenje kroz `agy` odgođeno (odluka 315), vrata pomaknuta prije S7.
+Sljedeće: S4 (prvi dio: `agy` backend + `npm run eval`, bez pravih poziva).

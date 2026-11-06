@@ -396,3 +396,18 @@ paralelni worktreeji ne sudare. Odluka se ne briše: zamijeni je novom koja je p
      (`vijesti/.cache/persons/persons.json`, rok 24 h), zatim mrežu (spremi samo odgovor koji
      prolazi shemu), zatim zastario cache; bez ičega baca, jer bi ocjena bez popisa svakom
      govorniku tiho dala nulu. Test: „loadPersons: disk cache i zastario cache”.
+315. **Pravi pozivi idu kroz `agy`, a mjerenje F0 je odgođeno (korisnik, 2026-11-06).**
+     Vertex je na `bimbo-sync-prod` 28.10. vraćao 403 („terms of use”), a pipeline ga je
+     29.10. proglasio DEPRECATED (`fetch.domovina.tv/docs/2026-10-28-vertex-iskljucen-agy-jedini-gemini.md`).
+     Korisnik je izabrao `agy` (Antigravity CLI u tmuxu, Gemini na Google AI Pro, $0) i
+     rekao da se mjerenje pokreće kasnije, „za nekoliko sati”, a da razvoj ide dalje.
+     Posljedice: (a) backend `agy` po uzoru na `fetch.domovina.tv/lib/agy_tmux.js` i
+     `npm run eval` se pišu i testiraju bez pravih poziva, a pravo pokretanje je zasebna
+     stavka u `TODO.md`; (b) `agy` je serijski (23–124 s po pozivu, izmjereno u pipelineu
+     28.10.), pa uzorak od ~40 epizoda (~440 poziva) traje 5–8 h, najbolje noću; (c) `agy`
+     ne vraća tokene, pa je trošak po epizodi procjena iz znakova (odluka 305), ne
+     mjerenje, i to se u izvještaju piše uz svaku takvu brojku; (d) vrata S3 (F1 da/ne i
+     prag ocjene) su odgođena, ne preskočena: S4–S6 rade s privremenim pragom i lažnim
+     klijentom, a ništa ne ide na Preview s pravim podacima (S7) dok korisnik nije odgovorio
+     na pitanje iz mjerenja. Vertex i AI Studio ostaju u kodu kao izbor (`VIJESTI_LLM_BACKEND`).
+     Revizija: kad mjerenje pokaže da je udio vijesti premali za portal.
