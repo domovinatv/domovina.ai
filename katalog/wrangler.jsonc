@@ -24,5 +24,26 @@
       "database_id": "00000000-0000-0000-0000-000000000000",
       "migrations_dir": "migrations"
     }
-  ]
+  ],
+
+  // Staging (S5, odluka 409/500): samo workers.dev, bez `routes`, bez secreta.
+  // D1 vezanja i `vars` se ne nasljeđuju iz vrha, pa se ponavljaju.
+  // `database_id` nije tajna (bez tokena ne daje pristup); `account_id` se
+  // NE upisuje, ide kroz `CLOUDFLARE_ACCOUNT_ID` u okolini (vidi .dev.vars).
+  // Povratak: `wrangler delete --env staging` + `wrangler d1 delete katalog-staging`.
+  "env": {
+    "staging": {
+      "name": "domovina-katalog-staging",
+      "workers_dev": true,
+      "vars": { "DEFAULT_BRAND": "domovina" },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "katalog-staging",
+          "database_id": "80c56ea0-0fa3-4bbc-9b36-31b1c8641bbf",
+          "migrations_dir": "migrations"
+        }
+      ]
+    }
+  }
 }

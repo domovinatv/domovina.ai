@@ -14,7 +14,8 @@
     "import": "node scripts/import.mjs",
     "fixtures:refresh": "node scripts/fixtures-refresh.mjs",
     "synth": "node scripts/synth.ts",
-    "measure": "node scripts/measure.ts"
+    "measure": "node scripts/measure.ts",
+    "latency": "node scripts/latency.ts"
   },
   "devDependencies": {
     "@cfworker/json-schema": "4.1.1",
