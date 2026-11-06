@@ -17,6 +17,11 @@ export interface LlmCallRecord {
   costUsd: number | null;
   /** `false` za HTTP grešku, prazan odgovor ili izlaz koji ne prolazi shemu. */
   ok: boolean;
+  /**
+   * Tokeni su procjena iz znakova (odluka 305), ne brojka API-ja: `agy` ih ne
+   * vraća (odluka 401). Jedan takav poziv označi cijeli run.
+   */
+  tokensEstimated?: boolean;
 }
 
 export interface RunRecorder {
@@ -35,6 +40,8 @@ export interface RunTotals {
   tokensIn: number;
   tokensOut: number;
   costUsd: number | null;
+  /** Barem jedan poziv ima procijenjene tokene (`runs.tokens_estimated`, migracija 004). */
+  tokensEstimated: boolean;
 }
 
 /** Recorder u memoriji (testovi, suhi prolazi). */
@@ -54,6 +61,7 @@ export class MemoryRunRecorder implements RunRecorder {
       tokensIn: 0,
       tokensOut: 0,
       costUsd: 0,
+      tokensEstimated: false,
     });
     return Promise.resolve(id);
   }
@@ -64,6 +72,7 @@ export class MemoryRunRecorder implements RunRecorder {
     if (!call.ok) r.failedCalls++;
     r.tokensIn += call.tokensIn;
     r.tokensOut += call.tokensOut;
+    if (call.tokensEstimated) r.tokensEstimated = true;
     r.costUsd = r.costUsd === null || call.costUsd === null ? null : r.costUsd + call.costUsd;
     return Promise.resolve();
   }

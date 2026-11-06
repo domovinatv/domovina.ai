@@ -12,6 +12,7 @@ interface RunRow {
   tokens_in: string | number;
   tokens_out: string | number;
   cost_usd: string | number | null;
+  tokens_estimated: boolean;
 }
 
 export function createSqlRunRecorder(db: SqlDb): RunRecorder & {
@@ -36,9 +37,10 @@ export function createSqlRunRecorder(db: SqlDb): RunRecorder & {
            failed_calls = failed_calls + CASE WHEN $2 THEN 0 ELSE 1 END,
            tokens_in = tokens_in + $3,
            tokens_out = tokens_out + $4,
-           cost_usd = cost_usd + $5::numeric
+           cost_usd = cost_usd + $5::numeric,
+           tokens_estimated = tokens_estimated OR $6
          WHERE id = $1 RETURNING id`,
-        [runId, call.ok, call.tokensIn, call.tokensOut, call.costUsd],
+        [runId, call.ok, call.tokensIn, call.tokensOut, call.costUsd, call.tokensEstimated === true],
       );
       if (res.rows.length !== 1) throw new Error(`nepoznat run ${String(runId)}`);
     },
@@ -50,7 +52,8 @@ export function createSqlRunRecorder(db: SqlDb): RunRecorder & {
     },
     async totals(runId: number) {
       const res = await db.query<RunRow>(
-        `SELECT id, step, model, status, calls, failed_calls, tokens_in, tokens_out, cost_usd
+        `SELECT id, step, model, status, calls, failed_calls, tokens_in, tokens_out, cost_usd,
+                tokens_estimated
          FROM vijesti.runs WHERE id = $1`,
         [runId],
       );
@@ -66,6 +69,7 @@ export function createSqlRunRecorder(db: SqlDb): RunRecorder & {
         tokensIn: Number(r.tokens_in),
         tokensOut: Number(r.tokens_out),
         costUsd: r.cost_usd === null ? null : Number(r.cost_usd),
+        tokensEstimated: r.tokens_estimated,
       };
     },
   };

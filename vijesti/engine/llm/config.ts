@@ -11,6 +11,15 @@ import {
   type LlmFetch,
   type RetryPolicy,
 } from './gemini.js';
+import {
+  createAgyClient,
+  createTmuxAgyIo,
+  DEFAULT_AGY_MODEL,
+  DEFAULT_AGY_ROOT,
+  DEFAULT_AGY_SESSION,
+  DEFAULT_AGY_TIMEOUT_MS,
+  type AgyIo,
+} from './agy.js';
 import type { RunRecorder } from './runs.js';
 import type { LlmClient, LlmPricing } from './types.js';
 import { createGcloudTokenProvider } from './vertex-auth.js';
@@ -26,14 +35,27 @@ export interface VertexConfig {
   location: string;
 }
 
+/** `agy`: Gemini kroz Antigravity CLI u tmuxu, na pretplati (odluke 315, 400). */
+export type LlmBackend = GeminiBackend | 'agy';
+export const LLM_BACKENDS: readonly LlmBackend[] = ['vertex', 'studio', 'agy'];
+
+export interface AgyConfig {
+  session: string;
+  /** Model unutar agyja (`--model`), npr. `gemini-3.8-flash-high`. */
+  model: string;
+  dir: string;
+  timeoutMs: number;
+}
+
 export interface LlmConfig {
-  backend: GeminiBackend;
+  backend: LlmBackend;
   apiKey: string;
   model: string;
   pricing: LlmPricing | null;
-  /** Odakle je cijena: env, zadani cjenik u kodu (odluka 304) ili nepoznata. */
-  pricingSource: 'env' | 'default' | null;
+  /** Odakle je cijena: env, zadani cjenik u kodu (odluka 304), pretplata (agy, $0) ili nepoznata. */
+  pricingSource: 'env' | 'default' | 'subscription' | null;
   vertex: VertexConfig;
+  agy: AgyConfig;
   schemaField: GeminiSchemaField;
 }
 
@@ -73,7 +95,7 @@ export const VERTEX_PRICES: Record<
 export const NON_GLOBAL_PRICE_FACTOR = 1.1;
 
 export function defaultPricing(
-  backend: GeminiBackend,
+  backend: LlmBackend,
   model: string,
   location: string,
   nowMs: number = Date.now(),
@@ -94,10 +116,23 @@ export function llmConfigFromEnv(
 ): LlmConfig {
   const apiKey = env.GEMINI_API_KEY?.trim() ?? '';
   const rawBackend = env.VIJESTI_LLM_BACKEND?.trim();
-  let backend: GeminiBackend;
+  let backend: LlmBackend;
   if (!rawBackend) backend = apiKey ? 'studio' : 'vertex';
-  else if (rawBackend === 'vertex' || rawBackend === 'studio') backend = rawBackend;
-  else throw new Error(`VIJESTI_LLM_BACKEND mora biti vertex ili studio: ${rawBackend}`);
+  else if ((LLM_BACKENDS as readonly string[]).includes(rawBackend)) backend = rawBackend as LlmBackend;
+  else throw new Error(`VIJESTI_LLM_BACKEND mora biti ${LLM_BACKENDS.join(', ')}: ${rawBackend}`);
+
+  const session = env.VIJESTI_AGY_SESSION?.trim() || DEFAULT_AGY_SESSION;
+  const rawTimeout = env.VIJESTI_AGY_TIMEOUT_SEC?.trim();
+  const timeoutSec = rawTimeout ? Number(rawTimeout) : DEFAULT_AGY_TIMEOUT_MS / 1000;
+  if (!Number.isFinite(timeoutSec) || timeoutSec <= 0) {
+    throw new Error(`VIJESTI_AGY_TIMEOUT_SEC nije pozitivan broj: ${rawTimeout ?? ''}`);
+  }
+  const agy: AgyConfig = {
+    session,
+    model: env.VIJESTI_AGY_MODEL?.trim() || DEFAULT_AGY_MODEL,
+    dir: env.VIJESTI_AGY_DIR?.trim() || `${DEFAULT_AGY_ROOT}/${session}`,
+    timeoutMs: timeoutSec * 1000,
+  };
 
   const rawField = env.VIJESTI_GEMINI_SCHEMA_FIELD?.trim();
   let schemaField: GeminiSchemaField = 'responseJsonSchema';
@@ -122,14 +157,18 @@ export function llmConfigFromEnv(
   }
   let pricing: LlmPricing | null;
   let pricingSource: LlmConfig['pricingSource'] = null;
-  if (inPer !== null && outPer !== null) {
+  if (backend === 'agy') {
+    // Pretplata (Google AI Pro): stvarni trošak je $0; env cijena se ne primjenjuje.
+    pricing = { inPerMTok: 0, outPerMTok: 0 };
+    pricingSource = 'subscription';
+  } else if (inPer !== null && outPer !== null) {
     pricing = { inPerMTok: inPer, outPerMTok: outPer };
     pricingSource = 'env';
   } else {
     pricing = defaultPricing(backend, model, vertex.location, nowMs);
     if (pricing) pricingSource = 'default';
   }
-  return { backend, apiKey, model, pricing, pricingSource, vertex, schemaField };
+  return { backend, apiKey, model, pricing, pricingSource, vertex, agy, schemaField };
 }
 
 export interface LlmClientDeps {
@@ -138,10 +177,22 @@ export interface LlmClientDeps {
   /** Zadano gcloud s `VIJESTI_VERTEX_ACCOUNT` (testovi daju lažni). */
   tokens?: AccessTokenProvider;
   retry?: Partial<RetryPolicy>;
+  /** Zadano pravi tmux (testovi daju lažni sloj). */
+  agyIo?: AgyIo;
 }
 
 /** Pravi Gemini klijent po konfiguraciji (CLI, eval). */
 export function createLlmFromConfig(cfg: LlmConfig, deps: LlmClientDeps): LlmClient {
+  if (cfg.backend === 'agy') {
+    return createAgyClient({
+      io: deps.agyIo ?? createTmuxAgyIo(),
+      recorder: deps.recorder,
+      model: cfg.agy.model,
+      session: cfg.agy.session,
+      dir: cfg.agy.dir,
+      timeoutMs: cfg.agy.timeoutMs,
+    });
+  }
   if (cfg.backend === 'studio') {
     return createGeminiClient({
       backend: 'studio',
@@ -172,6 +223,12 @@ export function createLlmFromConfig(cfg: LlmConfig, deps: LlmClientDeps): LlmCli
 
 /** Jedan redak za ispis prije pokretanja (bez ključa i tokena). */
 export function describeLlmConfig(cfg: LlmConfig): string {
+  if (cfg.backend === 'agy') {
+    return (
+      `agy tmux=${cfg.agy.session} model=${cfg.agy.model} dir=${cfg.agy.dir} ` +
+      `timeout=${String(cfg.agy.timeoutMs / 1000)} s  $0 (pretplata), tokeni = procjena iz znakova`
+    );
+  }
   const where =
     cfg.backend === 'vertex'
       ? `vertex ${cfg.vertex.project || '(bez projekta)'}/${cfg.vertex.location}${cfg.vertex.account ? ` kao ${cfg.vertex.account}` : ''}`

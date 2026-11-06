@@ -10,6 +10,8 @@ const TABLES = [
   'article_versions',
   'articles',
   'corrections',
+  'eval_channels',
+  'eval_sample',
   'moments',
   'runs',
   'schema_migrations',
@@ -36,11 +38,11 @@ describe('migracije na PGlite', () => {
   });
 
   it('gore → dolje → gore', async () => {
-    expect(await migrateUp(db)).toEqual([1, 2, 3]);
+    expect(await migrateUp(db)).toEqual([1, 2, 3, 4]);
     expect(await tables(db)).toEqual(TABLES);
     expect(await migrateUp(db)).toEqual([]);
 
-    expect(await migrateDown(db, { steps: Infinity })).toEqual([3, 2, 1]);
+    expect(await migrateDown(db, { steps: Infinity })).toEqual([4, 3, 2, 1]);
     expect(await tables(db)).toEqual(['schema_migrations']);
     // Odluka 108: nakon „dolje” u shemi ostaje samo knjigovodstvo runnera, bez
     // ijednog drugog objekta (sekvence, indeksi, tipovi).
@@ -59,9 +61,9 @@ describe('migracije na PGlite', () => {
     expect(types.rows).toHaveLength(0);
     expect(await appliedVersions(db)).toEqual([]);
 
-    expect(await migrateUp(db)).toEqual([1, 2, 3]);
+    expect(await migrateUp(db)).toEqual([1, 2, 3, 4]);
     expect(await tables(db)).toEqual(TABLES);
-    expect(await appliedVersions(db)).toEqual([1, 2, 3]);
+    expect(await appliedVersions(db)).toEqual([1, 2, 3, 4]);
   });
 
   it('migracija koja padne ne ostavlja ništa (transakcija)', async () => {
@@ -75,7 +77,7 @@ describe('migracije na PGlite', () => {
       },
     ];
     await expect(migrateUp(db, { migrations })).rejects.toThrow(/nepostojeci_stupac/);
-    expect(await appliedVersions(db)).toEqual([1, 2, 3]);
+    expect(await appliedVersions(db)).toEqual([1, 2, 3, 4]);
     expect(await tables(db)).not.toContain('privremena');
   });
 
@@ -207,7 +209,7 @@ describe('migracije na PGlite', () => {
     });
 
     it('002 dolje vraća shemu iz 001, gore je opet stavlja', async () => {
-      expect(await migrateDown(db)).toEqual([3]);
+      expect(await migrateDown(db, { steps: 2 })).toEqual([4, 3]);
       const cols = async () =>
         (
           await db.query<{ column_name: string }>(
@@ -232,7 +234,7 @@ describe('migracije na PGlite', () => {
     });
 
     it('002 dolje → gore s podacima: exact/fuzzy se vraćaju, failed/srt_only ruše migraciju bez traga', async () => {
-      expect(await migrateDown(db)).toEqual([3]);
+      expect(await migrateDown(db, { steps: 2 })).toEqual([4, 3]);
       await moment({ quote_check: 'exact', start_ms: 1, end_ms: 2 });
       await moment({ quote_check: 'fuzzy', start_ms: 3, end_ms: 4 });
       expect(await migrateDown(db)).toEqual([2]);
@@ -302,13 +304,13 @@ describe('migracije na PGlite', () => {
     it('003 dolje briše stupce i ocjene, gore ih vraća prazne; 001 score bez skale se briše', async () => {
       const id = Number((await moment({ start_ms: 1, end_ms: 2 })).rows[0]?.id);
       await setScore(id, 0.7);
-      expect(await migrateDown(db)).toEqual([3]);
+      expect(await migrateDown(db, { steps: 2 })).toEqual([4, 3]);
       expect(await scoreCols()).toEqual(['score']);
       const after = await db.query<{ score: number | null }>('SELECT score FROM vijesti.moments WHERE id = $1', [id]);
       expect(after.rows[0]?.score).toBeNull();
       // Bez skale (001/002) score može biti bilo što; 003 gore to briše jer nema verziju.
       await db.query('UPDATE vijesti.moments SET score = 7 WHERE id = $1', [id]);
-      expect(await migrateUp(db)).toEqual([3]);
+      expect(await migrateUp(db)).toEqual([3, 4]);
       const back = await db.query<{ score: number | null; score_version: string | null }>(
         'SELECT score, score_version FROM vijesti.moments WHERE id = $1',
         [id],
@@ -316,6 +318,34 @@ describe('migracije na PGlite', () => {
       expect(back.rows[0]).toEqual({ score: null, score_version: null });
       const idx = await db.query(`SELECT 1 FROM pg_indexes WHERE indexname = 'moments_score_idx'`);
       expect(idx.rows).toHaveLength(1);
+    });
+
+    it('004: tokens_estimated na runs i tablice uzorka; dolje ih briše, gore vraća', async () => {
+      const run = await db.query<{ tokens_estimated: boolean }>(
+        `INSERT INTO vijesti.runs (step, model) VALUES ('extract', 'agy:m') RETURNING tokens_estimated`,
+      );
+      expect(run.rows[0]?.tokens_estimated).toBe(false);
+      await db.query(
+        `INSERT INTO vijesti.eval_sample (video_id, channel, episode_date, has_words, pick)
+         VALUES ('a', 'kanal', '2026-11-01', true, 'fresh')`,
+      );
+      await expect(
+        db.query(`INSERT INTO vijesti.eval_sample (video_id, channel, has_words, pick) VALUES ('b', 'k', true, 'x')`),
+      ).rejects.toThrow(/check/i);
+      await expect(
+        db.query(
+          `INSERT INTO vijesti.eval_channels (channel, listed, episodes_30d, window_end) VALUES ('k', 2, 3, '2026-11-06')`,
+        ),
+      ).rejects.toThrow(/check/i);
+      expect(await migrateDown(db)).toEqual([4]);
+      const col = await db.query(
+        `SELECT 1 FROM information_schema.columns
+         WHERE table_schema = 'vijesti' AND table_name = 'runs' AND column_name = 'tokens_estimated'`,
+      );
+      expect(col.rows).toHaveLength(0);
+      expect((await tables(db)).filter((t) => t.startsWith('eval_'))).toEqual([]);
+      expect(await migrateUp(db)).toEqual([4]);
+      expect((await tables(db)).filter((t) => t.startsWith('eval_'))).toEqual(['eval_channels', 'eval_sample']);
     });
 
     it('runs: failed_calls ne može biti veći od calls', async () => {

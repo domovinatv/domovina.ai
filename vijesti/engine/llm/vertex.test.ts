@@ -304,7 +304,7 @@ describe('konfiguracija backenda (odluke 300, 304)', () => {
       schemaField: 'responseSchema',
       pricing: { inPerMTok: 0.825, outPerMTok: 4.125 },
     });
-    expect(() => llmConfigFromEnv({ VIJESTI_LLM_BACKEND: 'openai' })).toThrow(/vertex ili studio/);
+    expect(() => llmConfigFromEnv({ VIJESTI_LLM_BACKEND: 'openai' })).toThrow(/vertex, studio, agy/);
     expect(() => llmConfigFromEnv({ VIJESTI_GEMINI_SCHEMA_FIELD: 'schema' })).toThrow(/responseJsonSchema/);
   });
 
