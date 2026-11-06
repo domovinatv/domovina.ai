@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://domovina.ai/api/katalog/v1/contract/ingest-response.schema.json",
+  "title": "Odgovor POST /ingest",
+  "description": "Uspješan ingest; Cache-Control: no-store. `changes` = stvarno promijenjeni retci (0 kad je batch već upisan). `catalog` = nova verzija kad je changes > 0, inače postojeća (`null` dok uspješnog uvoza nema).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "ok",
+    "changes",
+    "catalog"
+  ],
+  "properties": {
+    "ok": {
+      "const": true
+    },
+    "changes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "channels",
+        "episodes"
+      ],
+      "properties": {
+        "channels": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "episodes": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "catalog": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[0-9]+$"
+    }
+  }
+}

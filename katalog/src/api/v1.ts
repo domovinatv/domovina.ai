@@ -14,6 +14,7 @@ import {
   type SqlQuery,
 } from "../db/queries.ts";
 import type { Env } from "../env.ts";
+import { type CatalogContextValue, contextKey, forgetContext, recallContext, rememberContext } from "./context.ts";
 import { decodeCursor, encodeCursor, isIsoDate } from "./cursor.ts";
 
 /** Zadana veličina stranice kad `limit` nije zadan (odluka 304). */
@@ -34,13 +35,25 @@ export type ErrorCode =
   | "bad_limit"
   | "bad_tier"
   | "bad_date"
+  // Ingest (odluke 603–607).
+  | "ingest_disabled"
+  | "unauthorized"
+  | "bad_content_type"
+  | "bad_json"
+  | "bad_body"
+  | "batch_too_large"
+  | "body_too_large"
+  | "unknown_channel"
+  | "bad_after"
   | "internal";
+
+export type ErrorStatus = 400 | 401 | 404 | 409 | 413 | 500 | 503;
 
 const CACHE_LIST = "public, max-age=60, stale-while-revalidate=600";
 const CACHE_CARD = "public, max-age=300, stale-while-revalidate=3600";
 const CACHE_DAY_RECENT = "public, max-age=60, stale-while-revalidate=300";
 const CACHE_DAY_PAST = "public, max-age=3600, stale-while-revalidate=86400";
-const NO_STORE = "no-store";
+export const NO_STORE = "no-store";
 
 function headers(cacheControl: string): Record<string, string> {
   // CORS bez `Vary: Origin` (odluka 308): javni podaci, jedan cache zapis za
@@ -56,8 +69,9 @@ export function jsonResponse(body: unknown, status: number, cacheControl: string
   return new Response(JSON.stringify(body), { status, headers: headers(cacheControl) });
 }
 
-export function errorResponse(status: 400 | 404 | 500, error: ErrorCode): Response {
-  return jsonResponse({ ok: false, error }, status, NO_STORE);
+/** Greška `{ok: false, error}`; `detail` (putanja polja) samo kad je zadan (odluka 604). */
+export function errorResponse(status: ErrorStatus, error: ErrorCode, detail?: string): Response {
+  return jsonResponse(detail === undefined ? { ok: false, error } : { ok: false, error, detail }, status, NO_STORE);
 }
 
 /**
@@ -213,15 +227,32 @@ function channel(r: ChannelRow): Record<string, unknown> {
 
 // ---------------------------------------------------------------- izvršavanje
 
-/** Zbraja `meta.rows_read` svih upita jednog zahtjeva (odluka 300). */
-class Reader {
+/**
+ * Zbraja `meta.rows_read` svih upita jednog zahtjeva (odluka 300).
+ *
+ * `lead(q)` stavlja upit u red: ide u isti `db.batch` kao prvi sljedeći upit, pa
+ * miss uz zapamćen kontekst čita kontekst i rutu jednim odlaskom do baze
+ * (odluka 503/601). Rezultat je u `leadRows` nakon tog upita.
+ */
+export class Reader {
   rowsRead = 0;
   private readonly db: D1Database;
+  private pending: SqlQuery | undefined;
+  leadRows: unknown[] | undefined;
   constructor(db: D1Database) {
     this.db = db;
   }
 
+  lead(query: SqlQuery): void {
+    this.pending = query;
+    this.leadRows = undefined;
+  }
+
   async all<T>(query: SqlQuery): Promise<T[]> {
+    if (this.pending !== undefined) {
+      const [rows] = await this.batch([query]);
+      return (rows ?? []) as T[];
+    }
     const res = await prepare(this.db, query).all<T>();
     this.rowsRead += res.meta.rows_read;
     return res.results;
@@ -229,11 +260,24 @@ class Reader {
 
   /** Više upita jednim `db.batch` (jedan odlazak do baze). */
   async batch(queries: readonly SqlQuery[]): Promise<unknown[][]> {
-    const results = await this.db.batch(queries.map((q) => prepare(this.db, q)));
-    return results.map((r) => {
+    const lead = this.pending;
+    this.pending = undefined;
+    const all = lead === undefined ? queries : [lead, ...queries];
+    const results = await this.db.batch(all.map((q) => prepare(this.db, q)));
+    const rows = results.map((r) => {
       this.rowsRead += r.meta.rows_read;
       return r.results;
     });
+    if (lead !== undefined) this.leadRows = rows.shift();
+    return rows;
+  }
+
+  /** Upit iz `lead` koji nijedan upit nije ponio (ruta bez upita) ide sam. */
+  async flushLead(): Promise<void> {
+    const lead = this.pending;
+    if (lead === undefined) return;
+    this.pending = undefined;
+    this.leadRows = await this.all(lead);
   }
 }
 
@@ -360,6 +404,26 @@ interface ContextRow {
   readonly catalog: number | null;
 }
 
+/** Redak `catalogContext` → kontekst; `null` = `brand_not_found` (odluka 305). */
+export function parseContext(rows: readonly unknown[] | undefined): CatalogContextValue | null {
+  const row = rows?.[0] as ContextRow | undefined;
+  const brand = row?.host_brand ?? row?.default_brand ?? null;
+  if (brand === null) return null;
+  return { brand, catalog: row?.catalog == null ? null : String(row.catalog) };
+}
+
+/** Kontekst iz D1 (uvijek, bez memorije); ingest ga čita ovako. */
+export async function readContext(reader: Reader, url: URL, env: Env): Promise<CatalogContextValue | null> {
+  return parseContext(await reader.all(catalogContext(url.hostname, env.DEFAULT_BRAND)));
+}
+
+function hitResponse(hit: Response, cacheControl: string): Response {
+  return new Response(hit.body, {
+    status: 200,
+    headers: { ...headers(cacheControl), "x-katalog-cache": "hit" },
+  });
+}
+
 export async function handleV1(
   url: URL,
   rest: string,
@@ -390,24 +454,47 @@ export async function handleV1(
   }
   const req: Request0 = { route, page, tier };
 
-  const reader = new Reader(env.DB);
-  const [context] = await reader.all<ContextRow>(catalogContext(url.hostname, env.DEFAULT_BRAND));
-  const brand = context?.host_brand ?? context?.default_brand ?? null;
-  if (brand === null) return errorResponse(404, "brand_not_found");
-  const catalog = context?.catalog == null ? null : String(context.catalog);
-
+  // Hit uz zapamćen kontekst ne dira `env.DB` (odluke 502, 600).
   const cacheControl = cacheControlFor(route, now);
-  const key = cacheKey(url, req, catalog);
   const cache = caches.default;
-  const hit = await cache.match(key);
-  if (hit !== undefined) {
-    return new Response(hit.body, {
-      status: 200,
-      headers: { ...headers(cacheControl), "x-katalog-cache": "hit" },
-    });
+  const memKey = contextKey(url.hostname, env.DEFAULT_BRAND);
+  const nowMs = now.getTime();
+  const remembered = recallContext(memKey, nowMs);
+  if (remembered !== undefined) {
+    const hit = await cache.match(cacheKey(url, req, remembered.catalog));
+    if (hit !== undefined) return hitResponse(hit, cacheControl);
   }
 
-  const out = await compute(reader, brand, req);
+  // Miss: kontekst se uvijek ponovno čita iz D1 (svjež `catalog` za ključ, isti
+  // `rows_read` kao prije memorije). Uz zapamćen brend ide u isti `db.batch` kao
+  // upit rute (odluka 601); bez njega prvo kontekst, pa cache pod svježim ključem.
+  const reader = new Reader(env.DB);
+  const contextQuery = catalogContext(url.hostname, env.DEFAULT_BRAND);
+  let context: CatalogContextValue | null;
+  let out: Outcome | undefined;
+  if (remembered !== undefined) {
+    reader.lead(contextQuery);
+    out = await compute(reader, remembered.brand, req);
+    await reader.flushLead();
+    context = parseContext(reader.leadRows);
+    // Brend hosta se promijenio unutar TTL-a: izračun s krivim brendom se baca.
+    if (context?.brand !== remembered.brand) out = undefined;
+  } else {
+    context = parseContext(await reader.all(contextQuery));
+  }
+  if (context === null) {
+    forgetContext(memKey);
+    return errorResponse(404, "brand_not_found");
+  }
+  rememberContext(memKey, context, nowMs);
+  const { brand, catalog } = context;
+  const key = cacheKey(url, req, catalog);
+  if (out === undefined) {
+    const hit = await cache.match(key);
+    if (hit !== undefined) return hitResponse(hit, cacheControl);
+    out = await compute(reader, brand, req);
+  }
+
   if (!out.ok) return errorResponse(out.status, out.error);
   const body = JSON.stringify({
     version: CONTRACT_VERSION,

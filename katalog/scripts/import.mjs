@@ -16,85 +16,16 @@
 // Nikad `--remote`: `remoteBindings: false`.
 //
 // Node 24+ (parseri i ingest moduli se uvoze kao .ts, odluka 118).
+// Dohvat s CDN-a i izgradnja plana su u `scripts/lib/` (dijeli ih `drift-check --sync`).
 import { readFile, writeFile } from "node:fs/promises";
-import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 
-const CDN = "https://cdn.domovina.ai/";
-const CONCURRENCY = 6;
 const SOURCE = "backfill";
-
-const KATALOG = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const FETCH_REPO = resolve(KATALOG, "../../fetch.domovina.tv");
-const KEY_CACHE_PATH = process.env.KATALOG_KEY_CACHE_PATH
-  ? resolve(process.env.KATALOG_KEY_CACHE_PATH)
-  : join(FETCH_REPO, ".r2_keys_cache.json");
-const REGISTRY_PATH = process.env.KATALOG_REGISTRY_PATH
-  ? resolve(process.env.KATALOG_REGISTRY_PATH)
-  : join(FETCH_REPO, "data", "podcasts_registry.json");
 
 const args = process.argv.slice(2);
 const DRY_RUN = args.includes("--dry-run");
 const jsonIdx = args.indexOf("--json");
 const JSON_OUT = jsonIdx >= 0 ? args[jsonIdx + 1] : null;
-
-// ---- Dohvat ----------------------------------------------------------------
-
-const http = { get: 0, notFound: 0, retried: 0, missingAfterRetry: 0 };
-
-/** Isti 5-minutni bucket kao `CdnConfig.bustCache` u aplikaciji. */
-const cacheBuster = () => Math.floor(Date.now() / 300_000);
-
-/**
- * Pravilo `DataService._get`: CDN cachira i 404 (u zasebnom `Vary: Origin` zapisu),
- * pa se 404 ponovi jednom s cache-busterom; tek drugi 404 znači „nema”.
- * `null` = nema; sve osim 200/404 baca.
- */
-async function getText(path) {
-  const url = CDN + path;
-  http.get++;
-  let res = await fetch(url);
-  if (res.status === 404) {
-    http.notFound++;
-    http.retried++;
-    http.get++;
-    res = await fetch(`${url}?cb=${cacheBuster()}`);
-    if (res.status === 404) {
-      http.missingAfterRetry++;
-      return null;
-    }
-  }
-  if (!res.ok) throw new Error(`${url}: HTTP ${res.status}`);
-  return res.text();
-}
-
-async function getRequired(path) {
-  const text = await getText(path);
-  if (text === null) throw new Error(`${CDN}${path}: 404 i nakon cache-bustera`);
-  return text;
-}
-
-async function pool(items, limit, fn) {
-  const out = new Array(items.length);
-  let next = 0;
-  async function worker() {
-    while (next < items.length) {
-      const i = next++;
-      out[i] = await fn(items[i], i);
-    }
-  }
-  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker));
-  return out;
-}
-
-/** Parser uz kontekst: InputError dobiva datoteku u poruci. */
-function parseWith(parse, text, label) {
-  try {
-    return parse(JSON.parse(text));
-  } catch (err) {
-    throw new Error(`${label}: ${err instanceof Error ? err.message : err}`, { cause: err });
-  }
-}
 
 // ---- Izvještaj -------------------------------------------------------------
 
@@ -126,49 +57,23 @@ function printReport(r) {
 // ---- Glavni tok ------------------------------------------------------------
 
 async function main() {
-  const P = await import("../src/input/index.ts");
+  const { KATALOG, KEY_CACHE_PATH, REGISTRY_PATH } = await import("./lib/paths.ts");
+  const { createCdn } = await import("./lib/cdn.ts");
+  const { buildImportPlan } = await import("./lib/build-plan.ts");
   const K = await import("../src/ingest/keys.ts");
-  const { buildPlan, DOMOVINA_BRAND } = await import("../src/ingest/plan.ts");
+  const { DOMOVINA_BRAND } = await import("../src/ingest/plan.ts");
   const W = await import("../src/ingest/write.ts");
   const startedAt = new Date().toISOString();
 
   const filesById = K.parseKeyCache(JSON.parse(await readFile(KEY_CACHE_PATH, "utf8")));
-  const registry = parseWith(P.parseRegistry, await readFile(REGISTRY_PATH, "utf8"), REGISTRY_PATH);
-
-  const index = parseWith(P.parseChannelIndex, await getRequired("channels/data/index.json"), "index.json");
-  const listings = await pool(index.channels, CONCURRENCY, async (c) =>
-    parseWith(P.parseChannelListing, await getRequired(`channels/data/${c.slug}.json`), `${c.slug}.json`),
-  );
-  const tier1Ids = new Set(listings.flatMap((l) => l.videos.map((v) => v.id)));
-  const articles = K.articleIds(filesById);
-  const tier2Ids = articles.filter((id) => !tier1Ids.has(id));
-  console.log(`Tier 1: ${listings.length} listinga, ${tier1Ids.size} epizoda; Tier 2: ${tier2Ids.length} ID-eva`);
-
-  const tier2 = await pool(tier2Ids, CONCURRENCY, async (id) => {
-    const [infoText, summaryText] = await Promise.all([
-      getText(`data/${id}/info.json`),
-      getText(`data/${id}/summary.json`),
-    ]);
-    return {
-      id,
-      info: infoText === null ? null : parseWith(P.parseEpisodeInfo, infoText, `data/${id}/info.json`),
-      summary: summaryText === null ? null : parseWith(P.parseEpisodeSummary, summaryText, `data/${id}/summary.json`),
-      files: filesById.get(id) ?? new Set(),
-    };
+  const { plan, report } = await buildImportPlan({
+    filesById,
+    keyCachePath: KEY_CACHE_PATH,
+    registryText: await readFile(REGISTRY_PATH, "utf8"),
+    registryPath: REGISTRY_PATH,
+    cdn: createCdn(),
+    log: (line) => console.log(line),
   });
-
-  const plan = buildPlan({ index, listings, registry, tier2 });
-  const report = {
-    ...plan.report,
-    keyCache: {
-      path: KEY_CACHE_PATH,
-      articleIds: articles.length,
-      tier1Ids: tier1Ids.size,
-      tier2Ids: tier2Ids.length,
-      tier1WithoutArticle: [...tier1Ids].filter((id) => !filesById.get(id)?.has("article.json")).length,
-    },
-    http,
-  };
 
   if (DRY_RUN) {
     printReport(report);

@@ -9,7 +9,12 @@ export default defineConfig({
       miniflare: {
         // Migracije se čitaju u Nodeu (ovdje) i predaju testnom workeru kao
         // binding; `test/setup.ts` ih primijeni na lokalni D1.
-        bindings: { TEST_MIGRATIONS: await readD1Migrations("./migrations") },
+        // `INGEST_TOKEN` je testni secret za `/ingest` (odluka 602); nikad kroz
+        // `.dev.vars`, koja je lokalna i gitignorana.
+        bindings: {
+          TEST_MIGRATIONS: await readD1Migrations("./migrations"),
+          INGEST_TOKEN: "test-ingest-token",
+        },
         // Mreža prema van je u testu zatvorena i na razini runtimea: svaki
         // `fetch` koji ne ide na binding završi ovdje. Uz stub u
         // `test/setup.ts` ovo hvata i fetch koji bi kod vratio na original.

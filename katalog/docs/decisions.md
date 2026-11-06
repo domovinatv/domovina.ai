@@ -554,3 +554,76 @@ Korisnik je 6. 11. 2026. u chatu odobrio staging („Da, pokreni”). Izvještaj
      `workers.dev` (hit ~51 ms, miss ~83 ms). Produkcija i dalje ide na isti origin
      `domovina.ai/api/katalog/*` (plan); poddomena za produkciju je otvoreno pitanje za S6.
      Povratak: `wrangler delete --env staging` miče i domenu.
+
+## S6 (2026-11-06, produkcija, ingest, drift-check)
+
+Kod: `src/api/context.ts` (memorija konteksta), `src/api/ingest.ts` (`POST /ingest`,
+`GET /ingest/ids`), `writeRows`/`commitRun`/`discardRun` u `src/ingest/write.ts`,
+`episodeIds`/`existingChannelSlugs` u `src/db/queries.ts`. Ugovor:
+`contract/v1/ingest-response.schema.json`, `ingest-ids.schema.json`, prošireni
+`error.schema.json`. Testovi: `test/api/ingest.test.ts`, `test/api/context-memory.test.ts`.
+
+600. **Kontekst kataloga u memoriji izolata, TTL 30 s** (`CONTEXT_TTL_MS`, provodi 502).
+     Modulska `Map` po `hostname` + `DEFAULT_BRAND`, najviše 32 hosta (prijelaz briše sve,
+     host dolazi iz zahtjeva). Hit uz zapamćen kontekst ne dira `env.DB` (test: D1 koji baca
+     na svaki pristup). Miss uvijek ponovno čita kontekst iz D1 i osvježi memoriju, pa
+     `meta.rows_read` ostaje isti kao prije (309 vrijedi bez izmjene). `brand_not_found` se
+     NE pamti: nastaje samo kad baza nema ni `DEFAULT_BRAND` (prazna baza prije prvog
+     uvoza), i tada brend mora proraditi odmah nakon uvoza, a ne do 30 s kasnije. Novi
+     uvoz drugi izolati vide do 30 s kasnije; ingest zaboravi memoriju svog izolata.
+     Testovi zaboravljaju kroz `forgetCatalogContexts()` (`okRun()` u `helpers.ts`), koji
+     nije u `src/index.ts` (312).
+601. **Miss uz zapamćen kontekst ide jednim odlaskom do baze** (provodi 503). `Reader.lead`
+     stavlja `catalogContext` u isti `db.batch` kao upit rute (zapamćen brend daje
+     parametar upita). Bez memorije ostaju dva odlaska (kontekst, pa ruta), jer upit rute
+     treba brend. Ako se brend hosta u međuvremenu promijenio, izračun se baca i ponavlja.
+     Izmjereno brojanjem poziva u testu: zaglavlje kanala 2 → 1 odlazak, epizode
+     kanala 1 batch s tri upita. Latencija na stagingu nije ponovno mjerena.
+602. **Auth ingesta: `Authorization: Bearer <token>` prema secretu `INGEST_TOKEN`.** Usporedba
+     nad SHA-256 obje strane s `crypto.subtle.timingSafeEqual` (jednaka duljina, pa ni duljina
+     tokena ne curi). Nema tokena (ili prazan) → 503 `ingest_disabled`; nedostaje, kriva
+     shema ili krivi token → 401 `unauthorized`. Auth je prva provjera, prije tijela i baze.
+     Testni token je miniflare binding u `vitest.config.ts`, nikad `.dev.vars`.
+603. **`POST /ingest` je jedina ne-GET ruta**; ostale metode i dalje 404 (308). Tijelo
+     `{source, channels: ChannelRow[], episodes: EpisodeRow[]}` (camelCase, točno ključevi
+     sučelja iz `plan.ts`, svi obavezni, nullable kao `null`). Granice: najviše 1 MiB
+     (`content-length` i stvarna duljina čitanja streama) → 413 `body_too_large`; najviše
+     200 kanala i 500 epizoda → 400 `batch_too_large` s `detail` `channels`/`episodes`.
+     `source` = `^[a-z][a-z0-9_-]{0,31}$` (`pipeline`, `drift-check`). Content-type mora biti
+     `application/json` (parametri dopušteni) → inače 400 `bad_content_type`; nevaljan JSON
+     ili UTF-8 → 400 `bad_json`. Svi odgovori `no-store`, nikad u Cache API; CORS/OPTIONS
+     se ne dodaje (server-to-server).
+604. **Validacija prema CHECK ograničenjima sheme, `detail` = putanja prvog lošeg polja**
+     (`{"ok":false,"error":"bad_body","detail":"episodes[3].tier"}`). Tier 1|2, `flags`
+     cijeli 0–511, `magisteriumScore` cijeli 0–100 ili `null`, datumi `YYYY-MM-DD` i stvaran
+     dan, neprazni stringovi gdje shema traži `length > 0`, `lang` 2–16 znakova (broje se
+     znakovi kao u SQLite, ne UTF-16 jedinice), `durationSeconds` konačan ≥ 0,
+     `unregistered: true` samo uz tier 2, nepoznat ili nedostajući ključ je greška, tijelo
+     koje nije objekt je `detail: "body"`. Duplikat sluga ili ID-a u batchu je loše polje
+     (`episodes[1].id`): inače bi `changes` brojao isti redak dvaput. `detail` je opcionalno
+     polje u `error.schema.json` i postoji samo uz greške ingesta.
+605. **Upis ide istim kodom kao uvoznik**: `writeRows(db, brandId, channels, episodes, now)`
+     izdvojen iz `applyPlan` (koji sad samo doda upsert brenda); `scripts/import.mjs`
+     nepromijenjen. Ingest ne stvara brendove: brend dolazi iz `catalogContext` po hostu kao
+     kod čitanja (404 `brand_not_found`). D1 u poolu provodi strani ključ (test), ali ga
+     ingest provjerava PRIJE upisa jednim upitom (`existingChannelSlugs`, PK po slugu iz
+     `json_each`): `writeRows` dijeli upis na batcheve od 200 naredbi, pa bi FK greška usred
+     upisa ostavila ranije batcheve upisane. Nepoznat kanal → 409 `unknown_channel`,
+     `detail` `episodes[i].channelSlug`, ništa upisano; FK greška iz D1 (utrka s brisanjem)
+     je ista greška bez `detail`.
+606. **0 promjena = bez nove verzije kataloga.** Ingest otvori `running` redak; s ≥ 1
+     stvarnom promjenom ga u jednom `db.batch` zamijeni NOVIM `ok` retkom (`commitRun`, novi
+     `id` je najveći u trenutku završetka, pa dva usporedna ingesta ne ostave verziju
+     ispod upisa onog koji je završio drugi), `counts` = `{received, written}`. Bez
+     promjena se `running` redak briše (`discardRun`): ponovljen batch ne diže verziju i ne
+     poništava cache. Iznimka tijekom upisa → `failed` s porukom u `counts` i 500 `internal`.
+     Odgovor 200: `{"ok":true,"changes":{"channels":n,"episodes":n},"catalog":"<id>"}`;
+     `catalog` je nova verzija kad je promjena bilo, inače verzija pročitana na početku
+     zahtjeva (`null` dok uspješnog uvoza nema).
+607. **`GET /ingest/ids` za drift-check**: isti Bearer, `?after=<id>&limit=1..5000` (zadano
+     5000) → `{"ids":[…],"next":"<zadnji id>"|null,"meta":{"rows_read":n}}`. Sve epizode
+     brenda, i varijante, po `id` ASC; raspon po PK `(brand, id)` (`INDEXED BY`, plan
+     `SEARCH episodes USING PRIMARY KEY (brand=? AND id>?)`), `LIMIT n+1` za `next`, bez
+     OFFSET-a. `rows_read` ≤ limit + 1 + kontekst (≤ 3) na svakoj stranici, kako god duboko
+     (test sa stranicom 37 nad 627 epizoda). `bad_limit` za sve izvan `^\d{1,4}$` i 1–5000,
+     `bad_after` za prazan `after=`. `no-store`, bez Cache API, bez omotnice `version`/`catalog`.

@@ -7,7 +7,9 @@ import {
   channelDirectory,
   channelEpisodes,
   episodeCard,
+  episodeIds,
   episodesOnDay,
+  existingChannelSlugs,
   latestEpisodes,
   MAX_PAGE_SIZE,
   prepare,
@@ -91,6 +93,16 @@ const cases: { name: string; query: SqlQuery; plan: RegExp[] }[] = [
     plan: [/^SEARCH channels USING PRIMARY KEY \(brand=\? AND slug=\?\)$/m],
   },
   {
+    name: "ID-evi epizoda (ingest/ids), prva stranica",
+    query: episodeIds(BRAND, 5001),
+    plan: [/^SEARCH episodes USING PRIMARY KEY \(brand=\?\)$/m],
+  },
+  {
+    name: "ID-evi epizoda (ingest/ids), iza ID-a",
+    query: episodeIds(BRAND, 5001, "ep_20_5"),
+    plan: [/^SEARCH episodes USING PRIMARY KEY \(brand=\? AND id>\?\)$/m],
+  },
+  {
     name: "brend i verzija kataloga",
     query: catalogContext("plan.test", "plan"),
     plan: [
@@ -138,6 +150,18 @@ describe("EXPLAIN QUERY PLAN", () => {
     // `SCAN CONSTANT ROW` je SELECT bez FROM (upit brenda), ne sken tablice.
     expect(text.replace(/^SCAN CONSTANT ROW$/m, "")).not.toMatch(/\bSCAN\b/);
     expect(text).not.toMatch(/TEMP B-TREE/);
+  });
+
+  it("postojeći kanali za ingest: PK po slugu iz json_each, bez TEMP B-TREE", async () => {
+    const query = existingChannelSlugs(BRAND, JSON.stringify(["kanal_1", "kanal_3", "nema"]));
+    const text = (await queryPlan(query)).join("\n");
+    expect(text).toMatch(/SEARCH channels USING PRIMARY KEY \(brand=\? AND slug=\?\)/);
+    // Jedini SCAN je nad virtualnom tablicom `json_each` (popis slugova iz batcha).
+    expect(text.replace(/^.*SCAN json_each VIRTUAL TABLE.*$/m, "")).not.toMatch(/\bSCAN\b/);
+    expect(text).not.toMatch(/TEMP B-TREE/);
+    const { results } = await prepare(env.DB, query).all<{ slug: string }>();
+    expect(results.map((r) => r.slug).sort()).toEqual(["kanal_1", "kanal_3"]);
+    expect(() => episodeIds(BRAND, 5002)).toThrow(RangeError);
   });
 
   it("row-value kursor je raspon indeksa, ne filtar", async () => {

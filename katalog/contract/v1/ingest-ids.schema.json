@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://domovina.ai/api/katalog/v1/contract/ingest-ids.schema.json",
+  "title": "Odgovor GET /ingest/ids",
+  "description": "ID-evi svih epizoda brenda (i varijanti) po `id` ASC; Cache-Control: no-store. Sljedeća stranica: `?after=<next>`; `next` je zadnji ID stranice ili `null` na zadnjoj stranici.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "ids",
+    "next",
+    "meta"
+  ],
+  "properties": {
+    "ids": {
+      "type": "array",
+      "maxItems": 5000,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "next": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rows_read"
+      ],
+      "properties": {
+        "rows_read": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

@@ -97,13 +97,34 @@ async function run(db: D1Database, stmts: D1PreparedStatement[]): Promise<number
   return changes;
 }
 
+export interface RowCounts {
+  readonly channels: number;
+  readonly episodes: number;
+}
+
+/**
+ * Upiše retke kanala pa epizoda (strani ključ) u postojeći brend; vraća broj
+ * stvarno promijenjenih redaka. Zajednički put uvoznika (`applyPlan`) i
+ * `POST /ingest` (odluka 605). Nije atomarno preko `BATCH_SIZE` naredbi.
+ */
+export async function writeRows(
+  db: D1Database,
+  brandId: string,
+  channelRows: readonly ChannelRow[],
+  episodeRows: readonly EpisodeRow[],
+  now: string,
+): Promise<RowCounts> {
+  const channel = db.prepare(UPSERT_CHANNEL);
+  const channels = await run(db, channelRows.map((c) => channel.bind(...channelParams(brandId, c))));
+  const episode = db.prepare(UPSERT_EPISODE);
+  const episodes = await run(db, episodeRows.map((e) => episode.bind(...episodeParams(brandId, e, now))));
+  return { channels, episodes };
+}
+
 /** Upiše plan; vraća broj stvarno promijenjenih (umetnutih ili izmijenjenih) redaka po tablici. */
 export async function applyPlan(db: D1Database, brand: Brand, plan: ImportPlan, now: string): Promise<WriteCounts> {
   const brands = await run(db, [db.prepare(UPSERT_BRAND).bind(brand.id, brand.host)]);
-  const channel = db.prepare(UPSERT_CHANNEL);
-  const channels = await run(db, plan.channels.map((c) => channel.bind(...channelParams(brand.id, c))));
-  const episode = db.prepare(UPSERT_EPISODE);
-  const episodes = await run(db, plan.episodes.map((e) => episode.bind(...episodeParams(brand.id, e, now))));
+  const { channels, episodes } = await writeRows(db, brand.id, plan.channels, plan.episodes, now);
   return { brands, channels, episodes };
 }
 
@@ -128,4 +149,38 @@ export async function finishRun(
     .prepare("UPDATE ingest_runs SET status = ?2, finished_at = ?3, counts = ?4 WHERE id = ?1")
     .bind(id, status, finishedAt, JSON.stringify(counts))
     .run();
+}
+
+/**
+ * Zatvori `running` redak kao uspjeh tako da ga zamijeni NOVIM `ok` retkom
+ * (jedan `db.batch`, transakcija). Novi `id` je najveći u trenutku završetka, pa
+ * verzija kataloga raste i kad dva ingesta idu usporedo: ingest koji je počeo
+ * prije a završio poslije ne ostavi verziju ispod svojih upisa (odluka 606).
+ * Vraća novu verziju (`id`).
+ */
+export async function commitRun(
+  db: D1Database,
+  runningId: number,
+  source: string,
+  startedAt: string,
+  finishedAt: string,
+  counts: unknown,
+): Promise<number> {
+  const [, inserted] = await db.batch<{ id: number }>([
+    db.prepare("DELETE FROM ingest_runs WHERE id = ?1 AND status = 'running'").bind(runningId),
+    db
+      .prepare(
+        `INSERT INTO ingest_runs (started_at, finished_at, source, counts, status)
+         VALUES (?1, ?2, ?3, ?4, 'ok') RETURNING id`,
+      )
+      .bind(startedAt, finishedAt, source, JSON.stringify(counts)),
+  ]);
+  const id = inserted?.results[0]?.id;
+  if (id === undefined) throw new Error("ingest_runs: INSERT nije vratio id");
+  return id;
+}
+
+/** Ukloni `running` redak ingesta bez ijedne promjene: nema nove verzije kataloga (odluka 606). */
+export async function discardRun(db: D1Database, runningId: number): Promise<void> {
+  await db.prepare("DELETE FROM ingest_runs WHERE id = ?1 AND status = 'running'").bind(runningId).run();
 }

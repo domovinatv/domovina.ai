@@ -6,6 +6,7 @@
 import { Validator, type Schema } from "@cfworker/json-schema";
 import { env, exports } from "cloudflare:workers";
 import { expect } from "vitest";
+import { forgetCatalogContexts } from "../../src/api/context.ts";
 import { buildPlan, type Brand, type ImportPlan } from "../../src/ingest/plan.ts";
 import { applyPlan, finishRun, startRun } from "../../src/ingest/write.ts";
 import { fixturePlanInput } from "../ingest/input.ts";
@@ -20,6 +21,8 @@ export type Contract =
   | "channel-episodes"
   | "channel-response"
   | "card-response"
+  | "ingest-response"
+  | "ingest-ids"
   | "error";
 
 const validators = new Map<string, Validator>();
@@ -61,10 +64,15 @@ export async function seed(b: Brand): Promise<number> {
   return okRun();
 }
 
-/** Novi uspješan uvoz = nova verzija kataloga. */
+/**
+ * Novi uspješan uvoz = nova verzija kataloga. Zaboravlja i kontekst u memoriji
+ * izolata (odluka 600): u produkciji se nova verzija vidi do 30 s kasnije, a test
+ * je hoće odmah.
+ */
 export async function okRun(): Promise<number> {
   const id = await startRun(env.DB, "test", NOW);
   await finishRun(env.DB, id, "ok", NOW, {});
+  forgetCatalogContexts();
   return id;
 }
 
@@ -91,6 +99,7 @@ export interface ItemBody<T> {
 export interface ErrorBody {
   readonly ok: false;
   readonly error: string;
+  readonly detail?: string;
 }
 
 export interface Card {

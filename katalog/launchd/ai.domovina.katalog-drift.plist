@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Tripwire: R2 članci (fetch pipeline) ↔ katalog u D1. Svaki dan u 08:45.
+  Tiho kad je poravnato; na drift SAM pošalje puni plan na ingest
+  (drift-check sa sync opcijom), ponovno izmjeri i javi ishod u Telegram.
+
+  08:45: nakon nightlyja (03:00) i voting tripwirea (08:30), da se jobovi ne
+  preklapaju. Key cache (fetch.domovina.tv/.r2_keys_cache.json) ovaj job NE
+  osvježava; zaostao cache može sakriti missing (`--verbose` pokaže starost).
+
+  Instalacija (NE radi je agent, isto pravilo kao za nightly):
+    cp katalog/launchd/ai.domovina.katalog-drift.plist ~/Library/LaunchAgents/
+    launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/ai.domovina.katalog-drift.plist
+  Ručni okidač:  launchctl kickstart -k gui/$(id -u)/ai.domovina.katalog-drift
+  Deinstalacija: launchctl bootout gui/$(id -u)/ai.domovina.katalog-drift
+
+  LaunchAgent, ne Daemon: skripta čita .env/.dev.vars iz korisnikova repoa i šalje
+  u Telegram — treba korisnikovu sesiju, ne sistemski kontekst.
+  Program je homebrew bash 5 (macOS /bin/bash je 3.2).
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>ai.domovina.katalog-drift</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/opt/homebrew/bin/bash</string>
+    <string>/Users/ms/git/domovinatv/domovina.ai/katalog/scripts/drift-check-launchd.sh</string>
+  </array>
+
+  <!-- launchd ne nasljeđuje LANG; bez toga Ruby notifier pukne na US-ASCII. -->
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>LANG</key><string>en_US.UTF-8</string>
+    <key>LC_ALL</key><string>en_US.UTF-8</string>
+  </dict>
+
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key><integer>8</integer>
+    <key>Minute</key><integer>45</integer>
+  </dict>
+
+  <key>RunAtLoad</key>
+  <false/>
+
+  <key>ProcessType</key>
+  <string>Background</string>
+
+  <key>WorkingDirectory</key>
+  <string>/Users/ms/git/domovinatv/domovina.ai/katalog</string>
+
+  <key>StandardOutPath</key>
+  <string>/Users/ms/Library/Logs/ai.domovina.katalog-drift.out.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/ms/Library/Logs/ai.domovina.katalog-drift.err.log</string>
+</dict>
+</plist>

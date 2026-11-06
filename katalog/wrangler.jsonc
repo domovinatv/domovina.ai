@@ -6,9 +6,12 @@
   "workers_dev": false,
   "observability": { "enabled": true },
 
-  // Namjerno BEZ `routes` i BEZ `account_id`: u F0 se ništa ne deploya.
-  // Ruta (`domovina.ai/api/katalog/v1/*`, isti origin kao aplikacija) dolazi
-  // tek sa staging/produkcijskim deployem (S5/S6).
+  // Produkcija (S6, odobrio korisnik 6. 11. 2026., odluka 600+): ruta na zoni
+  // domovina.ai, isti origin kao aplikacija; Pages (`web/_worker.js`) i dalje
+  // servira sve ostalo. `account_id` se NE upisuje (CLOUDFLARE_ACCOUNT_ID u
+  // .dev.vars). Secret: `INGEST_TOKEN` (`wrangler secret put INGEST_TOKEN`).
+  // Povratak: `wrangler delete` (miče rutu) + `wrangler d1 delete katalog`.
+  "routes": [{ "pattern": "domovina.ai/api/katalog/*", "zone_name": "domovina.ai" }],
 
   // Brend kad host zahtjeva nije u `brands.host` (npr. `wrangler dev` na
   // localhostu), odluka 305.
@@ -18,10 +21,9 @@
     {
       "binding": "DB",
       "database_name": "katalog",
-      // PLACEHOLDER, nije stvarna baza. Stvarni ID se upisuje tek u S5,
-      // kad se baza napravi na računu. Lokalno (`--local`, vitest) ID se ne
-      // koristi za ništa osim kao ključ lokalne SQLite datoteke.
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      // Produkcijska baza (S6, hint `eeur`). Nije tajna: bez tokena ne daje
+      // pristup. Lokalno (`--local`, vitest) je ID samo ključ lokalne SQLite datoteke.
+      "database_id": "a841df13-2474-40d0-b368-63b133fcbf05",
       "migrations_dir": "migrations"
     }
   ],

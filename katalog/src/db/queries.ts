@@ -251,6 +251,49 @@ export function channelBySlug(brand: string, slug: string): SqlQuery {
   };
 }
 
+/** Gornja granica stranice `ingest/ids` (odluka 607); upit smije tražiti jedan više. */
+export const MAX_IDS_PAGE_SIZE = 5000;
+
+/**
+ * ID-evi svih epizoda brenda, i varijanti, po `id` ASC (`GET /ingest/ids`, za
+ * drift-check, odluka 607). Raspon po PK `(brand, id)`, bez OFFSET-a: `rows_read`
+ * je ograničen stranicom kako god duboko se listalo.
+ */
+export function episodeIds(brand: string, limit: number, afterId?: string): SqlQuery {
+  if (!Number.isInteger(limit) || limit < 1 || limit > MAX_IDS_PAGE_SIZE + 1) {
+    throw new RangeError(`limit mora biti cijeli broj 1–${MAX_IDS_PAGE_SIZE + 1}, dobiven ${limit}`);
+  }
+  if (afterId === undefined) {
+    return {
+      sql: `SELECT id FROM episodes INDEXED BY ${EPISODES_PK}
+        WHERE brand = ?1
+        ORDER BY id
+        LIMIT ?2`,
+      params: [brand, limit],
+    };
+  }
+  return {
+    sql: `SELECT id FROM episodes INDEXED BY ${EPISODES_PK}
+      WHERE brand = ?1 AND id > ?2
+      ORDER BY id
+      LIMIT ?3`,
+    params: [brand, afterId, limit],
+  };
+}
+
+/**
+ * Koji od zadanih slugova (JSON niz stringova) postoje kao kanali brenda; po PK
+ * kanala, jedno čitanje po slugu. Ingest time provjerava strani ključ prije
+ * upisa (odluka 605).
+ */
+export function existingChannelSlugs(brand: string, slugsJson: string): SqlQuery {
+  return {
+    sql: `SELECT slug FROM channels INDEXED BY ${CHANNELS_PK}
+      WHERE brand = ?1 AND slug IN (SELECT value FROM json_each(?2))`,
+    params: [brand, slugsJson],
+  };
+}
+
 export function prepare(db: D1Database, query: SqlQuery): D1PreparedStatement {
   return db.prepare(query.sql).bind(...query.params);
 }

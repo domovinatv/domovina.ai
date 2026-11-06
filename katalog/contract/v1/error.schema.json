@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://domovina.ai/api/katalog/v1/contract/error.schema.json",
   "title": "Greška",
-  "description": "Svaki 4xx i 5xx odgovor; Cache-Control: no-store. `internal` = neuhvaćena iznimka (500).",
+  "description": "Svaki 4xx i 5xx odgovor; Cache-Control: no-store. `internal` = neuhvaćena iznimka (500). `detail` samo kod ingesta: putanja prvog lošeg polja (`episodes[3].tier`) ili polje batcha (`episodes`).",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -23,8 +23,21 @@
         "bad_limit",
         "bad_tier",
         "bad_date",
+        "ingest_disabled",
+        "unauthorized",
+        "bad_content_type",
+        "bad_json",
+        "bad_body",
+        "batch_too_large",
+        "body_too_large",
+        "unknown_channel",
+        "bad_after",
         "internal"
       ]
+    },
+    "detail": {
+      "type": "string",
+      "minLength": 1
     }
   }
 }
