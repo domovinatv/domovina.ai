@@ -28,20 +28,36 @@ export const cacheBuster = (now: number = Date.now()): number => Math.floor(now 
  * Pravilo `DataService._get`: CDN cachira i 404 (u zasebnom `Vary: Origin` zapisu),
  * pa se 404 ponovi jednom s cache-busterom; tek drugi 404 znači „nema”.
  */
-export function createCdn(opts: { base?: string; fetch?: typeof fetch } = {}): Cdn {
+export interface CdnOptions {
+  base?: string;
+  fetch?: typeof fetch;
+  /**
+   * Odmah nakon uploada (pipeline, `ingest-episode`): edge zna držati stari listing
+   * kanala ili 404 zapamćen pod 5-minutnim bucketom koji koristi i aplikacija dok
+   * epizoda još nastaje. `fresh` zato putanje pod `channels/` uvijek, a 404 retry
+   * svugdje, traži s jedinstvenim cache-busterom (`Date.now()`), pa ide do R2.
+   */
+  fresh?: boolean;
+  /** Za test: izvor jedinstvenog bustera u `fresh` načinu. */
+  now?: () => number;
+}
+
+export function createCdn(opts: CdnOptions = {}): Cdn {
   const base = opts.base ?? CDN_BASE;
   const doFetch = opts.fetch ?? ((input, init) => fetch(input, init));
+  const fresh = opts.fresh ?? false;
+  const now = opts.now ?? Date.now;
   const stats: HttpStats = { get: 0, notFound: 0, retried: 0, missingAfterRetry: 0 };
 
   async function getText(path: string): Promise<string | null> {
     const url = base + path;
     stats.get++;
-    let res = await doFetch(url);
+    let res = await doFetch(fresh && path.startsWith("channels/") ? `${url}?cb=${now()}` : url);
     if (res.status === 404) {
       stats.notFound++;
       stats.retried++;
       stats.get++;
-      res = await doFetch(`${url}?cb=${cacheBuster()}`);
+      res = await doFetch(`${url}?cb=${fresh ? now() : cacheBuster()}`);
       if (res.status === 404) {
         stats.missingAfterRetry++;
         return null;
