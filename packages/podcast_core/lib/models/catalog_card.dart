@@ -7,8 +7,9 @@ import 'dart:convert';
 ///
 /// [tier] je tier KANALA, ne epizode: Tier 2 epizoda na praćenom kanalu ima
 /// `tier: 1`. Slug Tier 1 kanala je ID kanala s podvlakom (`iva_kraljevic`),
-/// a ruta `/c/:slug` ga piše s crticom ([routeSlug]). Tier 2 kanal (`tribina`)
-/// rute još nema (dolazi u S10), pa [hasChannelRoute] vraća `false`.
+/// a ruta `/c/:slug` ga piše s crticom ([routeSlug]). Tier 2 kanal (`tribina`,
+/// `sbs-croatian`, `yt-UC…`) od S10 ima `/c/<slug>` sa slugom kakav jest:
+/// ekran bez statičnog listinga pita katalog (`ChannelScreen.catalogSlug`).
 class CatalogChannel {
   final String slug;
   final String name;
@@ -20,12 +21,15 @@ class CatalogChannel {
     required this.tier,
   });
 
-  /// Postoji li za kanal ekran `/c/:slug`. Danas samo Tier 1 (odluka 802).
-  bool get hasChannelRoute => tier == 1;
+  /// Postoji li za kanal ekran `/c/:slug`. Do S10 samo Tier 1 (odluka 802);
+  /// od S10 i Tier 2, koji ekran kanala čita iz kataloga.
+  bool get hasChannelRoute => tier == 1 || tier == 2;
 
-  /// Slug u obliku rute (`iva-kraljevic`), kao `_resolveChannelSlug` na
-  /// ekranu epizode.
-  String get routeSlug => slug.replaceAll('_', '-');
+  /// Slug u obliku rute. Tier 1: ID listinga s crticom (`iva-kraljevic`),
+  /// kao `_resolveChannelSlug` na ekranu epizode. Tier 2: doslovno, jer
+  /// katalog ga traži u tom obliku, a `yt-UCfT_PJ…` nosi podvlaku koju
+  /// pretvorba ne smije dirati.
+  String get routeSlug => tier == 1 ? slug.replaceAll('_', '-') : slug;
 
   /// `null` za sve što nije objekt s nepraznim `slug`/`name` (string) i
   /// cjelobrojnim `tier`. Nepoznati ključevi se ignoriraju. Nikad ne baca.

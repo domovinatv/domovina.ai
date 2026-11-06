@@ -64,13 +64,26 @@ GoRouter createRouter() {
       GoRoute(
         path: '/channels',
         pageBuilder: (context, state) {
-          final showPersons = state.uri.queryParameters['prikaz'] == 'osobe';
+          final prikaz = state.uri.queryParameters['prikaz'];
+          final showPersons = prikaz == 'osobe';
+          // `?prikaz=svi` — popis svih kanala iz kataloga (S10). Brend bez
+          // kataloga ga tiho otvara kao „Pratimo”.
+          final showDirectory = prikaz == 'svi';
           return NoTransitionPage(
             // Različit key po prikazu: bez toga go_router zadrži isti State pri
             // prelasku /channels ↔ /channels?prikaz=osobe, pa se `initialFilter`
             // (čita se samo u initState) nikad ne primijeni.
-            key: ValueKey(showPersons ? 'all-channels-persons' : 'all-channels'),
-            child: AllChannelsScreen(showPersons: showPersons),
+            key: ValueKey(
+              showPersons
+                  ? 'all-channels-persons'
+                  : showDirectory
+                  ? 'all-channels-directory'
+                  : 'all-channels',
+            ),
+            child: AllChannelsScreen(
+              showPersons: showPersons,
+              showDirectory: showDirectory,
+            ),
           );
         },
       ),
@@ -83,7 +96,10 @@ GoRouter createRouter() {
             key: ValueKey('channel-$slug'),
             child: TvMode.isTv
                 ? TvChannelScreen(channelId: channelId)
-                : ChannelScreen(channelId: channelId),
+                // Izvorni slug ide i dalje, za kanal bez listinga (Tier 2):
+                // `sbs-croatian` → `sbs_croatian` se ne da vratiti, a
+                // `yt-UCfT_PJ…` nosi vlastitu podvlaku. Ključ ostaje slug.
+                : ChannelScreen(channelId: channelId, catalogSlug: slug),
           );
         },
       ),

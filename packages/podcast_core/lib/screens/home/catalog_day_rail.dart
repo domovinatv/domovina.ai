@@ -144,6 +144,10 @@ class _CatalogDayRailState extends State<CatalogDayRail> {
             EpisodeRailCard(
               title: card.displayTitle,
               subtitle: card.channel?.name,
+              // Kanal (i Tier 2, od S10) ima `/c/` rutu: ime vodi na nj.
+              onSubtitleTap: card.channel?.hasChannelRoute == true
+                  ? () => drillDown(context, '/c/${card.channel!.routeSlug}')
+                  : null,
               // Thumbnail uvijek s našeg CDN-a (ytimg URL-ovi ruše CORS na webu).
               thumbnailUrl: CdnConfig.thumbnailUrl(card.id),
               dateLabel: card.date,

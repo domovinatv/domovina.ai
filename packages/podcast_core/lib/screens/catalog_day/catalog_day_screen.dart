@@ -345,9 +345,33 @@ class _CatalogDayScreenState extends State<CatalogDayScreen> {
     );
   }
 
+  /// Ime kanala; s rutom (Tier 1 i, od S10, Tier 2) vodi na `/c/<slug>`.
+  /// Unutarnji InkWell pobjeđuje onaj retka, pa ostatak retka i dalje
+  /// otvara epizodu.
+  Widget _channelLabel(ThemeData theme, String channel, String? route) {
+    final text = Text(
+      channel.toUpperCase(),
+      style: theme.textTheme.labelSmall?.copyWith(
+        color: theme.colorScheme.primary,
+        fontWeight: FontWeight.w600,
+      ),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+    );
+    if (route == null) return text;
+    return InkWell(
+      onTap: () => drillDown(context, route),
+      borderRadius: BorderRadius.circular(4),
+      child: text,
+    );
+  }
+
   Widget _row(ThemeData theme, CatalogCard card) {
     final cs = theme.colorScheme;
     final channel = card.channel?.name;
+    final channelRoute = card.channel?.hasChannelRoute == true
+        ? '/c/${card.channel!.routeSlug}'
+        : null;
     return Material(
       color: cs.surfaceContainerLowest,
       borderRadius: BorderRadius.circular(14),
@@ -381,15 +405,7 @@ class _CatalogDayScreenState extends State<CatalogDayScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     if (channel != null) ...[
-                      Text(
-                        channel.toUpperCase(),
-                        style: theme.textTheme.labelSmall?.copyWith(
-                          color: cs.primary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                      _channelLabel(theme, channel, channelRoute),
                       const SizedBox(height: 3),
                     ],
                     Text(

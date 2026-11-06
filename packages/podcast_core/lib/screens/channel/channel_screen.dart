@@ -5,6 +5,7 @@ import '../../brand/app_brand.dart';
 import '../../models/episode_status.dart';
 import '../../models/channel_detail.dart';
 import '../../pinka_sdk/pinka_sdk.dart';
+import '../../services/catalog_client.dart';
 import '../../services/channel_cache.dart';
 import '../../services/follow_service.dart';
 import '../../services/page_meta.dart';
@@ -18,6 +19,8 @@ import '../../router/nav.dart';
 import '../../services/share_language.dart';
 import '../../services/share_links.dart';
 import '../../services/sponsored_moments_service.dart' show SponsorCampaign;
+import '../../src/log.dart' show log;
+import 'catalog_channel_body.dart';
 
 /// Channel detail screen — prikazuje listu video zapisa za određeni kanal.
 ///
@@ -26,10 +29,19 @@ import '../../services/sponsored_moments_service.dart' show SponsorCampaign;
 /// Razdvojeno iz `lib/screens/home_screen.dart` u Korak 2 redizajna kao
 /// move-only refactor. Funkcionalno identično `_VideoGridView` widgetu koji
 /// je prije bio dio HomeScreen-a.
+///
+/// Kanal bez statičnog listinga (Tier 2, katalog S10): kad `loadChannel`
+/// padne, a brend ima katalog, tijelo crta [CatalogChannelBody] za
+/// [catalogSlug]. Tier 1 ide istim putem kao prije (prvo listing).
 class ChannelScreen extends StatefulWidget {
   final String channelId;
 
-  const ChannelScreen({super.key, required this.channelId});
+  /// Slug doslovno iz URL-a (`sbs-croatian`, `yt-UCfT_PJ…`), za katalog.
+  /// `channelId` ga ne može vratiti: ruter u njemu crtice pretvara u
+  /// podvlake. `null` = bez kataloškog fallbacka (staro ponašanje).
+  final String? catalogSlug;
+
+  const ChannelScreen({super.key, required this.channelId, this.catalogSlug});
 
   @override
   State<ChannelScreen> createState() => _ChannelScreenState();
@@ -45,10 +57,24 @@ class _ChannelScreenState extends State<ChannelScreen> {
   // vlasništvo" akciju. Null dok pipeline ne upiše youtube_channel_id.
   String? _resolvedUcId;
 
+  /// Statični listing nije stigao, a kanal crta katalog. Tada nema ni
+  /// praćenja, ni izloga oglasa, ni preuzimanja vlasništva: sve to radi nad
+  /// ID-em listinga, kojeg Tier 2 kanal nema.
+  bool _catalogMode = false;
+
+  bool get _catalogFallback =>
+      widget.catalogSlug != null && CatalogClient.instance.enabled;
+
   @override
   void initState() {
     super.initState();
     _detailFuture = channelCache.loadChannel(widget.channelId);
+    if (_catalogFallback) {
+      _detailFuture.then((_) {}, onError: (Object e) {
+        log('ChannelScreen(${widget.catalogSlug}): listing pao ($e), katalog');
+        if (mounted) setState(() => _catalogMode = true);
+      });
+    }
     loadSimpleModePref().then((saved) {
       if (mounted && saved != null) setState(() => _simpleMode = saved);
     });
@@ -74,6 +100,11 @@ class _ChannelScreenState extends State<ChannelScreen> {
   /// preko kanala umjesto preko naslovnice.
   void _openVideo(String videoId) {
     drillDown(context, _simpleMode ? '/m/$videoId' : '/v/$videoId');
+  }
+
+  void _onCatalogChannel(CatalogChannelInfo info) {
+    setPageMeta(title: '${info.name} — AI obrada podcasta');
+    setState(() => _resolvedName = info.name);
   }
 
   @override
@@ -108,13 +139,15 @@ class _ChannelScreenState extends State<ChannelScreen> {
                   ),
                   // „Prati" — lokalni popis praćenja (isti namespace kao osobe).
                   // Sam se sakrije dok je PersonChannelFlag ugašen.
-                  FollowButton(
-                    followKey: channelFollowKey(widget.channelId),
-                    followLabel: l.channelFollow,
-                    followingLabel: l.channelFollowing,
-                  ),
+                  if (!_catalogMode)
+                    FollowButton(
+                      followKey: channelFollowKey(widget.channelId),
+                      followLabel: l.channelFollow,
+                      followingLabel: l.channelFollowing,
+                    ),
                   // Izlog sponzorskih trenutaka — samo kanal s kampanjom.
-                  if (AppBrand.config.flags.pinka &&
+                  if (!_catalogMode &&
+                      AppBrand.config.flags.pinka &&
                       SponsorCampaign.forChannel(widget.channelId) != null)
                     IconButton(
                       icon: const Icon(Icons.campaign_outlined),
@@ -126,7 +159,8 @@ class _ChannelScreenState extends State<ChannelScreen> {
                     ),
                   // "Preuzmi vlasništvo" — vidljivo samo kad kanal ima kanonski
                   // UC… ID (Faza 0). Vodi na claim flow (/c/<slug>/claim).
-                  if (AppBrand.config.flags.channelOwnership &&
+                  if (!_catalogMode &&
+                      AppBrand.config.flags.channelOwnership &&
                       _resolvedUcId != null)
                     IconButton(
                       icon: const Icon(Icons.verified_user_outlined),
@@ -146,6 +180,13 @@ class _ChannelScreenState extends State<ChannelScreen> {
                 builder: (context, snap) {
                   if (snap.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
+                  }
+                  if (snap.hasError && _catalogFallback) {
+                    return CatalogChannelBody(
+                      slug: widget.catalogSlug!,
+                      onVideoTap: _openVideo,
+                      onChannel: _onCatalogChannel,
+                    );
                   }
                   if (snap.hasError) {
                     return Center(

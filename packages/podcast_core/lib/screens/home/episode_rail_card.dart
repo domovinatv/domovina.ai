@@ -36,6 +36,10 @@ class EpisodeRailCard extends StatelessWidget {
   /// predučitavaju ([EpisodePrefetch.intent]) — klik onda ne čeka mrežu.
   final String? prefetchEpisodeId;
 
+  /// Tap na [subtitle] (ime kanala) — npr. `/c/<slug>` za kartice iz
+  /// kataloga. `null` = podnaslov je samo tekst, kao do sada.
+  final VoidCallback? onSubtitleTap;
+
   const EpisodeRailCard({
     super.key,
     required this.title,
@@ -49,6 +53,7 @@ class EpisodeRailCard extends StatelessWidget {
     this.progress,
     this.shareUrl,
     this.prefetchEpisodeId,
+    this.onSubtitleTap,
   });
 
   @override
@@ -99,15 +104,7 @@ class EpisodeRailCard extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               if (subtitle != null) ...[
-                Text(
-                  subtitle!.toUpperCase(),
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    color: theme.colorScheme.primary,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
+                _subtitle(theme),
                 const SizedBox(height: 4),
               ],
               Text(
@@ -152,6 +149,27 @@ class EpisodeRailCard extends StatelessWidget {
       fit: BoxFit.cover,
       errorIcon: Icons.ondemand_video,
       errorIconSize: 28,
+    );
+  }
+
+  Widget _subtitle(ThemeData theme) {
+    final text = Text(
+      subtitle!.toUpperCase(),
+      style: theme.textTheme.labelSmall?.copyWith(
+        color: theme.colorScheme.primary,
+        fontWeight: FontWeight.w600,
+      ),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+    );
+    final tap = onSubtitleTap;
+    if (tap == null) return text;
+    // Unutarnji InkWell pobjeđuje vanjski (cijela kartica = epizoda), pa tap
+    // na ime kanala vodi na kanal, a ostatak kartice na epizodu.
+    return InkWell(
+      onTap: tap,
+      borderRadius: BorderRadius.circular(4),
+      child: text,
     );
   }
 

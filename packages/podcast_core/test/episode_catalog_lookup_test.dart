@@ -89,15 +89,15 @@ void main() {
         );
         expect(ch, tribina);
         expect(fake.asked, isEmpty);
-        expect(ch!.hasChannelRoute, isFalse);
-        // Ekran za kanal bez rute postavlja samo ime i `showUnlinked`.
+        // Od S10 Tier 2 kanal ima `/c/` rutu sa slugom kakav jest.
+        expect(ch!.hasChannelRoute, isTrue);
         final node = episodeBreadcrumbChannel(
           name: ch.name,
-          slug: null,
+          slug: ch.routeSlug,
           showUnlinked: true,
         );
         expect(node!.name, 'Tribina');
-        expect(node.route, isNull);
+        expect(node.route, '/c/tribina');
       },
     );
 
@@ -114,7 +114,7 @@ void main() {
       expect(ch, tribina);
     });
 
-    test('ekran u obradi: Tier 2 kanal iz kartice je ime bez linka', () async {
+    test('ekran u obradi: Tier 2 kanal iz kartice ima link (S10)', () async {
       final r = await findQueuedEpisode(
         '_YOkTkbrh_k',
         catalog: _FakeCatalog(_found(_card())),
@@ -126,7 +126,7 @@ void main() {
         showUnlinked: r.source == QueuedEpisodeSource.catalog,
       );
       expect(node!.name, 'Tribina');
-      expect(node.route, isNull);
+      expect(node.route, '/c/tribina');
     });
 
     test('Tier 1 iz kartice: link na /c/ s crticom', () async {

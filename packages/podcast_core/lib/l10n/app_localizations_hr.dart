@@ -4839,4 +4839,76 @@ class AppLocalizationsHr extends AppLocalizations {
 
   @override
   String get catalogDayLoadMoreFailed => 'Nismo uspjeli učitati još epizoda.';
+
+  @override
+  String get channelsScopeFollowed => 'Pratimo';
+
+  @override
+  String get channelsScopeAll => 'Svi';
+
+  @override
+  String get channelDirectoryHint =>
+      'Svi kanali s barem jednom obrađenom epizodom, najsvježiji prvi.';
+
+  @override
+  String get channelDirectoryEmpty => 'U katalogu zasad nema nijednog kanala.';
+
+  @override
+  String get channelDirectoryUnavailableTitle =>
+      'Popis svih kanala trenutačno nije dostupan';
+
+  @override
+  String get channelDirectoryUnavailableBody =>
+      'Pokušaj ponovno malo kasnije. Kanale koje pratimo i dalje nađeš pod „Pratimo”.';
+
+  @override
+  String get catalogLoadMore => 'Učitaj još';
+
+  @override
+  String get catalogLoadMoreFailed => 'Nismo uspjeli učitati nastavak popisa.';
+
+  @override
+  String channelCatalogEpisodeCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count obrađenih epizoda',
+      few: '$count obrađene epizode',
+      one: '$count obrađena epizoda',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String channelCatalogLatest(String date) {
+    return 'zadnja $date';
+  }
+
+  @override
+  String get channelCatalogOccasionalBadge => 'Ne pratimo stalno';
+
+  @override
+  String get channelCatalogOccasionalBody =>
+      'Ovaj kanal ne pratimo stalno, pa ovdje nije cijela njegova arhiva, nego samo epizode koje smo obradili.';
+
+  @override
+  String get channelCatalogEpisodesHeading => 'Obrađene epizode';
+
+  @override
+  String get channelCatalogOpenYouTube => 'Kanal na YouTubeu';
+
+  @override
+  String get channelCatalogNotFoundTitle => 'Kanal nije pronađen';
+
+  @override
+  String get channelCatalogNotFoundBody =>
+      'Ovog kanala nema ni među kanalima koje pratimo ni u katalogu. Možda je poveznica pogrešna.';
+
+  @override
+  String get channelCatalogUnavailableTitle =>
+      'Kanal se trenutačno ne može učitati';
+
+  @override
+  String get channelCatalogUnavailableBody =>
+      'Provjeri vezu pa pokušaj ponovno.';
 }

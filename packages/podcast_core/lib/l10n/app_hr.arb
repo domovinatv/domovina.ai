@@ -6074,5 +6074,87 @@
   "catalogDayLoadMoreFailed": "Nismo uspjeli učitati još epizoda.",
   "@catalogDayLoadMoreFailed": {
     "description": "Poruka na dnu popisa kad sljedeća stranica nije stigla."
+  },
+  "channelsScopeFollowed": "Pratimo",
+  "@channelsScopeFollowed": {
+    "description": "Chip na /channels: kanali koje DOMOVINA stalno prati (Tier 1, statični indeks)."
+  },
+  "channelsScopeAll": "Svi",
+  "@channelsScopeAll": {
+    "description": "Chip na /channels: svi kanali iz kataloga s barem jednom obrađenom epizodom (?prikaz=svi)."
+  },
+  "channelDirectoryHint": "Svi kanali s barem jednom obrađenom epizodom, najsvježiji prvi.",
+  "@channelDirectoryHint": {
+    "description": "Objašnjenje iznad popisa „Svi” na /channels."
+  },
+  "channelDirectoryEmpty": "U katalogu zasad nema nijednog kanala.",
+  "@channelDirectoryEmpty": {
+    "description": "Prazan popis „Svi” (katalog je odgovorio bez ijednog kanala)."
+  },
+  "channelDirectoryUnavailableTitle": "Popis svih kanala trenutačno nije dostupan",
+  "@channelDirectoryUnavailableTitle": {
+    "description": "Naslov kad katalog za popis „Svi” ne odgovara."
+  },
+  "channelDirectoryUnavailableBody": "Pokušaj ponovno malo kasnije. Kanale koje pratimo i dalje nađeš pod „Pratimo”.",
+  "@channelDirectoryUnavailableBody": {
+    "description": "Objašnjenje kad popis „Svi” nije dostupan."
+  },
+  "catalogLoadMore": "Učitaj još",
+  "@catalogLoadMore": {
+    "description": "Gumb na dnu popisa iz kataloga (kanali, epizode kanala): sljedeća stranica."
+  },
+  "catalogLoadMoreFailed": "Nismo uspjeli učitati nastavak popisa.",
+  "@catalogLoadMoreFailed": {
+    "description": "Poruka na dnu popisa iz kataloga kad sljedeća stranica nije stigla."
+  },
+  "channelCatalogEpisodeCount": "{count, plural, one{{count} obrađena epizoda} few{{count} obrađene epizode} other{{count} obrađenih epizoda}}",
+  "@channelCatalogEpisodeCount": {
+    "description": "Broj obrađenih epizoda kanala iz kataloga (processed_count).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "channelCatalogLatest": "zadnja {date}",
+  "@channelCatalogLatest": {
+    "description": "Datum zadnje obrađene epizode kanala, iza broja epizoda (npr. „6 obrađenih epizoda · zadnja 5. studenoga 2026.”).",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "channelCatalogOccasionalBadge": "Ne pratimo stalno",
+  "@channelCatalogOccasionalBadge": {
+    "description": "Oznaka uz kanal iz kataloga koji DOMOVINA ne prati stalno (Tier 2)."
+  },
+  "channelCatalogOccasionalBody": "Ovaj kanal ne pratimo stalno, pa ovdje nije cijela njegova arhiva, nego samo epizode koje smo obradili.",
+  "@channelCatalogOccasionalBody": {
+    "description": "Iskreno objašnjenje na /c/:slug za kanal koji ne pratimo stalno (Tier 2)."
+  },
+  "channelCatalogEpisodesHeading": "Obrađene epizode",
+  "@channelCatalogEpisodesHeading": {
+    "description": "Naslov popisa epizoda na stranici kanala iz kataloga."
+  },
+  "channelCatalogOpenYouTube": "Kanal na YouTubeu",
+  "@channelCatalogOpenYouTube": {
+    "description": "Gumb na stranici kanala iz kataloga: otvori kanal na YouTubeu."
+  },
+  "channelCatalogNotFoundTitle": "Kanal nije pronađen",
+  "@channelCatalogNotFoundTitle": {
+    "description": "Naslov kad /c/:slug nema ni u statičnom indeksu ni u katalogu (404)."
+  },
+  "channelCatalogNotFoundBody": "Ovog kanala nema ni među kanalima koje pratimo ni u katalogu. Možda je poveznica pogrešna.",
+  "@channelCatalogNotFoundBody": {
+    "description": "Objašnjenje uz „Kanal nije pronađen”."
+  },
+  "channelCatalogUnavailableTitle": "Kanal se trenutačno ne može učitati",
+  "@channelCatalogUnavailableTitle": {
+    "description": "Naslov kad statični listing kanala ne postoji, a katalog ne odgovara."
+  },
+  "channelCatalogUnavailableBody": "Provjeri vezu pa pokušaj ponovno.",
+  "@channelCatalogUnavailableBody": {
+    "description": "Objašnjenje uz „Kanal se trenutačno ne može učitati”."
   }
 }

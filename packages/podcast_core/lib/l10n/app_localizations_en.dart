@@ -4793,4 +4793,75 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get catalogDayLoadMoreFailed => 'We couldn\'t load more episodes.';
+
+  @override
+  String get channelsScopeFollowed => 'Followed';
+
+  @override
+  String get channelsScopeAll => 'All';
+
+  @override
+  String get channelDirectoryHint =>
+      'Every channel with at least one processed episode, most recent first.';
+
+  @override
+  String get channelDirectoryEmpty => 'The catalog has no channels yet.';
+
+  @override
+  String get channelDirectoryUnavailableTitle =>
+      'The list of all channels is not available right now';
+
+  @override
+  String get channelDirectoryUnavailableBody =>
+      'Try again a little later. The channels we follow are still under “Followed”.';
+
+  @override
+  String get catalogLoadMore => 'Load more';
+
+  @override
+  String get catalogLoadMoreFailed => 'We couldn\'t load the rest of the list.';
+
+  @override
+  String channelCatalogEpisodeCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count processed episodes',
+      one: '$count processed episode',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String channelCatalogLatest(String date) {
+    return 'latest $date';
+  }
+
+  @override
+  String get channelCatalogOccasionalBadge => 'Not followed regularly';
+
+  @override
+  String get channelCatalogOccasionalBody =>
+      'We don\'t follow this channel regularly, so this isn\'t its full archive, only the episodes we have processed.';
+
+  @override
+  String get channelCatalogEpisodesHeading => 'Processed episodes';
+
+  @override
+  String get channelCatalogOpenYouTube => 'Channel on YouTube';
+
+  @override
+  String get channelCatalogNotFoundTitle => 'Channel not found';
+
+  @override
+  String get channelCatalogNotFoundBody =>
+      'This channel is neither among the channels we follow nor in the catalog. The link may be wrong.';
+
+  @override
+  String get channelCatalogUnavailableTitle =>
+      'This channel can\'t be loaded right now';
+
+  @override
+  String get channelCatalogUnavailableBody =>
+      'Check your connection and try again.';
 }

@@ -7612,6 +7612,114 @@ abstract class AppLocalizations {
   /// In hr, this message translates to:
   /// **'Nismo uspjeli učitati još epizoda.'**
   String get catalogDayLoadMoreFailed;
+
+  /// Chip na /channels: kanali koje DOMOVINA stalno prati (Tier 1, statični indeks).
+  ///
+  /// In hr, this message translates to:
+  /// **'Pratimo'**
+  String get channelsScopeFollowed;
+
+  /// Chip na /channels: svi kanali iz kataloga s barem jednom obrađenom epizodom (?prikaz=svi).
+  ///
+  /// In hr, this message translates to:
+  /// **'Svi'**
+  String get channelsScopeAll;
+
+  /// Objašnjenje iznad popisa „Svi” na /channels.
+  ///
+  /// In hr, this message translates to:
+  /// **'Svi kanali s barem jednom obrađenom epizodom, najsvježiji prvi.'**
+  String get channelDirectoryHint;
+
+  /// Prazan popis „Svi” (katalog je odgovorio bez ijednog kanala).
+  ///
+  /// In hr, this message translates to:
+  /// **'U katalogu zasad nema nijednog kanala.'**
+  String get channelDirectoryEmpty;
+
+  /// Naslov kad katalog za popis „Svi” ne odgovara.
+  ///
+  /// In hr, this message translates to:
+  /// **'Popis svih kanala trenutačno nije dostupan'**
+  String get channelDirectoryUnavailableTitle;
+
+  /// Objašnjenje kad popis „Svi” nije dostupan.
+  ///
+  /// In hr, this message translates to:
+  /// **'Pokušaj ponovno malo kasnije. Kanale koje pratimo i dalje nađeš pod „Pratimo”.'**
+  String get channelDirectoryUnavailableBody;
+
+  /// Gumb na dnu popisa iz kataloga (kanali, epizode kanala): sljedeća stranica.
+  ///
+  /// In hr, this message translates to:
+  /// **'Učitaj još'**
+  String get catalogLoadMore;
+
+  /// Poruka na dnu popisa iz kataloga kad sljedeća stranica nije stigla.
+  ///
+  /// In hr, this message translates to:
+  /// **'Nismo uspjeli učitati nastavak popisa.'**
+  String get catalogLoadMoreFailed;
+
+  /// Broj obrađenih epizoda kanala iz kataloga (processed_count).
+  ///
+  /// In hr, this message translates to:
+  /// **'{count, plural, one{{count} obrađena epizoda} few{{count} obrađene epizode} other{{count} obrađenih epizoda}}'**
+  String channelCatalogEpisodeCount(int count);
+
+  /// Datum zadnje obrađene epizode kanala, iza broja epizoda (npr. „6 obrađenih epizoda · zadnja 5. studenoga 2026.”).
+  ///
+  /// In hr, this message translates to:
+  /// **'zadnja {date}'**
+  String channelCatalogLatest(String date);
+
+  /// Oznaka uz kanal iz kataloga koji DOMOVINA ne prati stalno (Tier 2).
+  ///
+  /// In hr, this message translates to:
+  /// **'Ne pratimo stalno'**
+  String get channelCatalogOccasionalBadge;
+
+  /// Iskreno objašnjenje na /c/:slug za kanal koji ne pratimo stalno (Tier 2).
+  ///
+  /// In hr, this message translates to:
+  /// **'Ovaj kanal ne pratimo stalno, pa ovdje nije cijela njegova arhiva, nego samo epizode koje smo obradili.'**
+  String get channelCatalogOccasionalBody;
+
+  /// Naslov popisa epizoda na stranici kanala iz kataloga.
+  ///
+  /// In hr, this message translates to:
+  /// **'Obrađene epizode'**
+  String get channelCatalogEpisodesHeading;
+
+  /// Gumb na stranici kanala iz kataloga: otvori kanal na YouTubeu.
+  ///
+  /// In hr, this message translates to:
+  /// **'Kanal na YouTubeu'**
+  String get channelCatalogOpenYouTube;
+
+  /// Naslov kad /c/:slug nema ni u statičnom indeksu ni u katalogu (404).
+  ///
+  /// In hr, this message translates to:
+  /// **'Kanal nije pronađen'**
+  String get channelCatalogNotFoundTitle;
+
+  /// Objašnjenje uz „Kanal nije pronađen”.
+  ///
+  /// In hr, this message translates to:
+  /// **'Ovog kanala nema ni među kanalima koje pratimo ni u katalogu. Možda je poveznica pogrešna.'**
+  String get channelCatalogNotFoundBody;
+
+  /// Naslov kad statični listing kanala ne postoji, a katalog ne odgovara.
+  ///
+  /// In hr, this message translates to:
+  /// **'Kanal se trenutačno ne može učitati'**
+  String get channelCatalogUnavailableTitle;
+
+  /// Objašnjenje uz „Kanal se trenutačno ne može učitati”.
+  ///
+  /// In hr, this message translates to:
+  /// **'Provjeri vezu pa pokušaj ponovno.'**
+  String get channelCatalogUnavailableBody;
 }
 
 class _AppLocalizationsDelegate

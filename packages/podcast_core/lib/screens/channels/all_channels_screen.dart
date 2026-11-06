@@ -8,6 +8,7 @@ import '../../brand/app_brand.dart';
 import '../../src/log.dart' show log;
 import '../../models/channel_index.dart';
 import '../../models/person_hub.dart';
+import '../../services/catalog_client.dart';
 import '../../services/channel_cache.dart';
 import '../../services/person_channel_flag.dart';
 import '../../services/scroll_memory.dart';
@@ -17,6 +18,7 @@ import '../../utils/text_search.dart';
 import '../home/channel_card.dart';
 import '../home/person_card.dart';
 import '../home/sort_mode.dart';
+import 'catalog_directory_view.dart';
 import '../../router/nav.dart';
 
 /// Standalone "Svi kanali" ekran — odvojen od home-a (scroll-perf).
@@ -44,7 +46,15 @@ class AllChannelsScreen extends StatelessWidget {
   /// param ne mijenja rutu ni za jedan popis.
   final bool showPersons;
 
-  const AllChannelsScreen({super.key, this.showPersons = false});
+  /// Otvori popis „Svi” (`/channels?prikaz=svi`, katalog S10). Brend bez
+  /// kataloga ga ignorira i otvara „Pratimo”.
+  final bool showDirectory;
+
+  const AllChannelsScreen({
+    super.key,
+    this.showPersons = false,
+    this.showDirectory = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -66,6 +76,7 @@ class AllChannelsScreen extends StatelessWidget {
         child: AllChannelsView(
           initialFilter:
               showPersons ? CatalogFilter.persons : CatalogFilter.all,
+          initialDirectory: showDirectory,
         ),
       ),
     );
@@ -93,7 +104,14 @@ class AllChannelsView extends StatefulWidget {
   /// sve" na home railu osoba ulaze ovuda; sve ostalo otvara `all`.
   final CatalogFilter initialFilter;
 
-  const AllChannelsView({super.key, this.initialFilter = CatalogFilter.all});
+  /// Otvori s odabranim „Svi” (popis iz kataloga) umjesto „Pratimo”.
+  final bool initialDirectory;
+
+  const AllChannelsView({
+    super.key,
+    this.initialFilter = CatalogFilter.all,
+    this.initialDirectory = false,
+  });
 
   @override
   State<AllChannelsView> createState() => _AllChannelsViewState();
@@ -118,6 +136,15 @@ class _AllChannelsViewState extends State<AllChannelsView> {
   // nema `/api/persons` (F2). Oba slučaja daju današnji katalog.
   late CatalogFilter _filter = widget.initialFilter;
   bool _flagOn = false;
+
+  /// „Pratimo” (false, današnji popis iz statičnog indeksa) ili „Svi” (true,
+  /// [CatalogDirectoryView]). Bez kataloga u brendu uvijek „Pratimo” i bez
+  /// chipova, pa Podcasterium ne vidi ništa novo ni ne šalje zahtjev.
+  late bool _directory = widget.initialDirectory;
+
+  bool get _catalogEnabled => CatalogClient.instance.enabled;
+
+  bool get _showsDirectory => _catalogEnabled && _directory;
 
   @override
   void initState() {
@@ -280,14 +307,19 @@ class _AllChannelsViewState extends State<AllChannelsView> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _searchBar(theme),
-        if (_personsEnabled) _filterChips(theme),
-        _toolbar(theme),
-        Expanded(
-          child: !_ready
-              ? const Center(child: CircularProgressIndicator())
-              : _list(),
-        ),
+        if (_catalogEnabled) _scopeChips(theme),
+        if (_showsDirectory)
+          const Expanded(child: CatalogDirectoryView())
+        else ...[
+          _searchBar(theme),
+          if (_personsEnabled) _filterChips(theme),
+          _toolbar(theme),
+          Expanded(
+            child: !_ready
+                ? const Center(child: CircularProgressIndicator())
+                : _list(),
+          ),
+        ],
         if (AppBrand.config.flags.voting) _votingBar(theme),
       ],
     );
@@ -390,6 +422,36 @@ class _AllChannelsViewState extends State<AllChannelsView> {
     );
   }
 
+  /// Pratimo / Svi (katalog S10). Zaseban red IZNAD pretrage: „Svi” nema ni
+  /// pretragu ni sort (katalog ih ne nudi, a filtriranje samo učitanih
+  /// stranica lagalo bi), pa red s kojim se bira prikaz ostaje na mjestu, a
+  /// ispod njega se mijenja sve ostalo.
+  Widget _scopeChips(ThemeData theme) {
+    final l = AppLocalizations.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      child: Row(
+        children: [
+          _choiceChip(
+            theme,
+            label: l.channelsScopeFollowed,
+            selected: !_directory,
+            onSelected: () => setState(() => _directory = false),
+            identifier: 'channels-scope-followed',
+          ),
+          const SizedBox(width: 8),
+          _choiceChip(
+            theme,
+            label: l.channelsScopeAll,
+            selected: _directory,
+            onSelected: () => setState(() => _directory = true),
+            identifier: 'channels-scope-all',
+          ),
+        ],
+      ),
+    );
+  }
+
   /// Sve / Kanali / Osobe. Chipovi stanu u red i na uskom mobitelu (tri kratke
   /// riječi), pa nema scrollabla — a time ni pravila o paddingu unutar liste.
   Widget _filterChips(ThemeData theme) {
@@ -416,14 +478,26 @@ class _AllChannelsViewState extends State<AllChannelsView> {
   Widget _filterChip(ThemeData theme,
       {required String label,
       required CatalogFilter value,
+      String? identifier}) =>
+      _choiceChip(
+        theme,
+        label: label,
+        selected: _effectiveFilter == value,
+        onSelected: () => setState(() => _filter = value),
+        identifier: identifier,
+      );
+
+  Widget _choiceChip(ThemeData theme,
+      {required String label,
+      required bool selected,
+      required VoidCallback onSelected,
       String? identifier}) {
-    final selected = _effectiveFilter == value;
     // Brand-fill je navy (AppTheme.brandPrimary) + brandRim — NE cs.primary, koji
     // M3 dark shema izblijedi.
     final chip = ChoiceChip(
       label: Text(label),
       selected: selected,
-      onSelected: (_) => setState(() => _filter = value),
+      onSelected: (_) => onSelected(),
       labelStyle: theme.textTheme.labelMedium?.copyWith(
         color: selected ? Colors.white : theme.colorScheme.onSurfaceVariant,
       ),

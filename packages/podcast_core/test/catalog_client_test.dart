@@ -79,12 +79,25 @@ void main() {
       expect(card.channel!.routeSlug, 'iva-kraljevic');
     });
 
-    test('Tier 2: kanal bez rute', () {
+    test('Tier 2: od S10 kanal s rutom, slug doslovno', () {
       final card = CatalogCard.tryParse(_tier2)!;
       expect(card.tier, 2);
       expect(card.displayTitle, 'Novi početci | Tribina NBA');
       expect(card.channel!.name, 'Tribina');
-      expect(card.channel!.hasChannelRoute, isFalse);
+      expect(card.channel!.hasChannelRoute, isTrue);
+      expect(card.channel!.routeSlug, 'tribina');
+      // Tier 2 slug s podvlakom (`yt-UC…`) se ne pretvara.
+      const yt = CatalogChannel(
+        slug: 'yt-UCfT_PJPR2vuqqKcCgEf3scA',
+        name: 'Capturing Catholicism',
+        tier: 2,
+      );
+      expect(yt.routeSlug, 'yt-UCfT_PJPR2vuqqKcCgEf3scA');
+      // Nepoznat tier (ugovor ga ne dopušta) ostaje bez rute.
+      expect(
+        const CatalogChannel(slug: 'a', name: 'A', tier: 3).hasChannelRoute,
+        isFalse,
+      );
     });
 
     test('title_hr ima prednost, null pada na title', () {
@@ -322,7 +335,7 @@ void main() {
       expect(listingCalls, 0);
       expect(r!.source, QueuedEpisodeSource.catalog);
       expect(r.channelName, 'Tribina');
-      expect(r.channelSlug, isNull, reason: 'Tier 2 kanal nema /c/ rutu');
+      expect(r.channelSlug, 'tribina', reason: 'od S10 Tier 2 kanal ima /c/ rutu');
       expect(r.date, '2026-11-05');
     });
 

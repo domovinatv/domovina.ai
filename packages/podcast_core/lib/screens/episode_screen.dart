@@ -365,7 +365,8 @@ class _QueuedEpisodeScreenState extends State<_QueuedEpisodeScreen> {
           channelName: listed.channelName,
           channelSlug: listed.channelSlug,
           episodeTitle: listed.title,
-          // Tier 2 kanal iz kataloga nema `/c/` rutu (odluka 802): ime bez linka.
+          // Kanal iz kataloga bez rute: ime bez linka (odluka 802). Od S10
+          // Tier 2 rutu ima, pa ovo vrijedi samo za kanal nepoznatog tiera.
           showUnlinkedChannel: listed.source == QueuedEpisodeSource.catalog,
         ),
         titleSpacing: 0,
@@ -1554,9 +1555,9 @@ class _EpisodeContentState extends State<_EpisodeContent>
 
   /// Kanal iz kataloga kad ga `index.json` po imenu ne zna (Tier 2 epizoda,
   /// ime kanala drukčije napisano): `episode.json` `channel`, pa kartica iz
-  /// `CatalogClient`. Tier 1 dobiva slug kao i [_resolveChannelSlug]; kanal
-  /// bez rute samo ime (katalog odluke 801–802). Brend bez kataloga ovdje ne
-  /// radi ništa.
+  /// `CatalogClient`. Tier 1 dobiva slug kao i [_resolveChannelSlug]; Tier 2
+  /// slug i ime iz kataloga (od S10 ima `/c/` rutu); kanal bez rute samo ime
+  /// (katalog odluke 801–802). Brend bez kataloga ovdje ne radi ništa.
   Future<void> _resolveCatalogChannel() async {
     final id = widget.data.youtubeId;
     final channel = await catalogChannelFor(
@@ -1567,9 +1568,10 @@ class _EpisodeContentState extends State<_EpisodeContent>
     log('EpisodeScreen $id: kanal iz kataloga ${channel.slug} '
         '(tier ${channel.tier})');
     setState(() {
-      if (channel.hasChannelRoute) {
-        _channelSlug = channel.routeSlug;
-      } else {
+      if (channel.hasChannelRoute) _channelSlug = channel.routeSlug;
+      // Tier 2 (od S10 s `/c/` rutom) zadržava ime iz kataloga: epizoda bez
+      // `info.json` nema `info.channel`, pa bi breadcrumb ostao bez kanala.
+      if (!channel.hasChannelRoute || channel.tier != 1) {
         _catalogChannelName = channel.name;
       }
     });
