@@ -849,3 +849,55 @@ paralelni worktreeji ne sudare. Odluka se ne briše: zamijeni je novom koja je p
      migracijom iz `66d510a` (`git show 66d510a:vijesti/db/migrations/006_editorial.up.sql`, isto za `down`) pada 8 od 19 testova. Svjesno nepokriveno: istodobni prijelazi
      (PGlite ima jednu vezu; zaključavanje je `FOR UPDATE`, 517) i `anon` s potpisanim `sub`
      urednika (traži JWT tajnu; tko je ima, potpisuje i `authenticated`).
+
+## S6 (2026-11-06)
+
+600. **Portal je dio istog npm paketa** (`vijesti/portal/`, ovisnosti u `vijesti/package.json`, jedan
+     `npm ci`). Portal uvozi čiste funkcije iz `engine/` (`clock`, `hrDate`, tipovi sadržaja) i
+     `db/editorial.ts` (`parseEditorialError`) umjesto kopija; poseban paket bi tražio objavu ili
+     workspace samo za to. Astro 7.4 + `@astrojs/cloudflare` 14 (`output: 'server'`, `base: '/vijesti'`,
+     `session: false`, `imageService: 'passthrough'` da adapter ne traži KV ni Images binding).
+601. **Rute:** `/vijesti/` (najnovije istaknuto + po kategorijama), `/vijesti/kategorija/<slug>`,
+     `/vijesti/<slug>` (članak; slug je `articles.slug`, stabilan i kad urednik promijeni kategoriju),
+     `/vijesti/admin`. Povučeni članci nisu na popisima.
+602. **Metapodaci epizode dolaze iz `content.episode` objavljene verzije** (naslov, kanal, datum su
+     snimka pri pisanju, odluka 417), ne iz `info.json` pri renderu: nula dodatnih zahtjeva i isti
+     podaci koje je urednik odobrio. S CDN-a se čita samo `episode.json` (popis datoteka, 603).
+603. **PostgREST klijent (`src/lib/rest.ts`) je jedini put do baze**, isti za produkciju i shim:
+     `apikey`, `Authorization: Bearer <jwt ili anon>`, `Accept-Profile`/`Content-Profile: vijesti`.
+     Javne stranice uvijek idu kao `anon` (RLS skriva nacrte), bez embeddinga (dva upita umjesto
+     `select=…(…)`), prekid 4 s, greška = 503 `no-store`.
+604. **Lokalni PostgREST-shim** (`portal/dev/rest-shim.ts`) nad PGliteom: samo podskup (popis
+     relacija i rpc funkcija s tipovima argumenata, filteri eq/neq/gt/gte/lt/lte/in/is, order, limit,
+     offset), identifikatori po regexu, vrijednosti kao parametri, svaki zahtjev kroz `asUser`,
+     zahtjevi u redu (PGlite ima jednu vezu). Greške u obliku PostgREST-a (P0001 → 400, 42501 → 401
+     anon / 403 prijavljen, 406 bez profila). Služi i lažni CDN nad `engine/test/fixtures`, medij
+     isječka je tišina (e2e bez mreže). Seed (`portal/dev/seed.ts`, < 1 s) ide kroz postojeće `--fake`
+     LLM-ove i rpc funkcije: objavljen, ispravljen, povučen, u pregledu s neriješenom rečenicom,
+     odobren; urednik i admin u `staff`, kanali u `allowed_channels`. `POST /__shim/reset` = novi seed.
+605. **Isječak:** `<audio controls preload="none">` sa `<cdn>/data/<id>/<datoteka>#t=<od>,<do>`.
+     `audio.mp3` postoji samo za audio epizode (data_service.dart `resolveMedia`); za video epizode
+     isječak pušta `video_h264.mp4` (H.264/AAC, `<audio>` svira zvučni zapis). Datoteka se bira iz
+     `episode.json` `files`; bez popisa (404, prekid 1,5 s) nema playera, ostaje poveznica u
+     aplikaciju. Vrijeme citata vodi na `domovina.ai/v/<id>/t/<sek>`, „Poslušaj cijeli razgovor”
+     na prvi citat. Sve baze su iz konfiguracije (`src/lib/config.ts`, wrangler `vars`).
+606. **Lažna prijava samo uz `VIJESTI_AUTH_MODE=local` pri buildu.** `astro.config.mjs` zamjenjuje
+     `__VIJESTI_AUTH_MODE__` konstantom; grana `local` i modul `auth-local` ispadaju iz produkcijskog
+     builda (nepoznata vrijednost ruši build). Lokalni token je nepotpisan (`alg: none`): prihvaća ga
+     samo shim, pravi PostgREST provjerava potpis JWT tajnom i odbija ga, pa ni build u krivom načinu
+     ne daje pristup produkciji. Produkcija: supabase-js (poveznica e-poštom, Google), JWT ide u
+     PostgREST, uloga se čita iz `staff`. Test: `portal/test/build.test.ts` (produkcijski build bez
+     oznake, lokalni s njom).
+607. **Admin je ljuska + vanilla TS u pregledniku** (`src/scripts/admin/`): poslužitelj ne vidi JWT,
+     podaci idu izravno u PostgREST, DOM samo kroz `textContent`. Radnje šalju id zadnje verzije
+     (odluka 517); greške se prikazuju po prefiksu koda (`src/lib/errors.ts`).
+608. **Cache-Control:** popisi `max-age=60, s-maxage=300, swr=600`, članak `max-age=60, s-maxage=600,
+     swr=3600`, 404 `s-maxage=60`, greška i admin `no-store` (+ `X-Robots-Tag: noindex`). Odgovor
+     Workera Cloudflare sam ne cachira: rubni cache (Cache API ili pravilo) i purge pri ispravku su S7.
+609. **Izgled:** tokeni iz brenda (navy #002F6C, crvena #FF0000, krem #FAF7F2, tamna #111318/#E2E2E9),
+     `prefers-color-scheme`, mobile first, CSS inline (`inlineStylesheets: 'always'`). Fontovi
+     self-hostani pod `/vijesti/fonts/`: Inter 400/600 kao woff2 (konverzija srezanog Intera iz
+     aplikacije), Playfair Display Bold kao NEIZMIJENJEN ttf (OFL Reserved Font Name, isto pravilo kao
+     u aplikaciji), preload naslovnog fonta, `font-display: swap`.
+610. **Povučen članak:** stranica 200 + `noindex`, naslov „Članak je povučen”, datum i razlog iz
+     `public_corrections`, bez teksta i bez naslova nacrta (odluka 525).

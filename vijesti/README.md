@@ -46,3 +46,16 @@ Ključevi idu u `vijesti/.env` (vidi `.env.example`), nikad u git.
 - Odluke: [docs/decisions.md](docs/decisions.md)
 - Oblik CDN datoteka: [docs/research/2026-11-05-oblik-cdn-datoteka.md](docs/research/2026-11-05-oblik-cdn-datoteka.md)
 - Lanac sesija i pravila: [docs/handoffs/README.md](docs/handoffs/README.md)
+
+## Portal (S6)
+
+```bash
+npm run portal:dev     # shim (127.0.0.1:8790) + astro dev (127.0.0.1:4321/vijesti), lažna prijava urednika
+npm run portal:shim    # samo shim + seed (VIJESTI_SHIM_PORT, zadano 8790)
+npm run portal:build   # produkcijski build (VIJESTI_AUTH_MODE=supabase)
+npm run portal:check   # astro check
+```
+
+Lokalni podaci: `portal/dev/seed.ts` (pet članaka u pet stanja). Admin: `/vijesti/admin`, gumb
+„Prijavi se” mintira nepotpisan JWT urednika `11111111-1111-4111-8111-111111111111` (odluka 606).
+Shim: `POST /__shim/reset` vraća početni seed.
