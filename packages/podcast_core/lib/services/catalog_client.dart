@@ -184,13 +184,13 @@ class CatalogClient {
   /// Najveća stranica koju katalog daje (`days.schema.json` `maxItems`).
   static const int maxDayLimit = 100;
 
-  /// `GET {baseUrl}/days/<date>?limit=N[&after=<cursor>]`. [limit] se
+  /// `GET {baseUrl}/days/<date>?limit=N[&cursor=<cursor>]`. [limit] se
   /// stisne na 1–[maxDayLimit].
   String dayUrl(String date, {int limit = 30, String? after}) {
     final n = limit.clamp(1, maxDayLimit);
     final cursor = after == null || after.isEmpty
         ? ''
-        : '&after=${Uri.encodeQueryComponent(after)}';
+        : '&cursor=${Uri.encodeQueryComponent(after)}';
     return '$baseUrl/days/${Uri.encodeComponent(date)}?limit=$n$cursor';
   }
 
@@ -304,12 +304,12 @@ class CatalogClient {
     final n = limit.clamp(1, maxListLimit);
     final cursor = after == null || after.isEmpty
         ? ''
-        : '&after=${Uri.encodeQueryComponent(after)}';
+        : '&cursor=${Uri.encodeQueryComponent(after)}';
     return 'limit=$n$cursor';
   }
 
-  /// `GET {baseUrl}/directory?limit=N[&after=…]` (oba tiera), ili
-  /// `GET {baseUrl}/channels?tier=T&limit=N[&after=…]` kad je [tier] zadan.
+  /// `GET {baseUrl}/directory?limit=N[&cursor=…]` (oba tiera), ili
+  /// `GET {baseUrl}/channels?tier=T&limit=N[&cursor=…]` kad je [tier] zadan.
   String directoryUrl({int limit = 30, String? after, int? tier}) =>
       tier == null
       ? '$baseUrl/directory?${_page(limit, after)}'
@@ -319,7 +319,7 @@ class CatalogClient {
   String channelUrl(String slug) =>
       '$baseUrl/channels/${Uri.encodeComponent(slug)}';
 
-  /// `GET {baseUrl}/channels/<slug>/episodes?limit=N[&after=…]`.
+  /// `GET {baseUrl}/channels/<slug>/episodes?limit=N[&cursor=…]`.
   String channelEpisodesUrl(String slug, {int limit = 30, String? after}) =>
       '${channelUrl(slug)}/episodes?${_page(limit, after)}';
 

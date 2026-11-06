@@ -195,7 +195,7 @@ void main() {
         expect(c.directoryUrl(), '$_base/directory?limit=30');
         expect(
           c.directoryUrl(limit: 500, after: 'a+b'),
-          '$_base/directory?limit=100&after=a%2Bb',
+          '$_base/directory?limit=100&cursor=a%2Bb',
         );
         expect(
           c.directoryUrl(tier: 2, limit: 0),
@@ -207,7 +207,7 @@ void main() {
         );
         expect(
           c.channelEpisodesUrl('tribina', after: 'X'),
-          '$_base/channels/tribina/episodes?limit=30&after=X',
+          '$_base/channels/tribina/episodes?limit=30&cursor=X',
         );
       },
     );

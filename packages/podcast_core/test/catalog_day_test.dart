@@ -160,7 +160,7 @@ void main() {
       );
       expect(
         c.dayUrl('2026-11-04', limit: 500, after: 'WyJ4Il0'),
-        '$_base/days/2026-11-04?limit=100&after=WyJ4Il0',
+        '$_base/days/2026-11-04?limit=100&cursor=WyJ4Il0',
       );
       expect(
         c.dayUrl('2026-11-04', limit: 0),
