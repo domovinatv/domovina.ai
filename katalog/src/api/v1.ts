@@ -33,7 +33,8 @@ export type ErrorCode =
   | "bad_cursor"
   | "bad_limit"
   | "bad_tier"
-  | "bad_date";
+  | "bad_date"
+  | "internal";
 
 const CACHE_LIST = "public, max-age=60, stale-while-revalidate=600";
 const CACHE_CARD = "public, max-age=300, stale-while-revalidate=3600";
@@ -55,8 +56,20 @@ export function jsonResponse(body: unknown, status: number, cacheControl: string
   return new Response(JSON.stringify(body), { status, headers: headers(cacheControl) });
 }
 
-export function errorResponse(status: 400 | 404, error: ErrorCode): Response {
+export function errorResponse(status: 400 | 404 | 500, error: ErrorCode): Response {
   return jsonResponse({ ok: false, error }, status, NO_STORE);
+}
+
+/**
+ * Neuhvaćena iznimka (npr. iz D1) → 500 `internal` istog oblika kao ostale
+ * greške: JSON, CORS i `no-store`. Bez ovoga runtime vrati goli 500 bez ACAO,
+ * pa ga web klijent vidi kao CORS grešku, a ne kao grešku servisa. U log ide
+ * samo ime i poruka iznimke i putanja, bez upita i zaglavlja.
+ */
+export function internalErrorResponse(err: unknown, url: URL): Response {
+  const what = err instanceof Error ? `${err.name}: ${err.message}` : String(err);
+  console.error(`katalog: iznimka na ${url.pathname}: ${what}`);
+  return errorResponse(500, "internal");
 }
 
 // ---------------------------------------------------------------- rute

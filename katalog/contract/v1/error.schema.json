@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://domovina.ai/api/katalog/v1/contract/error.schema.json",
   "title": "Greška",
-  "description": "Svaki 4xx odgovor; Cache-Control: no-store.",
+  "description": "Svaki 4xx i 5xx odgovor; Cache-Control: no-store. `internal` = neuhvaćena iznimka (500).",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -22,7 +22,8 @@
         "bad_cursor",
         "bad_limit",
         "bad_tier",
-        "bad_date"
+        "bad_date",
+        "internal"
       ]
     }
   }
