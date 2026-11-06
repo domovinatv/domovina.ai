@@ -39,14 +39,15 @@ Legenda: `[x]` gotovo · `[ ]` otvoreno · `[~]` u radu · `(!)` traži korisnik
 - [x] `POST /api/katalog/v1/ingest` s tokenom (secret), batch upsert, idempotentno → S6
 - [x] `katalog drift-check`: R2 (`.r2_keys_cache.json`) ↔ D1; exit 0/1/2; Telegram samo kroz `scripts/telegram-notify.rb` → S6
 - [x] launchd tripwire za drift-check (LaunchAgent), tih kad je poravnato → S6
-- [x] Pipeline nakon uploada zove ingest (sesija u `fetch.domovina.tv`) → S7 (KORAK 13.5; potvrda na prvom nightlyju u S8)
+- [x] Pipeline nakon uploada zove ingest (sesija u `fetch.domovina.tv`) → S7 (KORAK 13.5; potvrda na prvom nightlyju 7. 11. → S10)
 - [x] `episode.json` nosi `channel: {slug, name, tier}` (sesija u `fetch.domovina.tv`) → S7 (samo nove epizode, odluka 706)
 - [x] `podcast_core`: `Endpoints.catalog` (nullable; bez njega stari statični put), `CatalogClient` → S8
 - [x] Ekran epizode: kanal iz `episodes/:id/card` / `episode.json`; `_QueuedEpisodeScreen` više ne zove `findVideoAsync` kad je katalog dostupan → S8
 - [x] Podcasterium tripwire (`scripts/build-podcasterium-shell.sh`) zelen → S8
 - [ ] Polje izvora (`source`/`yt_matched`) u `card.schema.json`, da se X epizoda bez `info.json` na praćenom kanalu ne ugradi kao YouTube (odluka 808) → kasnije
-- [ ] Rail „Danas u korpusu” + ruta `/dani/:datum` → S9
-- [ ] `/dani/` u `web/_worker.js` (OG), AASA components i Android intent filter, sitemap → S9
+- [x] Rail „Danas u korpusu” + ruta `/dani/:datum` → S9
+- [x] `/dani/` u `web/_worker.js` (OG), AASA components i Android intent filter, sitemap → S9
+- [ ] (!) Service binding `KATALOG` → Worker `domovina-katalog` na Pages projektu `domovina-ai` (`wrangler.toml` + `docs/worker-env-bindings.md`), da OG `/dani/` nosi broj epizoda (odluka 910) → S11
 - [ ] `/channels` filtar „Pratimo / Svi” nad `directory`, paginacija → S10
 - [ ] `/c/:slug` za Tier 2 kanal (obrađene epizode iz API-ja); OG u workeru → S10
 - [ ] (!) Release: web deploy s `main` + provjera verzije na produkciji, nightly store build → S11

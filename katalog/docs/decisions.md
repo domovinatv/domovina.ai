@@ -769,3 +769,70 @@ Produkcija (korisnik odobrio 6. 11. 2026. na vratima S5 → S6: „Da, sve odobr
      polje izvora u kartici (`source` ili `yt_matched`), promjena ugovora `card.schema.json`.
      Beamly epizoda s pravim YouTube ID-om (`_yt_matched: true`) u listingu ima
      `webpage_url` epizode na launchedfm.com (`buildInfoJson`) i gubi embed. To je svjesna cijena: radije bez playera nego tuđi video.
+
+## S9 (2026-11-06, „Danas u korpusu” i /dani/:datum)
+
+Kod: `3f910b2`. Flutter: `services/catalog_client.dart` (`day()`), `models/catalog_day.dart`,
+`screens/home/catalog_day_rail.dart`, `screens/catalog_day/`. Worker: `injectDayTags` i
+pomoćne funkcije u `web/_worker.js`.
+
+900. **`CatalogClient.day()` ima tri ishoda, a prazan dan je uspjeh.** `CatalogDayFound`
+     (i s praznom stranicom: katalog je odgovorio, pipeline radi noću), `CatalogDayBadDate`
+     (datum nije strogo `YYYY-MM-DD` ili ne postoji, npr. `2026-02-30`, provjereno bez
+     zahtjeva; isto za HTTP 400 `bad_date`) i `CatalogDayUnavailable` (nema endpointa,
+     mreža, timeout 4 s, 5xx, nečitljiv odgovor). Nikad ne baca; svaki korak ide u `log()`.
+901. **Stranice dana idu kroz `getMutable` u bucketu `episode`.** Svaki dan i kursor je svoj
+     URL, pa treba bucket s ograničenim brojem zapisa (web 150). Revalidacija kroz `onUpdate`
+     tjera rail da ponovno izabere dan, da jutarnji prazan „danas” iz cachea ne ostane
+     zaglavljen. Nečitljiva stavka se preskače, ostatak stranice vrijedi; `limit` se stisne
+     na 1–100.
+902. **Rail gleda danas i najviše tri dana unatrag.** Izmjereno 6. 11. u 12:38:
+     `days/2026-11-06` 0 epizoda, 05. 7, 04. 27 (`curl -s
+     "https://domovina.ai/api/katalog/v1/days/<d>?limit=100" | jq '.items|length'`).
+     Do četiri upita s `limit=12`, redom; prvi neprazan dan se pokazuje, naslov
+     `homeRailCatalogToday` / `…Yesterday` / `…OnDate`. Prvi `CatalogDayUnavailable`
+     prekida petlju (pokvaren katalog ne košta četiri timeouta); brend bez kataloga ne šalje
+     ništa.
+903. **Rail nema skeleton.** Pojavi se tek sa sadržajem, a stoji ispod „Upravo stiglo”, pa
+     ništa iznad njega ne skače. Zadnji pokazani dan pamti se u statičkom memou vezanom za
+     današnji datum, da remount naslovnice ne nacrta frame bez raila. „Prikaži sve” →
+     `drillDown('/dani/<datum>')`; tap kartice ide istim `onVideoTap` kao ostali railovi.
+904. **Ruta `/dani/:datum` postoji za svaki brend** (podijeljen link ne pada na naslovnicu);
+     ekran sam pokazuje učitavanje, popis, prazno (gumb na prethodni dan), nevaljan datum i
+     nedostupno (bez kataloga nudi „Početna”, inače „Pokušaj ponovno”). Ključ rute nosi samo
+     datum. Prethodni/sljedeći dan kroz `goPeer`; sljedeći je onemogućen iza današnjeg
+     lokalnog datuma. Pomak datuma preko konstruktora `DateTime`, ne `Duration` (DST).
+905. **Paginacija je beskonačno listanje, gumb je rezerva** za popis koji ne puni ekran.
+     Pad stranice ostavlja učitani popis i nudi ponovni pokušaj; isti ID se ne crta dvaput
+     (spremljena stranica može biti starija). Tap → `drillDown('/v/<id>')`.
+906. **Datumi kroz `intl` `DateFormat` po jeziku sučelja** (`yMMMMd` za ekran, `MMMMd` za
+     rail), uz pad na „4. 11. 2026.” kad podataka za locale nema. Obrazac za TODO u
+     `founder_booking.dart`, koji ovime nije riješen.
+907. **Novi ARB ključevi:** `homeRailCatalogToday`, `homeRailCatalogYesterday`,
+     `homeRailCatalogOnDate`, `catalogDayEyebrow`, `catalogDayPrevious`, `catalogDayNext`,
+     `catalogDayEmptyTitle`, `catalogDayEmptyBody`, `catalogDayInvalidTitle`,
+     `catalogDayInvalidBody`, `catalogDayUnavailableTitle`, `catalogDayUnavailableBody`,
+     `catalogDayLoadMore`, `catalogDayLoadMoreFailed`. Novih analitičkih događaja nema, pa se
+     pravni dokumenti ne mijenjaju.
+910. **Worker katalog zove samo kroz service binding `KATALOG`, uz graceful fallback.**
+     Cloudflare: „Routes cannot be the target of a same-zone fetch() call”, pa bi
+     `fetch('https://domovina.ai/api/katalog/…')` iz Pages workera dobio SPA HTML. Bez
+     bindinga, na grešci ili nakon 800 ms: isti statični tagovi (naslov s datumom, bez broja
+     epizoda). Binding na Pages projektu je vanjska radnja i ide u S11.
+911. **Brend ima katalog u workeru samo uz `CATALOG_API`;** zadana vrijednost
+     (`https://domovina.ai/api/katalog/v1`) vrijedi samo bez `SITE` bindinga. Ostali defaulti
+     su DOMOVINA-ini pa bi ih Podcasterium naslijedio; ovako mu ruta, AASA i sitemap ostaju
+     bajt-identični dosadašnjima. Zrcali odluku 800.
+912. **Nevaljan i budući datum: SPA s `no-store` i `X-Robots-Tag: noindex`** (zaglavlje, ne
+     meta, da HTML ostane jednak SPA fallbacku). Granica „danas” u Europe/Zagreb. Dan s 0
+     epizoda (kad katalog odgovori) također dobiva noindex.
+913. **Cache HTML-a `/dani/`:** prošli dani `max-age=3600, s-maxage=86400`; danas i jučer
+     `max-age=300, s-maxage=300` (razlika UTC/Zagreb i kasni ingest).
+914. **Sitemap: zadnjih 30 dana, računato, bez subrequesta**, priority 0.4 (ispod epizoda),
+     `changefreq` daily za zadnja dva dana, inače monthly. Prazne dane sitemap ne zna; stranica
+     ih označi noindex.
+915. **AASA `/dani/*` eksplicitno, iza auth exclusiona, samo uz `CATALOG_API`;** Android
+     `pathPrefix="/dani/"`. Popis je ugovor s Android allowlistom; `test-social-tags.mjs`
+     provjerava redoslijed. Matcher je strogo `^/dani/\d{4}-\d{2}-\d{2}$` (dogovor s lancem
+     `vijesti/`: ništa ne smije hvatati `/vijesti`). `/dani/<d>/en` ne postoji ni u Flutteru
+     ni u workeru.

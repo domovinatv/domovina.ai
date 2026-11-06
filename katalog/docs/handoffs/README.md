@@ -40,7 +40,7 @@ Handoff se mijenja samo prema naprijed: gotovi `SN` se ne prepisuju, služe kao 
 | S6 | Produkcija, ingest, drift-check | gotovo | b1aaeba | 379 / skipped 0 | 2026-11-06; odluke 600–611; produkcija `domovina.ai/api/katalog/*`, 3670 epizoda kroz `--sync`; hit 22 ms / miss 48 ms; launchd 08:45 |
 | S7 | Pipeline producer | gotovo (potvrda nightlyja u S8) | 36e24a1 | 399 / skipped 0 | 2026-11-06; odluke 700–709; `ingest-episode` + fetch KORAK 13.5 (`run_pipeline.sh`, `build_episode_bundle.js` `channel`); `--all` 6,5 s, 0 promjena; mapa posijana 11:42 |
 | S8 | `CatalogClient`, ekran epizode | gotovo | 0c81b06 | 399 / skipped 0; flutter 751 + 1 baseline | 2026-11-06; odluke 800–808; Tier 2 kanal bez linka do S10; sintetički ID bez embeda; **potvrda S7 na nightlyju prenesena u S9** |
-| S9 | „Danas u korpusu” + `/dani/` | | | | paralelno sa S10 |
+| S9 | „Danas u korpusu” + `/dani/` | gotovo | 3f910b2 | 399 / skipped 0; flutter 781 + 1 baseline | 2026-11-06; odluke 900–915; OG broj epizoda čeka binding `KATALOG` (S11); **potvrda S7 na nightlyju i dalje otvorena → S10** |
 | S10 | `/channels` „Svi” + Tier 2 kanal | | | | paralelno sa S9 |
 | S11 | Release | | | | vrata: korisnik |
 | S12 | `/home` na serveru | | | | vrata: Tier 2 u heru |
