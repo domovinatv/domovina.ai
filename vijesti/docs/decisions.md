@@ -1054,3 +1054,19 @@ paralelni worktreeji ne sudare. Odluka se ne briše: zamijeni je novom koja je p
      Studio SQL editor: paket je jedna transakcija koja na prvoj grešci staje. Povratak dok u
      shemi nema podataka: `DROP SCHEMA vijesti CASCADE` (uloge su Supabaseove i ostaju,
      odluka 502). Javni repo: README nema adresu ni ključ hosta, samo zamjenske oznake.
+740. **`/vijesti*` u glavnom workeru je osigurač, ne put prometa** (`86f0e9c`). Portal u
+     produkciji veže zonska ruta `domovina.ai/vijesti*` → Worker `domovina-vijesti` (obrazac
+     kataloga, `katalog/wrangler.jsonc`), koja ima prednost pred Pages projektom, pa
+     `web/_worker.js` te putanje tada ne vidi. Grana u workeru (prije ASSETS grane, jer
+     `rss.xml`/sitemapi imaju ekstenziju) služi Previewu, `*.pages.dev` i brendovima bez
+     portala: kroz service binding `VIJESTI` ako postoji (izvorni `Request`, netaknut), inače
+     404 + `X-Robots-Tag: noindex`. Nikad Flutter SPA. `[[services]]` u korijenskom
+     `wrangler.toml` se u S7 ne dodaje (zajednička datoteka; katalog dodaje svoj u S11).
+     Test: `scripts/test-social-tags.mjs` (`testVijestiRoute`, prihvaća portal ili 404 +
+     noindex, ruši se na `flutter_bootstrap`); protiv `npx wrangler pages dev web --port 8788`
+     225/233, pada samo 8 provjera skrivenog `/glasanje`. Protiv produkcije pada dok se web ne
+     deploya s `main` (produkcija nema ni katalog S9/S10 worker).
+741. **Preview portala s podacima NIJE napravljen u S7.** Vrata F0 (odluka 315) nisu zatvorena
+     (korisnik 6.11.: „nije, radi pripremu”), a S7 kaže da Preview s pravim podacima čeka
+     odluku. Preview, Lighthouse nad njim (TTFB ruba) i purge ruba pri ispravku/povlačenju
+     (S6, odluka 608) prelaze u S8, iza vrata.

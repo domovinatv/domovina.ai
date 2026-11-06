@@ -42,10 +42,10 @@ Legenda: `[x]` gotovo · `[ ]` otvoreno · `[~]` u radu · `(!)` traži korisnik
 - [x] Audio isječak uz svaki citat, „Poslušaj cijeli razgovor” → `/v/<id>/t/<sec>` → S6
 - [x] Admin urednika iza Supabase prijave (uloga `editor`) → S6 (lokalna prijava u e2e; prava Supabase prijava neisprobana → S7)
 - [x] Playwright e2e + Lighthouse budžet → S6 (19 e2e; Lighthouse mobile članak 100, lokalno)
-- [ ] News sitemap (48 h), RSS, canonical, robots, `NewsArticle` JSON-LD → S7
-- [ ] `/vijesti/*` kroz `web/_worker.js` (service binding) + `scripts/test-social-tags.mjs` → S7
-- [ ] Impresum, stranica „Kako nastaju članci” (AI + urednik), politika ispravaka → S7
-- [ ] (!) Produkcijska shema na `api.domovina.ai` → S7
+- [x] News sitemap (48 h), RSS, canonical, robots, `NewsArticle` JSON-LD → S7
+- [x] `/vijesti/*` kroz `web/_worker.js` (service binding) + `scripts/test-social-tags.mjs` → S7
+- [x] Impresum, stranica „Kako nastaju članci” (AI + urednik), politika ispravaka → S7
+- [ ] (!) Produkcijska shema na `api.domovina.ai` → S7 pripremio paket (`db/prod/`, odluke 730–734), primjena čeka korisnika → S8
 - [ ] (!) Upis elektroničke publikacije kod AEM-a, glavni urednik → S7
 - [ ] (!) Popis dopuštenih kanala (`allowlist`) → S7
 - [ ] Dnevni job (launchd LaunchAgent), idempotentan, Telegram kroz `telegram-notify.rb` → S8

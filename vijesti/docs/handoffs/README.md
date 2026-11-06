@@ -37,7 +37,7 @@ Handoff se mijenja samo prema naprijed: gotovi `SN` se ne prepisuju, služe kao 
 | S4 | Format „vijest” + verify | gotovo | 2ef1db4 | 257 / skipped 0 | 2026-11-06; odluke 400–435; agy/eval (prvi dio) + format, verify, verzije; --fake 5 nacrta (5 fixturea), pravih 10 nakon odgođenog mjerenja |
 | S5 | Urednički tok + API | gotovo | ea8a472 | 286 / skipped 0 | 2026-11-06; odluke 500–528; RLS + SECURITY DEFINER `rpc` (PGlite), 19 adversarijalnih testova; Supabase neisprobano (S7) |
 | S6 | Portal (Astro) + admin | gotovo | 5f844f6 | 311 / skipped 0 | 2026-11-06; odluke 600–617; e2e 19/19 (`npm run e2e`, izvan `check`), Lighthouse mobile članak 100 lokalno |
-| S7 | Distribucija + pravni sloj + Preview | | | | vrata: korisnik |
+| S7 | Distribucija + pravni sloj + Preview | djelomično | 32036fe | 338 / skipped 0 | 2026-11-06; odluke 700–741; SEO, pravne, worker `/vijesti` (86f0e9c), paket migracije; e2e 31/31; Preview NIJE (vrata F0 otvorena) → S8 |
 | S8 | Dnevni job + prvih 30 članaka | | | | vrata: korisnik |
 | S9 | Priče kroz više podcasta | | | | može paralelno sa S10 |
 | S10 | Teme, osobe, pretraga, push | | | | može paralelno sa S9 |
