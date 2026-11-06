@@ -26,14 +26,15 @@ Legenda: `[x]` gotovo · `[ ]` otvoreno · `[~]` u radu · `(!)` traži korisnik
 <!-- doc-refs:ignore-start -->
 - [ ] Izvještaj `docs/research/YYYY-MM-DD-f0-mjerenje.md`, svaka brojka s naredbom → S3
 <!-- doc-refs:ignore-end -->
+- [ ] Pravih 10 nacrta (agy) nakon odgođenog mjerenja; `--fake` daje 5 (5 fixturea), `docs/research/2026-11-06-prvi-nacrti.md` → nakon mjerenja
 - [ ] (!) Odluka korisnika: nastavljamo li na F1 i s kojim pragom ocjene (nakon mjerenja; do tada privremeni prag) → prije S7
 
 ## F1 — prvi format i javna objava
 
-- [ ] Format „vijest iz podcasta”: obrnuta piramida, 300–500 riječi, naslov, lead, citati s vremenom → S4
-- [ ] Stilski vodič HR (treće lice, pravopis IHJJ, bez emojija, bez superlativa bez izvora) → S4
-- [ ] Verify: svaka rečenica ima izvorni trenutak ili ide uredniku označena → S4
-- [ ] Verzije članka (svaka promjena nova verzija, izvori po verziji) → S4
+- [x] Format „vijest iz podcasta”: obrnuta piramida, 300–500 riječi, naslov, lead, citati s vremenom → S4
+- [x] Stilski vodič HR (treće lice, pravopis IHJJ, bez emojija, bez superlativa bez izvora) → S4
+- [x] Verify: svaka rečenica ima izvorni trenutak ili ide uredniku označena → S4
+- [x] Verzije članka (svaka promjena nova verzija, izvori po verziji) → S4
 - [ ] Stanja: nacrt → pregled → odobreno → objavljeno → ispravljeno / povučeno → S5
 - [ ] Dnevnik ispravaka (javan na članku) → S5
 - [ ] API za portal i admin (smještaj po pravilu iz CLAUDE.md: pisanje u bazu = Supabase) → S5

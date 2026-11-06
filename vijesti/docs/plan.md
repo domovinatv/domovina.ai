@@ -119,4 +119,5 @@ S1 (2026-11-05): kostur, CDN loader, 5 fixturea, shema, `LlmClient` — `4b9f74d
 S2 (2026-11-05): trenuci, provjera citata, `vijesti extract` — `336426f`, 167 testova.
 S3 (2026-11-06, djelomično): ocjena vijesti, Vertex backend — `661ddc6`, 214 testova; mjerenje kroz `agy` odgođeno (odluka 315), vrata pomaknuta prije S7.
 S4 prvi dio (2026-11-06): `agy` backend, `npm run eval`, izvještaj — `80e0402`, 240 testova.
-Sljedeće: S4 drugi dio (format „vijest” + verify).
+S4 drugi dio (2026-11-06): format „vijest”, verify, verzije, nacrti — `2ef1db4`, 257 testova, odluke 413–435.
+Sljedeće: S5 (urednički tok i API).
