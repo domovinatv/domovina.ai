@@ -21,8 +21,8 @@ Legenda: `[x]` gotovo · `[ ]` otvoreno · `[~]` u radu · `(!)` traži korisnik
 - [x] Odbačeni trenuci zapisani s razlogom, ne izgubljeni → S2
 - [x] `vijesti extract <id>` CLI → S2
 - [x] Ocjena vijesti (novost, tko govori, konkretna tvrdnja) → S3
-- [ ] Backend `agy` (tmux, po uzoru na `fetch.domovina.tv/lib/agy_tmux.js`) + `npm run eval` (`--channels`, `--limit`, `--max-calls`, procjena prije poziva), testirano bez pravih poziva → S4 (prvi dio)
-- [ ] (!) ODGOĐENO (korisnik 6.11., odluka 315): pravo mjerenje kroz `agy` na uzorku ~40 epizoda / 8 kanala (~440 poziva, 5–8 h, $0). Korisnik kaže kad; pokreće se noću s `run_in_background`, bez praćenja napretka → kasnije, prije S7
+- [x] Backend `agy` (tmux, po uzoru na `fetch.domovina.tv/lib/agy_tmux.js`) + `npm run eval` (`--channels`, `--limit`, `--max-calls`, procjena prije poziva), testirano bez pravih poziva → S4 (prvi dio)
+- [ ] (!) ODGOĐENO (korisnik 6.11., odluka 315): pravo mjerenje kroz `agy` na uzorku ~40 epizoda / 8 kanala (~440 poziva, 5–8 h, $0). Korisnik kaže kad; pokreće se noću s `run_in_background`, bez praćenja napretka. Naredbe (iz `vijesti/`): `VIJESTI_LLM_BACKEND=agy npm run eval -- --channels mreze_rijeci,iva_kraljevic,catholic_futurist,domovina_tv --limit 5 --dry-run`, pa isto s `--max-calls 500`, pa `npm run eval:report -- --out docs/research/YYYY-MM-DD-f0-mjerenje.md` (odluke 400–412) → kasnije, prije S7
 <!-- doc-refs:ignore-start -->
 - [ ] Izvještaj `docs/research/YYYY-MM-DD-f0-mjerenje.md`, svaka brojka s naredbom → S3
 <!-- doc-refs:ignore-end -->
