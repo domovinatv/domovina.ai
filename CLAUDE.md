@@ -835,6 +835,14 @@ dalje vukao PNG od ~830 KB po slici — naslovnica ~20 MB. Sada ~0,9 MB.)*
 Uvijek proslijedi `width` kad ga znaš — bez njega widget pesimistično uzima
 širinu ekrana i bira najveću varijantu.
 
+**Rule (web slike NE idu kroz `<img>` put)**: na webu `CachedThumbnail` crta
+`WebBitmapImage` (`createImageBitmap`), ne `CachedNetworkImage`. Na iOS WebKitu
+engine i URL i bajtove dekodira kroz `<img>`, koji pri ponovnom prikazu iste
+slike javi širinu 0 → `ImageCodecException: Failed to create image from
+Image.decode` (crni/sivi thumbnailovi nakon povratka na ekran; 434/434 greške,
+nakon popravka 0). `ImageRenderMethodForWeb.HttpGet` NE pomaže. Mjerenje i
+reprodukcija: `docs/2026-11-07-slike-webkit-img-decode.md`.
+
 **Rule (CORS je tvrdi uvjet)**: `CachedNetworkImage` povlači bajtove kroz
 `package:http`, pa URL MORA imati `access-control-allow-origin`.
 `Image.network` na webu ima `<img>` fallback koji CORS preživi — `CachedThumbnail`

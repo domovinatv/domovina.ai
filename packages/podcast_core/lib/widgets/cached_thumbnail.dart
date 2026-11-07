@@ -1,7 +1,13 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
 import '../services/cdn_config.dart';
+import '../src/log.dart' show log;
+import 'web_bitmap_image_stub.dart'
+    if (dart.library.js_interop) 'web_bitmap_image_web.dart';
 
 /// Cached network thumbnail s konzistentnim placeholder + error state-om.
 ///
@@ -116,16 +122,104 @@ class CachedThumbnail extends StatefulWidget {
   State<CachedThumbnail> createState() => _CachedThumbnailState();
 }
 
+/// Koliko puta se ista adresa pokušava ponovno prije nego se odustane od nje.
+/// Varijanta (WebP) dobiva jedan ponovni pokušaj pa pada na PNG; PNG dva.
+const int _kVariantRetries = 1;
+const int _kOriginalRetries = 2;
+const List<Duration> _kRetryDelays = [
+  Duration(milliseconds: 700),
+  Duration(seconds: 2),
+];
+
 class _CachedThumbnailState extends State<CachedThumbnail> {
-  /// Postane `true` kad WebP varijanta pukne → render pada na originalni PNG.
+  /// Postane `true` kad WebP varijanta konačno pukne → render pada na PNG.
   bool _variantFailed = false;
+
+  /// Redni broj pokušaja za TRENUTNU adresu. Ulazi u ključ
+  /// [CachedNetworkImage], pa novi pokušaj gradi novo stablo i ponovno
+  /// razrješava sliku (stari `Image` state bi ostao zaglavljen u grešci).
+  int _attempt = 0;
+
+  /// Pokušaj za koji je ponovni pokušaj već zakazan — `errorWidget` se zove
+  /// iz svakog builda, a zakazati se smije jednom.
+  int? _scheduledFor;
+  Timer? _retryTimer;
+
+  @override
+  void dispose() {
+    _retryTimer?.cancel();
+    super.dispose();
+  }
 
   @override
   void didUpdateWidget(CachedThumbnail oldWidget) {
     super.didUpdateWidget(oldWidget);
     // Novi URL = nova slika; prošli neuspjeh se ne prenosi (recikliranje
     // widgeta u ListView-u bi inače trajno zaključalo fallback na PNG).
-    if (oldWidget.url != widget.url) _variantFailed = false;
+    if (oldWidget.url != widget.url ||
+        oldWidget.variantUrl != widget.variantUrl) {
+      _variantFailed = false;
+      _resetAttempts();
+    }
+  }
+
+  void _resetAttempts() {
+    _retryTimer?.cancel();
+    _retryTimer = null;
+    _attempt = 0;
+    _scheduledFor = null;
+  }
+
+  /// Greška pri učitavanju [url]. Prije je PRVA greška bila konačna: WebP je
+  /// trajno prelazio na PNG (~800 KB), a pad PNG-a ostavljao ikonu do
+  /// ponovnog otvaranja ekrana. Na iOS pregledniku greške su često prolazne
+  /// (memorija/grafički kontekst), pa se ista adresa prvo pokuša ponovno.
+  void _onLoadError(String url, Object error, {required bool isVariant}) {
+    if (_scheduledFor == _attempt) return;
+    _scheduledFor = _attempt;
+    final cache = PaintingBinding.instance.imageCache;
+    final maxRetries = isVariant ? _kVariantRetries : _kOriginalRetries;
+    final willRetry = _attempt < maxRetries;
+    log('CachedThumbnail: greška (${isVariant ? 'varijanta' : 'original'}, '
+        'pokušaj ${_attempt + 1}/${maxRetries + 1}'
+        '${willRetry ? '' : isVariant ? ', prelazim na PNG' : ', ODUSTAJEM'}) '
+        '$url — ${error.runtimeType}: $error | imageCache '
+        '${cache.currentSize} slika / '
+        '${(cache.currentSizeBytes / 1048576).toStringAsFixed(1)} MB, '
+        'live ${cache.liveImageCount}, pending ${cache.pendingImageCount}');
+
+    if (willRetry) {
+      final delay = _kRetryDelays[_attempt.clamp(0, _kRetryDelays.length - 1)];
+      _retryTimer?.cancel();
+      _retryTimer = Timer(delay, () {
+        if (!mounted) return;
+        // Web: ImageCache neuspjelu sliku ne zadržava, novi ključ je dosta.
+        if (!kIsWeb) unawaited(CachedNetworkImage.evictFromCache(url));
+        setState(() => _attempt++);
+      });
+      return;
+    }
+    if (isVariant) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || _variantFailed) return;
+        setState(() {
+          _variantFailed = true;
+          _resetAttempts();
+        });
+      });
+      return;
+    }
+    if (widget.onFailed != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) widget.onFailed!.call();
+      });
+    }
+  }
+
+  /// Je li za trenutnu adresu iscrpljen broj pokušaja (konačna greška).
+  bool _exhausted(bool isVariant) {
+    final maxRetries = isVariant ? _kVariantRetries : _kOriginalRetries;
+    return _scheduledFor == _attempt && _attempt >= maxRetries;
   }
 
   /// Efektivna render-širina u logičkim pikselima. Ako [widget.width] nije
@@ -160,72 +254,82 @@ class _CachedThumbnailState extends State<CachedThumbnail> {
     final dpr = MediaQuery.devicePixelRatioOf(context);
     final resolvedUrl = _resolveUrl(context, dpr);
     final isVariant = resolvedUrl != widget.url;
+    // Resample na render-širinu — HD thumbovi (1280×720) na ~128–360 dp
+    // karticama ne trebaju puni bitmap u memoriji.
+    final memWidth = widget.width != null && widget.width!.isFinite
+        ? (widget.width! * dpr).round()
+        : null;
+
+    final placeholder = Container(
+      width: widget.width,
+      height: widget.height,
+      color: theme.colorScheme.surfaceContainerHighest,
+    );
+
+    // Greška ide kroz error builder, a ne kroz listener: on SIGURNO prolazi
+    // kroz build kad load padne. Dok traju ponovni pokušaji i prijelaz s
+    // WebP-a na PNG, crta se neutralni placeholder, da korisnik ne vidi
+    // bljesak greške prije slike. `_onLoadError` sve promjene stanja odgađa
+    // (timer / post-frame), jer se zove iz build faze.
+    //
+    // NAPOMENA: ovaj put nije pokriven automatskim testom; pokriven je samo
+    // izbor URL-a u `test/cdn_thumbnail_variants_test.dart`. Ako mijenjaš ovu
+    // granu, provjeri ručno na epizodi kojoj `thumb-*.webp` 404-a a
+    // `thumbnail.png` postoji.
+    Widget errorView(BuildContext ctx, String url, Object error) {
+      _onLoadError(url, error, isVariant: isVariant);
+      if (isVariant || !_exhausted(false)) return placeholder;
+      final custom = widget.errorFallbackBuilder;
+      if (custom != null) return custom(ctx);
+      return Container(
+        width: widget.width,
+        height: widget.height,
+        color: theme.colorScheme.surfaceContainerHighest,
+        alignment: Alignment.center,
+        child: Icon(
+          widget.errorIcon,
+          color: theme.colorScheme.onSurfaceVariant,
+          size: widget.errorIconSize,
+        ),
+      );
+    }
+
+    final key = ValueKey('$resolvedUrl#$_attempt');
+
+    // Web: vlastiti provider kroz `createImageBitmap`, NE CachedNetworkImage.
+    // Paket na webu (oba načina, `HtmlImage` i `HttpGet`) završi u enginovom
+    // `<img>` dekoderu, koji na iOS WebKitu pri ponovnom prikazu pada. Vidi
+    // `web_bitmap_image_web.dart`.
+    if (kIsWeb) {
+      return Image(
+        key: key,
+        image: WebBitmapImage(resolvedUrl, targetWidth: memWidth),
+        width: widget.width,
+        height: widget.height,
+        fit: widget.fit,
+        frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+          if (wasSynchronouslyLoaded) return child;
+          return AnimatedSwitcher(
+            duration: widget.fadeInDuration,
+            child: frame == null
+                ? KeyedSubtree(key: const ValueKey(0), child: placeholder)
+                : KeyedSubtree(key: const ValueKey(1), child: child),
+          );
+        },
+        errorBuilder: (ctx, error, _) => errorView(ctx, resolvedUrl, error),
+      );
+    }
 
     return CachedNetworkImage(
+      key: key,
       imageUrl: resolvedUrl,
       width: widget.width,
       height: widget.height,
       fit: widget.fit,
       fadeInDuration: widget.fadeInDuration,
-      // Memory-cache resample na render width pri load-u — HD thumb-ovi
-      // (1280×720) renderani na ~360dp cards ne trebaju full bitmap u RAM-u.
-      memCacheWidth: widget.width != null && widget.width!.isFinite
-          ? (widget.width! * dpr).round()
-          : null,
-      placeholder: (_, _) => Container(
-        width: widget.width,
-        height: widget.height,
-        color: theme.colorScheme.surfaceContainerHighest,
-      ),
-      // Fallback se okida iz `errorWidget`, a ne iz `errorListener`. Oboje su
-      // legitimni hookovi paketa, ali `errorWidget` je onaj koji SIGURNO ide
-      // kroz build kad load padne (on crta ono što korisnik vidi), pa je
-      // fallback vezan uz njega — bez oslanjanja na to fira li `errorListener`
-      // na svakoj platformi. Zove se iz build faze → setState ide post-frame.
-      //
-      // NAPOMENA: ovaj put nije pokriven automatskim testom (mockanje
-      // flutter_cache_managera je nerazmjerno); pokriven je samo izbor URL-a u
-      // `test/cdn_thumbnail_variants_test.dart`. Ako mijenjaš ovu granu,
-      // provjeri ručno na epizodi kojoj `thumb-*.webp` 404-a a `thumbnail.png`
-      // postoji.
-      errorWidget: (ctx, _, _) {
-        // Varijanta pukla (404 od backfill rupe, ili dekoder bez WebP-a) →
-        // prebaci se jednom na originalni PNG i dotad drži neutralni
-        // placeholder, da korisnik ne vidi bljesak greške prije slike.
-        if (isVariant) {
-          if (!_variantFailed) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (mounted && !_variantFailed) {
-                setState(() => _variantFailed = true);
-              }
-            });
-          }
-          return Container(
-            width: widget.width,
-            height: widget.height,
-            color: theme.colorScheme.surfaceContainerHighest,
-          );
-        }
-        // Pao je i PNG → slike stvarno nema.
-        if (widget.onFailed != null) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) widget.onFailed!.call();
-          });
-        }
-        final custom = widget.errorFallbackBuilder;
-        if (custom != null) return custom(ctx);
-        return Container(
-          width: widget.width,
-          height: widget.height,
-          color: theme.colorScheme.surfaceContainerHighest,
-          alignment: Alignment.center,
-          child: Icon(
-            widget.errorIcon,
-            color: theme.colorScheme.onSurfaceVariant,
-            size: widget.errorIconSize,
-          ),
-        );
-      },
+      memCacheWidth: memWidth,
+      placeholder: (_, _) => placeholder,
+      errorWidget: errorView,
     );
   }
 }

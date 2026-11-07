@@ -50,6 +50,51 @@
        tamna), pa prijelaz splash → aplikacija nema bljeska, a ni u jednom
        trenutku nije vidljiva bijela stranica. Boje = AppTheme.dark()/light()
        scaffoldBackgroundColor. -->
+  <!-- Dijagnostika slika na iOS-u (7.11.2026.): SAMO na lokalnom/Tailscale
+       hostu, nikad na domovina.ai. Konzolu i gubitak grafičkog konteksta šalje
+       na /__log lokalnog servera (scripts/serve-debug-web.py), jer se iOS
+       Chromeu konzola ne vidi bez Web Inspectora. -->
+  <script>
+    (function () {
+      var h = location.hostname;
+      if (!(h === 'localhost' || h === '127.0.0.1' || /\.ts\.net$/.test(h))) return;
+      var t0 = Date.now();
+      function send(level, msg) {
+        try {
+          var line = '+' + ((Date.now() - t0) / 1000).toFixed(1) + 's ' + level + ' ' + msg;
+          navigator.sendBeacon('/__log', line);
+        } catch (_) {}
+      }
+      ['log', 'warn', 'error'].forEach(function (k) {
+        var orig = console[k];
+        console[k] = function () {
+          try { send(k, Array.prototype.map.call(arguments, String).join(' ')); } catch (_) {}
+          return orig.apply(console, arguments);
+        };
+      });
+      window.addEventListener('error', function (e) { send('onerror', e.message + ' @ ' + e.filename + ':' + e.lineno); });
+      window.addEventListener('unhandledrejection', function (e) { send('rejection', String(e.reason)); });
+      document.addEventListener('visibilitychange', function () { send('visibility', document.visibilityState); });
+      function hook(proto, name) {
+        if (!proto || !proto.getContext) return;
+        var orig = proto.getContext;
+        proto.getContext = function (type) {
+          var ctx = orig.apply(this, arguments);
+          if (ctx && /webgl|webgpu/.test(String(type)) && !this.__dbgHooked) {
+            this.__dbgHooked = true;
+            var w = this.width, hh = this.height;
+            send('gl', name + ' ' + type + ' kontekst ' + w + 'x' + hh);
+            this.addEventListener('webglcontextlost', function () { send('gl', 'WEBGL CONTEXT LOST (' + name + ')'); });
+            this.addEventListener('webglcontextrestored', function () { send('gl', 'webgl context restored (' + name + ')'); });
+          }
+          return ctx;
+        };
+      }
+      hook(window.HTMLCanvasElement && HTMLCanvasElement.prototype, 'canvas');
+      hook(window.OffscreenCanvas && OffscreenCanvas.prototype, 'offscreen');
+      send('start', navigator.userAgent + ' dpr=' + devicePixelRatio + ' isolated=' + self.crossOriginIsolated);
+    })();
+  </script>
   <script>
     try {
       if (localStorage.getItem('theme_mode') === 'light') {
