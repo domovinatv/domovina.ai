@@ -79,6 +79,10 @@ class _CatalogDayScreenState extends State<CatalogDayScreen> {
     final result = await CatalogClient.instance.day(
       widget.date,
       limit: CatalogDayScreen.pageSize,
+      // Prva stranica dolazi iz diskovnog cachea (stale-while-revalidate),
+      // a dan se puni tijekom dana: bez ovoga ekran ostane zamrznut na
+      // stranici s prvog otvaranja (6. 11.: 26 umjesto 34, bez „Učitaj još”).
+      onUpdate: _applyFreshFirstPage,
     );
     if (!mounted) return;
     setState(() {
@@ -94,6 +98,33 @@ class _CatalogDayScreenState extends State<CatalogDayScreen> {
         case CatalogDayUnavailable():
           _phase = _Phase.unavailable;
       }
+    });
+  }
+
+  /// Revalidirana prva stranica. Dok je učitana samo prva stranica, svježa
+  /// je zamjenjuje (s njenim `next`, pa „Učitaj još” proradi ako ga stara
+  /// nije imala). Kad je korisnik već listao dalje, popis i kursor ostaju, a
+  /// nove epizode s prve stranice dodaju se na kraj — umetanje iznad
+  /// vidljivog dijela pomaknulo bi sadržaj pod korisnikom.
+  void _applyFreshFirstPage(CatalogDayPage fresh) {
+    if (!mounted) return;
+    if (_phase != _Phase.list && _phase != _Phase.empty) return;
+    log(
+      'CatalogDayScreen(${widget.date}): revalidirana prva stranica, '
+      '${fresh.items.length} epizoda${fresh.hasMore ? ', ima dalje' : ''}',
+    );
+    setState(() {
+      if (_items.length <= CatalogDayScreen.pageSize) {
+        _items
+          ..clear()
+          ..addAll(fresh.items);
+        _next = fresh.next;
+        _moreFailed = false;
+      } else {
+        final seen = {for (final c in _items) c.id};
+        _items.addAll(fresh.items.where((c) => seen.add(c.id)));
+      }
+      _phase = _items.isEmpty ? _Phase.empty : _Phase.list;
     });
   }
 

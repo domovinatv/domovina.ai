@@ -15,6 +15,14 @@ class FakeCatalogDays extends CatalogClient {
   final Map<String, CatalogDayLookup> pages;
   bool unavailable;
 
+  /// Revalidacija: stranica koju [day] preda kroz `onUpdate` nakon što je
+  /// vratio onu iz [pages] (kao `CdnJsonCache.getMutable` kad se mreža
+  /// razlikuje od diska). Ključ isti kao u [pages].
+  final Map<String, CatalogDayPage> revalidated = {};
+
+  /// Zadnji `onUpdate` po ključu, da test revalidaciju okine kad hoće.
+  final Map<String, void Function(CatalogDayPage)> onUpdates = {};
+
   /// Upiti redom, u obliku ključa iz [pages].
   final List<String> asked = [];
 
@@ -30,6 +38,11 @@ class FakeCatalogDays extends CatalogClient {
     asked.add(key);
     if (unavailable) return const CatalogDayUnavailable();
     if (parseCatalogDate(date) == null) return const CatalogDayBadDate();
+    if (onUpdate != null) onUpdates[key] = onUpdate;
+    final fresh = revalidated[key];
+    if (fresh != null && onUpdate != null) {
+      Future<void>.delayed(Duration.zero, () => onUpdate(fresh));
+    }
     return pages[key] ??
         CatalogDayFound(CatalogDayPage(date: date, items: const []));
   }

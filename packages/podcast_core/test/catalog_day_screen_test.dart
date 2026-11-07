@@ -122,6 +122,77 @@ void main() {
     expect(find.text('Učitaj još'), findsNothing);
   });
 
+  testWidgets(
+    'revalidacija: spremljenih 26 bez next → svježih 30 + next, nastavak radi',
+    (tester) async {
+      final fake = FakeCatalogDays(
+        pages: {
+          '2026-11-04': fakeDayPage('2026-11-04', _cards('p1_', 26)),
+          '2026-11-04|K1': fakeDayPage('2026-11-04', _cards('p2_', 4)),
+        },
+      );
+      fake.revalidated['2026-11-04'] = CatalogDayPage(
+        date: '2026-11-04',
+        items: _cards('p1_', 30),
+        next: 'K1',
+      );
+      CatalogClient.instance = fake;
+      await tester.pumpWidget(_harness('/dani/2026-11-04'));
+      await tester.pumpAndSettle();
+
+      await tester.scrollUntilVisible(
+        find.text('Epizoda p1_29'),
+        300,
+        scrollable: find.byType(Scrollable).first,
+      );
+      expect(find.text('Epizoda p1_29'), findsOneWidget);
+      await tester.pumpAndSettle();
+      // Beskonačno listanje (ili „Učitaj još”) sada ima kursor.
+      if (!fake.asked.contains('2026-11-04|K1')) {
+        await tester.scrollUntilVisible(
+          find.text('Učitaj još'),
+          300,
+          scrollable: find.byType(Scrollable).first,
+        );
+        await tester.tap(find.text('Učitaj još'));
+        await tester.pumpAndSettle();
+      }
+      expect(fake.asked, ['2026-11-04', '2026-11-04|K1']);
+    },
+  );
+
+  testWidgets('revalidacija nakon listanja dalje: popis ostaje, novi na kraj', (
+    tester,
+  ) async {
+    final fake = FakeCatalogDays(
+      pages: {
+        '2026-11-04': fakeDayPage('2026-11-04', _cards('p1_', 30), next: 'K1'),
+        '2026-11-04|K1': fakeDayPage('2026-11-04', _cards('p2_', 3)),
+      },
+    );
+    CatalogClient.instance = fake;
+    await tester.pumpWidget(_harness('/dani/2026-11-04'));
+    await tester.pumpAndSettle();
+    await tester.drag(find.byType(ListView), const Offset(0, -4000));
+    await tester.pumpAndSettle();
+    expect(fake.asked, ['2026-11-04', '2026-11-04|K1']);
+
+    // Revalidacija prve stranice stiže nakon što je korisnik listao dalje:
+    // nova epizoda (p1_30) ide na kraj, ništa se ne duplicira, kursor ostaje.
+    fake.onUpdates['2026-11-04']!(
+      CatalogDayPage(date: '2026-11-04', items: _cards('p1_', 31), next: 'K9'),
+    );
+    await tester.pumpAndSettle();
+    await tester.drag(find.byType(ListView), const Offset(0, -4000));
+    await tester.pumpAndSettle();
+    expect(find.text('Epizoda p1_30'), findsOneWidget);
+    expect(find.text('Epizoda p2_02'), findsOneWidget);
+    expect(fake.asked, [
+      '2026-11-04',
+      '2026-11-04|K1',
+    ], reason: 'K9 se ne traži');
+  });
+
   testWidgets('beskonačno listanje: scroll do dna povuče sljedeću stranicu', (
     tester,
   ) async {
