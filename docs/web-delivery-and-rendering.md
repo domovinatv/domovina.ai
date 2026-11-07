@@ -188,8 +188,16 @@ flowchart TD
   D -->|ne, 'Učitavam 0/44'| D1["PREFETCH RACE<br/>(sekcija 2)"]
   D -->|da, ali slike crne| E{Konzola:<br/>'webGLVersion is -1'?}
   E -->|da| E1["HEADLESS browser bez WebGL<br/>→ canvaskit CPU fallback<br/>→ network slike NE crtaju<br/>ARTEFAKT TESTA, ne app"]
-  E -->|ne, pravi browser| E2[Stvarni paint bug<br/>— istraži dalje]
+  E -->|ne, pravi browser| F{iOS WebKit, crne/sive<br/>tek nakon POVRATKA?}
+  F -->|da| F1["&lt;img&gt; dekoder: naturalWidth 0<br/>→ WebBitmapImage<br/>(docs/2026-11-07-slike-webkit-img-decode.md)"]
+  F -->|ne| E2[Stvarni paint bug<br/>— istraži dalje]
 ```
+
+- **iOS WebKit (7.11.2026.)**: `ImageCodecException: Failed to create image
+  from Image.decode` pri ponovnom prikazu slike — enginov `<img>` dekoder.
+  Web zato crta `WebBitmapImage` (`createImageBitmap`); dijagnostika s iPhonea
+  kroz `scripts/serve-debug-web.py` + Tailscale. Vidi
+  `docs/2026-11-07-slike-webkit-img-decode.md`.
 
 ### Glavne zamke iz ove sesije
 - **COEP `credentialless`** (worker emita COOP/COEP za skwasm SharedArrayBuffer)
