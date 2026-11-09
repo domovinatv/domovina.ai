@@ -247,6 +247,16 @@ obriše svoj DerivedData prije builda.
   inače 30 mailova mjesečno.
 - **Nightly ne promovira ništa na produkciju.** To je i dalje svjesna ručna
   radnja (`scripts/play-promote.sh` + ASC koraci iz `mobile-release-pipeline.md`).
+- **iOS archive treba simulator RUNTIME, i za fizički uređaj** (6.–9. 11. 2026.).
+  `ibtool` za `LaunchScreen.storyboard` pokreće IBAgent unutar simulator
+  runtimea. Kad su `/Library/Developer/CoreSimulator/{Images,Cryptex,Caches}`
+  5. 11. preseljeni symlinkom na `DOMOVINA2TB`, nijedan runtime se više nije
+  montirao (`…/CoreSimulator/Volumes` prazan, `simctl list` visi, pristup
+  direktoriju `Operation not permitted`), pa je „iOS build (IPA)" svaku noć
+  visio do watchdoga, a Android se nije ni gradio. `Devices` smije biti vani
+  (vani je od 15. 10. i radilo je), runtime ne. Provjera:
+  `gtimeout 30 xcrun simctl list devices booted`. Trajno rješenje:
+  `docs/plans/2026-11-09-store-build-na-github-actions.md`.
 - **`last-built-sha` se zapisuje samo na uspjeh** — pao build se sljedeću noć
   pokušava ponovno umjesto da bude preskočen kao „već obrađen".
 
@@ -286,5 +296,5 @@ javi iOS ui „nije provjereno”, to je prvi osumnjičenik.
   Configurator, briše uređaj); postavlja se ručno. Bez šifre Power tipka ne smeta:
   smoke ga probudi, a `devicectl … lockState` javlja `passcodeRequired`.
 
-Vezani dokumenti: `docs/plans/2026-10-13-smoke-testovi-na-uredajima.md`
+Vezani dokumenti: `docs/plans/2026-10-13-smoke-testovi-na-uredajima.md`, `docs/plans/2026-11-09-store-build-na-github-actions.md`
 (skripte, mjerenja, zamke uređaja).
