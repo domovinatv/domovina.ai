@@ -1102,3 +1102,18 @@ poklapao s podcast.domovina.ai/dani/<d>. Izmjereno 10. 11. za 9. 11.: katalog 33
       (10. 11.: 2, jučer 34). Rail ide unatrag do prvog dana s ≥ 6 epizoda; nema li ga
       u četiri dana, pokazuje najnoviji neprazan (kao odluka 902). Cijena: ujutro dva
       upita umjesto jednog.
+1203. **Desktop raspored kao kanal** (v2.0.224–225). `/dani/:datum` iznad 600 px: mreža
+      kartica do 300 px (16:9 slika, kanal, naslov), isto pravilo kao `_ResponsiveVideoList`
+      na `/c/:slug`. `/channels` „Svi”: kartice do 360 px kao „Pratimo”, red po red s
+      `IntrinsicHeight` (ne `GridView`: oznaka „Ne pratimo stalno” mijenja visinu).
+      Izmjereno u Braveu na širokom prozoru: 7 stupaca epizoda, 6 stupaca kanala.
+1204. **Kratak popis sam učita nastavak** (v2.0.226). U mreži je prvih 30 stavki par redova,
+      scroll nikad ne krene i ostaje samo „Učitaj još”. `_list` nakon layouta zove
+      `_onScroll` (isti prag 1,5 ekrana); gumb ostaje za grešku. Testovi ekrana idu na
+      390 px, plus po jedan test mreže na 1400 px.
+
+Otvoreno (10. 11.): jutarnji `ingest-episode --all` u `drift-check-launchd.sh` još nije
+prošao kroz pravi launchd run (prvi 11. 11. u 08:45). Redoslijed unutar dana je
+`id DESC` (praktično nasumičan); po satu objave traži novi stupac (`published_at`) +
+migraciju + ponovni uvoz. Rail „U korpusu” prikazuje i Tier 1 (dupla s „Najnovije
+epizode”); prijedlog filtra nije odlučen.
