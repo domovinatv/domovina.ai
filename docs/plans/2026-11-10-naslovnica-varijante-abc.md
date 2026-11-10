@@ -1,6 +1,6 @@
 # Naslovnica: tri varijante layouta iza `?home=a|b|c` (plan, 10. 11. 2026.)
 
-Status: **plan, ništa nije implementirano.** Skice: Claude Design canvas
+Status: **implementirano 10. 11. 2026., nedeployano** (`packages/podcast_core/lib/screens/home/variants/`, test `test/home_variants_test.dart`). Skice: Claude Design canvas
 „Naslovnica — opcije layouta” (privatan artifact, link u handoffu).
 
 ## Problem
@@ -80,3 +80,17 @@ nedovršena epizoda.** Odluka čeka gledanje nad stvarnim podacima.
   različiti izvori, pa filtar mijenja izvor, ne samo predikat.
 - Analitika: `screen_view` se ne mijenja; ako treba usporedba varijanti, novi
   događaj povlači pravne dokumente (CLAUDE.md, „Vlastita analitika”).
+
+## Nalazi nad stvarnim podacima (10. 11. 2026., lokalni build, 390 i 1440 px)
+
+- **Istaknute emisije su prazne** za DOMOVINA (`BrandConfig.featuredChannels`
+  ništa ne ističe), pa „Otkrij” u A i B nosi samo osobe i kanale; C pločicu
+  „Emisije” tada izostavlja.
+- **Osobe lokalno ne dolaze**: `mcp.domovina.ai/api/persons` ne pušta CORS za
+  `127.0.0.1`. Na produkciji rade; pločica „Osobe” u C ima zamjensku ikonu.
+- „U obradi” je u trenutku mjerenja bio prazan (svih 50 kanala obrađeno), pa
+  čip nema broja. Filtar to podnosi („Ovdje trenutno nema epizoda.”).
+- C: red „Istaknuto danas” se ponavljao u „Novo” — sada `NewZone.exclude`.
+- C mobitel: plutajući gumb „15 min s osnivačem” prekriva „Račun” u donjoj
+  navigaciji. Riješiti tek ako C pobijedi (pomak FAB-a iznad trake).
+- Povratnik je simuliran s 4 zapisa u `localStorage['watch_progress_v1']`.

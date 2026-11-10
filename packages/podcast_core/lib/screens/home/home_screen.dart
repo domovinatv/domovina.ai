@@ -34,6 +34,7 @@ import 'search_overlay.dart';
 import 'skeletons.dart';
 import 'sort_mode.dart';
 import 'voting_rail.dart';
+import 'variants/home_variants.dart';
 import '../../router/nav.dart';
 import '../../services/share_language.dart';
 import '../../services/share_links.dart';
@@ -474,6 +475,28 @@ class _ChannelGridViewState extends State<_ChannelGridView> {
                 ? HomeFeed.freshlyArrived(allVids,
                     limit: 12, excludeFeatured: featured.video)
                 : const <FeedVideo>[];
+
+            // Eksperimentalne varijante layouta (`?home=a|b|c`) — bez
+            // parametra ova grana ne postoji i crta se naslovnica ispod.
+            // Plan: docs/plans/2026-11-10-naslovnica-varijante-abc.md.
+            final variant = HomeVariantFlag.current;
+            if (variant != null) {
+              return buildHomeVariant(
+                variant,
+                HomeVariantData(
+                  featuredPicks: featuredPicks,
+                  allVids: allVids,
+                  continueWatching: continueWatching,
+                  freshlyArrived: freshlyArrived,
+                  channels: channels,
+                  hasMinData: hasMinData,
+                  width: width,
+                  scrollController: _scrollController,
+                  onSearchTap: onSearchTap,
+                  onVideoTap: onVideoTap,
+                ),
+              );
+            }
 
             return CustomScrollView(
               controller: _scrollController,
