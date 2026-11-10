@@ -1,6 +1,6 @@
 # Naslovnica: tri varijante layouta iza `?home=a|b|c` (plan, 10. 11. 2026.)
 
-Status: **implementirano 10. 11. 2026., nedeployano** (`packages/podcast_core/lib/screens/home/variants/`, test `test/home_variants_test.dart`). Skice: Claude Design canvas
+Status: **implementirano i LIVE od v2.0.227 (10. 11. 2026.)**, čeka izbor (`packages/podcast_core/lib/screens/home/variants/`, test `test/home_variants_test.dart`). Skice: Claude Design canvas
 „Naslovnica — opcije layouta” (privatan artifact, link u handoffu).
 
 ## Problem
@@ -94,3 +94,13 @@ nedovršena epizoda.** Odluka čeka gledanje nad stvarnim podacima.
 - C mobitel: plutajući gumb „15 min s osnivačem” prekriva „Račun” u donjoj
   navigaciji. Riješiti tek ako C pobijedi (pomak FAB-a iznad trake).
 - Povratnik je simuliran s 4 zapisa u `localStorage['watch_progress_v1']`.
+
+## Sljedeći korak (kad se izabere pobjednik)
+
+1. Tekstove iz `variants/variant_strings.dart` prebaciti u `app_hr.arb` /
+   `app_en.arb` (+ `flutter gen-l10n`).
+2. Pobjednika ugraditi kao zadani layout u `home_screen.dart`; regresijski
+   test u `test/home_variants_test.dart` tada se mijenja zajedno s njim.
+3. Gubitničke varijante i `HomeVariantFlag` obrisati (zadržati `?home=0`
+   ništa ne košta, ali spremljena vrijednost u localStorageu postaje mrtva).
+4. Ako pobijedi C: FAB „15 min s osnivačem” pomaknuti iznad donje navigacije.
