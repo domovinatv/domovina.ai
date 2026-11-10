@@ -283,6 +283,11 @@ postotak, nikad timer. Redak ispod trake od 29.10.2026. NE imenuje tehničku
 fazu („Priprema fontova…" korisniku ništa ne govori) nego svake 2 s izmjenjuje
 rečenice o sadržaju (`LINES` u `index.html`, bez emojija, „ti"). Zastoj
 (`failed()`) i dalje preuzima redak. Doc §6a.
+**Rule (jezik splasha = UI jezik)**: skripta u `<head>` čita
+`localStorage['app_locale']` (`LocaleController`, default hrvatski) i za `en`
+postavi `lang="en"`; tekstovi, `LINES` i citati (`versesEn`, RSV-CE, isti
+indeksi kao `verses`, čuva `test/boot_splash_verses_test.dart`) se zamijene
+prije prvog iscrtavanja. Novi tekst u splashu ili footeru → i engleska verzija.
 Postotak preuzimanja broji stvarne bajtove (omotan `fetch`); nazivnik upisuje
 `scripts/stamp-boot-sizes.sh` nakon builda — bez njega traka ostaje
 neodređena (§7).

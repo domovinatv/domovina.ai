@@ -101,6 +101,12 @@
         document.documentElement.setAttribute('data-theme', 'light');
       }
     } catch (_) {}
+    // Jezik splasha = UI jezik aplikacije (LocaleController: localStorage
+    // 'app_locale', default hrvatski). HTML je na hrvatskom; za 'en' skripte
+    // ispod prije prvog iscrtavanja zamijene tekstove (lang="en" je signal).
+    try {
+      if (localStorage.getItem('app_locale') === 'en') document.documentElement.lang = 'en';
+    } catch (_) {}
   </script>
   <style>
     :root{--boot-bg:#111318;--boot-fg:#e2e2e9;--boot-mark:#fff;--boot-dim:rgba(226,226,233,.62);--boot-track:rgba(255,255,255,.12);}
@@ -201,7 +207,7 @@
     </style>
     <div class="bi-main">
       <h1>DOMOVINA<span>.ai</span></h1>
-      <p class="bi-tag">AI-obrađeni hrvatski katolički podcasti</p>
+      <p class="bi-tag" id="bi-tag">AI-obrađeni hrvatski katolički podcasti</p>
       <!-- Citat za čitanje dok se čeka — isti skup kao TV splash (KS Jeruzalemska
            Biblija, provjereno na biblija.ks.hr: docs/splash-bible-citations-factcheck.md).
            U HTML-u stoji Mt 10,26-27 (native TV splash) za preglednik bez JS-a;
@@ -274,6 +280,68 @@
         "Luka 6,45"
         ]
         ];
+          // Engleski: isti citati istim redom (indeks u 'boot_verse' vrijedi za
+          // oba jezika), Revised Standard Version Catholic Edition, provjereno
+          // na biblegateway.com (version=RSVCE) 10.11.2026.
+          var versesEn = [
+        [
+        "So have no fear of them; for nothing is covered that will not be revealed, or hidden that will not be known. What I tell you in the dark, utter in the light; and what you hear whispered, proclaim upon the housetops.",
+        "Matthew 10:26-27"
+        ],
+        [
+        "For there is nothing hid, except to be made manifest; nor is anything secret, except to come to light.",
+        "Mark 4:22"
+        ],
+        [
+        "For nothing is hid that shall not be made manifest, nor anything secret that shall not be known and come to light.",
+        "Luke 8:17"
+        ],
+        [
+        "Nothing is covered up that will not be revealed, or hidden that will not be known.",
+        "Luke 12:2"
+        ],
+        [
+        "But our commonwealth is in heaven, and from it we await a Savior, the Lord Jesus Christ.",
+        "Philippians 3:20"
+        ],
+        [
+        "You will know the truth, and the truth will make you free.",
+        "John 8:32"
+        ],
+        [
+        "Let what you say be simply ‘Yes’ or ‘No’; anything more than this comes from evil.",
+        "Matthew 5:37"
+        ],
+        [
+        "In the world you have tribulation; but be of good cheer, I have overcome the world.",
+        "John 16:33"
+        ],
+        [
+        "For where your treasure is, there will your heart be also.",
+        "Matthew 6:21"
+        ],
+        [
+        "But seek first his kingdom and his righteousness, and all these things shall be yours as well.",
+        "Matthew 6:33"
+        ],
+        [
+        "I am the way, and the truth, and the life; no one comes to the Father, but by me.",
+        "John 14:6"
+        ],
+        [
+        "Render therefore to Caesar the things that are Caesar’s, and to God the things that are God’s.",
+        "Matthew 22:21"
+        ],
+        [
+        "The harvest is plentiful, but the laborers are few.",
+        "Matthew 9:37"
+        ],
+        [
+        "For out of the abundance of the heart his mouth speaks.",
+        "Luke 6:45"
+        ]
+        ];
+          if (document.documentElement.lang === 'en') verses = versesEn;
           var text = document.getElementById('bi-verse-text');
           var ref = document.getElementById('bi-verse-ref');
           var fig = text.parentNode;
@@ -348,9 +416,9 @@
       <button type="button" id="bi-retry" hidden onclick="location.reload()">Pokušaj ponovno</button>
     </div>
     <div class="bi-about">
-      <p>DOMOVINA.ai transkribira, sažima i analizira hrvatske katoličke podcaste pomoću umjetne inteligencije te provjerava njihovu usklađenost s katoličkim naukom (Magisterium AI). Korisnici mogu pretraživati epizode, čitati transkripte i sažetke te slušati obrađeni sadržaj.</p>
-      <p>Vlasnici YouTube kanala mogu potvrditi vlasništvo svojega kanala kako bi upravljali svojim sadržajem i isplatama. Za tu potvrdu aplikacija traži isključivo pristup za čitanje (<em>youtube.readonly</em>): provjerava da prijavljeni korisnik upravlja kanalom i pritom ništa ne objavljuje niti mijenja na YouTubeu.</p>
-      <div class="bi-links">
+      <p id="bi-about1">DOMOVINA.ai transkribira, sažima i analizira hrvatske katoličke podcaste pomoću umjetne inteligencije te provjerava njihovu usklađenost s katoličkim naukom (Magisterium AI). Korisnici mogu pretraživati epizode, čitati transkripte i sažetke te slušati obrađeni sadržaj.</p>
+      <p id="bi-about2">Vlasnici YouTube kanala mogu potvrditi vlasništvo svojega kanala kako bi upravljali svojim sadržajem i isplatama. Za tu potvrdu aplikacija traži isključivo pristup za čitanje (<em>youtube.readonly</em>): provjerava da prijavljeni korisnik upravlja kanalom i pritom ništa ne objavljuje niti mijenja na YouTubeu.</p>
+      <div class="bi-links" id="bi-links">
         <a href="/privacy">Pravila privatnosti</a> ·
         <a href="/terms">Uvjeti korištenja</a> ·
         <a href="mailto:stepanic.matija@gmail.com">Kontakt</a>
@@ -370,14 +438,42 @@
       #legal-footer .lf-op{opacity:.75;font-size:12px;margin-top:3px;}
     </style>
     <div>
-      <a href="https://domovina.ai/privacy">Pravila privatnosti</a>
+      <a href="https://domovina.ai/privacy" id="lf-privacy">Pravila privatnosti</a>
       <span class="lf-sep">·</span>
-      <a href="https://domovina.ai/terms">Uvjeti korištenja</a>
+      <a href="https://domovina.ai/terms" id="lf-terms">Uvjeti korištenja</a>
       <span class="lf-sep">·</span>
       <a href="mailto:privacy@italk.hr">privacy@italk.hr</a>
     </div>
-    <div class="lf-op">DOMOVINA.ai — operator: ITalk d.o.o. za informacijske tehnologije, IX. Južna obala 20, 10000 Zagreb, Hrvatska · OIB 54872935051</div>
+    <div class="lf-op" id="lf-op">DOMOVINA.ai — operator: ITalk d.o.o. za informacijske tehnologije, IX. Južna obala 20, 10000 Zagreb, Hrvatska · OIB 54872935051</div>
   </footer>
+
+  <script>
+    // Engleski splash i footer (lang="en" postavlja skripta u <head> iz
+    // localStorage['app_locale']). Prijevod živi ovdje jer splash crta HTML
+    // prije Fluttera, pa ARB još nije dostupan.
+    (function () {
+      if (document.documentElement.lang !== 'en') return;
+      var T = {
+        'bi-tag': 'AI-processed Croatian Catholic podcasts',
+        'bi-load': 'Fetching the latest episodes…',
+        'bi-note': 'The connection is slow. The app is downloaded only the first time; next time it will open quickly.',
+        'bi-retry': 'Try again',
+        'bi-about1': 'DOMOVINA.ai transcribes, summarizes and analyzes Croatian Catholic podcasts using artificial intelligence and checks their consistency with Catholic teaching (Magisterium AI). Users can search episodes, read transcripts and summaries, and listen to the processed content.',
+        'lf-privacy': 'Privacy Policy',
+        'lf-terms': 'Terms of Use',
+        'lf-op': 'DOMOVINA.ai — operator: ITalk d.o.o. za informacijske tehnologije, IX. Južna obala 20, 10000 Zagreb, Croatia · OIB 54872935051'
+      };
+      var k, el;
+      for (k in T) { el = document.getElementById(k); if (el) el.textContent = T[k]; }
+      el = document.getElementById('bi-about2');
+      if (el) el.innerHTML = 'YouTube channel owners can verify ownership of their channel to manage their content and payouts. For this verification the app requests read-only access only (<em>youtube.readonly</em>): it checks that the signed-in user manages the channel, and it never publishes or changes anything on YouTube.';
+      el = document.getElementById('bi-links');
+      if (el) {
+        var a = el.getElementsByTagName('a');
+        if (a.length === 3) { a[0].textContent = 'Privacy Policy'; a[1].textContent = 'Terms of Use'; a[2].textContent = 'Contact'; }
+      }
+    })();
+  </script>
 
   <script>
     // Splash živi dok Flutter ne nacrta prvi frame. Do 9.10.2026. ga je micao
@@ -439,7 +535,19 @@
       // („Priprema fontova…" korisniku ništa ne govori), nego svake 2 s
       // izmjenjuje rečenice o onome što aplikacija dohvaća čim se otvori.
       // Bez emojija, „ti" registar (CLAUDE.md, i18n).
-      var LINES = [
+      var EN = document.documentElement.lang === 'en';
+      var LINES = EN ? [
+        'Fetching the latest episodes…',
+        'Arranging the episode covers…',
+        'Preparing summaries and transcripts…',
+        'Loading channels and their podcasts…',
+        'Picking the episode of the day…',
+        'Checking what is new since your last visit…',
+        'Aligning subtitles word by word…',
+        'Arranging chapters and highlights…',
+        'Preparing thumbnails for every frame…',
+        'Painting the flag: red, white, blue…'
+      ] : [
         'Dohvaćamo najnovije epizode…',
         'Slažemo naslovnice razgovora…',
         'Pripremamo sažetke i transkripte…',
@@ -565,7 +673,7 @@
         pct.textContent = '';
         load.style.opacity = '1';
         load.setAttribute('aria-live', 'assertive');
-        load.textContent = 'Učitavanje je zapelo.';
+        load.textContent = EN ? 'Loading got stuck.' : 'Učitavanje je zapelo.';
         note.hidden = true;
         retry.hidden = false;
       }
