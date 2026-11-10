@@ -326,21 +326,112 @@ class _CatalogDayScreenState extends State<CatalogDayScreen> {
     );
   }
 
+  /// Najveća širina kartice u mreži; ista kao na `/c/<slug>`
+  /// (`_ResponsiveVideoList` u `channel_screen.dart`).
+  static const double _maxGridCardWidth = 300;
+
+  /// Ispod ove širine stupac s retcima, iznad mreža kartica (kao kanal).
+  static const double _gridMinWidth = 600;
+
   Widget _list(ThemeData theme, AppLocalizations l) {
     final hasFooter = _next != null || _loadingMore || _moreFailed;
     // Rubni padding ide UNUTAR scrollabla (vidi CLAUDE.md — Scrollabilne liste).
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 720),
-        child: ListView.separated(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        if (width < _gridMinWidth) {
+          return ListView.separated(
+            controller: _scroll,
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+            itemCount: _items.length + (hasFooter ? 1 : 0),
+            separatorBuilder: (_, _) => const SizedBox(height: 12),
+            itemBuilder: (context, i) {
+              if (i < _items.length) return _row(theme, _items[i]);
+              return _footer(theme, l);
+            },
+          );
+        }
+        // Desktop/tablet: mreža kao na `/c/<slug>`, da ekran ne bude uski
+        // stupac usred praznine.
+        final available = width - 32;
+        final columns = (available / _maxGridCardWidth).floor().clamp(2, 99);
+        final cardWidth = (available - (columns - 1) * 12) / columns;
+        return SingleChildScrollView(
           controller: _scroll,
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
-          itemCount: _items.length + (hasFooter ? 1 : 0),
-          separatorBuilder: (_, _) => const SizedBox(height: 12),
-          itemBuilder: (context, i) {
-            if (i < _items.length) return _row(theme, _items[i]);
-            return _footer(theme, l);
-          },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                children: [
+                  for (final card in _items)
+                    SizedBox(
+                      width: cardWidth,
+                      child: _gridCard(theme, card, cardWidth),
+                    ),
+                ],
+              ),
+              if (hasFooter) ...[
+                const SizedBox(height: 16),
+                Center(child: _footer(theme, l)),
+              ],
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  /// Kartica mreže: slika 16:9 preko pune širine, ispod kanal i naslov.
+  Widget _gridCard(ThemeData theme, CatalogCard card, double width) {
+    final cs = theme.colorScheme;
+    final channel = card.channel?.name;
+    final channelRoute = card.channel?.hasChannelRoute == true
+        ? '/c/${card.channel!.routeSlug}'
+        : null;
+    return Material(
+      color: cs.surfaceContainerLowest,
+      borderRadius: BorderRadius.circular(14),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => _open(card.id),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            AspectRatio(
+              aspectRatio: 16 / 9,
+              child: CachedThumbnail(
+                url: CdnConfig.thumbnailUrl(card.id),
+                width: width,
+                fit: BoxFit.cover,
+                errorIcon: Icons.ondemand_video,
+                errorIconSize: 28,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (channel != null) ...[
+                    _channelLabel(theme, channel, channelRoute),
+                    const SizedBox(height: 4),
+                  ],
+                  Text(
+                    card.displayTitle,
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      height: 1.3,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );

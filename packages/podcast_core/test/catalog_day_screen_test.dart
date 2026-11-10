@@ -19,7 +19,9 @@ DateTime _clock() => DateTime(2026, 11, 6, 12, 38);
 late GoRouter _router;
 final List<String> _opened = [];
 
-Widget _harness(String initial) {
+/// Zadano je širina mobitela (popis u jednom stupcu); [width] ≥ 600 daje
+/// desktop mrežu kao na `/c/<slug>`.
+Widget _harness(String initial, {double width = 390}) {
   _router = GoRouter(
     initialLocation: initial,
     routes: [
@@ -46,11 +48,17 @@ Widget _harness(String initial) {
       ),
     ],
   );
-  return MaterialApp.router(
-    routerConfig: _router,
-    localizationsDelegates: AppLocalizations.localizationsDelegates,
-    supportedLocales: AppLocalizations.supportedLocales,
-    locale: const Locale('hr'),
+  return Align(
+    alignment: Alignment.topLeft,
+    child: SizedBox(
+      width: width,
+      child: MaterialApp.router(
+        routerConfig: _router,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('hr'),
+      ),
+    ),
   );
 }
 
@@ -96,6 +104,36 @@ void main() {
     await tester.tap(find.text('Prva'));
     await tester.pumpAndSettle();
     expect(_opened, ['aaaaaaaaaaa']);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('desktop: mreža kartica u više stupaca, kao na /c/<slug>', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1400, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    CatalogClient.instance = FakeCatalogDays(
+      pages: {'2026-11-04': fakeDayPage('2026-11-04', _cards('g_', 8))},
+    );
+    await tester.pumpWidget(_harness('/dani/2026-11-04', width: 1400));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(ListView), findsNothing);
+    // (1400 - 32) / 300 → 4 stupca: prve četiri kartice u istom retku.
+    final tops = [
+      for (var i = 0; i < 5; i++)
+        tester.getTopLeft(find.text('Epizoda g_0$i')).dy,
+    ];
+    expect(tops.sublist(0, 4).toSet(), hasLength(1));
+    expect(tops[4], greaterThan(tops[0]));
+    final left0 = tester.getTopLeft(find.text('Epizoda g_00')).dx;
+    final left1 = tester.getTopLeft(find.text('Epizoda g_01')).dx;
+    expect(left1 - left0, greaterThan(300));
+
+    await tester.tap(find.text('Epizoda g_05'));
+    await tester.pumpAndSettle();
+    expect(_opened, ['g_05']);
     expect(tester.takeException(), isNull);
   });
 
