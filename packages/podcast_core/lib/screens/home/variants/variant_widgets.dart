@@ -386,7 +386,7 @@ class EpisodeListTile extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -400,7 +400,7 @@ class EpisodeListTile extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
                     Text(
                       meta,
                       style: theme.textTheme.labelSmall?.copyWith(
@@ -409,7 +409,7 @@ class EpisodeListTile extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    if (badge != null) ...[const SizedBox(height: 6), badge],
+                    if (badge != null) ...[SizedBox(height: 6), badge],
                   ],
                 ),
               ),
@@ -421,7 +421,7 @@ class EpisodeListTile extends StatelessWidget {
   }
 
   static Widget _pill(ThemeData theme, String text, Color color) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+    padding: EdgeInsets.symmetric(horizontal: 6, vertical: 3),
     decoration: BoxDecoration(
       color: color.withValues(alpha: 0.14),
       borderRadius: BorderRadius.circular(5),
@@ -443,15 +443,19 @@ class EpisodeListTile extends StatelessWidget {
 
 enum NewFilter { all, followed, processed, processing, corpus }
 
-String newFilterLabel(NewFilter f, HomeVariantData data) => switch (f) {
-  NewFilter.all => VariantStrings.filterAll,
-  NewFilter.followed => VariantStrings.filterFollowed,
-  NewFilter.processed => VariantStrings.filterProcessed,
+String newFilterLabel(
+  BuildContext context,
+  NewFilter f,
+  HomeVariantData data,
+) => switch (f) {
+  NewFilter.all => VariantStrings.of(context).filterAll,
+  NewFilter.followed => VariantStrings.of(context).filterFollowed,
+  NewFilter.processed => VariantStrings.of(context).filterProcessed,
   NewFilter.processing =>
     data.freshlyArrived.isEmpty
-        ? VariantStrings.filterProcessing
-        : '${VariantStrings.filterProcessing} · ${data.freshlyArrived.length}',
-  NewFilter.corpus => VariantStrings.filterCorpus,
+        ? VariantStrings.of(context).filterProcessing
+        : '${VariantStrings.of(context).filterProcessing} · ${data.freshlyArrived.length}',
+  NewFilter.corpus => VariantStrings.of(context).filterCorpus,
 };
 
 /// Filtar čipovi (horizontalno klizni na mobitelu, padding unutar scrolla).
@@ -476,9 +480,9 @@ class FilterChips extends StatelessWidget {
     final chips = [
       for (final f in filters)
         Padding(
-          padding: const EdgeInsets.only(right: 8),
+          padding: EdgeInsets.only(right: 8),
           child: ChoiceChip(
-            label: Text(newFilterLabel(f, data)),
+            label: Text(newFilterLabel(context, f, data)),
             selected: f == selected,
             showCheckmark: false,
             onSelected: (_) => onSelected(f),
@@ -490,7 +494,7 @@ class FilterChips extends StatelessWidget {
     }
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.symmetric(horizontal: kVariantGutter),
+      padding: EdgeInsets.symmetric(horizontal: kVariantGutter),
       child: Row(children: chips),
     );
   }
@@ -504,7 +508,9 @@ class NewZone extends StatefulWidget {
   final HomeVariantData data;
   final List<NewFilter> filters;
   final bool showHeader;
-  final String title;
+
+  /// `null` = „Novo” s podnaslovom zone; zadan naslov ide sa [subtitle].
+  final String? title;
   final String? subtitle;
   final bool divider;
 
@@ -519,8 +525,8 @@ class NewZone extends StatefulWidget {
     required this.data,
     required this.filters,
     this.showHeader = true,
-    this.title = VariantStrings.zoneNew,
-    this.subtitle = VariantStrings.zoneNewSub,
+    this.title,
+    this.subtitle,
     this.divider = true,
     this.preferList = false,
     this.exclude = const {},
@@ -555,8 +561,10 @@ class _NewZoneState extends State<NewZone> {
       children: [
         if (widget.showHeader)
           ZoneHeader(
-            title: widget.title,
-            subtitle: widget.subtitle,
+            title: widget.title ?? VariantStrings.of(context).zoneNew,
+            subtitle: widget.title == null
+                ? VariantStrings.of(context).zoneNewSub
+                : widget.subtitle,
             divider: widget.divider,
             trailing: isMobile ? null : chips,
           ),
@@ -590,7 +598,7 @@ class _NewZoneState extends State<NewZone> {
                   '/dani/${formatCatalogDate(catalogToday())}',
                 ),
                 icon: const Icon(Icons.arrow_forward, size: 18),
-                label: const Text(VariantStrings.allNewByDay),
+                label: Text(VariantStrings.of(context).allNewByDay),
               ),
             ),
           ),
@@ -611,7 +619,7 @@ class _NewZoneState extends State<NewZone> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             FollowedRail(isMobile: data.isMobile, onVideoTap: data.onVideoTap),
-            _hint(context, VariantStrings.followedHint),
+            _hint(context, VariantStrings.of(context).followedHint),
           ],
         );
       case NewFilter.all:
@@ -631,7 +639,7 @@ class _NewZoneState extends State<NewZone> {
           if (data.featuredPicks == null || !data.hasMinData) {
             return RailSkeleton(isMobile: data.isMobile);
           }
-          return _hint(context, VariantStrings.emptyFilter);
+          return _hint(context, VariantStrings.of(context).emptyFilter);
         }
         if (data.isMobile || widget.preferList) {
           return Column(
@@ -771,7 +779,7 @@ class FavoritesShelfCard extends StatelessWidget {
             onTap: open,
             leading: Icon(Icons.bookmark_outline, color: cs.primary),
             title: Text(
-              VariantStrings.savedCount(favorites.length),
+              VariantStrings.of(context).savedCount(favorites.length),
               style: theme.textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.w600,
               ),
@@ -795,12 +803,12 @@ class FavoritesShelfCard extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                VariantStrings.shelf.toUpperCase(),
+                VariantStrings.of(context).shelf.toUpperCase(),
                 style: AppTypography.eyebrowStyle(cs),
               ),
               const SizedBox(height: 8),
               Text(
-                VariantStrings.savedCount(favorites.length),
+                VariantStrings.of(context).savedCount(favorites.length),
                 style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
@@ -839,7 +847,7 @@ class FavoritesShelfCard extends StatelessWidget {
               Row(
                 children: [
                   Text(
-                    VariantStrings.openShelf,
+                    VariantStrings.of(context).openShelf,
                     style: theme.textTheme.labelLarge?.copyWith(
                       color: cs.primary,
                     ),
@@ -929,7 +937,7 @@ class ContinueCompactList extends StatelessWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            VariantStrings.remaining(
+                            VariantStrings.of(context).remaining(
                               ((wp.durationSeconds - wp.positionSeconds) / 60)
                                   .ceil(),
                             ),
@@ -1032,7 +1040,9 @@ class ChannelTiles extends StatelessWidget {
           TextButton.icon(
             onPressed: () => drillDown(context, '/channels'),
             icon: const Icon(Icons.grid_view_rounded, size: 18),
-            label: Text(VariantStrings.allChannels(channels.length)),
+            label: Text(
+              VariantStrings.of(context).allChannels(channels.length),
+            ),
           ),
         ],
       ),

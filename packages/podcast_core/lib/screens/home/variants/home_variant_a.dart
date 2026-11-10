@@ -42,13 +42,13 @@ class HomeVariantA extends StatelessWidget {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const ZoneHeader(
-                    title: VariantStrings.zoneForYou,
-                    subtitle: VariantStrings.zoneForYouSub,
+                  ZoneHeader(
+                    title: VariantStrings.of(context).zoneForYou,
+                    subtitle: VariantStrings.of(context).zoneForYouSub,
                   ),
                   if (personal.hasContinue)
                     EpisodesRail(
-                      eyebrow: VariantStrings.continueListening,
+                      eyebrow: VariantStrings.of(context).continueListening,
                       isMobile: isMobile,
                       cards: continueCards(data),
                     ),
@@ -95,16 +95,16 @@ class HomeVariantA extends StatelessWidget {
         ),
 
         // ---- Otkrij ----------------------------------------------------
-        const SliverToBoxAdapter(
+        SliverToBoxAdapter(
           child: ZoneHeader(
-            title: VariantStrings.zoneDiscover,
-            subtitle: VariantStrings.zoneDiscoverSub,
+            title: VariantStrings.of(context).zoneDiscover,
+            subtitle: VariantStrings.of(context).zoneDiscoverSub,
           ),
         ),
         if (shows.isNotEmpty)
           SliverToBoxAdapter(
             child: EpisodesRail(
-              eyebrow: VariantStrings.featuredShows,
+              eyebrow: VariantStrings.of(context).featuredShows,
               isMobile: isMobile,
               cards: [
                 for (final fv in shows)
@@ -114,8 +114,8 @@ class HomeVariantA extends StatelessWidget {
           ),
         SliverToBoxAdapter(child: PersonsRail(isMobile: isMobile)),
         if (data.channels.isNotEmpty) ...[
-          const SliverToBoxAdapter(
-            child: SectionLabel(VariantStrings.channels),
+          SliverToBoxAdapter(
+            child: SectionLabel(VariantStrings.of(context).channels),
           ),
           SliverToBoxAdapter(
             child: ChannelTiles(

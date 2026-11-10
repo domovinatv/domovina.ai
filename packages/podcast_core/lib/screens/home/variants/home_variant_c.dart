@@ -65,8 +65,8 @@ class HomeVariantC extends StatelessWidget {
           ),
         ),
 
-        const SliverToBoxAdapter(
-          child: ZoneHeader(title: VariantStrings.zoneDiscover),
+        SliverToBoxAdapter(
+          child: ZoneHeader(title: VariantStrings.of(context).zoneDiscover),
         ),
         SliverToBoxAdapter(child: _DiscoverTiles(data: data)),
         // Osobe ostaju i kao rail: pločica vodi na popis, rail daje lica.
@@ -113,7 +113,7 @@ class _ContinueSpotlight extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               SectionLabel(
-                VariantStrings.alsoStarted,
+                VariantStrings.of(context).alsoStarted,
                 padding: EdgeInsets.fromLTRB(
                   isMobile ? kVariantGutter : 0,
                   8,
@@ -202,7 +202,7 @@ class _ResumeCard extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
-          VariantStrings.continueWhereStopped.toUpperCase(),
+          VariantStrings.of(context).continueWhereStopped.toUpperCase(),
           style: AppTypography.eyebrowStyle(cs).copyWith(color: cs.tertiary),
         ),
         const SizedBox(height: 10),
@@ -218,7 +218,7 @@ class _ResumeCard extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          VariantStrings.remaining(remainingMin),
+          VariantStrings.of(context).remaining(remainingMin),
           style: theme.textTheme.bodyMedium?.copyWith(
             color: cs.onSurfaceVariant,
           ),
@@ -233,7 +233,7 @@ class _ResumeCard extends StatelessWidget {
           ),
           icon: const Icon(Icons.play_arrow_rounded),
           label: Text(
-            '${VariantStrings.resume} · ${_clock(wp.positionSeconds)}',
+            '${VariantStrings.of(context).resume} · ${_clock(wp.positionSeconds)}',
           ),
         ),
       ],
@@ -302,7 +302,7 @@ class _FeaturedRow extends StatelessWidget {
       return Padding(
         padding: const EdgeInsets.only(top: 16),
         child: EpisodesRail(
-          eyebrow: VariantStrings.featuredToday,
+          eyebrow: VariantStrings.of(context).featuredToday,
           isMobile: true,
           cards: [
             for (final fv in videos) feedCard(context, fv, data, width: 260),
@@ -313,7 +313,7 @@ class _FeaturedRow extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const ZoneHeader(title: VariantStrings.featuredToday),
+        ZoneHeader(title: VariantStrings.of(context).featuredToday),
         EpisodeGrid(videos: videos.toList(), data: data, maxColumns: 3),
         const SizedBox(height: 8),
       ],
@@ -343,8 +343,8 @@ class _DiscoverTiles extends StatelessWidget {
       // Brend bez istaknutih emisija (DOMOVINA danas) → pločice nema.
       if (shows.isNotEmpty)
         _Tile(
-          label: VariantStrings.shows,
-          cta: VariantStrings.featuredShows,
+          label: VariantStrings.of(context).shows,
+          cta: VariantStrings.of(context).featuredShows,
           onTap: () => drillDown(context, '/channels'),
           preview: shows.isEmpty
               ? null
@@ -377,8 +377,8 @@ class _DiscoverTiles extends StatelessWidget {
                 ),
         ),
       _Tile(
-        label: VariantStrings.persons,
-        cta: VariantStrings.allPersons,
+        label: VariantStrings.of(context).persons,
+        cta: VariantStrings.of(context).allPersons,
         onTap: () => drillDown(context, '/channels?prikaz=osobe'),
         preview: ListenableBuilder(
           listenable: personIndexCache,
@@ -422,8 +422,8 @@ class _DiscoverTiles extends StatelessWidget {
         ),
       ),
       _Tile(
-        label: VariantStrings.channels,
-        cta: VariantStrings.allChannels(data.channels.length),
+        label: VariantStrings.of(context).channels,
+        cta: VariantStrings.of(context).allChannels(data.channels.length),
         onTap: () => drillDown(context, '/channels'),
         preview: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -519,7 +519,7 @@ class _Tile extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 6),
+                  SizedBox(width: 6),
                   Icon(Icons.arrow_forward, size: 16, color: cs.primary),
                 ],
               ),
@@ -551,7 +551,7 @@ class _BottomNav extends StatelessWidget {
             if (data.scrollController.hasClients) {
               data.scrollController.animateTo(
                 0,
-                duration: const Duration(milliseconds: 300),
+                duration: Duration(milliseconds: 300),
                 curve: Curves.easeOut,
               );
             }
@@ -563,23 +563,23 @@ class _BottomNav extends StatelessWidget {
             drillDown(context, '/account');
         }
       },
-      destinations: const [
+      destinations: [
         NavigationDestination(
           icon: Icon(Icons.home_outlined),
           selectedIcon: Icon(Icons.home),
-          label: VariantStrings.navHome,
+          label: VariantStrings.of(context).navHome,
         ),
         NavigationDestination(
           icon: Icon(Icons.search),
-          label: VariantStrings.navSearch,
+          label: VariantStrings.of(context).navSearch,
         ),
         NavigationDestination(
           icon: Icon(Icons.bookmark_outline),
-          label: VariantStrings.navSaved,
+          label: VariantStrings.of(context).navSaved,
         ),
         NavigationDestination(
           icon: Icon(Icons.person_outline),
-          label: VariantStrings.navAccount,
+          label: VariantStrings.of(context).navAccount,
         ),
       ],
     );

@@ -52,7 +52,7 @@ class _HomeVariantBState extends State<HomeVariantB> {
   List<Widget> _wide(BuildContext context) {
     final latest = NewZone(
       data: data,
-      title: VariantStrings.latest,
+      title: VariantStrings.of(context).latest,
       subtitle: null,
       preferList: true,
       filters: const [NewFilter.all, NewFilter.processed, NewFilter.processing],
@@ -107,7 +107,7 @@ class _HomeVariantBState extends State<HomeVariantB> {
           SliverToBoxAdapter(
             child: NewZone(
               data: data,
-              title: VariantStrings.latest,
+              title: VariantStrings.of(context).latest,
               subtitle: null,
               filters: const [
                 NewFilter.all,
@@ -128,7 +128,7 @@ class _HomeVariantBState extends State<HomeVariantB> {
                   return Padding(
                     padding: const EdgeInsets.all(24),
                     child: Text(
-                      VariantStrings.forYouEmpty,
+                      VariantStrings.of(context).forYouEmpty,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
@@ -139,8 +139,8 @@ class _HomeVariantBState extends State<HomeVariantB> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     if (personal.hasContinue) ...[
-                      const SectionLabel(
-                        VariantStrings.continueListening,
+                      SectionLabel(
+                        VariantStrings.of(context).continueListening,
                         padding: EdgeInsets.fromLTRB(
                           kVariantGutter,
                           20,
@@ -178,10 +178,10 @@ class _HomeVariantBState extends State<HomeVariantB> {
     final shows = data.featuredShows();
     return [
       if (header)
-        const SliverToBoxAdapter(
+        SliverToBoxAdapter(
           child: ZoneHeader(
-            title: VariantStrings.zoneDiscover,
-            subtitle: VariantStrings.zoneDiscoverSub,
+            title: VariantStrings.of(context).zoneDiscover,
+            subtitle: VariantStrings.of(context).zoneDiscoverSub,
           ),
         )
       else
@@ -189,7 +189,7 @@ class _HomeVariantBState extends State<HomeVariantB> {
       if (shows.isNotEmpty)
         SliverToBoxAdapter(
           child: EpisodesRail(
-            eyebrow: VariantStrings.featuredShows,
+            eyebrow: VariantStrings.of(context).featuredShows,
             isMobile: isMobile,
             cards: [
               for (final fv in shows)
@@ -199,7 +199,9 @@ class _HomeVariantBState extends State<HomeVariantB> {
         ),
       SliverToBoxAdapter(child: PersonsRail(isMobile: isMobile)),
       if (data.channels.isNotEmpty) ...[
-        const SliverToBoxAdapter(child: SectionLabel(VariantStrings.channels)),
+        SliverToBoxAdapter(
+          child: SectionLabel(VariantStrings.of(context).channels),
+        ),
         SliverToBoxAdapter(
           child: ChannelTiles(
             channels: data.channels,
@@ -236,13 +238,13 @@ class _Sidebar extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (personal.hasContinue) ...[
-              const SectionLabel(VariantStrings.continueListening),
+              SectionLabel(VariantStrings.of(context).continueListening),
               ContinueCompactList(
                 items: data.continueWatching.take(4).toList(),
                 onVideoTap: data.onVideoTap,
                 thumbWidth: 104,
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
             ],
             FollowedRail(isMobile: true, onVideoTap: data.onVideoTap),
             CatalogDayRail(isMobile: true, onVideoTap: data.onVideoTap),
@@ -261,10 +263,10 @@ class _TabStrip extends StatelessWidget {
 
   const _TabStrip({required this.selected, required this.onSelected});
 
-  static const _labels = {
-    _Tab.forYou: VariantStrings.zoneForYou,
-    _Tab.fresh: VariantStrings.zoneNew,
-    _Tab.discover: VariantStrings.zoneDiscover,
+  static String _label(_Tab t, VariantStrings s) => switch (t) {
+    _Tab.forYou => s.zoneForYou,
+    _Tab.fresh => s.zoneNew,
+    _Tab.discover => s.zoneDiscover,
   };
 
   @override
@@ -301,7 +303,7 @@ class _TabStrip extends StatelessWidget {
                       ),
                     ),
                     child: Text(
-                      _labels[t]!,
+                      _label(t, VariantStrings.of(context)),
                       style: theme.textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.w600,
                         color: t == selected

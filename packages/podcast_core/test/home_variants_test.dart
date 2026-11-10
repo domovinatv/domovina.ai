@@ -105,6 +105,53 @@ void main() {
     expect(block, isNot(contains('Variant')));
   });
 
+  testWidgets('EN sučelje: oznake varijanti su na engleskom', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    tester.view.physicalSize = const Size(390, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final controller = ScrollController();
+    addTearDown(controller.dispose);
+    for (final variant in HomeVariant.values) {
+      await tester.pumpWidget(
+        _host(
+          buildHomeVariant(
+            variant,
+            _data(width: 390, returning: true, ctrl: controller),
+          ),
+          lang: 'en',
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(tester.takeException(), isNull);
+      for (final hr in [
+        'Za tebe',
+        'Novo',
+        'Otkrij',
+        'Obrađeno',
+        'Najnovije',
+        'Nastavi slušati',
+        'Također započeto',
+        'Početna',
+      ]) {
+        expect(find.text(hr), findsNothing, reason: '${variant.name}: $hr');
+      }
+    }
+    // Po jedna engleska oznaka iz svake varijante.
+    await tester.pumpWidget(
+      _host(
+        buildHomeVariant(
+          HomeVariant.b,
+          _data(width: 390, returning: true, ctrl: controller),
+        ),
+        lang: 'en',
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.text('For you'), findsOneWidget);
+    expect(find.text('Latest'), findsOneWidget);
+  });
+
   group('varijante se grade', () {
     setUp(() => SharedPreferences.setMockInitialValues({}));
 
@@ -147,11 +194,11 @@ void main() {
   });
 }
 
-Widget _host(Widget child) => DefaultAssetBundle(
+Widget _host(Widget child, {String lang = 'hr'}) => DefaultAssetBundle(
   bundle: FakeAssetBundle(),
   child: MaterialApp(
     theme: AppTheme.light(),
-    locale: const Locale('hr'),
+    locale: Locale(lang),
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
     home: Scaffold(body: child),

@@ -97,8 +97,8 @@ nedovršena epizoda.** Odluka čeka gledanje nad stvarnim podacima.
 
 ## Sljedeći korak (kad se izabere pobjednik)
 
-1. Tekstove iz `variants/variant_strings.dart` prebaciti u `app_hr.arb` /
-   `app_en.arb` (+ `flutter gen-l10n`).
+1. Tekstove iz `variants/variant_strings.dart` (već HR + EN, `VariantStrings.of(context)`
+   prati jezik sučelja) prebaciti u `app_hr.arb` / `app_en.arb` (+ `flutter gen-l10n`).
 2. Pobjednika ugraditi kao zadani layout u `home_screen.dart`; regresijski
    test u `test/home_variants_test.dart` tada se mijenja zajedno s njim.
 3. Gubitničke varijante i `HomeVariantFlag` obrisati (zadržati `?home=0`
