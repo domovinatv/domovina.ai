@@ -7,6 +7,7 @@ import {
   parseChannelListing,
   parseEpisodeInfo,
   parseEpisodeSummary,
+  parsePublishDates,
   parseRegistry,
 } from "../../src/input/index.ts";
 import { articleIds } from "../../src/ingest/keys.ts";
@@ -32,6 +33,9 @@ export interface BuildImportPlanInput {
   readonly keyCachePath: string;
   readonly registryText: string;
   readonly registryPath: string;
+  /** `backfill.json` iz fetch repoa (`readOptionalText`); `null` = nema točnih dana (odluka 1200). */
+  readonly publishDatesText?: string | null;
+  readonly publishDatesPath?: string;
   readonly cdn: Cdn;
   readonly concurrency?: number;
   readonly log?: (line: string) => void;
@@ -64,7 +68,12 @@ export async function buildImportPlan(input: BuildImportPlanInput): Promise<{ pl
     };
   });
 
-  const plan = buildPlan({ index, listings, registry, tier2 });
+  const publishDates =
+    input.publishDatesText === undefined || input.publishDatesText === null
+      ? undefined
+      : parseWith(parsePublishDates, input.publishDatesText, input.publishDatesPath ?? "backfill.json");
+  input.log?.(`točni dani objave (backfill.json): ${publishDates?.size ?? "nema datoteke"}`);
+  const plan = buildPlan({ index, listings, registry, tier2, ...(publishDates === undefined ? {} : { publishDates }) });
   const report: ImportReport = {
     ...plan.report,
     keyCache: {

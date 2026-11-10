@@ -1,6 +1,7 @@
 // Plan uvoza: od parsiranih ulaza do redaka za D1 i izvještaja. Čisto, bez
 // I/O (uvoznik `scripts/import.mjs` dohvaća, `write.ts` upisuje). Odluke 200–212.
 import type { ChannelIndex, ChannelListing, EpisodeInfo, EpisodeSummary, Registry } from "../input/index.ts";
+import { zagrebDay } from "../input/publish-dates.ts";
 import { experimentalVariants, flagsFromFiles } from "./keys.ts";
 import { createResolver, type NoChannelReason, type ResolutionVia } from "./resolve.ts";
 
@@ -54,6 +55,11 @@ export interface PlanInput {
   readonly listings: readonly ChannelListing[];
   readonly registry: Registry;
   readonly tier2: readonly Tier2Input[];
+  /**
+   * Točni dani objave (`backfill.json`, `parsePublishDates`), imaju prednost pred
+   * listingom i `info.json` (odluka 1200). Nema ih → stari izvori.
+   */
+  readonly publishDates?: ReadonlyMap<string, string>;
 }
 
 export interface PlanReport {
@@ -63,6 +69,17 @@ export interface PlanReport {
   readonly tier2Via: Readonly<Partial<Record<ResolutionVia, number>>>;
   /** Epizode bez kanala (`channel_slug` NULL), po razlogu, s ID-evima. */
   readonly withoutChannel: Readonly<Partial<Record<NoChannelReason, readonly string[]>>>;
+  /**
+   * Odakle je dan epizode: `backfill` (točan, Europe/Zagreb), `timestamp` (Tier 2,
+   * `info.json` u Europe/Zagreb), `source` (listing ili `upload_date`, UTC).
+   * `changedByBackfill` = epizode kojima je backfill dao drugi dan od izvora.
+   */
+  readonly dates: {
+    readonly backfill: number;
+    readonly timestamp: number;
+    readonly source: number;
+    readonly changedByBackfill: readonly string[];
+  };
   readonly withoutDate: { readonly tier1: readonly string[]; readonly tier2: readonly string[] };
   /** Tier 2 epizode koje su otišle na praćeni (Tier 1) kanal. */
   readonly tier2OnTier1Channel: readonly { readonly id: string; readonly slug: string; readonly via: ResolutionVia }[];
@@ -108,6 +125,22 @@ export function buildPlan(input: PlanInput): ImportPlan {
   const channels = new Map<string, ChannelDraft>();
   const episodes: EpisodeRow[] = [];
   const tier1Ids = new Set<string>();
+  const publishDates = input.publishDates ?? new Map<string, string>();
+  const dates = { backfill: 0, timestamp: 0, source: 0, changedByBackfill: [] as string[] };
+  /** Dan epizode: backfill → `fallback` (već izračunat iz izvora epizode). */
+  const dayOf = (id: string, fallback: string | null, viaTimestamp: boolean): string | null => {
+    const exact = publishDates.get(id);
+    if (exact !== undefined) {
+      dates.backfill += 1;
+      if (fallback !== null && fallback !== exact) dates.changedByBackfill.push(id);
+      return exact;
+    }
+    if (fallback !== null) {
+      if (viaTimestamp) dates.timestamp += 1;
+      else dates.source += 1;
+    }
+    return fallback;
+  };
 
   for (const c of input.index.channels) {
     const listing = listingBySlug.get(c.slug);
@@ -131,7 +164,7 @@ export function buildPlan(input: PlanInput): ImportPlan {
         channelSlug: c.slug,
         title: v.title,
         titleHr: v.titleHr,
-        publishedDate: v.date,
+        publishedDate: dayOf(v.id, v.date, false),
         durationSeconds: v.durationSeconds,
         tier: 1,
         lang: null,
@@ -164,7 +197,9 @@ export function buildPlan(input: PlanInput): ImportPlan {
     else if (info.id !== t.id) infoIdMismatch.push({ id: t.id, infoId: info.id });
     const title = info?.title ?? summary?.title ?? null;
     if (title === null) throw new Error(`Tier 2 epizoda ${t.id} nema naslova ni u info.json ni u summary.json`);
-    const publishedDate = info?.uploadDate ?? summary?.uploadDate ?? null;
+    const ts = info?.timestamp ?? null;
+    const sourceDate = ts !== null ? zagrebDay(ts) : (info?.uploadDate ?? summary?.uploadDate ?? null);
+    const publishedDate = dayOf(t.id, sourceDate, ts !== null);
 
     const r = resolver.resolve(info, summary);
     let channelSlug: string | null = null;
@@ -261,6 +296,7 @@ export function buildPlan(input: PlanInput): ImportPlan {
     },
     tier2Via,
     withoutChannel,
+    dates: { ...dates, changedByBackfill: [...dates.changedByBackfill].sort(byKey) },
     withoutDate: {
       tier1: episodes.filter((e) => e.tier === 1 && e.publishedDate === null).map((e) => e.id),
       tier2: tier2Rows.filter((e) => e.publishedDate === null).map((e) => e.id),

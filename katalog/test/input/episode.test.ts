@@ -33,6 +33,7 @@ describe("parseEpisodeInfo", () => {
       channelId: "UCrfV3uhCoHNBaqiva1wCB4Q",
       uploader: "Hrvatska katolička mreža",
       uploadDate: "2018-10-01",
+      timestamp: 1538398320,
       durationSeconds: 2017,
       extractor: "youtube",
     });

@@ -74,6 +74,21 @@ REPORT_DIR="$(mktemp -d "${TMPDIR:-/tmp}/katalog-drift.XXXXXX")"
 trap 'rm -rf "$REPORT_DIR"' EXIT
 REPORT="$REPORT_DIR/report.json"
 
+# Dani objave (odluka 1200): nightly piše automatic/watchlist/backfill.json TEK NAKON
+# obrade, pa je katalog ingest iz pipelinea (KORAK 13.5) nove epizode upisao s
+# datumom iz info.json/listinga. Drift-check gleda samo ID-eve i promjenu dana ne
+# vidi, pa ovdje ide puni plan (idempotentan: nepromijenjen redak = 0 promjena).
+# Neuspjeh javi, ali ne preskače drift-check.
+DANI="$(cd "$KATALOG" && npm run -s ingest-episode -- --all --base "$BASE" 2>&1)"
+DANI_STATUS=$?
+if [[ $DANI_STATUS -ne 0 ]]; then
+  echo "$DANI" >&2
+  notify "⚠️ <b>Katalog — usklađivanje dana objave nije uspjelo</b> (exit $DANI_STATUS)
+<pre>$(printf '%s' "$DANI" | tail -c 1200 | esc)</pre>"
+elif [[ $VERBOSE -eq 1 ]]; then
+  echo "$DANI"
+fi
+
 IZVJESTAJ="$(cd "$KATALOG" && npm run -s drift-check -- --sync --base "$BASE" --json "$REPORT" 2>&1)"
 STATUS=$?
 

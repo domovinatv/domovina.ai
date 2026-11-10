@@ -13,13 +13,15 @@ import '../catalog_day/catalog_day_format.dart';
 import 'episode_rail_card.dart';
 import 'episodes_rail.dart';
 
-/// Home rail „Danas u korpusu” — epizode koje su danas ušle u katalog
-/// (`GET /days/:date`, oba tiera), s „Prikaži sve” na `/dani/<datum>`.
+/// Home rail „Danas u korpusu” — obrađene epizode OBJAVLJENE tog dana
+/// (`GET /days/:date`, oba tiera; dan objave u Europe/Zagreb, isti kao na
+/// podcast.domovina.ai/dani/), s „Prikaži sve” na `/dani/<datum>`.
 ///
-/// Pipeline radi noću, pa je današnji dan do jutra prazan (6. 11. 2026. u
-/// 12:38: 0 epizoda, 5. 11.: 7, 4. 11.: 27). Rail zato traži današnji
-/// lokalni datum, a kad je prazan ide unatrag najviše [maxDaysBack] dana i
-/// naslovom kaže koji je dan pokazao.
+/// Pipeline noću obradi ono što je objavljeno jučer, pa danas do sutra ima
+/// tek pokoju epizodu objavljenu iza ponoći (10. 11. 2026.: danas 2, jučer
+/// 34). Rail zato ide od današnjeg lokalnog datuma unatrag najviše
+/// [maxDaysBack] dana i pokazuje prvi dan s barem [minEpisodes] epizoda;
+/// nema li takvog, najnoviji neprazan. Naslov kaže koji je dan pokazao.
 ///
 /// Samodostatan kao `FollowedRail`: sam se sakrije kad brend nema katalog,
 /// kad katalog nije dostupan ili kad su svi dani prazni. Skeletona nema — rail
@@ -43,6 +45,10 @@ class CatalogDayRail extends StatefulWidget {
 
   /// Koliko dana prije današnjeg rail smije pogledati.
   static const int maxDaysBack = 3;
+
+  /// Dan s manje epizoda je „tanak”: rail ide dan unatrag, a na njega se
+  /// vraća samo kad ni jedan od pregledanih dana nema ovoliko.
+  static const int minEpisodes = 6;
 
   /// Koliko epizoda rail traži (pun popis je na `/dani/<datum>`).
   static const int railLimit = 12;
@@ -87,6 +93,7 @@ class _CatalogDayRailState extends State<CatalogDayRail> {
     if (!client.enabled) return;
     final generation = ++_generation;
     final today = _today;
+    _Resolved? newestNonEmpty;
     for (var back = 0; back <= CatalogDayRail.maxDaysBack; back++) {
       final date = shiftCatalogDate(today, -back);
       final result = await client.day(
@@ -106,10 +113,17 @@ class _CatalogDayRailState extends State<CatalogDayRail> {
         _show(null);
         return;
       }
-      if (!page.isEmpty) {
-        _show(_Resolved(today, date, page));
+      if (page.isEmpty) continue;
+      final resolved = _Resolved(today, date, page);
+      if (page.items.length >= CatalogDayRail.minEpisodes) {
+        _show(resolved);
         return;
       }
+      newestNonEmpty ??= resolved;
+    }
+    if (newestNonEmpty != null) {
+      _show(newestNonEmpty);
+      return;
     }
     log(
       'CatalogDayRail: danas i ${CatalogDayRail.maxDaysBack} dana unatrag '

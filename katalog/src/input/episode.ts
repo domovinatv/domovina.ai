@@ -32,6 +32,12 @@ export interface EpisodeInfo {
   readonly uploader: string | null;
   /** `upload_date` `YYYYMMDD` pretvoren u `YYYY-MM-DD`. */
   readonly uploadDate: string | null;
+  /**
+   * yt-dlp `timestamp` (Unix sekunde). Za premijeru u ponoć je `upload_date`
+   * dan u UTC-u (23:00Z = prethodni dan), pa uvoznik dan računa iz ovoga u
+   * Europe/Zagreb kad točnog datuma iz `backfill.json` nema (odluka 1200).
+   */
+  readonly timestamp: number | null;
   /** Može biti decimalan (245.295) ili nepoznat (`hmM9f_3Mqm4`: ključa nema). */
   readonly durationSeconds: number | null;
   /** `youtube`, `twitter`, … */
@@ -47,6 +53,7 @@ export function parseEpisodeInfo(raw: unknown): EpisodeInfo {
     channelId: optString(o, "channel_id", ROOT),
     uploader: optString(o, "uploader", ROOT),
     uploadDate: optCompactDate(o, "upload_date", ROOT),
+    timestamp: optNonNegative(o, "timestamp", ROOT),
     durationSeconds: optNonNegative(o, "duration", ROOT),
     extractor: optString(o, "extractor", ROOT),
   };

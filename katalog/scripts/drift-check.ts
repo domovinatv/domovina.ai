@@ -32,7 +32,7 @@ import {
   tokenFromDevVars,
   type DriftReport,
 } from "./lib/drift.ts";
-import { KATALOG, KEY_CACHE_PATH, REGISTRY_PATH } from "./lib/paths.ts";
+import { BACKFILL_PATH, KATALOG, KEY_CACHE_PATH, readOptionalText, REGISTRY_PATH } from "./lib/paths.ts";
 
 async function resolveToken(): Promise<string | null> {
   const fromEnv = process.env.INGEST_TOKEN;
@@ -74,6 +74,8 @@ async function main(): Promise<number> {
         keyCachePath: KEY_CACHE_PATH,
         registryText: await readFile(REGISTRY_PATH, "utf8"),
         registryPath: REGISTRY_PATH,
+        publishDatesText: await readOptionalText(BACKFILL_PATH),
+        publishDatesPath: BACKFILL_PATH,
         cdn: createCdn(),
         ...(args.verbose ? { log: (line: string) => { console.log(`  ${line}`); } } : {}),
       });

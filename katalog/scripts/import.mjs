@@ -39,6 +39,8 @@ function printReport(r) {
   const reasons = Object.entries(r.withoutChannel);
   line("epizode bez kanala", reasons.reduce((n, [, a]) => n + a.length, 0));
   for (const [reason, a] of reasons) line(`  ${reason}`, ids(a));
+  line("dan objave: backfill / timestamp / izvor", `${r.dates.backfill} / ${r.dates.timestamp} / ${r.dates.source}`);
+  line("backfill promijenio dan", ids(r.dates.changedByBackfill));
   line("bez datuma tier 1", ids(r.withoutDate.tier1));
   line("bez datuma tier 2", ids(r.withoutDate.tier2));
   line("Tier 2 na praćenom kanalu", r.tier2OnTier1Channel.length);
@@ -57,7 +59,7 @@ function printReport(r) {
 // ---- Glavni tok ------------------------------------------------------------
 
 async function main() {
-  const { KATALOG, KEY_CACHE_PATH, REGISTRY_PATH } = await import("./lib/paths.ts");
+  const { BACKFILL_PATH, KATALOG, KEY_CACHE_PATH, readOptionalText, REGISTRY_PATH } = await import("./lib/paths.ts");
   const { createCdn } = await import("./lib/cdn.ts");
   const { buildImportPlan } = await import("./lib/build-plan.ts");
   const K = await import("../src/ingest/keys.ts");
@@ -71,6 +73,8 @@ async function main() {
     keyCachePath: KEY_CACHE_PATH,
     registryText: await readFile(REGISTRY_PATH, "utf8"),
     registryPath: REGISTRY_PATH,
+    publishDatesText: await readOptionalText(BACKFILL_PATH),
+    publishDatesPath: BACKFILL_PATH,
     cdn: createCdn(),
     log: (line) => console.log(line),
   });

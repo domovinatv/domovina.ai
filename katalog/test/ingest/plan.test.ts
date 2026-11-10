@@ -119,7 +119,7 @@ describe("buildPlan nad fixtureima", () => {
   it("ime Tier 2 kanala dolazi s najnovije epizode", () => {
     const base = input.tier2.find((t) => t.id === "hmM9f_3Mqm4");
     if (base?.info == null) throw new Error("nema hmM9f_3Mqm4");
-    const older = { ...base, id: "older_ep_01", info: { ...base.info, id: "older_ep_01", channel: "Stari naziv", uploadDate: "2020-01-01" } };
+    const older = { ...base, id: "older_ep_01", info: { ...base.info, id: "older_ep_01", channel: "Stari naziv", uploadDate: "2020-01-01", timestamp: null } };
     const p = buildPlan({ ...input, tier2: [older, ...input.tier2] });
     expect(p.channels.find((c) => c.slug === "yt-UCckHqySbfy5FcPP6MD_S-Yg")).toMatchObject({
       name: "Times Of India",
@@ -137,6 +137,39 @@ describe("buildPlan nad fixtureima", () => {
 
   it("kanal u index.json bez listinga → greška", () => {
     expect(() => buildPlan({ ...input, listings: input.listings.slice(1) })).toThrow(/listinga nema/);
+  });
+
+  it("Tier 2 dan je iz info.json timestamp u Europe/Zagreb: premijera 23:00Z ide na sljedeći dan", () => {
+    const base = input.tier2.find((t) => t.id === "hmM9f_3Mqm4");
+    if (base?.info == null) throw new Error("nema hmM9f_3Mqm4");
+    // cvEZWm_ZlWU (Ora et labora): upload_date 20261108, timestamp 2026-11-08T23:00:06Z = 00:00 u Zagrebu.
+    const premiere = { ...base, id: "premiere_01", info: { ...base.info, id: "premiere_01", uploadDate: "2026-11-08", timestamp: 1794178806 } };
+    const p = buildPlan({ ...input, tier2: [...input.tier2, premiere] });
+    expect(p.episodes.find((e) => e.id === "premiere_01")?.publishedDate).toBe("2026-11-09");
+    // Bez timestamp-a ostaje upload_date.
+    const noTs = { ...premiere, info: { ...premiere.info, timestamp: null } };
+    expect(buildPlan({ ...input, tier2: [...input.tier2, noTs] }).episodes.find((e) => e.id === "premiere_01")?.publishedDate).toBe("2026-11-08");
+  });
+
+  it("backfill.json ima prednost za Tier 1 i Tier 2 i ulazi u latest_published_date", () => {
+    const publishDates = new Map([
+      ["KLPD-Meu4e8", "2020-02-09"],
+      ["hmM9f_3Mqm4", "2026-09-24"],
+    ]);
+    const p = buildPlan({ ...input, publishDates });
+    expect(p.episodes.find((e) => e.id === "KLPD-Meu4e8")?.publishedDate).toBe("2020-02-09");
+    expect(p.episodes.find((e) => e.id === "hmM9f_3Mqm4")?.publishedDate).toBe("2026-09-24");
+    expect(p.channels.find((c) => c.slug === "yt-UCckHqySbfy5FcPP6MD_S-Yg")?.latestPublishedDate).toBe("2026-09-24");
+    expect(p.report.dates.backfill).toBe(2);
+    expect(p.report.dates.changedByBackfill).toEqual(["KLPD-Meu4e8", "hmM9f_3Mqm4"]);
+  });
+
+  it("bez backfilla: Tier 2 s timestampom broji se kao timestamp, ostalo kao izvor", () => {
+    expect(plan.report.dates.backfill).toBe(0);
+    expect(plan.report.dates.timestamp).toBeGreaterThan(0);
+    expect(plan.report.dates.timestamp + plan.report.dates.source).toBe(
+      plan.episodes.filter((e) => e.publishedDate !== null).length,
+    );
   });
 
   it("deterministički: dva plana nad istim ulazom su jednaka", () => {

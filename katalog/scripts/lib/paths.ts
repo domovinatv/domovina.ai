@@ -13,3 +13,19 @@ export const KEY_CACHE_PATH = process.env.KATALOG_KEY_CACHE_PATH
 export const REGISTRY_PATH = process.env.KATALOG_REGISTRY_PATH
   ? resolve(process.env.KATALOG_REGISTRY_PATH)
   : join(FETCH_REPO, "data", "podcasts_registry.json");
+
+/** Točni dani objave (`automatic/backfill_days.js`); opcionalan ulaz (odluka 1200). */
+export const BACKFILL_PATH = process.env.KATALOG_BACKFILL_PATH
+  ? resolve(process.env.KATALOG_BACKFILL_PATH)
+  : join(FETCH_REPO, "automatic", "watchlist", "backfill.json");
+
+/** Tekst datoteke ili `null` kad je nema (ENOENT); ostale greške se bacaju. */
+export async function readOptionalText(path: string): Promise<string | null> {
+  const { readFile } = await import("node:fs/promises");
+  try {
+    return await readFile(path, "utf8");
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code === "ENOENT") return null;
+    throw err;
+  }
+}

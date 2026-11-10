@@ -23,7 +23,7 @@ import { buildImportPlan } from "./lib/build-plan.ts";
 import { createCdn } from "./lib/cdn.ts";
 import { DEFAULT_BASE, EXIT_UNKNOWN, readKeyCacheText, redact, tokenFromDevVars } from "./lib/drift.ts";
 import { formatIngestReport, runIngestEpisodes } from "./lib/ingest-episodes.ts";
-import { KATALOG, KEY_CACHE_PATH, REGISTRY_PATH } from "./lib/paths.ts";
+import { BACKFILL_PATH, KATALOG, KEY_CACHE_PATH, readOptionalText, REGISTRY_PATH } from "./lib/paths.ts";
 
 const YT_ID = /^[A-Za-z0-9_-]{6,}$/;
 /** Pipeline ne smije visjeti na mreži: cijeli poziv ≤ 5 min (izmjereno: puni plan 3,3 s). */
@@ -91,6 +91,8 @@ async function main(): Promise<number> {
         keyCachePath: KEY_CACHE_PATH,
         registryText: await readFile(REGISTRY_PATH, "utf8"),
         registryPath: REGISTRY_PATH,
+        publishDatesText: await readOptionalText(BACKFILL_PATH),
+        publishDatesPath: BACKFILL_PATH,
         cdn: createCdn({ fresh: true }),
         ...(args.verbose ? { log: (line: string) => { console.log(`  ${line}`); } } : {}),
       });

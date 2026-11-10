@@ -1069,3 +1069,36 @@ Kod: `web/_worker.js` (grana `/c/<slug>`, `catalogGet`, `fetchCatalogChannel`,
       buildovi dobivaju isti kod kroz nightly, a promocija u produkciju ide tek nakon
       `result=pass` (smoke vrata) i korisnikovog da, izvan ovog lanca.
 
+
+## Dan objave = dan na podcast.domovina.ai/dani/ (2026-11-10)
+
+Povod: „Danas u korpusu” je redovito imao jednu epizodu, a `/dani/<d>` se nije
+poklapao s podcast.domovina.ai/dani/<d>. Izmjereno 10. 11. za 9. 11.: katalog 33
+(API vraća 30 po stranici, `next` vodi na ostatak), podcast.domovina.ai 35, razlika u
+četiri epizode oko ponoći i dvije neobrađene.
+
+1200. **Dan epizode: `backfill.json` → `info.json` `timestamp` u Europe/Zagreb → listing /
+      `upload_date`.** `fetch.domovina.tv/automatic/watchlist/backfill.json`
+      (`backfill_days.js`, YouTube Data API `publishedAt` u Europe/Zagreb) je izvor koji
+      koristi podcast.domovina.ai, pa ima prednost za oba tiera (`src/input/publish-dates.ts`,
+      `PlanInput.publishDates`). yt-dlp `upload_date` je dan u UTC-u: premijera u 00:00
+      (`cvEZWm_ZlWU`, 23:00:06Z) pada na prethodni dan, a kod emisija uživo
+      (`kO2ILIGJiIU`, išla 9. 11. u 22 h) `upload_date` je trenutak kad je snimka gotova
+      (10. 11.). Nijedna formula nad `timestamp`/`release_timestamp` ne pogađa sve
+      emisije uživo (`ih32PNrjdXU`: `publishedAt` = `timestamp`; `kO2ILIGJiIU`: ni jedno
+      ni drugo), zato backfill, a `timestamp` samo kao zamjena (popravlja premijere).
+      Neispravan zapis u backfillu se preskače, datoteke nema → stari izvori.
+      Probni uvoz bez upisa 10. 11.: 3104 dana iz backfilla, 107 iz `timestamp`, 603
+      iz izvora; backfill promijenio dan za 69. `ingest-episode --all` na produkciju:
+      108 epizoda, 5 kanala promijenjeno (verzija 179). Nakon toga se 9. 11. poklapa
+      s podcast.domovina.ai osim `PErFoyR4RKg` (nije obrađen).
+1201. **Jutarnji `ingest-episode --all` prije drift-checka** (`drift-check-launchd.sh`,
+      08:45). Nightly piše `backfill.json` TEK nakon obrade, pa KORAK 13.5 nove epizode
+      upiše s datumom iz `info.json`/listinga, a drift-check uspoređuje samo ID-eve i
+      promjenu dana ne vidi. Puni plan je idempotentan (nepromijenjen redak = 0 promjena,
+      ~3 s); neuspjeh javi u Telegram i ne preskače drift-check.
+1202. **Rail preskače „tanak” dan** (`CatalogDayRail.minEpisodes = 6`). Dan je dan objave,
+      ne dan obrade: danas do sutrašnjeg nightlyja ima samo ono objavljeno iza ponoći
+      (10. 11.: 2, jučer 34). Rail ide unatrag do prvog dana s ≥ 6 epizoda; nema li ga
+      u četiri dana, pokazuje najnoviji neprazan (kao odluka 902). Cijena: ujutro dva
+      upita umjesto jednog.

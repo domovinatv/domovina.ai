@@ -89,7 +89,13 @@ void main() {
     expect(find.text('Prva'), findsOneWidget);
     expect(find.text('TRIBINA'), findsOneWidget);
     expect(find.text('Druga'), findsOneWidget);
-    expect(fake.asked, ['2026-11-06']);
+    // Dvije epizode su ispod praga, a stariji dani prazni → ipak danas.
+    expect(fake.asked, [
+      '2026-11-06',
+      '2026-11-05',
+      '2026-11-04',
+      '2026-11-03',
+    ]);
 
     await tester.tap(find.text('Prva'));
     expect(_tapped, ['aaaaaaaaaaa']);
@@ -110,6 +116,55 @@ void main() {
 
     expect(find.text('JUČER U KORPUSU'), findsOneWidget);
     expect(find.text('Epizoda ccccccccccc'), findsOneWidget);
+    // Jedna epizoda je ispod praga, pa rail pogleda i starije (prazne) dane.
+    expect(fake.asked, [
+      '2026-11-06',
+      '2026-11-05',
+      '2026-11-04',
+      '2026-11-03',
+    ]);
+  });
+
+  testWidgets('pun danas se pokazuje odmah, bez upita za jučer', (
+    tester,
+  ) async {
+    final fake = FakeCatalogDays(
+      pages: {
+        '2026-11-06': fakeDayPage('2026-11-06', [
+          for (var i = 0; i < CatalogDayRail.minEpisodes; i++)
+            fakeDayCard('t${i}tttttttttt'.substring(0, 11)),
+        ]),
+      },
+    );
+    CatalogClient.instance = fake;
+    await tester.pumpWidget(_harness());
+    await tester.pumpAndSettle();
+
+    expect(find.text('DANAS U KORPUSU'), findsOneWidget);
+    expect(fake.asked, ['2026-11-06']);
+  });
+
+  testWidgets('tanak danas (2 iza ponoći) → pun jučer (10. 11. 2026.)', (
+    tester,
+  ) async {
+    final fake = FakeCatalogDays(
+      pages: {
+        '2026-11-06': fakeDayPage('2026-11-06', [
+          fakeDayCard('wskqG_JDCMY'),
+          fakeDayCard('ih32PNrjdXU'),
+        ]),
+        '2026-11-05': fakeDayPage('2026-11-05', [
+          for (var i = 0; i < 12; i++)
+            fakeDayCard('j${i}jjjjjjjjjj'.substring(0, 11)),
+        ]),
+      },
+    );
+    CatalogClient.instance = fake;
+    await tester.pumpWidget(_harness());
+    await tester.pumpAndSettle();
+
+    expect(find.text('JUČER U KORPUSU'), findsOneWidget);
+    expect(find.text('Epizoda wskqG_JDCMY'), findsNothing);
     expect(fake.asked, ['2026-11-06', '2026-11-05']);
   });
 
