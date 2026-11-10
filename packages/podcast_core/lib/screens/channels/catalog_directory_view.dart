@@ -180,40 +180,77 @@ class _CatalogDirectoryViewState extends State<CatalogDirectoryView> {
     }
   }
 
+  /// Najveća širina kartice u stupcu; ista kao kartice „Pratimo”
+  /// (`_maxCardWidth` u `all_channels_screen.dart`).
+  static const double _maxTileWidth = 360;
+
   Widget _list(ThemeData theme, AppLocalizations l) {
     final hasFooter = _next != null || _loadingMore || _moreFailed;
     return ScrollRestorer(
       storageKey: CatalogDirectoryView.scrollKey,
       controller: _scroll,
-      child: ListView.builder(
-        controller: _scroll,
-        // Rubni padding UNUTAR scrollabla (CLAUDE.md, scrollabilne liste).
-        padding: const EdgeInsets.fromLTRB(16, 4, 16, 32),
-        itemCount: 1 + _items.length + (hasFooter ? 1 : 0),
-        itemBuilder: (context, i) {
-          if (i == 0) {
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Text(
-                l.channelDirectoryHint,
-                style: theme.textTheme.labelMedium?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-              ),
-            );
-          }
-          final index = i - 1;
-          if (index < _items.length) {
-            final c = _items[index];
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: CatalogChannelTile(channel: c, onTap: () => _open(c)),
-            );
-          }
-          return CatalogLoadMoreFooter(
-            loading: _loadingMore,
-            failed: _moreFailed,
-            onLoadMore: () => unawaited(_loadMore()),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // Mobitel (< 600): jedan stupac. Šire: onoliko stupaca koliko
+          // stane kartica do [_maxTileWidth], kao „Pratimo”.
+          final available = constraints.maxWidth - 32;
+          final columns = constraints.maxWidth < 600
+              ? 1
+              : (available / _maxTileWidth).floor().clamp(2, 99);
+          final rows = (_items.length / columns).ceil();
+          return ListView.builder(
+            controller: _scroll,
+            // Rubni padding UNUTAR scrollabla (CLAUDE.md, scrollabilne liste).
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 32),
+            // Red po red (ne GridView): kartice imaju različitu visinu
+            // (oznaka „Ne pratimo stalno”), a lijeno crtanje ostaje.
+            itemCount: 1 + rows + (hasFooter ? 1 : 0),
+            itemBuilder: (context, i) {
+              if (i == 0) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Text(
+                    l.channelDirectoryHint,
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                );
+              }
+              final row = i - 1;
+              if (row < rows) {
+                final first = row * columns;
+                final last = (first + columns).clamp(0, _items.length);
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  // Kartice u redu iste visine; prazna mjesta zadnjeg reda
+                  // drže širinu stupca.
+                  child: IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        for (var k = first; k < first + columns; k++) ...[
+                          if (k > first) const SizedBox(width: 12),
+                          Expanded(
+                            child: k < last
+                                ? CatalogChannelTile(
+                                    channel: _items[k],
+                                    onTap: () => _open(_items[k]),
+                                  )
+                                : const SizedBox.shrink(),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                );
+              }
+              return CatalogLoadMoreFooter(
+                loading: _loadingMore,
+                failed: _moreFailed,
+                onLoadMore: () => unawaited(_loadMore()),
+              );
+            },
           );
         },
       ),

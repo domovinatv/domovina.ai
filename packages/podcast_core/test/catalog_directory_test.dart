@@ -140,6 +140,29 @@ void main() {
     expect(find.text('Kanal a 00'), findsNothing); // odskrolan, ne dupli
   });
 
+  testWidgets('„Svi” na desktopu: kartice u stupcima do 360 px', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1400, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    CatalogClient.instance = FakeCatalogChannels(
+      directoryPages: {'': fakeDirectoryPage(_channels('a', 8))},
+    );
+    await tester.pumpWidget(_harness('/channels?prikaz=svi'));
+    await tester.pumpAndSettle();
+
+    // (1400 - 32) / 360 → 3 stupca.
+    double top(String t) => tester.getTopLeft(find.text(t)).dy;
+    double left(String t) => tester.getTopLeft(find.text(t)).dx;
+    expect(top('Kanal a 01'), top('Kanal a 00'));
+    expect(top('Kanal a 02'), top('Kanal a 00'));
+    expect(top('Kanal a 03'), greaterThan(top('Kanal a 00')));
+    expect(left('Kanal a 03'), left('Kanal a 00'));
+    expect(left('Kanal a 01') - left('Kanal a 00'), greaterThan(400));
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('tap: Tier 2 slug doslovno, Tier 1 s crticom', (tester) async {
     CatalogClient.instance = FakeCatalogChannels(
       directoryPages: {
