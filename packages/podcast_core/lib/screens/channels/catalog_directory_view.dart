@@ -186,6 +186,12 @@ class _CatalogDirectoryViewState extends State<CatalogDirectoryView> {
 
   Widget _list(ThemeData theme, AppLocalizations l) {
     final hasFooter = _next != null || _loadingMore || _moreFailed;
+    // Popis koji ne puni ekran (desktop mreža: 30 stavki je par redova) ne
+    // može okinuti scroll, pa se nakon layouta provjeri isto što i pri
+    // listanju. `_onScroll` sam pazi na `_next`/`_loadingMore`/`_moreFailed`.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _onScroll();
+    });
     return ScrollRestorer(
       storageKey: CatalogDirectoryView.scrollKey,
       controller: _scroll,

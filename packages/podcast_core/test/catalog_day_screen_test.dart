@@ -137,7 +137,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('paginacija: „Učitaj još” traži sljedeću stranicu po kursoru', (
+  testWidgets('paginacija: popis koji ne puni ekran sam traži nastavak', (
     tester,
   ) async {
     final fake = FakeCatalogDays(
@@ -150,12 +150,8 @@ void main() {
     await tester.pumpWidget(_harness('/dani/2026-11-04'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Epizoda p1_02'), findsOneWidget);
-    expect(find.text('Učitaj još'), findsOneWidget);
-
-    await tester.tap(find.text('Učitaj još'));
-    await tester.pumpAndSettle();
     expect(fake.asked, ['2026-11-04', '2026-11-04|K1']);
+    expect(find.text('Epizoda p1_02'), findsOneWidget);
     expect(find.text('Epizoda p2_01'), findsOneWidget);
     expect(find.text('Učitaj još'), findsNothing);
   });
@@ -262,8 +258,8 @@ void main() {
     CatalogClient.instance = fake;
     await tester.pumpWidget(_harness('/dani/2026-11-04'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Učitaj još'));
-    await tester.pumpAndSettle();
+    // Dva retka ne pune ekran: nastavak se traži sam, bez tapa.
+    expect(fake.asked, ['2026-11-04', '2026-11-04|K1']);
 
     expect(find.text('Nismo uspjeli učitati još epizoda.'), findsOneWidget);
     expect(find.text('Pokušaj ponovno'), findsOneWidget);

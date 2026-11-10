@@ -224,9 +224,8 @@ void main() {
     CatalogClient.instance = fake;
     await tester.pumpWidget(_harness('/channels?prikaz=svi'));
     await tester.pumpAndSettle();
-    // Dva retka ne pune ekran: gumb je rezerva.
-    await tester.tap(find.text('Učitaj još'));
-    await tester.pumpAndSettle();
+    // Dva retka ne pune ekran: nastavak se traži sam, bez tapa.
+    expect(fake.asked, ['directory|', 'directory|K1']);
     expect(find.text('Nismo uspjeli učitati nastavak popisa.'), findsOneWidget);
     expect(find.text('Kanal a 00'), findsOneWidget);
 
