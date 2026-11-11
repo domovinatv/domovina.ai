@@ -208,4 +208,9 @@ describe('pravna konfiguracija', () => {
     expect(legal.contactEmail).toBeNull();
     expect(readConfig({ VIJESTI_SITE_BASE: 'https://primjer.hr/' }).siteBase).toBe('https://primjer.hr');
   });
+  it('VIJESTI_NOINDEX: samo „1” gasi indeksiranje (odluka 801)', () => {
+    expect(readConfig({}).noindex).toBe(false);
+    expect(readConfig({ VIJESTI_NOINDEX: '1' }).noindex).toBe(true);
+    expect(readConfig({ VIJESTI_NOINDEX: '0' }).noindex).toBe(false);
+  });
 });

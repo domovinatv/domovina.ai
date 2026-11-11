@@ -1083,3 +1083,18 @@ paralelni worktreeji ne sudare. Odluka se ne briše: zamijeni je novom koja je p
      podacima i dnevni job (S8) i dalje čekaju mini mjerenje. Revizija: ako mini uzorak ne da
      jasan odgovor o pragu, prvih tjedan dana dnevnog joba s niskim limitom služi kao nastavak
      mjerenja (ništa se ne objavljuje bez urednika).
+801. **Tehnička produkcija portala prije impresuma i AEM-a (korisnik, 2026-11-11).** Korisnik
+     želi prvo vidjeti ima li sustav tehnički smisla; impresum (b) i AEM (c) ostaju
+     placeholderi. Portal `domovina-vijesti` je deployan na zonsku rutu `domovina.ai/vijesti*`
+     (verzija `4650429b`), uz `VIJESTI_NOINDEX=1` u `portal/wrangler.jsonc`: svaka HTML stranica
+     dobiva `noindex, nofollow` (`Base.astro`), a `portal:release-check` to javlja kao problem
+     dok varijabla stoji. Osigurač je izričita varijabla, ne „impresum prazan ⇒ noindex”, jer
+     lokalni e2e namjerno radi s praznim impresumom i provjerava canonical i JSON-LD.
+     Retci `Sitemap:` u `web/robots.txt` (vrata f) NE idu dok je portal noindex: sitemap s
+     noindex stranicama Search Console prijavljuje kao grešku. Idu u istom koraku kad se makne
+     `VIJESTI_NOINDEX`. Zamka pri deployu: CDN je držao stari 404 osigurača iz `web/_worker.js`
+     za `/vijesti*`, pa je trebao purge (obje `Origin` varijante). Wrangler traži
+     `CLOUDFLARE_ACCOUNT_ID` (iz `katalog/.dev.vars`), inače staje na izboru računa.
+     Povratak: `npx wrangler delete --name domovina-vijesti` miče rutu, pa `/vijesti` opet
+     služi osigurač (404 noindex).
+

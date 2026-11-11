@@ -39,4 +39,8 @@ describe('release-check', () => {
       rmSync(dir, { recursive: true, force: true });
     }
   });
+  it('VIJESTI_NOINDEX=1 je problem za objavu (odluka 801)', () => {
+    expect(releaseProblems({ VIJESTI_NOINDEX: '1' }).map((p) => p.variable)).toContain('VIJESTI_NOINDEX');
+    expect(releaseProblems({ VIJESTI_NOINDEX: '' }).map((p) => p.variable)).not.toContain('VIJESTI_NOINDEX');
+  });
 });

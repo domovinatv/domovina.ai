@@ -5,6 +5,8 @@
   "name": "domovina-vijesti",
   "compatibility_date": "2026-10-01",
   "compatibility_flags": ["nodejs_compat"],
+  // Odluka 740: zonska ruta ima prednost pred Pages projektom domovina-ai.
+  "routes": [{ "pattern": "domovina.ai/vijesti*", "zone_name": "domovina.ai" }],
   // Produkcija (odluka 710). Prazno = „[upisuje izdavač]” u impresumu, a
   // `npm run portal:release-check` (i build uz VIJESTI_RELEASE=1) pada dok je
   // ijedno prazno. Anon ključ je javan (Supabase `apikey`), nije tajna.
@@ -14,7 +16,10 @@
     "VIJESTI_PUBLISHER_ADDRESS": "",
     "VIJESTI_EDITOR_IN_CHIEF": "",
     "VIJESTI_CONTACT_EMAIL": "",
-    "VIJESTI_AEM_REGISTRATION": ""
+    "VIJESTI_AEM_REGISTRATION": "",
+    // Odluka 801: tehnička produkcija prije impresuma i AEM-a. Ukloni kad
+    // `portal:release-check` prođe.
+    "VIJESTI_NOINDEX": "1"
   },
   "env": {
     "local": {

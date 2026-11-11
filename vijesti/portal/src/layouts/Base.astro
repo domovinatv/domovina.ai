@@ -27,7 +27,7 @@ const {
   title,
   description,
   category = null,
-  noindex = false,
+  noindex: noindexProp = false,
   nav = true,
   canonical,
   image,
@@ -38,6 +38,8 @@ const {
 } = Astro.props;
 const base = import.meta.env.BASE_URL;
 const cfg = portalConfig();
+// VIJESTI_NOINDEX=1 (odluka 801): portal radi tehnički, ali se ne indeksira.
+const noindex = noindexProp || cfg.noindex;
 const fullTitle = title === 'Vijesti' ? 'Vijesti | DOMOVINA.ai' : `${title} | DOMOVINA.ai Vijesti`;
 const ogImage = image ?? fallbackOgImageUrl(cfg.siteBase);
 const rssUrl = absoluteUrl(cfg.siteBase, portalPath(base, 'rss.xml'));

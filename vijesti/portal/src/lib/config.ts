@@ -16,6 +16,8 @@ export interface PortalConfig {
   siteBase: string;
   /** Podaci za impresum i kontakt; null = upisuje izdavač (odluka 710). */
   legal: LegalConfig;
+  /** Cijeli portal `noindex` (odluka 801): tehnička produkcija prije impresuma. */
+  noindex: boolean;
 }
 
 export interface LegalConfig {
@@ -54,6 +56,7 @@ export const DEFAULT_CONFIG: PortalConfig = {
     contactEmail: null,
     aemRegistration: null,
   },
+  noindex: false,
 };
 
 const trim = (s: string) => s.replace(/\/+$/, '');
@@ -73,6 +76,7 @@ export function readConfig(env: Record<string, unknown>): PortalConfig {
     appBase: trim(str(env, 'VIJESTI_APP_BASE') ?? DEFAULT_CONFIG.appBase),
     siteBase: trim(str(env, 'VIJESTI_SITE_BASE') ?? DEFAULT_CONFIG.siteBase),
     legal: readLegal(env),
+    noindex: str(env, 'VIJESTI_NOINDEX') === '1',
   };
 }
 

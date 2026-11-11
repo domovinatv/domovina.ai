@@ -30,6 +30,9 @@ export function releaseProblems(vars: Record<string, unknown>): ReleaseProblem[]
   if (typeof anon !== 'string' || anon.trim() === '') {
     out.push({ variable: 'VIJESTI_ANON_KEY', why: 'javni anon ključ Supabasea (bez njega PostgREST odbija svaki upit)' });
   }
+  if (vars.VIJESTI_NOINDEX === '1') {
+    out.push({ variable: 'VIJESTI_NOINDEX', why: 'portal je noindex (tehnička produkcija, odluka 801); makni varijablu' });
+  }
   return out;
 }
 
