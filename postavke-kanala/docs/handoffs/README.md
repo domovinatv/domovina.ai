@@ -31,7 +31,7 @@ Handoff se mijenja samo prema naprijed: gotovi `SN` se ne prepisuju.
 
 | Sesija | Paket | Stanje | Commit | Testovi | Napomena |
 |---|---|---|---|---|---|
-| S0 | Plan, TODO, handoffi | gotovo | (upisuje S0) | — | 2026-11-11; odluke 1–10 |
+| S0 | Plan, TODO, handoffi | gotovo | 7508e8b | — | 2026-11-11; odluke 1–10 |
 | S1 | Mjerenje + matrica provedbe | | | | vrata ako claim u produkciji ne radi |
 | S2 | domovina-api shema + RPC | | | | vrata: produkcijska migracija |
 | S3 | katalog projekcija + API | | | | vrata: deploy |
