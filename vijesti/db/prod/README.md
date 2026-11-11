@@ -1,7 +1,7 @@
 # Shema `vijesti` na produkcijskom Supabaseu (api.domovina.ai)
 
-Paket je pripremljen u S7 i **nije primijenjen**. Primjenjuje ga korisnik nakon
-odobrenja (vrata S7, `docs/handoffs/S8.md`). Odluke 730–734 u `docs/decisions.md`.
+Paket je pripremljen u S7 i **primijenjen 2026-11-11** (migracije 1–6, `verify.sql`
+prolazi; zapis ispod u „Primjena 2026-11-11”). Odluke 730–734 u `docs/decisions.md`.
 
 | Datoteka | Što je |
 |---|---|
@@ -123,3 +123,23 @@ COMMIT;
 
 Uloge `anon`, `authenticated` i `service_role` pripadaju Supabaseu i ne diraju se
 (odluka 502). Ukloni `vijesti` iz `PGRST_DB_SCHEMAS` i redeployaj.
+
+## Primjena 2026-11-11 (zapis)
+
+- `vijesti-install.sql` kroz `psql` u `supabase-db-*` kontejneru → `COMMIT`; `verify.sql` →
+  `provjera prošla, migracije {1,2,3,4,5,6}`.
+- **Zamka: `PGRST_DB_SCHEMAS` živi na četiri mjesta.** Coolifyjev env za tu varijablu
+  bio je prazan (`coolify-env-get.sh` → `<empty>`), a vrijednost je bila upisana
+  doslovno u generirani `docker-compose.yml` na hostu (servisi `supabase-rest` i
+  `supabase-studio`) i u host `.env`. Promjena samo kroz Coolify API ili samo u `.env`
+  ne bi stigla u kontejner, jer `environment:` u composeu nadjačava `env_file`.
+  Promijenjeno je sve četvero: Coolify env (`domovina-api/scripts/coolify-env-set.sh`),
+  host `.env`, oba retka u composeu (backup `*.bak-vijesti-<epoch>`) i
+  `domovina-api/scripts/build-coolify-env.sh` (`013ce2a`). Nakon toga
+  `coolify-restart.sh supabase-rest --recreate`.
+- **Neprovjereno:** preživi li `vijesti` puni Coolify redeploy stacka, koji compose
+  regenerira iz Coolifyjeva predloška. Nakon prvog takvog redeploya ponovi curl
+  provjeru gore. 406 `PGRST106` znači da je shema opet izgubljena.
+- `GOTRUE_URI_ALLOW_LIST` već ima `https://domovina.ai/**`, pa admin redirect ne treba posebno.
+- Prvi admin: `stepanic.matija@gmail.com`. `allowed_channels`: `catholic_futurist`,
+  `domovina_tv`, `iva_kraljevic`, `mreze_rijeci`.
