@@ -10,12 +10,15 @@ Legenda: `[x]` gotovo · `[ ]` otvoreno · `[~]` u radu · `(!)` traži korisnik
 
 ## F0 — mjerenje i matrica provedbe (ništa javno)
 
-- [ ] Pokrivenost UC id-a: koliko kanala u katalogu ima `youtube_channel_id`, koliko je NULL, koliko slugova dijeli isti UC (playliste) → S1
-- [ ] Radi li `youtube-claim` u produkciji od početka do kraja: broj `verified` redaka u `domovina_ai.channel_claims`, stanje GCP projekta `domovina-creators` i Google verifikacije `youtube.readonly` → S1 (!)
-- [ ] Matrica: 20 prekidača × potrošač (repo, datoteka, funkcija), što „isključeno” znači za NOVE i za POSTOJEĆE epizode, latencija → S1, matrica u `postavke-kanala/docs/research/`
-- [ ] Popis svega što trajno brisanje mora počistiti (R2 prefiksi, obje `Vary: Origin` varijante, Meili indeksi, RAG tablice, vijesti, push teme, katalog D1, registry) s naredbom koja broji objekte po kanalu → S1
+- [x] Pokrivenost UC id-a: 182/186 s UC-om, 180 različitih, 1 UC = 3 sluga; bez UC-a `launched`, `subclub` (UC u registryju), `dijalog`, `x-…` → S1, odluke 100–102
+- [x] Radi li `youtube-claim` u produkciji: deployan, env postavljen, **0 `verified`** (5 sintetičkih iz 14. 10.); GCP verifikacija nije vidljiva iz CLI-a → S1, odluka 103
+- [ ] (!) Vrata: korisnik bira Google verifikaciju + prvi stvarni claim prije S2, ili paralelnu gradnju → prije S2
+- [x] Matrica: 20 prekidača × potrošač (repo, datoteka, funkcija), što „isključeno” znači za NOVE i za POSTOJEĆE epizode, latencija → S1, `research/2026-11-11-matrica-provedbe.md`, odluke 105–110
+- [x] Popis svega što trajno brisanje mora počistiti (R2 prefiksi, obje `Vary: Origin` varijante, Meili indeksi, RAG tablice, vijesti, push teme, katalog D1, registry) s naredbom koja broji objekte po kanalu → S1, `research/2026-11-11-popis-brisanja.md` (`ikra_institut`: 1 385 R2 objekata), odluka 111
 
 ## F1 — izvor istine (domovina-api)
+
+- [ ] Novac u SQL-u: `donations` i `paid_sponsor_moments` u pinka/sponzorskim funkcijama i `public_live_moments` → S2 (odluka 109)
 
 - [ ] Migracija: `channel_settings` (trenutno stanje), `channel_settings_events` (append-only, trigger zabranjuje UPDATE/DELETE), `channel_deletion_requests`, `channel_tombstones` → S2
 - [ ] RPC `set_channel_setting(uc, key, value)`: pišu `primary` i `collaborator` sa `status='verified'` i `verified_at` mlađim od 90 dana; događaj i stanje u istoj transakciji → S2
@@ -28,6 +31,7 @@ Legenda: `[x]` gotovo · `[ ]` otvoreno · `[~]` u radu · `(!)` traži korisnik
 - [ ] D1 migracija: `channel_settings` projekcija + `channel_tombstones` (trajno) → S3
 - [ ] Poller: povlači promjene iz domovina-api po `updated_at` kursoru, idempotentan → S3
 - [ ] API: `settings` uz svaki kanal; master-isključen kanal i njegove epizode izostaju iz popisa (`/channels`, `/home`, `/dani`, Tier 2); `GET /v1/channels/:slug` vraća stanje `withdrawn` ili `deleted` umjesto 404 → S3
+- [ ] `GET /v1/settings` + Cron Trigger poller + UC iz registryja za `launched`/`subclub` → S3 (odluke 101, 105, 106)
 - [ ] `drift-check` uspoređuje postavke domovina-api ↔ D1 → S3
 - [ ] (!) Deploy katalog Workera s novom migracijom → vrata nakon S3
 
@@ -45,6 +49,7 @@ Legenda: `[x]` gotovo · `[ ]` otvoreno · `[~]` u radu · `(!)` traži korisnik
 - [ ] Pipeline (`fetch.domovina.tv`): ne obrađuje nove epizode kad je obrada ili master isključen; preskače generiranje isključenih AI artefakata; tombstone UC nikad se ne vraća kroz otkrivanje (Tier 2) → S7 (radi se iz fetch repoa)
 - [ ] Meili (`episodes`, `segments`) i semantika/RAG (`domovina-rag`): filtar po postavkama → S8
 - [ ] Push (`domovina-push`): ne šalje za isključen kanal → S8
+- [ ] `domovina-cutter` i `/api/search` `purpose` → S8; KORAK 13, Vertex, WhatsApp skripta, glasački bazen → S7; `og:video`, Cast receiver → S6 (odluka 110)
 - [ ] (!) Vijesti (`vijesti/`, drugi lanac): ugovor kako engine čita postavke; izvedba ide u lancu vijesti → S8 (dogovor)
 
 ## F5 — trajno brisanje i objava

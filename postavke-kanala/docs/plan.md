@@ -76,3 +76,5 @@ Najrizičnije:
 ## Gdje smo
 
 S0: plan, TODO i handoffi. Koda nema.
+
+S1 (11. 11.): mjerenje gotovo; matrica pokazuje da aplikacija naslovnicu i pretragu čita s CDN-a, ne iz kataloga (odluka 105), pa S3 dobiva `GET /v1/settings` i poller. **Vrata**: u produkciji nema nijednog verificiranog vlasnika (odluka 103); lanac čeka korisnikov izbor na vrhu `handoffs/S2.md`.
