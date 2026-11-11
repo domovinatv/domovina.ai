@@ -19,19 +19,37 @@ function objectOrNull(v: unknown): JsonObject | null {
   return typeof v === "object" && v !== null && !Array.isArray(v) ? (v as JsonObject) : null;
 }
 
-/** `channels.<slug>.originals.<id>.date` → mapa ID → `YYYY-MM-DD`. */
-export function parsePublishDates(raw: unknown): ReadonlyMap<string, string> {
+/**
+ * Zapisi `{date, published_at, …}` po ID-u iz `channels.<slug>.extras` pa
+ * `channels.<slug>.originals` (original pobjeđuje isti ID). `extras` su Tier 1
+ * epizode koje backfill ne broji kao „pune originale" (kraće od praga kanala,
+ * video s tuđeg kanala), a fetch ih od 11. 11. 2026. nadopunjuje po ID-u
+ * (`backfill_days.js` `fillExtras`). Neispravan kanal ili zapis se preskače.
+ */
+function backfillRecords(raw: unknown): Array<readonly [string, JsonObject]> {
   const root = asObject(raw, ROOT);
-  const out = new Map<string, string>();
+  const out: Array<readonly [string, JsonObject]> = [];
   const channels = objectOrNull(root.channels);
   if (channels === null) return out;
-  for (const ch of Object.values(channels)) {
-    const originals = objectOrNull(objectOrNull(ch)?.originals);
-    if (originals === null) continue;
-    for (const [id, o] of Object.entries(originals)) {
-      const date = objectOrNull(o)?.date;
-      if (typeof date === "string" && isRealIsoDate(date)) out.set(id, date);
+  for (const key of ["extras", "originals"] as const) {
+    for (const ch of Object.values(channels)) {
+      const records = objectOrNull(objectOrNull(ch)?.[key]);
+      if (records === null) continue;
+      for (const [id, o] of Object.entries(records)) {
+        const rec = objectOrNull(o);
+        if (rec !== null) out.push([id, rec]);
+      }
     }
+  }
+  return out;
+}
+
+/** `channels.<slug>.{extras,originals}.<id>.date` → mapa ID → `YYYY-MM-DD`. */
+export function parsePublishDates(raw: unknown): ReadonlyMap<string, string> {
+  const out = new Map<string, string>();
+  for (const [id, o] of backfillRecords(raw)) {
+    const date = o.date;
+    if (typeof date === "string" && isRealIsoDate(date)) out.set(id, date);
   }
   return out;
 }
@@ -44,23 +62,16 @@ export function isoInstant(ms: number): string {
 }
 
 /**
- * `channels.<slug>.originals.<id>.published_at` → mapa ID → `YYYY-MM-DDTHH:MM:SSZ`
+ * `channels.<slug>.{extras,originals}.<id>.published_at` → mapa ID → `YYYY-MM-DDTHH:MM:SSZ`
  * (odluka 1205). Isti izvor kao [parsePublishDates]; neispravan zapis se preskače.
  */
 export function parsePublishTimes(raw: unknown): ReadonlyMap<string, string> {
-  const root = asObject(raw, ROOT);
   const out = new Map<string, string>();
-  const channels = objectOrNull(root.channels);
-  if (channels === null) return out;
-  for (const ch of Object.values(channels)) {
-    const originals = objectOrNull(objectOrNull(ch)?.originals);
-    if (originals === null) continue;
-    for (const [id, o] of Object.entries(originals)) {
-      const at = objectOrNull(o)?.published_at;
-      if (typeof at !== "string" || !ISO_INSTANT.test(at)) continue;
-      const ms = Date.parse(at);
-      if (Number.isFinite(ms) && isRealIsoDate(at.slice(0, 10))) out.set(id, isoInstant(ms));
-    }
+  for (const [id, o] of backfillRecords(raw)) {
+    const at = o.published_at;
+    if (typeof at !== "string" || !ISO_INSTANT.test(at)) continue;
+    const ms = Date.parse(at);
+    if (Number.isFinite(ms) && isRealIsoDate(at.slice(0, 10))) out.set(id, isoInstant(ms));
   }
   return out;
 }

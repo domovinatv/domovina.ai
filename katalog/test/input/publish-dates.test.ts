@@ -25,6 +25,22 @@ describe("parsePublishDates (backfill.json)", () => {
     ]);
   });
 
+  it("čita i extras (Tier 1 izvan originala); original pobjeđuje isti ID", () => {
+    const m = parsePublishDates({
+      channels: {
+        "budi-frajer": {
+          originals: { sameId_0001: { date: "2026-11-09" } },
+          extras: { short_ep_01: { date: "2026-10-01", published_at: "2026-10-01T08:00:00Z" } },
+        },
+        other: { extras: { sameId_0001: { date: "2026-11-08" }, bad_extra1: { date: "x" } } },
+      },
+    });
+    expect(Object.fromEntries(m)).toEqual({ short_ep_01: "2026-10-01", sameId_0001: "2026-11-09" });
+    expect(parsePublishTimes({ channels: { a: { extras: { short_ep_01: { published_at: "2026-10-01T08:00:00Z" } } } } }).get("short_ep_01")).toBe(
+      "2026-10-01T08:00:00Z",
+    );
+  });
+
   it("bez channels → prazna mapa; korijen mora biti objekt", () => {
     expect(parsePublishDates({}).size).toBe(0);
     expect(() => parsePublishDates([])).toThrow();
