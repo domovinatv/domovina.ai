@@ -4795,6 +4795,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get catalogDayLoadMoreFailed => 'We couldn\'t load more episodes.';
 
   @override
+  String catalogMetaPublished(String time) {
+    return 'Published on YouTube at $time';
+  }
+
+  @override
+  String catalogMetaDuration(String duration) {
+    return 'Duration $duration';
+  }
+
+  @override
+  String catalogMetaScore(int score) {
+    return 'Magisterium score $score out of 100';
+  }
+
+  @override
   String get channelsScopeFollowed => 'Followed';
 
   @override

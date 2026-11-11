@@ -54,11 +54,17 @@ CatalogCard fakeDayCard(
   String? channel,
   String date = '2026-11-05',
   int tier = 1,
+  int? durationSeconds,
+  int? magisteriumScore,
+  DateTime? publishedAt,
 }) => CatalogCard(
   id: id,
   title: title ?? 'Epizoda $id',
   tier: tier,
   date: date,
+  durationSeconds: durationSeconds,
+  magisteriumScore: magisteriumScore,
+  publishedAt: publishedAt,
   channel: channel == null
       ? null
       : CatalogChannel(slug: channel.toLowerCase(), name: channel, tier: tier),

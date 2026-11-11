@@ -7613,6 +7613,24 @@ abstract class AppLocalizations {
   /// **'Nismo uspjeli učitati još epizoda.'**
   String get catalogDayLoadMoreFailed;
 
+  /// Tooltip uz sat objave epizode u popisu dana / kanala iz kataloga.
+  ///
+  /// In hr, this message translates to:
+  /// **'Objavljeno na YouTubeu u {time}'**
+  String catalogMetaPublished(String time);
+
+  /// Tooltip uz trajanje epizode u popisu iz kataloga.
+  ///
+  /// In hr, this message translates to:
+  /// **'Trajanje {duration}'**
+  String catalogMetaDuration(String duration);
+
+  /// Tooltip uz Magisterium ocjenu epizode u popisu iz kataloga.
+  ///
+  /// In hr, this message translates to:
+  /// **'Magisterium ocjena {score} od 100'**
+  String catalogMetaScore(int score);
+
   /// Chip na /channels: kanali koje DOMOVINA stalno prati (Tier 1, statični indeks).
   ///
   /// In hr, this message translates to:

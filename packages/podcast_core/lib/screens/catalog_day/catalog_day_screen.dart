@@ -10,6 +10,7 @@ import '../../services/cdn_config.dart';
 import '../../src/log.dart' show log;
 import '../../theme/typography.dart';
 import '../../widgets/cached_thumbnail.dart';
+import 'catalog_card_meta.dart';
 import 'catalog_day_format.dart';
 
 /// `/dani/:datum` — sve epizode jednog dana iz kataloga (`GET /days/:date`,
@@ -434,6 +435,10 @@ class _CatalogDayScreenState extends State<CatalogDayScreen> {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
+                  if (CatalogCardMeta.hasAny(card)) ...[
+                    const SizedBox(height: 6),
+                    CatalogCardMeta(card: card),
+                  ],
                 ],
               ),
             ),
@@ -545,6 +550,10 @@ class _CatalogDayScreenState extends State<CatalogDayScreen> {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
+                    if (CatalogCardMeta.hasAny(card)) ...[
+                      const SizedBox(height: 4),
+                      CatalogCardMeta(card: card),
+                    ],
                   ],
                 ),
               ),

@@ -11,6 +11,7 @@ import '../../services/scroll_memory.dart';
 import '../../src/log.dart' show log;
 import '../../widgets/cached_thumbnail.dart';
 import '../../widgets/person_monogram.dart';
+import '../catalog_day/catalog_card_meta.dart';
 import '../catalog_day/catalog_day_format.dart';
 
 /// Tijelo `/c/:slug` za kanal bez statičnog listinga (Tier 2, od S10):
@@ -375,7 +376,7 @@ class CatalogOccasionalBadge extends StatelessWidget {
   }
 }
 
-/// Redak epizode iz kataloga (sličica, naslov, datum), isti oblik kao na
+/// Redak epizode iz kataloga (sličica, naslov, datum, meta), isti oblik kao na
 /// `/dani/`.
 class CatalogEpisodeRow extends StatelessWidget {
   final CatalogCard card;
@@ -437,6 +438,10 @@ class CatalogEpisodeRow extends StatelessWidget {
                           color: cs.onSurfaceVariant,
                         ),
                       ),
+                    ],
+                    if (CatalogCardMeta.hasAny(card)) ...[
+                      const SizedBox(height: 4),
+                      CatalogCardMeta(card: card),
                     ],
                   ],
                 ),

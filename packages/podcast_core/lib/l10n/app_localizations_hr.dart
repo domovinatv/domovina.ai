@@ -4841,6 +4841,21 @@ class AppLocalizationsHr extends AppLocalizations {
   String get catalogDayLoadMoreFailed => 'Nismo uspjeli učitati još epizoda.';
 
   @override
+  String catalogMetaPublished(String time) {
+    return 'Objavljeno na YouTubeu u $time';
+  }
+
+  @override
+  String catalogMetaDuration(String duration) {
+    return 'Trajanje $duration';
+  }
+
+  @override
+  String catalogMetaScore(int score) {
+    return 'Magisterium ocjena $score od 100';
+  }
+
+  @override
   String get channelsScopeFollowed => 'Pratimo';
 
   @override

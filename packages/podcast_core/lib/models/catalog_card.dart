@@ -60,7 +60,7 @@ class CatalogChannel {
 
 /// Kartica epizode iz `GET /episodes/:id/card` (ugovor
 /// `katalog/contract/v1/card.schema.json`). Klijent čita samo polja koja
-/// ekran treba; ostala (`p`, `magisterium_score`, `variant_of`…) ignorira.
+/// ekran treba; ostala (`p`, `flags`…) ignorira.
 class CatalogCard {
   final String id;
   final String title;
@@ -79,6 +79,16 @@ class CatalogCard {
   /// 302): [id] je tada sintetički (`OspwepfLO_2`), a YouTube zna samo ovaj.
   final String? variantOf;
 
+  /// Trajanje u sekundama (`duration_seconds`); `null` kad nije poznato.
+  final int? durationSeconds;
+
+  /// Magisterium ocjena 0–100; ima je samo Tier 1 epizoda s analizom.
+  final int? magisteriumScore;
+
+  /// Trenutak objave na YouTubeu (`published_at`, UTC). Aditivno polje
+  /// kataloga: stari odgovori ga nemaju, pa je `null` = sat nije poznat.
+  final DateTime? publishedAt;
+
   /// `version` odgovora i ID zadnjeg uvoza (`catalog`) — samo za log.
   final String? catalog;
 
@@ -90,11 +100,24 @@ class CatalogCard {
     this.date,
     this.channel,
     this.variantOf,
+    this.durationSeconds,
+    this.magisteriumScore,
+    this.publishedAt,
     this.catalog,
   });
 
   /// Naslov za prikaz — isto pravilo kao `ChannelVideo.displayTitle`.
   String get displayTitle => titleHr ?? title;
+
+  /// Trajanje u obliku kao na `/c/<slug>` (`ChannelVideo.durationDisplay`):
+  /// `1:06:01` ili `13:28`.
+  String? get durationDisplay {
+    final secs = durationSeconds;
+    if (secs == null || secs <= 0) return null;
+    String two(int n) => n.toString().padLeft(2, '0');
+    final h = secs ~/ 3600, m = (secs % 3600) ~/ 60, s = secs % 60;
+    return h > 0 ? '$h:${two(m)}:${two(s)}' : '$m:${two(s)}';
+  }
 
   static const String supportedVersion = '1';
 
@@ -128,6 +151,9 @@ class CatalogCard {
     final titleHr = item['title_hr'];
     final date = item['date'];
     final variantOf = item['variant_of'];
+    final duration = item['duration_seconds'];
+    final score = item['magisterium_score'];
+    final publishedAt = item['published_at'];
     return CatalogCard(
       id: id,
       title: title,
@@ -136,6 +162,14 @@ class CatalogCard {
       tier: tier.toInt(),
       channel: CatalogChannel.tryParse(item['channel']),
       variantOf: variantOf is String && variantOf.isNotEmpty ? variantOf : null,
+      // D1 sprema trajanje kao REAL (decimalno iz `info.json`).
+      durationSeconds: duration is num && duration > 0 ? duration.round() : null,
+      magisteriumScore: score is num && score >= 0 && score <= 100
+          ? score.round()
+          : null,
+      publishedAt: publishedAt is String
+          ? DateTime.tryParse(publishedAt)?.toUtc()
+          : null,
       catalog: catalog,
     );
   }

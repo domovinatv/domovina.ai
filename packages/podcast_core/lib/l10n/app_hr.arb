@@ -6075,6 +6075,21 @@
   "@catalogDayLoadMoreFailed": {
     "description": "Poruka na dnu popisa kad sljedeća stranica nije stigla."
   },
+  "catalogMetaPublished": "Objavljeno na YouTubeu u {time}",
+  "@catalogMetaPublished": {
+    "description": "Tooltip uz sat objave epizode u popisu dana / kanala iz kataloga.",
+    "placeholders": { "time": { "type": "String", "example": "18:00" } }
+  },
+  "catalogMetaDuration": "Trajanje {duration}",
+  "@catalogMetaDuration": {
+    "description": "Tooltip uz trajanje epizode u popisu iz kataloga.",
+    "placeholders": { "duration": { "type": "String", "example": "1:06:01" } }
+  },
+  "catalogMetaScore": "Magisterium ocjena {score} od 100",
+  "@catalogMetaScore": {
+    "description": "Tooltip uz Magisterium ocjenu epizode u popisu iz kataloga.",
+    "placeholders": { "score": { "type": "int", "example": "79" } }
+  },
   "channelsScopeFollowed": "Pratimo",
   "@channelsScopeFollowed": {
     "description": "Chip na /channels: kanali koje DOMOVINA stalno prati (Tier 1, statični indeks)."

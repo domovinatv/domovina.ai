@@ -107,6 +107,46 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('meta: sat objave, trajanje i ocjena; bez podataka ništa', (
+    tester,
+  ) async {
+    final published = DateTime.utc(2026, 11, 4, 17, 5);
+    CatalogClient.instance = FakeCatalogDays(
+      pages: {
+        '2026-11-04': fakeDayPage('2026-11-04', [
+          fakeDayCard(
+            'aaaaaaaaaaa',
+            title: 'Prva',
+            durationSeconds: 3961,
+            magisteriumScore: 79,
+            publishedAt: published,
+          ),
+          fakeDayCard('bbbbbbbbbbb', title: 'Druga', tier: 2),
+        ]),
+      },
+    );
+    await tester.pumpWidget(_harness('/dani/2026-11-04'));
+    await tester.pumpAndSettle();
+
+    final local = published.toLocal();
+    final hm =
+        '${local.hour.toString().padLeft(2, '0')}:'
+        '${local.minute.toString().padLeft(2, '0')}';
+    expect(find.text(hm), findsOneWidget);
+    expect(find.text('1:06:01'), findsOneWidget);
+    expect(find.text('79'), findsOneWidget);
+    expect(find.byIcon(Icons.church), findsOneWidget);
+    expect(find.byIcon(Icons.timelapse), findsOneWidget, reason: 'Druga nema');
+    expect(tester.takeException(), isNull);
+
+    // Isto u desktop mreži.
+    await tester.pumpWidget(_harness('/dani/2026-11-04', width: 1200));
+    await tester.pumpAndSettle();
+    expect(find.text('1:06:01'), findsOneWidget);
+    expect(find.text('79'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('desktop: mreža kartica u više stupaca, kao na /c/<slug>', (
     tester,
   ) async {
