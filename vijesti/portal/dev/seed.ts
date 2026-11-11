@@ -2,7 +2,9 @@
 // LLM-ove (isti `--fake` putevi kao `npm run vijesti`), i pet članaka u
 // različitim stanjima, sve kroz urednički tok (`asUser` + rpc funkcije), ne
 // izravnim upisom stanja. Bez mreže: CDN je lažni CDN nad engine/test/fixtures.
-import { readFileSync } from 'node:fs';
+import { cpSync, mkdtempSync, readFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { PGlite } from '@electric-sql/pglite';
 import {
   allowChannel,
@@ -30,6 +32,7 @@ import { runVerify } from '../../engine/verify/article.js';
 import { createFakeVerifyLlm } from '../../engine/verify/article-fake-llm.js';
 import { createFakeWriteLlm } from '../../engine/write/fake-llm.js';
 import { loadLatestVersion, type StoredVersion } from '../../engine/write/store.js';
+import type { RelatedItem } from '../../engine/rag/related.js';
 import { runWrite } from '../../engine/write/vijest.js';
 import { LOCAL_ADMIN_ID, LOCAL_EDITOR_ID } from './ids.js';
 
@@ -41,6 +44,28 @@ export const SEED_PLAN = [
   { videoId: 'b-nls1ck8EE', channel: 'domovina_tv', state: 'review' },
   { videoId: 'x3w2BVZJ9vQ', channel: 'catholic_futurist', state: 'approved' },
 ] as const;
+/** RAG veze objavljenog članka iz seeda (`content.related`). */
+export const SEED_RELATED: RelatedItem[] = [
+  {
+    videoId: 'pIx_7N-6HJ4',
+    t: 754,
+    channel: 'mreze_rijeci',
+    episodeTitle: 'Mreže riječi: obitelj i zajednica',
+    topic: 'Obitelj kao temelj zajednice',
+    date: '2026-08-14',
+    score: 0.71,
+  },
+  {
+    videoId: 'x3w2BVZJ9vQ',
+    t: 0,
+    channel: 'catholic_futurist',
+    episodeTitle: 'Catholic Futurist: tehnologija i vjera',
+    topic: '',
+    date: null,
+    score: 0.64,
+  },
+];
+
 export type SeedState = (typeof SEED_PLAN)[number]['state'];
 
 export const SEED_RETRACTION_REASON =
@@ -112,7 +137,15 @@ export async function seed(db: PGlite): Promise<SeededArticle[]> {
       { videoId: p.videoId, channel: p.channel },
     );
     const w = await runWrite(
-      { cdn, llm: createFakeWriteLlm(recorder), recorder, db },
+      {
+        cdn,
+        llm: createFakeWriteLlm(recorder),
+        recorder,
+        db,
+        // Blok „O istoj temi u drugim podcastima” (odluka 803) bez mreže, samo
+        // na objavljenom članku: e2e provjerava i prikaz i izostanak.
+        ...(p.state === 'published' && { related: () => Promise.resolve(SEED_RELATED) }),
+      },
       { videoId: p.videoId, channel: p.channel },
     );
     if (!w.saved) throw new Error(`seed: epizoda ${p.videoId} nema trenutak iznad praga`);
@@ -170,8 +203,33 @@ export async function seed(db: PGlite): Promise<SeededArticle[]> {
   return out;
 }
 
-/** Nova baza u memoriji s lokalnim podacima. */
+/**
+ * Postojeća lokalna baza (npr. `.cache/proba-claude.pglite`) umjesto seeda, za
+ * pregled pravog nacrta u adminu. Čita se KOPIJA (`VIJESTI_DEV_DB` →
+ * privremeni direktorij), pa radnje u adminu ne diraju izvornik. Lokalni
+ * urednik i administrator se dodaju ako ih nema.
+ */
+async function existingDb(path: string): Promise<{ db: PGlite; articles: SeededArticle[] }> {
+  const copy = join(mkdtempSync(join(tmpdir(), 'vijesti-dev-db-')), 'db');
+  cpSync(path, copy, { recursive: true });
+  const db = new PGlite(copy);
+  await db.waitReady;
+  await db.query(
+    `INSERT INTO vijesti.staff (user_id, role) VALUES ($1, 'editor'), ($2, 'admin') ON CONFLICT (user_id) DO NOTHING`,
+    [LOCAL_EDITOR_ID, LOCAL_ADMIN_ID],
+  );
+  const rows = (
+    await db.query<{ id: number; slug: string; status: string }>('SELECT id, slug, status FROM vijesti.articles ORDER BY id')
+  ).rows;
+  console.log(`[shim] VIJESTI_DEV_DB=${path} (kopija ${copy})`);
+  for (const r of rows) console.log(`[shim] #${String(r.id)} ${r.status} /vijesti/admin?clanak=${String(r.id)}`);
+  return { db, articles: [] };
+}
+
+/** Nova baza u memoriji s lokalnim podacima (ili kopija `VIJESTI_DEV_DB`). */
 export async function seededDb(): Promise<{ db: PGlite; articles: SeededArticle[] }> {
+  const existing = process.env.VIJESTI_DEV_DB;
+  if (existing) return existingDb(existing);
   const db = new PGlite();
   await db.waitReady;
   const articles = await seed(db);

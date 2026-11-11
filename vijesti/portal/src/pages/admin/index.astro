@@ -26,6 +26,11 @@ const clientConfig = JSON.stringify({
   <div id="admin-error" class="admin-error" role="alert" data-testid="admin-error" hidden></div>
   <p id="admin-status" class="admin-status" role="status" data-testid="admin-status"></p>
   <div id="admin" data-testid="admin-root"><p class="muted">Učitavam…</p></div>
+  <div id="admin-player" class="player-bar" data-testid="player" hidden>
+    <p id="admin-player-label" class="player-label" data-testid="player-label"></p>
+    <audio id="admin-player-audio" controls preload="none" data-testid="player-audio"></audio>
+    <button type="button" class="link" data-testid="player-close" id="admin-player-close">Zatvori</button>
+  </div>
   <noscript><p class="notice">Uredništvo traži JavaScript.</p></noscript>
 </Base>
 
@@ -160,60 +165,251 @@ const clientConfig = JSON.stringify({
     width: 100%;
     margin: 0.25rem 0 0.75rem;
   }
-  .split {
-    display: grid;
-    gap: 1.5rem;
+  /* ---- članak: jedan stupac čitanja (S8) ---- */
+  .admin-error,
+  .admin-status {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: var(--bg);
   }
-  @media (min-width: 60rem) {
-    .split {
-      grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
-      align-items: start;
-    }
-    .col-moments {
-      position: sticky;
-      top: 1rem;
-      max-height: calc(100vh - 2rem);
-      overflow-y: auto;
-    }
+  .admin-status:empty {
+    position: static;
   }
-  .col-article h1 {
+  .episode-line {
+    font-size: 0.875rem;
+    margin: 0.25rem 0 0.75rem;
+  }
+  .flow {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin: 0 0 1.5rem;
+  }
+  .flow h2 {
+    font-size: 1.05rem;
+    margin: 1rem 0 0.4rem;
+  }
+  .flow-head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    align-items: center;
+  }
+  .steps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: 0.875rem;
+  }
+  .steps li {
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+  .steps li + li::before {
+    content: '';
+  }
+  .steps li.done {
+    color: var(--ok);
+    border-color: var(--ok);
+  }
+  .steps li.current {
+    color: var(--fg);
+    border-color: var(--brand);
+    font-weight: 700;
+    box-shadow: inset 0 0 0 1px var(--brand);
+  }
+  .next {
+    margin-top: 0.75rem;
+  }
+  .next-label {
+    margin: 0 0 0.3rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+  }
+  .next-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 0.75rem;
+    align-items: center;
+  }
+  .next-hint {
+    font-size: 0.875rem;
+  }
+  .blockers {
+    margin: 0.5rem 0 0;
+    padding-left: 1.1rem;
+    color: var(--danger);
+    font-size: 0.9rem;
+  }
+  button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+  .more {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border);
+  }
+  .more input {
+    flex: 1 1 14rem;
+  }
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .row input {
+    flex: 1 1 14rem;
+  }
+  .read {
+    max-width: 44rem;
+  }
+  .read h1 {
     font-size: 1.75rem;
   }
-  .col-article .lead {
+  .read .lead {
     font-weight: 600;
   }
-  .col-article blockquote,
+  .read blockquote,
   .editor blockquote {
-    margin: 1rem 0;
+    margin: 1rem 0 0.3rem;
     padding-left: 0.75rem;
     border-left: 4px solid var(--quote-bar);
     font-family: var(--font-head);
   }
-  .sentences {
-    padding-left: 0;
-    list-style: none;
+  .quote-block {
+    margin: 1rem 0;
   }
-  .sent {
-    padding: 0.4rem 0.5rem;
-    border-left: 4px solid transparent;
-    margin-bottom: 0.25rem;
+  .quote-block figcaption {
+    padding-left: 1rem;
+    font-size: 0.875rem;
+  }
+  .legend {
+    font-size: 0.875rem;
+  }
+  .mark {
+    cursor: pointer;
+    border-radius: 2px;
+  }
+  .mark.supported:hover,
+  .mark.supported:focus-visible,
+  .mark.supported.open {
+    background: var(--surface-2);
+    text-decoration: underline dotted;
+  }
+  .mark.pending {
+    background: var(--notice-bg);
+    box-shadow: 0 2px 0 var(--danger);
+  }
+  .mark.resolved {
+    box-shadow: 0 2px 0 var(--ok);
+  }
+  .sent-cards {
+    margin: -0.25rem 0 1rem;
+  }
+  .sent-card {
+    border-left: 4px solid var(--border);
+    background: var(--surface);
+    padding: 0.5rem 0.75rem;
+    margin: 0.4rem 0;
     font-size: 0.9375rem;
   }
-  .sent.pending {
+  .sent-card.pending {
     border-left-color: var(--danger);
     background: var(--notice-bg);
   }
-  .sent.resolved {
+  .sent-card.resolved {
     border-left-color: var(--ok);
+  }
+  .sent-card p {
+    margin: 0 0 0.35rem;
+  }
+  .sent-why,
+  .sent-sub,
+  .sent-note {
+    font-size: 0.875rem;
+  }
+  .source {
+    border-top: 1px solid var(--border);
+    padding: 0.35rem 0;
+  }
+  .source-quote {
+    font-family: var(--font-head);
+  }
+  .source-meta,
+  .listen-row {
+    font-size: 0.875rem;
+  }
+  button.listen {
+    padding: 0.2rem 0.7rem;
+    font-size: 0.875rem;
+    font-weight: 600;
   }
   .resolve {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
+    align-items: center;
     margin-top: 0.4rem;
   }
   .resolve input {
     flex: 1 1 12rem;
+  }
+  .player-bar {
+    position: sticky;
+    bottom: 0;
+    z-index: 6;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.75rem;
+    align-items: center;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px 6px 0 0;
+    padding: 0.5rem 0.75rem;
+    margin-top: 1rem;
+  }
+  .player-bar[hidden] {
+    display: none;
+  }
+  .player-label {
+    flex: 1 1 100%;
+    margin: 0;
+    font-size: 0.875rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .player-bar audio {
+    flex: 1 1 16rem;
+    height: 2.25rem;
+    max-width: 100%;
+  }
+  .picker summary,
+  .history-box summary {
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .picker {
+    margin: 1rem 0;
+  }
+  .picker input {
+    display: block;
+    width: 100%;
+    margin: 0.5rem 0;
   }
   .moment-list {
     list-style: none;
@@ -221,19 +417,13 @@ const clientConfig = JSON.stringify({
   }
   .moment-list li {
     border-bottom: 1px solid var(--border);
-    padding: 0.6rem 0;
+    padding: 0.5rem 0;
   }
   .moment-list li.quoted {
     background: var(--surface-2);
   }
-  .moment-list .meta,
-  .moment-list .mq {
-    margin: 0 0 0.3rem;
-    font-size: 0.875rem;
-  }
-  .moment-list audio {
-    width: 100%;
-    height: 2.25rem;
+  .moment-list p {
+    margin: 0 0 0.25rem;
   }
   .editor-blocks {
     padding-left: 1.25rem;

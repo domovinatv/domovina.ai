@@ -185,3 +185,27 @@ test.describe('izgled', () => {
     }
   });
 });
+
+test.describe('O istoj temi u drugim podcastima', () => {
+  test('RAG veze vode u aplikaciju na sekundu teme; bez veza bloka nema', async ({ page }) => {
+    await page.goto(`/vijesti/${seed.published.slug}`);
+    const block = page.getByTestId('related');
+    await expect(block).toBeVisible();
+    await expect(block.getByRole('heading')).toHaveText('O istoj temi u drugim podcastima');
+    const links = block.getByTestId('related-link');
+    await expect(links).toHaveCount(2);
+    // Tema s vremenom: tekst je tema, poveznica nosi /t/<sekunda>, uz naslov epizode i datum.
+    await expect(links.nth(0)).toHaveText('Obitelj kao temelj zajednice');
+    await expect(links.nth(0)).toHaveAttribute('href', /\/v\/pIx_7N-6HJ4\/t\/754$/);
+    await expect(block.locator('li').nth(0)).toContainText('Mreže riječi: obitelj i zajednica');
+    await expect(block.locator('li').nth(0).locator('time')).toHaveAttribute('datetime', '2026-08-14');
+    // Sažetak cijele epizode (t = 0, bez teme): tekst je naslov epizode, bez /t/.
+    await expect(links.nth(1)).toHaveText('Catholic Futurist: tehnologija i vjera');
+    await expect(links.nth(1)).toHaveAttribute('href', /\/v\/x3w2BVZJ9vQ$/);
+
+    // Ispravljen članak u seedu nema `related`: blok se ne crta prazan.
+    await page.goto(`/vijesti/${seed.corrected.slug}`);
+    await expect(page.getByTestId('article-body')).toBeVisible();
+    await expect(page.getByTestId('related')).toHaveCount(0);
+  });
+});

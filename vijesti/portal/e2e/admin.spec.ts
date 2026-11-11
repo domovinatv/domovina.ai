@@ -48,13 +48,13 @@ test('urednik: red, razrješenje rečenice, odobrenje, objava, članak je javan'
   await expect(page.getByTestId('article-status')).toHaveText('U pregledu');
   await expect(page.getByTestId('admin-title')).toHaveText(seed.review.title);
 
-  // Odobrenje odbijeno dok rečenica nije razriješena, s ljudskom porukom.
-  await page.getByTestId('approve').click();
-  const error = page.getByTestId('admin-error');
-  await expect(error).toBeVisible();
-  await expect(error).toHaveAttribute('data-code', 'unresolved');
-  await expect(error).toContainText('Prije odobravanja razriješi sve označene rečenice.');
-  await expect(page.getByTestId('article-status')).toHaveText('U pregledu');
+  // Sljedeći korak je odobrenje, blokirano dok rečenice čekaju potvrdu, s razlogom.
+  await expect(page.getByTestId('steps')).toHaveAttribute('data-current', 'review');
+  const next = page.getByTestId('next-step');
+  await expect(next).toHaveAttribute('data-action', 'approve');
+  await expect(next).toHaveAttribute('data-blocked', 'true');
+  await expect(page.getByTestId('approve')).toBeDisabled();
+  await expect(next.locator('[data-testid=blocker][data-kind=sentences]')).toContainText(/čeka(ju)? potvrdu/);
 
   const pending = page.locator('[data-testid=sentence][data-state=pending]');
   const n = await pending.count();
@@ -69,10 +69,12 @@ test('urednik: red, razrješenje rečenice, odobrenje, objava, članak je javan'
     await expect(page.locator(`[data-testid=sentence][data-n="${num ?? ''}"]`)).toHaveAttribute('data-state', 'resolved');
   }
   await expect(page.getByTestId('admin-error')).toBeHidden();
+  await expect(page.getByTestId('next-step')).toHaveAttribute('data-blocked', 'false');
 
   await page.getByTestId('approve').click();
   await expect(page.getByTestId('admin-status')).toHaveText('Verzija je odobrena.');
   await expect(page.getByTestId('article-status')).toHaveText('Odobreno');
+  await expect(page.getByTestId('next-step')).toHaveAttribute('data-action', 'publish');
 
   await page.getByTestId('publish').click();
   await expect(page.getByTestId('admin-status')).toHaveText('Članak je objavljen.');
@@ -104,13 +106,81 @@ test('uredi: nova verzija vraća članak u pregled, povijest raste, odobrenje tr
   await expect(page.getByTestId('version-item')).toHaveCount(before + 1);
   await expect(page.getByTestId('verify-missing')).toBeVisible();
 
-  // Stara verzija se može pogledati, uz napomenu.
+  // Verzija iz admina nema provjeru: odobrenje je blokirano i admin kaže zašto.
+  const blocker = page.locator('[data-testid=blocker][data-kind=verify]');
+  await expect(blocker).toContainText(`v${String(before + 1)} čeka automatsku provjeru`);
+  await expect(blocker).toContainText('Spremljena je u adminu');
+  await expect(page.getByTestId('approve')).toBeDisabled();
+
+  // Stara verzija se može pogledati (povijest je sklopljena), uz napomenu.
+  await page.getByTestId('history').locator('summary').click();
   await page.locator(`[data-testid=version-item][data-version="1"] [data-testid=version-show]`).click();
   await expect(page.getByTestId('old-version')).toBeVisible();
   await expect(page.getByTestId('admin-title')).toHaveText(seed.approved.title);
 
-  await page.getByTestId('approve').click();
-  await expect(page.getByTestId('admin-error')).toHaveAttribute('data-code', 'not_verified');
+  // Nakon automatske provjere blokada prelazi na rečenice ili nestaje.
+  const verified = await fetch(`${SHIM}/__shim/verify?article=${String(seed.approved.articleId)}`, { method: 'POST' });
+  expect(verified.status).toBe(200);
+  await openAdminArticle(page, seed.approved.articleId);
+  await expect(page.locator('[data-testid=blocker][data-kind=verify]')).toHaveCount(0);
+  await expect(page.getByTestId('verify')).toBeVisible();
+});
+
+test('jedan stupac: rečenica uz tekst s izvorom, Poslušaj u jednom playeru, nacrt → pregled', async ({ page }) => {
+  await login(page);
+  await openAdminArticle(page, seed.review.articleId);
+
+  // Nema nezavisnih scrollova unutar admina: čita se jedna stranica.
+  const scrollers = await page.evaluate(
+    () =>
+      [...document.querySelectorAll('#admin *')].filter((e) => {
+        const cs = getComputedStyle(e);
+        return /(auto|scroll)/.test(cs.overflowY) && e.scrollHeight > e.clientHeight;
+      }).length,
+  );
+  expect(scrollers).toBe(0);
+
+  // Označena rečenica je istaknuta u tekstu, a kartica s potvrdom stoji odmah iza tog odlomka.
+  const mark = page.locator('[data-testid=sentence-mark].pending').first();
+  await expect(mark).toBeVisible();
+  const n = (await mark.getAttribute('data-n')) ?? '';
+  const card = page.locator(`[data-testid=sentence][data-n="${n}"]`);
+  await expect(card).toHaveAttribute('data-state', 'pending');
+  await expect(card.getByTestId('resolve-form')).toBeVisible();
+  const adjacent = await mark.evaluate(
+    (m, nn) => !!m.parentElement?.nextElementSibling?.querySelector(`[data-testid=sentence][data-n="${nn}"]`),
+    n,
+  );
+  expect(adjacent).toBe(true);
+
+  // Rečenica s potporom: klik otvara izvorni trenutak.
+  const ok = page.locator('[data-testid=sentence-mark].supported').first();
+  const okN = (await ok.getAttribute('data-n')) ?? '';
+  await expect(page.locator(`[data-testid=sentence][data-n="${okN}"]`)).toHaveCount(0);
+  await ok.click();
+  await expect(page.locator(`[data-testid=sentence][data-n="${okN}"]`)).toHaveAttribute('data-state', 'supported');
+
+  // Poslušaj: jedan player na dnu, isječak od početka do kraja trenutka.
+  await expect(page.getByTestId('player')).toBeHidden();
+  const quote = page.locator('.quote-block').first();
+  const momentId = (await quote.getAttribute('data-moment-id')) ?? '';
+  await quote.getByTestId('listen').click();
+  await expect(page.getByTestId('player')).toBeVisible();
+  const audio = page.getByTestId('player-audio');
+  await expect(audio).toHaveAttribute('src', /\/data\/[^/]+\/(audio\.mp3|video_h264\.mp4)#t=[\d.]+,[\d.]+$/);
+  await expect(audio).toHaveAttribute('data-moment-id', momentId);
+  await expect(page.locator('audio')).toHaveCount(1);
+  await expect(quote.getByTestId('listen-app')).toHaveAttribute('href', /\/v\/[^/]+\/t\/\d+$/);
+
+  // Nacrt: sljedeći korak je slanje u pregled, a blokada odobravanja je najavljena.
+  await page.getByTestId('to-draft').click();
+  await expect(page.getByTestId('admin-status')).toHaveText('Članak je vraćen u nacrt.');
+  await expect(page.getByTestId('steps')).toHaveAttribute('data-current', 'draft');
+  await expect(page.getByTestId('article-status')).toHaveText('Nacrt');
+  await expect(page.getByTestId('next-step')).toHaveAttribute('data-action', 'to-review');
+  await expect(page.getByTestId('next-step')).toContainText('potvrdu');
+  await page.getByTestId('to-review').click();
+  await expect(page.getByTestId('article-status')).toHaveText('U pregledu');
 });
 
 test('stale_version: spremanje nad zastarjelom verzijom (dvije kartice)', async ({ page, context }) => {

@@ -1,6 +1,8 @@
-// Admin urednika (S6): red čekanja, članak lijevo, izvorni trenuci s playerom
-// desno, radnje uredničkog toka. Vanilla TS bez frameworka; podaci se crtaju
-// kroz `textContent` (nikad innerHTML), pa tekst iz baze ne može postati kod.
+// Admin urednika: red čekanja i članak u JEDNOM stupcu (S8 redizajn). Traka
+// koraka s jednim sljedećim korakom i razlogom blokade; označena rečenica stoji
+// u tekstu, a ispod nje izvorni trenutak s „Poslušaj” (jedan player na dnu) i
+// potvrda na istom mjestu. Vanilla TS bez frameworka; podaci se crtaju kroz
+// `textContent` (nikad innerHTML), pa tekst iz baze ne može postati kod.
 import { CATEGORY_LABELS, CATEGORY_SLUGS, categoryLabel } from '../../lib/categories.js';
 import { describeError } from '../../lib/errors.js';
 import { clock, hrDateTime } from '../../lib/format.js';
@@ -19,8 +21,21 @@ import {
   type EditorApi,
   type EditorMoment,
   type EditorVersion,
+  type Resolution,
+  type SentenceCheck,
   type Status,
 } from './api.js';
+import {
+  STEPS,
+  blockerText,
+  nextStep,
+  plural,
+  problemText,
+  segmentText,
+  sentencesByPlace,
+  stepOf,
+  type NextAction,
+} from './flow.js';
 import { loadAuth, type AuthApi, type Session } from './auth.js';
 
 interface AdminConfig {
@@ -55,6 +70,12 @@ const CORRECTION_HINT: Record<CorrectionState, string> = {
   needs_resolution: 'Prije objave ispravka razriješi označene rečenice nove verzije.',
   ready: 'Nova verzija je provjerena: opiši ispravak i objavi je.',
 };
+
+interface SentenceCtx {
+  v: EditorVersion;
+  isLatest: boolean;
+  resolved: Map<number, Resolution>;
+}
 
 type Child = Node | string | null | undefined | false;
 
@@ -98,10 +119,16 @@ class Admin {
   /** Verzija koja se gleda (povijest); radnje uvijek idu na zadnju. */
   private viewed: number | null = null;
   private editing: { title: string; lead: string; category: string; blocks: Block[] } | null = null;
+  /** Rečenice s potporom koje je urednik otvorio da vidi izvor. */
+  private openSentences = new Set<number>();
+  private momentFilter = '';
 
   private readonly root = byId('admin');
   private readonly status = byId('admin-status');
   private readonly errorBox = byId('admin-error');
+  private readonly playerBar = byId('admin-player');
+  private readonly player = byId('admin-player-audio') as HTMLAudioElement;
+  private readonly playerLabel = byId('admin-player-label');
 
   constructor(
     private readonly cfg: AdminConfig,
@@ -109,6 +136,10 @@ class Admin {
   ) {}
 
   async start(): Promise<void> {
+    byId('admin-player-close').addEventListener('click', () => {
+      this.player.pause();
+      this.playerBar.hidden = true;
+    });
     this.session = await this.auth.session();
     if (!this.session) {
       this.renderLogin();
@@ -149,6 +180,8 @@ class Admin {
     this.clearMessages();
     this.editing = null;
     this.viewed = null;
+    this.openSentences.clear();
+    this.momentFilter = '';
     const id = this.articleIdFromUrl();
     if (id === null) await this.renderQueue();
     else await this.loadArticle(id);
@@ -319,140 +352,463 @@ class Admin {
     const latest = b.latest;
     const shown = b.versions.find((v) => v.id === this.viewed) ?? latest;
     const isLatest = shown.id === latest.id;
-    const left = h(
-      'section',
-      { class: 'col-article', testid: 'admin-article', 'data-article-id': b.article.id, 'data-status': b.article.status },
-      h(
-        'p',
-        { class: 'meta' },
-        h('span', { class: `badge s-${b.article.status}`, testid: 'article-status' }, STATUS_LABEL[b.article.status]),
-        ` · članak ${String(b.article.id)} · zadnja verzija v${String(latest.version)}`,
-        ['published', 'corrected', 'retracted'].includes(b.article.status)
-          ? h(
-              'span',
-              {},
-              ' · ',
-              h('a', { href: `${this.cfg.portalBase}/${b.article.slug}`, target: '_blank', rel: 'noopener' }, 'javna stranica'),
-            )
-          : null,
-      ),
+    const article = h(
+      'article',
+      { class: 'read', testid: 'admin-article', 'data-article-id': b.article.id, 'data-status': b.article.status },
       this.editing ? this.renderEditor() : this.renderVersion(shown, isLatest),
     );
-    const right = h('section', { class: 'col-moments', testid: 'moments' }, this.renderMoments(shown));
-    this.root.replaceChildren(
+    const parts: (HTMLElement | null)[] = [
       this.backLink(),
-      this.renderActions(),
-      h('div', { class: 'split' }, left, right),
+      this.renderEpisode(shown),
+      this.renderFlow(),
+      article,
+      this.editing ? null : this.renderVerifyNotes(shown),
       this.renderHistory(shown),
+    ];
+    this.root.replaceChildren(...parts.filter((x): x is HTMLElement => x !== null));
+  }
+
+  private momentById(id: number): EditorMoment | undefined {
+    return this.bundle?.moments.find((m) => m.id === id);
+  }
+
+  private quoteLine(m: EditorMoment | undefined, fallback: string): string {
+    return m ? `„${m.quote}” – ${m.speaker_name ?? m.speaker}, ${clock(m.start_ms)}` : fallback;
+  }
+
+  // ---------------------------------------------------------------- epizoda i tok
+
+  private renderEpisode(v: EditorVersion): HTMLElement | null {
+    const ep = v.content?.episode;
+    if (!ep) return null;
+    return h(
+      'p',
+      { class: 'episode-line muted', testid: 'admin-episode' },
+      'Izvor: ',
+      h('strong', {}, ep.title ?? ep.videoId),
+      ` · ${ep.channelName ?? ep.channel ?? ''}${ep.date ? ` · ${ep.date}` : ''} · `,
+      h('a', { href: appEpisodeUrl(this.cfg.appBase, ep.videoId), target: '_blank', rel: 'noopener' }, 'otvori epizodu u aplikaciji'),
     );
   }
 
-  private quoteText(id: number): EditorMoment | undefined {
-    return this.bundle?.moments.find((m) => m.id === id);
+  /** Traka koraka + jedan sljedeći korak s razlogom blokade + sporedne radnje. */
+  private renderFlow(): HTMLElement {
+    const b = this.bundle;
+    const api = this.api;
+    const box = h('section', { class: 'flow', testid: 'actions' });
+    if (!b || !api) return box;
+    const { article, latest } = b;
+    const s = article.status;
+
+    const current = stepOf(s);
+    const idx = current === null ? -1 : STEPS.findIndex((x) => x.key === current);
+    const steps = h(
+      'ol',
+      { class: 'steps', testid: 'steps', 'data-current': current ?? s },
+      ...STEPS.map((step, i) =>
+        h(
+          'li',
+          {
+            class: i < idx ? 'done' : i === idx ? 'current' : 'todo',
+            'data-step': step.key,
+            'aria-current': i === idx ? 'step' : undefined,
+            testid: i === idx && step.key === s ? 'article-status' : undefined,
+          },
+          step.label,
+        ),
+      ),
+    );
+    box.append(
+      h(
+        'div',
+        { class: 'flow-head' },
+        // Stanje je na traci kad je korak isti kao stanje; inače (ispravljeno,
+        // odbijeno, povučeno) stoji kao oznaka uz traku.
+        current === s ? null : h('span', { class: `badge s-${s}`, testid: 'article-status' }, STATUS_LABEL[s]),
+        current === null ? null : steps,
+        ['published', 'corrected', 'retracted'].includes(s)
+          ? h('a', { href: `${this.cfg.portalBase}/${article.slug}`, target: '_blank', rel: 'noopener', testid: 'public-link' }, 'javna stranica')
+          : null,
+      ),
+    );
+    if (this.editing) {
+      box.append(h('p', { class: 'muted' }, 'Uređuješ članak. Spremanje stvara novu verziju koju zatim provjerava engine.'));
+      return box;
+    }
+
+    const note = h('input', { testid: 'action-note', placeholder: 'Bilješka uz radnju (neobavezno, ide u dnevnik)', 'aria-label': 'Bilješka' });
+    const noteVal = () => (note.value.trim() === '' ? null : note.value.trim());
+    const run = (action: NextAction | 'reject' | 'to-review-back') => {
+      switch (action) {
+        case 'to-review':
+          return this.act('Članak je u pregledu.', () => api.transition(article.id, 'review', noteVal()));
+        case 'to-review-back':
+          return this.act('Članak je vraćen u pregled.', () => api.transition(article.id, 'review', noteVal()));
+        case 'approve':
+          return this.act('Verzija je odobrena.', () => api.approve(article.id, latest.id, noteVal()));
+        case 'publish':
+          return this.act('Članak je objavljen.', () => api.publish(article.id, noteVal()));
+        case 'to-draft':
+          return this.act('Članak je vraćen u nacrt.', () => api.transition(article.id, 'draft', noteVal()));
+        case 'reject':
+          return this.act('Članak je odbijen.', () => api.transition(article.id, 'rejected', noteVal()));
+      }
+    };
+
+    const next = nextStep(b);
+    if (next.action) {
+      const action = next.action;
+      const primary = button(next.label, action, () => void run(action), 'primary');
+      const blocked = next.blockers.length > 0;
+      if (blocked) {
+        primary.disabled = true;
+        primary.setAttribute('aria-describedby', 'next-blockers');
+      }
+      const blockers = blocked
+        ? h(
+            'ul',
+            { class: 'blockers', id: 'next-blockers', testid: 'blockers' },
+            ...next.blockers.map((bl) => {
+              const li = h('li', { testid: 'blocker', 'data-kind': bl.kind }, `Ne može još: ${blockerText(bl)}.`);
+              if (bl.kind === 'sentences') {
+                li.append(' ', button('Prijeđi na prvu', 'goto-pending', () => {
+                  this.scrollToSentence(bl.first);
+                }, 'link'));
+              } else {
+                li.append(
+                  ' ',
+                  bl.byEditor
+                    ? 'Spremljena je u adminu, pa je engine mora ponovno provjeriti prije odobravanja. Provjeru pokreće dnevni posao vijesti; kad završi, ovdje se pojave rečenice za potvrdu.'
+                    : 'Provjeru pokreće dnevni posao vijesti; kad završi, ovdje se pojave rečenice za potvrdu.',
+                );
+              }
+              return li;
+            }),
+          )
+        : null;
+      box.append(
+        h(
+          'div',
+          { class: `next${blocked ? ' blocked' : ''}`, testid: 'next-step', 'data-action': action, 'data-blocked': blocked ? 'true' : 'false' },
+          h('p', { class: 'next-label' }, 'Sljedeći korak'),
+          h('div', { class: 'next-row' }, primary, h('span', { class: 'muted next-hint' }, next.hint)),
+          blockers,
+        ),
+      );
+    } else if (s === 'published' || s === 'corrected') {
+      box.append(h('p', { class: 'muted', testid: 'next-step', 'data-action': 'none' }, 'Članak je objavljen. Promjena ide kao ispravak (ispod), uz javni zapis.'));
+    } else if (s === 'retracted') {
+      box.append(h('p', { class: 'muted', testid: 'next-step', 'data-action': 'none' }, 'Članak je povučen. Javna stranica pokazuje razlog povlačenja.'));
+    }
+
+    const more = h('div', { class: 'more' });
+    if (s !== 'rejected' && s !== 'retracted') {
+      more.append(
+        button('Uredi tekst', 'edit', () => {
+          this.startEditing();
+        }),
+      );
+    }
+    if (s === 'review') more.append(button('Vrati u nacrt', 'to-draft', () => void run('to-draft')));
+    if (s === 'approved') more.append(button('Vrati u pregled', 'to-review', () => void run('to-review-back')));
+    if (s === 'draft' || s === 'review') more.append(button('Odbij', 'reject', () => void run('reject'), 'danger'));
+    if (more.childElementCount > 0 || next.action) {
+      more.append(note);
+      box.append(more);
+    }
+
+    const corr = correctionState(b);
+    if (corr !== null) box.append(this.renderCorrection(corr));
+    return box;
   }
+
+  private renderCorrection(corr: CorrectionState): HTMLElement {
+    const b = this.bundle;
+    const api = this.api;
+    if (!b || !api) return h('div');
+    const { article, latest } = b;
+    // Ispravak objavljuje NOVU verziju (odluka 514): bez nje gumb bi samo
+    // vratio „verzija je već objavljena”, pa se nudi tek kad je ima.
+    const correctRow =
+      corr === 'needs_edit'
+        ? null
+        : (() => {
+            const kind = h('select', { testid: 'correct-kind', 'aria-label': 'Vrsta ispravka' }, ...CORRECTION_KINDS.map(([v, l]) => h('option', { value: v }, l)));
+            const desc = h('input', { testid: 'correct-description', placeholder: 'Što je ispravljeno i zašto (javno)', 'aria-label': 'Opis ispravka' });
+            const correct = button(
+              `Objavi v${String(latest.version)} kao ispravak`,
+              'correct',
+              () => void this.act('Ispravak je objavljen.', () => api.correct(article.id, latest.id, kind.value, desc.value)),
+              'primary',
+            );
+            if (corr !== 'ready') correct.disabled = true;
+            return h('div', { class: 'row' }, kind, desc, correct);
+          })();
+    const reason = h('input', { testid: 'retract-reason', placeholder: 'Razlog povlačenja (javno)', 'aria-label': 'Razlog povlačenja' });
+    const retract = button('Povuci članak', 'retract', () => void this.act('Članak je povučen.', () => api.retract(article.id, reason.value)), 'danger');
+    return h(
+      'div',
+      { class: 'correction' },
+      h('h2', {}, 'Ispravak'),
+      h('p', { class: 'muted', testid: 'correct-hint', 'data-state': corr }, CORRECTION_HINT[corr]),
+      correctRow,
+      h('h2', {}, 'Povlačenje'),
+      h('div', { class: 'row' }, reason, retract),
+    );
+  }
+
+  private startEditing(): void {
+    const latest = this.bundle?.latest;
+    if (!latest) return;
+    this.editing = {
+      title: latest.title,
+      lead: latest.lead ?? '',
+      category: latest.category ?? 'drustvo',
+      blocks: editableBlocks(latest),
+    };
+    this.viewed = null;
+    this.clearMessages();
+    this.renderArticle();
+    window.scrollTo({ top: 0 });
+  }
+
+  private scrollToSentence(n: number): void {
+    const el = this.root.querySelector<HTMLElement>(`[data-testid=sentence][data-n="${String(n)}"]`);
+    if (!el) return;
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.querySelector<HTMLElement>('input, select, button')?.focus({ preventScroll: true });
+  }
+
+  // ---------------------------------------------------------------- članak s rečenicama
 
   private renderVersion(v: EditorVersion, isLatest: boolean): HTMLElement {
     const b = this.bundle;
     const content = v.content;
     const blocks = content?.blocks ?? [];
+    const byPlace = sentencesByPlace(v.verify?.sentences ?? []);
+    const resolved = new Map(isLatest && b ? b.resolutions.filter((r) => r.version_id === v.id).map((r) => [r.n, r]) : []);
+    const ctx: SentenceCtx = { v, isLatest, resolved };
 
-    const res = isLatest && b ? b.resolutions : [];
-    const pending = isLatest ? pendingSentences(v, res) : [];
     const wrap = h(
       'div',
       { testid: 'version-view', 'data-version-id': v.id, 'data-version': v.version },
       isLatest ? null : h('p', { class: 'notice', testid: 'old-version' }, `Gledaš stariju verziju v${String(v.version)}. Radnje se odnose na zadnju verziju.`),
+      v.verify ? this.renderLegend(v, isLatest) : h('p', { class: 'notice', testid: 'verify-missing' }, `Verzija v${String(v.version)} još nema automatsku provjeru, pa rečenice nisu označene.`),
       h('p', { class: 'kicker' }, categoryLabel(v.category)),
-      h('h1', { testid: 'admin-title' }, v.title),
-      h('p', { class: 'lead', testid: 'admin-lead' }, v.lead ?? ''),
-      h(
-        'div',
-        { class: 'body', testid: 'admin-body' },
-        ...blocks.map((blk) => {
-          if (blk.type === 'p') return h('p', {}, blk.text);
-          const m = blk.moment_id === null ? undefined : this.quoteText(blk.moment_id);
-          return h(
-            'blockquote',
-            { 'data-moment-id': blk.moment_id ?? '' },
-            m ? `„${m.quote}” – ${m.speaker_name ?? m.speaker}, ${clock(m.start_ms)}` : `[citat ${blk.ref}: trenutak ne postoji]`,
-          );
-        }),
-      ),
     );
-    wrap.append(this.renderVerify(v, isLatest, pending));
+    wrap.append(...this.placed('h1', { testid: 'admin-title' }, v.title, byPlace.get('title') ?? [], ctx));
+    wrap.append(...this.placed('p', { class: 'lead', testid: 'admin-lead' }, v.lead ?? '', byPlace.get('lead') ?? [], ctx));
+    const body = h('div', { class: 'body', testid: 'admin-body' });
+    blocks.forEach((blk, i) => {
+      if (blk.type === 'p') {
+        body.append(...this.placed('p', {}, blk.text, byPlace.get(`block:${String(i)}`) ?? [], ctx));
+        return;
+      }
+      const m = blk.moment_id === null ? undefined : this.momentById(blk.moment_id);
+      body.append(
+        h(
+          'figure',
+          { class: 'quote-block', 'data-moment-id': blk.moment_id ?? '' },
+          h('blockquote', {}, this.quoteLine(m, `[citat ${blk.ref}: trenutak ne postoji]`)),
+          m ? h('figcaption', {}, this.listenControls(m)) : null,
+        ),
+      );
+    });
+    wrap.append(body);
     return wrap;
   }
 
-  private renderVerify(v: EditorVersion, isLatest: boolean, pending: ReturnType<typeof pendingSentences>): HTMLElement {
+  private renderLegend(v: EditorVersion, isLatest: boolean): HTMLElement {
     const verify = v.verify;
-    if (!verify) {
-      return h(
-        'section',
-        { class: 'panel verify', testid: 'verify-missing' },
-        h('h2', {}, 'Provjera'),
-        h('p', {}, 'Ova verzija još nije prošla automatsku provjeru (verify). Odobriti se može tek provjerena verzija.'),
+    if (!verify) return h('div');
+    const pending = isLatest && this.bundle ? pendingSentences(v, this.bundle.resolutions).length : 0;
+    return h(
+      'p',
+      { class: 'legend muted', testid: 'verify' },
+      `${String(verify.summary.supported)} od ${String(verify.summary.sentences)} rečenica ima potporu u snimci. `,
+      pending > 0
+        ? h('span', { class: 'mark pending' }, `${String(pending)} ${plural(pending, 'označena čeka', 'označene čekaju', 'označenih čeka')} tvoju potvrdu`)
+        : null,
+      pending > 0 ? ': poslušaj izvor ispod rečenice i potvrdi je ili je uredi. ' : '',
+      'Klik na bilo koju rečenicu pokazuje iz kojeg je trenutka snimke.',
+    );
+  }
+
+  /**
+   * Element s tekstom razlomljenim na rečenice provjere, a ispod njega kartice
+   * označenih (i otvorenih) rečenica. Ako se tekst i provjera ne poklapaju,
+   * tekst ostaje običan, a kartice svih rečenica s problemom idu ispod.
+   */
+  private placed(
+    tag: 'h1' | 'p',
+    attrs: Record<string, string>,
+    text: string,
+    sentences: readonly SentenceCheck[],
+    ctx: SentenceCtx,
+  ): HTMLElement[] {
+    const el = h(tag, attrs);
+    const segs = sentences.length > 0 ? segmentText(text, sentences) : null;
+    if (!segs) el.append(text);
+    else {
+      for (const seg of segs) {
+        if (seg.kind === 'text') el.append(seg.text);
+        else el.append(this.sentenceMark(seg.sentence, ctx));
+      }
+    }
+    const cards = sentences
+      .filter((s) => this.sentenceState(s, ctx) !== 'supported' || this.openSentences.has(s.n))
+      .map((s) => this.sentenceCard(s, ctx));
+    return cards.length > 0 ? [el, h('div', { class: 'sent-cards' }, ...cards)] : [el];
+  }
+
+  private sentenceState(s: SentenceCheck, ctx: SentenceCtx): 'supported' | 'resolved' | 'pending' {
+    if (s.status === 'supported') return 'supported';
+    return ctx.resolved.has(s.n) || !ctx.isLatest ? 'resolved' : 'pending';
+  }
+
+  private sentenceMark(s: SentenceCheck, ctx: SentenceCtx): HTMLElement {
+    const state = this.sentenceState(s, ctx);
+    const open = state !== 'supported' || this.openSentences.has(s.n);
+    const mark = h(
+      'span',
+      { class: `mark ${state}${open ? ' open' : ''}`, testid: 'sentence-mark', 'data-n': s.n, role: 'button', tabindex: 0, 'aria-expanded': open ? 'true' : 'false', title: 'Iz kojeg je trenutka snimke' },
+      s.text,
+    );
+    const toggle = () => {
+      if (state === 'supported') {
+        if (this.openSentences.has(s.n)) this.openSentences.delete(s.n);
+        else this.openSentences.add(s.n);
+        this.renderArticle();
+      }
+      this.scrollToSentence(s.n);
+    };
+    mark.addEventListener('click', toggle);
+    mark.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggle();
+      }
+    });
+    return mark;
+  }
+
+  private sentenceCard(s: SentenceCheck, ctx: SentenceCtx): HTMLElement {
+    const state = this.sentenceState(s, ctx);
+    const r = ctx.resolved.get(s.n);
+    const head =
+      state === 'pending'
+        ? 'čeka tvoju potvrdu'
+        : state === 'resolved'
+          ? r
+            ? r.resolution === 'verified'
+              ? 'potvrđena'
+              : 'nije činjenična tvrdnja'
+            : 'bez potpore u provjeri'
+          : s.metadata
+            ? 'potpora: podaci o epizodi'
+            : 'ima potporu u snimci';
+    const card = h(
+      'div',
+      { class: `sent-card ${state}`, testid: 'sentence', 'data-n': s.n, 'data-state': state },
+      h('p', { class: 'sent-head' }, h('strong', {}, `Rečenica ${String(s.n)}`), ` · ${head}`),
+    );
+    if (state !== 'supported' && s.problems.length > 0) {
+      card.append(h('p', { class: 'sent-why' }, `Zašto je označena: ${s.problems.map(problemText).join('; ')}.`));
+    }
+    if (r) card.append(h('p', { class: 'sent-note' }, `Bilješka: ${r.note}`));
+    if (state !== 'resolved' || !r) {
+      const sources = s.supported_by.map((id) => this.momentById(id));
+      if (s.metadata && sources.length === 0) {
+        card.append(h('p', { class: 'muted' }, 'Tvrdnja dolazi iz podataka o epizodi (naslov, kanal, datum), ne iz govora.'));
+      } else if (sources.length === 0) {
+        const vid = ctx.v.content?.episode.videoId;
+        card.append(
+          h(
+            'p',
+            { class: 'muted' },
+            'Provjera nije navela trenutak snimke. ',
+            vid ? h('a', { href: appEpisodeUrl(this.cfg.appBase, vid), target: '_blank', rel: 'noopener' }, 'Poslušaj epizodu u aplikaciji') : null,
+          ),
+        );
+      } else {
+        card.append(
+          h('p', { class: 'sent-sub' }, state === 'pending' ? 'Poslušaj što je rečeno:' : 'Izvor:'),
+          ...s.supported_by.map((id, i) => {
+            const m = sources[i];
+            return m ? this.sourceItem(m) : h('p', { class: 'muted' }, `[trenutak ${String(id)} nije u popisu potvrđenih citata]`);
+          }),
+        );
+      }
+    }
+    if (state === 'pending') card.append(this.resolveForm(ctx.v, s.n));
+    if (state === 'supported') {
+      card.append(
+        button('Zatvori', 'sentence-close', () => {
+          this.openSentences.delete(s.n);
+          this.renderArticle();
+        }, 'link'),
       );
     }
-    const resolved = new Map((this.bundle?.resolutions ?? []).filter((r) => r.version_id === v.id).map((r) => [r.n, r]));
-    const items = verify.sentences.map((s) => {
-      const r = resolved.get(s.n);
-      const state = s.status === 'supported' ? 'supported' : r ? 'resolved' : 'pending';
-      const li = h(
-        'li',
-        { testid: 'sentence', 'data-n': s.n, 'data-state': state, class: `sent ${state}` },
-        h('span', { class: 'n' }, `${String(s.n)}.`),
-        ' ',
-        h('span', { class: 'text' }, s.text),
-        h(
-          'span',
-          { class: 'why muted' },
-          state === 'supported'
-            ? s.metadata
-              ? ' · podržano podacima o epizodi'
-              : ` · podržano trenutkom ${s.supported_by.join(', ')}`
-            : state === 'resolved' && r
-              ? ` · ${r.resolution === 'verified' ? 'provjereno' : 'nije tvrdnja'}: ${r.note}`
-              : ` · bez potpore${s.problems.length ? ` (${s.problems.map((p) => p.detail ?? p.code).join('; ')})` : ''}`,
-        ),
-      );
-      if (state === 'pending' && isLatest) li.append(this.resolveForm(v, s.n));
-      return li;
-    });
+    return card;
+  }
+
+  private sourceItem(m: EditorMoment): HTMLElement {
     return h(
-      'section',
-      { class: 'panel verify', testid: 'verify' },
-      h('h2', {}, 'Provjera rečenica'),
-      h(
-        'p',
-        { class: 'muted' },
-        `${String(verify.summary.supported)} od ${String(verify.summary.sentences)} rečenica ima potporu u snimci`,
-        isLatest && pending.length > 0 ? `, ${String(pending.length)} čeka tvoje razrješenje` : '',
-        '.',
-      ),
-      h('ol', { class: 'sentences' }, ...items),
-      verify.removed.length > 0
-        ? h(
-            'div',
-            {},
-            h('h3', {}, 'Provjera je uklonila'),
-            h('ul', {}, ...verify.removed.map((r) => h('li', {}, `${r.text} (${r.detail})`))),
-          )
-        : null,
-      verify.style.length > 0
-        ? h('div', {}, h('h3', {}, 'Stil (savjet)'), h('ul', {}, ...verify.style.map((s) => h('li', {}, s.detail))))
-        : null,
+      'div',
+      { class: 'source', testid: 'source', 'data-moment-id': m.id },
+      h('p', { class: 'source-quote' }, `„${m.quote}”`),
+      h('p', { class: 'source-meta' }, this.listenControls(m)),
     );
+  }
+
+  /** „Poslušaj” (jedan player na dnu ekrana) + vrijeme + poveznica u aplikaciju na tu sekundu. */
+  private listenControls(m: EditorMoment): HTMLElement {
+    const file = this.media.get(m.video_id) ?? null;
+    const label = `${m.speaker_name ?? m.speaker} · ${clock(m.start_ms)}–${clock(m.end_ms)}`;
+    const app = h(
+      'a',
+      { href: appEpisodeUrl(this.cfg.appBase, m.video_id, m.start_ms), target: '_blank', rel: 'noopener', testid: 'listen-app' },
+      'u aplikaciji',
+    );
+    const play = file
+      ? button('Poslušaj', 'listen', () => {
+          this.play(m, file);
+        }, 'listen')
+      : null;
+    return h('span', { class: 'listen-row' }, play, play ? ' ' : null, h('span', { class: 'muted' }, label), ' · ', app);
+  }
+
+  private play(m: EditorMoment, file: string): void {
+    const bar = this.playerBar;
+    const audio = this.player;
+    audio.src = clipUrl(this.cfg.cdnBase, m.video_id, file, m.start_ms, m.end_ms);
+    audio.dataset.momentId = String(m.id);
+    this.playerLabel.textContent = `${m.speaker_name ?? m.speaker} · ${clock(m.start_ms)}–${clock(m.end_ms)}: „${m.quote}”`;
+    bar.hidden = false;
+    void audio.play().catch(() => {
+      // Autoplay politika ili mreža: kontrole su vidljive, urednik pokrene sam.
+    });
   }
 
   private resolveForm(v: EditorVersion, n: number): HTMLElement {
     const select = h(
       'select',
       { testid: 'resolve-kind', 'aria-label': 'Razrješenje' },
-      h('option', { value: 'verified' }, 'Provjereno (snimka ili drugi izvor)'),
+      h('option', { value: 'verified' }, 'Rečeno je u snimci (poslušao sam)'),
       h('option', { value: 'no_claim' }, 'Nije činjenična tvrdnja'),
     );
-    const note = h('input', { testid: 'resolve-note', placeholder: 'Bilješka: gdje si provjerio', 'aria-label': 'Bilješka', required: true });
-    const form = h('form', { class: 'resolve', testid: 'resolve-form', 'data-n': n }, select, note, h('button', { type: 'submit', testid: 'resolve-submit' }, 'Razriješi'));
+    const note = h('input', { testid: 'resolve-note', placeholder: 'Bilješka: gdje si provjerio (npr. 3:45)', 'aria-label': 'Bilješka', required: true });
+    const edit = button('Uredi tekst', 'resolve-edit', () => {
+      this.startEditing();
+    }, 'link');
+    const form = h(
+      'form',
+      { class: 'resolve', testid: 'resolve-form', 'data-n': n },
+      select,
+      note,
+      h('button', { type: 'submit', testid: 'resolve-submit', class: 'primary' }, 'Potvrdi'),
+      edit,
+    );
     form.addEventListener('submit', (e) => {
       e.preventDefault();
       const api = this.api;
@@ -464,81 +820,17 @@ class Admin {
     return form;
   }
 
-  // ---------------------------------------------------------------- radnje
-
-  private renderActions(): HTMLElement {
-    const b = this.bundle;
-    const api = this.api;
-    const bar = h('div', { class: 'actions', testid: 'actions' });
-    if (!b || !api) return bar;
-    const { article, latest } = b;
-    const s = article.status;
-    const note = h('input', { testid: 'action-note', placeholder: 'Bilješka ili obrazloženje', 'aria-label': 'Bilješka' });
-    const noteVal = () => (note.value.trim() === '' ? null : note.value.trim());
-    const add = (label: string, testid: string, fn: () => Promise<unknown>, done: string, cls = '') => {
-      bar.append(button(label, testid, () => void this.act(done, fn), cls));
-    };
-    if (this.editing) return bar;
-    if (s === 'draft') add('Pošalji u pregled', 'to-review', () => api.transition(article.id, 'review', noteVal()), 'Članak je u pregledu.');
-    if (s === 'review') {
-      add('Odobri', 'approve', () => api.approve(article.id, latest.id, noteVal()), 'Verzija je odobrena.', 'primary');
-      add('Vrati u nacrt', 'to-draft', () => api.transition(article.id, 'draft', noteVal()), 'Članak je vraćen u nacrt.');
-    }
-    if (s === 'approved') {
-      add('Objavi', 'publish', () => api.publish(article.id, noteVal()), 'Članak je objavljen.', 'primary');
-      add('Vrati u pregled', 'to-review', () => api.transition(article.id, 'review', noteVal()), 'Članak je vraćen u pregled.');
-    }
-    if (s === 'draft' || s === 'review') {
-      add('Odbij', 'reject', () => api.transition(article.id, 'rejected', noteVal()), 'Članak je odbijen.', 'danger');
-    }
-    if (s === 'rejected') add('Vrati u nacrt', 'to-draft', () => api.transition(article.id, 'draft', noteVal()), 'Članak je vraćen u nacrt.');
-    if (s !== 'rejected' && s !== 'retracted') {
-      bar.append(
-        button('Uredi', 'edit', () => {
-          this.editing = {
-            title: latest.title,
-            lead: latest.lead ?? '',
-            category: latest.category ?? 'drustvo',
-            blocks: editableBlocks(latest),
-          };
-          this.viewed = null;
-          this.clearMessages();
-          this.renderArticle();
-        }),
-      );
-    }
-    bar.append(note);
-    const corr = correctionState(b);
-    if (corr !== null) {
-      // Ispravak objavljuje NOVU verziju (odluka 514): bez nje gumb bi samo
-      // vratio „verzija je već objavljena”, pa se nudi tek kad je ima.
-      const correctRow =
-        corr === 'needs_edit'
-          ? h('p', { class: 'muted', testid: 'correct-hint', 'data-state': corr }, CORRECTION_HINT[corr])
-          : (() => {
-              const kind = h('select', { testid: 'correct-kind', 'aria-label': 'Vrsta ispravka' }, ...CORRECTION_KINDS.map(([v, l]) => h('option', { value: v }, l)));
-              const desc = h('input', { testid: 'correct-description', placeholder: 'Što je ispravljeno i zašto', 'aria-label': 'Opis ispravka' });
-              const correct = button(`Objavi v${String(latest.version)} kao ispravak`, 'correct', () =>
-                void this.act('Ispravak je objavljen.', () => api.correct(article.id, latest.id, kind.value, desc.value)),
-              );
-              if (corr !== 'ready') correct.disabled = true;
-              return h(
-                'div',
-                {},
-                h('p', { class: 'muted', testid: 'correct-hint', 'data-state': corr }, CORRECTION_HINT[corr]),
-                h('div', { class: 'row' }, kind, desc, correct),
-              );
-            })();
-      const reason = h('input', { testid: 'retract-reason', placeholder: 'Razlog povlačenja (javno)', 'aria-label': 'Razlog povlačenja' });
-      const retract = button(
-        'Povuci članak',
-        'retract',
-        () => void this.act('Članak je povučen.', () => api.retract(article.id, reason.value)),
-        'danger',
-      );
-      bar.append(correctRow, h('div', { class: 'row' }, reason, retract));
-    }
-    return bar;
+  private renderVerifyNotes(v: EditorVersion): HTMLElement | null {
+    const verify = v.verify;
+    if (!verify || (verify.removed.length === 0 && verify.style.length === 0)) return null;
+    return h(
+      'section',
+      { class: 'panel', testid: 'verify-notes' },
+      verify.removed.length > 0
+        ? h('div', {}, h('h2', {}, 'Provjera je uklonila'), h('ul', {}, ...verify.removed.map((r) => h('li', {}, `${r.text} (${r.detail})`))))
+        : null,
+      verify.style.length > 0 ? h('div', {}, h('h2', {}, 'Stil (savjet)'), h('ul', {}, ...verify.style.map((s) => h('li', {}, s.detail)))) : null,
+    );
   }
 
   // ---------------------------------------------------------------- uređivanje
@@ -585,12 +877,13 @@ class Admin {
         ta.addEventListener('input', () => (blk.text = ta.value));
         blocks.append(h('li', {}, ta, tools));
       } else {
-        const m = this.quoteText(blk.moment_id);
+        const m = this.momentById(blk.moment_id);
         blocks.append(
           h(
             'li',
             { testid: 'editor-block', 'data-type': 'quote', 'data-moment-id': blk.moment_id },
-            h('blockquote', {}, m ? `„${m.quote}” – ${m.speaker_name ?? m.speaker}, ${clock(m.start_ms)}` : `[trenutak ${String(blk.moment_id)}]`),
+            h('blockquote', {}, this.quoteLine(m, `[trenutak ${String(blk.moment_id)}]`)),
+            m ? h('p', {}, this.listenControls(m)) : null,
             tools,
           ),
         );
@@ -609,13 +902,18 @@ class Admin {
       'form',
       { class: 'editor', testid: 'editor' },
       h('h2', {}, `Uređivanje (na temelju v${String(b.latest.version)})`),
-      h('p', { class: 'muted' }, 'Citat dodaješ iz popisa trenutaka desno. Tekst citata se ne piše: dolazi iz snimke.'),
+      h(
+        'p',
+        { class: 'muted' },
+        'Nova verzija prije odobravanja ponovno prolazi automatsku provjeru. Citat se ne piše rukom: dodaješ ga iz snimke (ispod).',
+      ),
       h('label', {}, 'Naslov', title),
       h('label', {}, 'Uvod', lead),
       h('label', {}, 'Kategorija ', cat),
       blocks,
       h('p', {}, addP),
-      h('p', {}, save, ' ', cancel),
+      this.renderMomentPicker(),
+      h('p', { class: 'editor-save' }, save, ' ', cancel),
     );
     form.addEventListener('submit', (e) => {
       e.preventDefault();
@@ -634,67 +932,53 @@ class Admin {
     return form;
   }
 
-  // ---------------------------------------------------------------- trenuci
-
-  private renderMoments(v: EditorVersion): HTMLElement {
+  /** Citati iz snimke za uređivanje: filtar po tekstu, „Poslušaj” i „Dodaj”. */
+  private renderMomentPicker(): HTMLElement {
     const b = this.bundle;
-    if (!b) return h('div');
-    const videoId = v.content?.episode.videoId ?? '';
-    const file = this.media.get(videoId) ?? null;
-    const quoted = new Set(
-      (this.editing ? this.editing.blocks : editableBlocks(v)).flatMap((x) => (x.type === 'quote' ? [x.moment_id] : [])),
-    );
-    const ep = v.content?.episode;
-    return h(
-      'div',
-      {},
-      h('h2', {}, 'Izvorni trenuci'),
-      ep
-        ? h(
-            'p',
-            { class: 'muted', testid: 'admin-episode' },
-            `${ep.title ?? videoId} · ${ep.channelName ?? ep.channel ?? ''}${ep.date ? ` · ${ep.date}` : ''} · `,
-            h('a', { href: appEpisodeUrl(this.cfg.appBase, videoId), target: '_blank', rel: 'noopener' }, 'otvori u aplikaciji'),
-          )
-        : null,
-      file ? null : h('p', { class: 'notice' }, 'Za ovu epizodu nema datoteke za isječke na CDN-u.'),
-      h(
-        'ol',
-        { class: 'moment-list' },
-        ...b.moments.map((m) => {
+    const ed = this.editing;
+    if (!b || !ed) return h('div');
+    const quoted = new Set(ed.blocks.flatMap((x) => (x.type === 'quote' ? [x.moment_id] : [])));
+    const filter = h('input', { testid: 'moment-filter', placeholder: 'Traži u citatima (riječ, govornik)', 'aria-label': 'Traži citat', value: this.momentFilter });
+    const list = h('ol', { class: 'moment-list', testid: 'moments' });
+    const fill = () => {
+      const q = this.momentFilter.trim().toLowerCase();
+      const items = b.moments.filter(
+        (m) => q === '' || m.quote.toLowerCase().includes(q) || (m.speaker_name ?? m.speaker).toLowerCase().includes(q),
+      );
+      list.replaceChildren(
+        ...items.map((m) => {
           const inArticle = quoted.has(m.id);
-          const li = h(
+          return h(
             'li',
             { testid: 'moment', 'data-moment-id': m.id, 'data-quoted': inArticle ? 'true' : 'false', class: inArticle ? 'quoted' : '' },
+            h('p', { class: 'source-quote' }, `„${m.quote}”`),
             h(
               'p',
-              { class: 'meta' },
-              h('strong', {}, m.speaker_name ?? m.speaker),
-              ` · ${clock(m.start_ms)}–${clock(m.end_ms)} · ${m.quote_check}${m.quote_lang !== 'hr' ? ` · ${m.quote_lang}` : ''}`,
-              inArticle ? h('span', { class: 'badge s-approved' }, ' u članku') : null,
+              { class: 'source-meta' },
+              this.listenControls(m),
+              ' ',
+              inArticle
+                ? h('span', { class: 'badge s-approved' }, 'u članku')
+                : button('Dodaj u članak', 'moment-add', () => {
+                    ed.blocks.push({ type: 'quote', moment_id: m.id });
+                    this.renderArticle();
+                  }),
             ),
-            h('p', { class: 'mq' }, `„${m.quote}”`),
-            file
-              ? h('audio', {
-                  controls: true,
-                  preload: 'none',
-                  testid: 'moment-audio',
-                  src: clipUrl(this.cfg.cdnBase, m.video_id, file, m.start_ms, m.end_ms),
-                })
-              : null,
           );
-          const ed = this.editing;
-          if (ed && !inArticle) {
-            li.append(
-              button('Dodaj citat u članak', 'moment-add', () => {
-                ed.blocks.push({ type: 'quote', moment_id: m.id });
-                this.renderArticle();
-              }),
-            );
-          }
-          return li;
         }),
-      ),
+      );
+    };
+    filter.addEventListener('input', () => {
+      this.momentFilter = filter.value;
+      fill();
+    });
+    fill();
+    return h(
+      'details',
+      { class: 'picker', testid: 'moment-picker' },
+      h('summary', {}, `Dodaj citat iz snimke (${String(b.moments.length)} potvrđenih trenutaka)`),
+      filter,
+      list,
     );
   }
 
@@ -739,7 +1023,16 @@ class Admin {
             h('h3', {}, 'Ispravci'),
             h('ol', {}, ...b.corrections.map((c) => h('li', { testid: 'admin-correction' }, `${hrDateTime(c.created_at) ?? ''} · ${c.kind}: ${c.description}`))),
           );
-    return h('section', { class: 'panel' }, h('h2', {}, 'Povijest verzija'), versions, h('h2', {}, 'Dnevnik'), events, corrections);
+    return h(
+      'details',
+      { class: 'panel history-box', testid: 'history', open: this.viewed !== null },
+      h('summary', {}, `Povijest: ${String(b.versions.length)} ${plural(b.versions.length, 'verzija', 'verzije', 'verzija')}, dnevnik, ispravci`),
+      h('h2', {}, 'Verzije'),
+      versions,
+      h('h2', {}, 'Dnevnik'),
+      events,
+      corrections,
+    );
   }
 }
 
