@@ -419,3 +419,9 @@ main {
   font-weight: 600;
   color: var(--danger);
 }
+
+/* „O istoj temi u drugim podcastima” (odluka 803) */
+.related { list-style: none; margin: 0; padding: 0; }
+.related li { padding: 0.5rem 0; border-top: 1px solid var(--border); }
+.related li:first-child { border-top: 0; }
+.related .meta { display: block; font-size: 0.875rem; opacity: 0.75; }

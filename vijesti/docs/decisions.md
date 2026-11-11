@@ -1098,3 +1098,42 @@ paralelni worktreeji ne sudare. Odluka se ne briše: zamijeni je novom koja je p
      Povratak: `npx wrangler delete --name domovina-vijesti` miče rutu, pa `/vijesti` opet
      služi osigurač (404 noindex).
 
+802. **Backend `claude` (`VIJESTI_LLM_BACKEND=claude`): `claude -p` na pretplati, zadano Sonnet
+     (korisnik, 2026-11-11).** Agy kvota (Google AI Pro) je potrebna fetchu, a ulaz enginea su
+     već kvalitetni tekstovi: sekcije članka i sažetci koje je pipeline za `domovina_tv`
+     napisao Opusom 5.5 (Tier 2 kanali: gemini-3.8-flash-low). Sonnet iz toga slaže vijest.
+     Za razliku od agyja nema tmuxa: `claude -p --output-format json --json-schema …` vraća
+     `structured_output` i **stvarne** tokene (`usage`, uključujući cache), pa `runs` nije
+     procjena (`tokens_estimated = false`). Izolacija: `--tools ""`, `--strict-mcp-config`,
+     `--setting-sources ""` (bez korisnikovih hookova i CLAUDE.md), `--no-session-persistence`.
+     Trošak $0 (pretplata), ali troši Claude kvotu: procjena prije poziva (`eval --dry-run`)
+     i ograda `--max-calls` vrijede kao za agy. `VIJESTI_CLAUDE_MODEL`, `VIJESTI_CLAUDE_TIMEOUT_SEC`.
+     Test: `engine/llm/claude.test.ts` (lažni proces). Prvo mjerenje (WRE248YCIeI, 26 sekcija):
+     izvlačenje 26 poziva, 0 neuspjelih, 125 trenutaka, 121 exact / 4 odbijena citata;
+     cijeli tok 29 poziva za oko 5 min (izvlačenje 181 s, 385k ulaznih tokena; ocjena 74 s;
+     pisanje 21 s; provjera 9 s). Članak: gospodarstvo, 465 riječi, provjera 14/16 rečenica.
+803. **RAG odmah: „O istoj temi u drugim podcastima” iz `domovina-rag` (korisnik, 2026-11-11).**
+     `rag_chunks` (ClickHouse, embedding + HNSW, cijeli katalog, puni ga nightly) već ima ono
+     što je S9 planirao graditi („embedding trenutaka”). Nakon pisanja engine pita
+     `https://mcp.domovina.ai/api/search` s naslovom i uvodom članka, bez LLM poziva, i u
+     `content.related` sprema najviše 3 DRUGE epizode (jedna po epizodi, najbolji chunk,
+     sličnost ≥ 0,6, tema s vremenom pred sažetkom epizode). Portal ih crta ispod „Izvorna
+     emisija” s linkom na sekundu. Prvi upit („EU-INC europska tvrtka za startupe”) uz
+     epizodu #005 vratio je HNB-ov „Rizični kapital u regiji” (Pavlović, Škreb o EU Inc,
+     0,67). Granica: RAG daje KONTEKST i POVEZIVANJE, nikad citat ni vrijeme citata (izvor
+     ostaje CDN, odluke 202–206). RAG nedostupan → članak bez `related`, greška u izvještaju.
+     **Upit je kratka tema bez imena** (`topic` iz istog poziva pisanja, `write-vijest/2`):
+     naslov + uvod s imenom gošće vratio je njezine nastupe o AI Actu (0,63) umjesto iste teme;
+     naslov bez imena dao je HNB-ovu epizodu o EU Inc na 0,593 (ispod praga); „EU Inc
+     regulativa za start-upove” daje HNB na 0,637 uz šum tek na 0,54. Pogoci istog govornika
+     su posebna, također korisna veza („gošća je o tome govorila i …”), ne „ista tema”.
+     Što dalje učiti: prag 0,6 je s jednog upita; izbor sekcija za izvlačenje preko
+     `text_summary` (ušteda poziva) nije mjeren. Test: `engine/rag/related.test.ts`.
+804. **Most do produkcije: `db/export-to-prod.ts` dok engine nema Postgres adapter.** Engine
+     radi lokalno (PGlite), skripta iz cijele lokalne baze napiše JEDNU transakciju
+     (`json_populate_recordset`, `OVERRIDING SYSTEM VALUE`, `session_replication_role =
+     replica` da okidači ne dupliraju dnevnik, sekvence poravnate na kraju) koja ide kroz
+     `psql` kao paket migracije. Ne kopira `staff`, `allowed_channels`, `eval_*` ni
+     `article_transitions` (stroj stanja iz migracije). Postojeći ID u produkciji ruši cijelu
+     transakciju: nikad prepisivanje. Test: lažni tok → izvoz → prazna shema, isti broj
+     redaka, sljedeći `runs.id` iza prenesenih, drugi prijenos pada.

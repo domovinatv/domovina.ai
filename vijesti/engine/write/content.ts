@@ -4,6 +4,8 @@
 // sadržaja i trenutaka, nikad iz teksta koji je napisao model.
 import { clock, wordCount } from './text.js';
 
+import type { RelatedItem } from '../rag/related.js';
+
 export const CONTENT_SCHEMA = 1;
 
 export interface EpisodeMeta {
@@ -31,6 +33,8 @@ export interface ArticleContent {
   lead: string;
   category: string;
   blocks: ContentBlock[];
+  /** Ista tema u drugim epizodama iz RAG-a (odluka 803); izostaje kad RAG nije pitan ili nije dostupan. */
+  related?: RelatedItem[];
 }
 
 /** Trenutak na koji se verzija poziva (`article_sources` + `moments`). */

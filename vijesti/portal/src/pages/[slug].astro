@@ -178,6 +178,22 @@ const title =
             href={appEpisodeUrl(cfg.appBase, page.episode.videoId, firstMoment?.start_ms ?? 0)}>Poslušaj cijeli razgovor</a
           >
         </section>
+        {(page.content.related?.length ?? 0) > 0 && (
+          <section class="box" data-testid="related">
+            <h2>O istoj temi u drugim podcastima</h2>
+            <ul class="related">
+              {page.content.related?.map((r) => (
+                <li>
+                  <a href={appEpisodeUrl(cfg.appBase, r.videoId, r.t * 1000)} data-testid="related-link">{r.topic || r.episodeTitle}</a>
+                  <span class="meta">
+                    {r.episodeTitle && r.topic ? ` ${r.episodeTitle}` : ''}
+                    {r.date && <span> · <time datetime={r.date}>{hrDate(r.date)}</time></span>}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
         <aside class="box" data-testid="ai-label">
           <p>
             Ovaj je tekst napisala umjetna inteligencija iz snimke razgovora. Citati su doslovni i provjereni prema

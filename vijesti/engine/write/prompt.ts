@@ -4,7 +4,7 @@
 import { z } from 'zod';
 import { hms } from './text.js';
 
-export const PROMPT_VERSION = 'write-vijest/1';
+export const PROMPT_VERSION = 'write-vijest/2';
 export const PROMPT_NAME = 'write-vijest';
 
 /**
@@ -48,6 +48,12 @@ export const WriteOutputSchema = z.object({
   lead: Text.max(700),
   body: z.array(WriteBlockSchema).min(2).max(24),
   category: z.enum(CATEGORIES),
+  /**
+   * Tema za RAG upit (odluka 803): 3–8 riječi, BEZ imena osoba. Ime u upitu
+   * vuče druge nastupe istog govornika umjesto iste teme (izmjereno 11.11.).
+   * Ne objavljuje se. Neobavezno: stari odgovori i lažni klijent ga nemaju.
+   */
+  topic: z.string().trim().min(3).max(120).optional(),
 });
 export type WriteOutput = z.infer<typeof WriteOutputSchema>;
 
@@ -126,7 +132,7 @@ Govornici:
 ${speakers}
 
 Zadatak: napiši vijest po pravilima V1–V14 iz trenutaka ispod (najvažniji imaju najveću ocjenu).
-Vrati JSON: title, lead, body (niz blokova {"type":"p","text":…} i {"type":"quote","moment":N}), category.
+Vrati JSON: title, lead, body (niz blokova {"type":"p","text":…} i {"type":"quote","moment":N}), category, topic (tema vijesti u 3–8 riječi, bez imena osoba, npr. „EU Inc regulativa za start-upove”; služi za traženje iste teme u drugim podcastima).
 Citat je samo blok s brojem trenutka; ne navodi brojeve trenutaka koji ne postoje.
 
 Trenuci (redom snimke):

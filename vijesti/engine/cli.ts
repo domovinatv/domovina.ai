@@ -30,6 +30,7 @@
 // trošak $0 i API-ekvivalent) i ne zove model. Drugi staje s exit 3 ako je
 // procjena iznad --max-calls; inače radi satima (serijski agy), pa ide u
 // pozadinu bez praćenja napretka, a ponovno pokretanje nastavlja gdje je stao.
+import { findRelated } from './rag/related.js';
 import { mkdir, readFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -210,7 +211,15 @@ export async function runWriteCli(args: WriteArgs, env: CliEnv = {}): Promise<Wr
   return withDb(args.db, async (db) => {
     const recorder = createSqlRunRecorder(db);
     const llm = args.fake ? createFakeWriteLlm(recorder) : realLlm(recorder);
-    return runWrite({ cdn, llm, recorder, db }, { videoId: args.videoId, channel: args.channel });
+    // RAG samo uz pravi model (odluka 803): --fake radi bez mreže.
+    const fetchImpl: FetchLike = env.fetch ?? ((url, init) => fetch(url, init));
+    const related = args.fake
+      ? undefined
+      : (query: string, videoId: string) => findRelated({ fetch: fetchImpl, query, excludeVideoId: videoId });
+    return runWrite(
+      { cdn, llm, recorder, db, ...(related && { related }) },
+      { videoId: args.videoId, channel: args.channel },
+    );
   });
 }
 

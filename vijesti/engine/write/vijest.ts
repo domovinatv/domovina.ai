@@ -26,6 +26,7 @@ import {
   WriteOutputSchema,
   type WriteOutput,
 } from './prompt.js';
+import type { RelatedItem } from '../rag/related.js';
 import { loadEligibleMoments, saveArticleVersion, type SavedVersion } from './store.js';
 
 export const WRITE_CREATED_BY = 'engine:write';
@@ -35,6 +36,8 @@ export interface WriteDeps {
   llm: LlmClient;
   recorder: RunRecorder;
   db: SqlDb;
+  /** RAG „ista tema drugdje” (odluka 803); bez njega članak nema `related`. */
+  related?: (query: string, videoId: string) => Promise<RelatedItem[]>;
 }
 
 export interface WriteOptions {
@@ -135,6 +138,9 @@ export interface WriteReport {
   outOfRange: boolean;
   /** Citati koji upućuju na nepostojeći trenutak (verify ih uklanja). */
   missingRefs: string[];
+  /** Broj povezanih epizoda iz RAG-a; null kad RAG nije pitan, a greška kad nije uspio. */
+  related: number | null;
+  relatedError?: string;
 }
 
 export async function runWrite(deps: WriteDeps, opts: WriteOptions): Promise<WriteReport> {
@@ -156,6 +162,7 @@ export async function runWrite(deps: WriteDeps, opts: WriteOptions): Promise<Wri
       wordCount: null,
       outOfRange: false,
       missingRefs: [],
+      related: null,
     };
   }
   const runId = await deps.recorder.startRun({
@@ -174,6 +181,18 @@ export async function runWrite(deps: WriteDeps, opts: WriteOptions): Promise<Wri
       temperature: 0.3,
     });
     const content = toContent(out, prep);
+    let related: number | null = null;
+    let relatedError: string | undefined;
+    if (deps.related) {
+      try {
+        const items = await deps.related(out.topic ?? content.title, opts.videoId);
+        content.related = items;
+        related = items.length;
+      } catch (e) {
+        // RAG je dodatak: članak bez njega je ispravan, greška ide u izvještaj.
+        relatedError = (e as Error).message;
+      }
+    }
     const byId = new Map(prep.moments.map((m) => [m.id, m]));
     const wordCount = articleWordCount(content, byId);
     const saved = await saveArticleVersion(deps.db, {
@@ -200,6 +219,8 @@ export async function runWrite(deps: WriteDeps, opts: WriteOptions): Promise<Wri
       wordCount,
       outOfRange: wordCount < WORD_RANGE.min || wordCount > WORD_RANGE.max,
       missingRefs: content.blocks.flatMap((b) => (b.type === 'quote' && b.moment_id === null ? [b.ref] : [])),
+      related,
+      ...(relatedError !== undefined && { relatedError }),
     };
   } catch (e) {
     await deps.recorder.finishRun(runId, { status: 'failed', error: (e as Error).message });
@@ -217,6 +238,11 @@ export function formatWriteReport(r: WriteReport): string {
       `  riječi=${String(r.wordCount)}${r.outOfRange ? ` (izvan ${String(WORD_RANGE.min)}–${String(WORD_RANGE.max)})` : ''}`,
     `  naslov: ${r.title ?? ''}`,
     ...(r.missingRefs.length > 0 ? [`  citati bez trenutka: ${r.missingRefs.join(', ')} (verify ih uklanja)`] : []),
+    ...(r.relatedError !== undefined
+      ? [`  RAG (ista tema drugdje) nije uspio: ${r.relatedError}`]
+      : r.related !== null
+        ? [`  RAG: povezanih epizoda=${String(r.related)}`]
+        : []),
     `  dalje: npm run vijesti -- verify ${String(r.saved.articleId)}`,
   ].join('\n');
 }
