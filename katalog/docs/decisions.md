@@ -1131,6 +1131,12 @@ poklapao s podcast.domovina.ai/dani/<d>. Izmjereno 10. 11. za 9. 11.: katalog 33
       sljedeći 0. Produkcija: `ingest-episode --all` promijenio 311 epizoda (verzija
       227); 5. 11. sada 31/34, preostale 3 (Tier 1) i 13 Tier 2 s 10. 11. nemaju
       Magisterium datoteku na CDN-u (provjereno u `episode.json`).
+1207. **Prošli dan više nema sat browser cachea** (dopuna 307, 11. 11.). `days/:date`
+      stariji od jučer: `public, max-age=60, stale-while-revalidate=600` (bilo 3600/86400).
+      Nakon uvoza ocjena (1206) `/dani/2026-11-09` je u pregledniku koji ga je otvorio
+      ranije ostao bez ocjena iako je API već vraćao 33/33: odgovor je sat vremena živio
+      u HTTP cacheu, a revalidacija `CdnJsonCache` čita isti cache. Rubni cache je po
+      verziji kataloga (`_cv`), pa kraći `max-age` košta samo pogodak u Workeru.
 
 Otvoreno (10. 11.): jutarnji `ingest-episode --all` u `drift-check-launchd.sh` još nije
 prošao kroz pravi launchd run (prvi 11. 11. u 08:45). Redoslijed unutar dana je

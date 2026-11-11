@@ -50,8 +50,8 @@ describe("cache", () => {
 
   it("Cache-Control po ruti; ACAO *, bez Vary", async () => {
     const cases: [string, string][] = [
-      [`days/${utcDay(-2)}`, "public, max-age=3600, stale-while-revalidate=86400"],
-      ["days/2020-01-01", "public, max-age=3600, stale-while-revalidate=86400"],
+      [`days/${utcDay(-2)}`, "public, max-age=60, stale-while-revalidate=600"],
+      ["days/2020-01-01", "public, max-age=60, stale-while-revalidate=600"],
       [`days/${utcDay(-1)}`, "public, max-age=60, stale-while-revalidate=300"],
       [`days/${utcDay(0)}`, "public, max-age=60, stale-while-revalidate=300"],
       [`days/${utcDay(3)}`, "public, max-age=60, stale-while-revalidate=300"],

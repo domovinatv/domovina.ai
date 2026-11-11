@@ -71,7 +71,7 @@ describe("pregled: putanje i parametri", () => {
 });
 
 describe("pregled: Cache-Control na granici UTC dana i ključ cachea", () => {
-  const PAST = "public, max-age=3600, stale-while-revalidate=86400";
+  const PAST = "public, max-age=60, stale-while-revalidate=600";
   const RECENT = "public, max-age=60, stale-while-revalidate=300";
   const day = (date: string, now: string): string => cacheControlFor({ kind: "day", date }, new Date(now));
 

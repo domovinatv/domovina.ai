@@ -52,7 +52,9 @@ export type ErrorStatus = 400 | 401 | 404 | 409 | 413 | 500 | 503;
 const CACHE_LIST = "public, max-age=60, stale-while-revalidate=600";
 const CACHE_CARD = "public, max-age=300, stale-while-revalidate=3600";
 const CACHE_DAY_RECENT = "public, max-age=60, stale-while-revalidate=300";
-const CACHE_DAY_PAST = "public, max-age=3600, stale-while-revalidate=86400";
+// Prošli dan nije nepromjenjiv: uvoz mu mijenja ocjene, sat i dan objave (odluka 1207).
+// Rubni cache je po verziji kataloga, pa je browser cache jedino mjesto zastarijevanja.
+const CACHE_DAY_PAST = "public, max-age=60, stale-while-revalidate=600";
 export const NO_STORE = "no-store";
 
 function headers(cacheControl: string): Record<string, string> {
