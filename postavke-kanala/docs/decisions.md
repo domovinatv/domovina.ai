@@ -169,3 +169,67 @@ Odluka se ne briše: zamijeni je novom koja je poziva.
      - Popravljeno prije commita: `campaign_channel_uc` i `campaign_channel_setting_enabled`
        moraju imati EXECUTE za anon/authenticated, jer ih javni pogledi zovu. Bez toga
        izlog i „Sponzorirano” padaju svima. Uhvatio ga je S2 test.
+
+## S3 (2026-11-11, katalog)
+
+300. **Produkcijska migracija S2 primijenjena pojedinačno, ne kroz `db-migrate.sh`**
+     (korisnik odobrio 11. 11.). Skripta bi povukla i dvije namjerno zadržane migracije od
+     3. 9. (`events_publish_rail_gate`, `events_rotate_ticket_tokens`; vidi
+     `domovina-api/docs/sponzorski-trenuci-zakljucak.md`). Primijenjeno kao 8. 10.: `begin;
+     <fajl>; insert u schema_migrations; commit`. Prije toga puni backup
+     `domovina-api/backups/20261111-191542-public_domovina_ai_pinka_finance-full.sql`, a
+     produkcijski `create_contribution`/`create_sponsor_contribution` uspoređen sa S2
+     verzijom (razlika = samo nove provjere prekidača). Zamka: `detect_db_container` u
+     `scripts/lib/db-env.sh` zove ssh koji pojede stdin, pa `db-psql.sh --stdin` vraća prazno;
+     upit kroz stdin traži `detect_db_container </dev/null`.
+301. **D1 tablice** (`katalog/migrations/0005_channel_settings.sql`): `channel_settings`
+     (UC → `effective` JSON, preslikan, ne preračunat), `channel_tombstones` (triggeri odbijaju
+     UPDATE/DELETE), `settings_poll_state`, indeks `channels_by_uc`. Nije po brendu.
+302. **Poller na Cron Triggeru svake minute**; staging bez crona (nema ključa). Ključ je
+     secret `SETTINGS_ANON_KEY`, URL var `SETTINGS_API_URL`; bez ključa poller bilježi
+     `disabled` i ne zove mrežu.
+303. **Kursor (`updated_at`, UC) uz 5 minuta preklapanja.** `updated_at` u izvoru je početak
+     transakcije, pa kasni commit bez preklapanja nikad ne bi bio pročitan; ponovni upis je
+     idempotentan. Kursor nikad ne ide unatrag.
+304. **Jedan loš redak odbija cijeli odgovor** (`invalid_response`), ništa se ne piše.
+     Kodovi u `settings_poll_state.status`: `ok`, `http_N`, `network`, `invalid_response`,
+     `d1_error`, `internal`, `disabled`. Poller ne baca.
+305. **Verzija kataloga se podiže samo kad se promijeni izlaz API-ja** (efektivno stanje ili
+     novi tombstone): novi `ingest_runs` redak mijenja `_cv` u ključu rubnog cachea, pa purge
+     ne treba.
+306. **Brisanje retka u izvoru se ne preslikava** (domovina-api nema DELETE put); drift-check
+     bi ga javio kao `extra`.
+307. **Filtar u SQL-u**: `LEFT JOIN` postavki i tombstonea po UC-u; nedostajući redak ili
+     ključ = uključen. Kanal bez postavki ne troši dodatni `rows_read`; plan bez SCAN-a.
+308. **`home_featured=false` djeluje samo na `/days/:date`** (hrani „Danas u korpusu” i
+     `/dani/`). `/channels`, `/directory` i stranica kanala ga zadržavaju: `/directory` je
+     popis kanala, ne rail. Naslovnica (`home.json`) nije u katalogu; filtrira je S5 po
+     `/v1/settings`.
+309. **Povučen i obrisan kanal vraćaju 200 sa `state`, nikad 404.** `item` uvijek prolazi
+     shemu kanala, pa stari build prikaže prazan kanal umjesto „katalog nije dostupan”.
+     Obrisan: `item` je samo identitet (ime iz tombstonea, bez avatara, 0 epizoda) + `deleted_at`.
+     `/channels/:slug/episodes` za oba vraća prazne `items` i `state`.
+310. **Tombstone ima prednost pred postavkama**; bez retka kanala slug se traži u
+     `tombstone.slugs` (sken samo na putu „nije nađen”).
+311. **Kartica**: `status` samo kad nije `active`; `magisterium_off: true` +
+     `magisterium_score: null` kad je `magisterium` isključen (i kad je kanal povučen ili
+     obrisan, jer master gasi sve).
+312. **`GET /v1/settings`**: `{UC: {status, off:[sortirano], deleted_at?}}`, samo UC s
+     barem jednim isključenim poznatim ključem ili tombstoneom; obrisan kanal ima svih 20 u
+     `off`. Nije po brendu; cache kao popisi.
+313. **UC iz registryja samo kad ga listing, `index.json` i epizode nemaju**, i samo valjan
+     `UC…` (odluka 101). Izvještaj plana dobiva `ucFromRegistry`.
+314. **`channel-slugs-sync` samo umeće i mijenja, nikad ne briše** (kampanja na starom slugu
+     mora naći kanal). Dry-run anon ključem, `--commit` service ključem iz
+     `domovina-api/.coolify-current.env`; ne-lokalna baza traži i `--confirm-production`.
+     Dry-run nad produkcijom 11. 11.: 186 kanala, 184 s UC-om (2 iz registryja), 183 nova.
+315. **Drift postavki je samo izvještaj** (popravlja poller); exit 0/1/2 kao i dosad, a kod
+     spajanja dijelova 2 > 1 > 0. Obrisan kanal se uspoređuje po statusu i `deleted_at` kao
+     trenutku, ne po `off`.
+316. **Zastoj promjene vlasnika do aplikacije**: lokalno izvor → D1 medijan 39,7 ms (p90
+     42,6 ms; `cd katalog && npm run settings-latency -- --reps 20` nad lokalnim
+     domovina-api). Produkcija: do 60 s čekanja na cron + poziv + do 30 s memorije
+     konteksta u izolatu (`CONTEXT_TTL_MS`) + rub (`max-age=60`, do 600 s
+     `stale-while-revalidate` na popisima). Produkcijski zastoj nije izmjeren (nema
+     verificiranog vlasnika koji bi mijenjao postavke); mjeri ga S4 prvim stvarnim
+     prekidačem.

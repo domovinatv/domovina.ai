@@ -24,16 +24,17 @@ Legenda: `[x]` gotovo · `[ ]` otvoreno · `[~]` u radu · `(!)` traži korisnik
 - [x] RPC `set_channel_setting(uc, key, value)`: pišu `primary` i `collaborator` sa `status='verified'` i `verified_at` mlađim od 90 dana; događaj i stanje u istoj transakciji → S2
 - [x] RPC `request_channel_deletion` / `cancel_channel_deletion` (vlasnik) i `confirm_channel_deletion_by_phone` (samo service_role, operater nakon poziva) → S2
 - [x] RLS testovi lokalno (anon čita stanje i tombstone, log čita samo vlasnik tog kanala, nitko ne mijenja log) → S2, `domovina-api` `7d01d49`, 120 provjera
-- [ ] (!) Produkcijska migracija (`db-migrate.sh` iz domovina-api s backupom) → vrata nakon S2
+- [x] (!) Produkcijska migracija: primijenjena pojedinačno 11. 11. uz puni backup (ne `db-migrate.sh`, odluka 300) → vrata nakon S2
 
 ## F2 — projekcija i API (katalog)
 
-- [ ] D1 migracija: `channel_settings` projekcija + `channel_tombstones` (trajno) → S3
-- [ ] Poller: povlači promjene iz domovina-api po `updated_at` kursoru, idempotentan → S3
-- [ ] API: `settings` uz svaki kanal; master-isključen kanal i njegove epizode izostaju iz popisa (`/channels`, `/home`, `/dani`, Tier 2); `GET /v1/channels/:slug` vraća stanje `withdrawn` ili `deleted` umjesto 404 → S3
-- [ ] `GET /v1/settings` + Cron Trigger poller + UC iz registryja za `launched`/`subclub` → S3 (odluke 101, 105, 106)
-- [ ] `drift-check` uspoređuje postavke domovina-api ↔ D1 → S3
-- [ ] (!) Deploy katalog Workera s novom migracijom → vrata nakon S3
+- [x] D1 migracija: `channel_settings` projekcija + `channel_tombstones` (trajno) → S3, `katalog/migrations/0005`
+- [x] Poller: povlači promjene iz domovina-api po `updated_at` kursoru, idempotentan → S3 (odluke 302–306)
+- [x] API: `settings` uz svaki kanal; master-isključen kanal i njegove epizode izostaju iz popisa (`/channels`, `/home`, `/dani`, Tier 2); `GET /v1/channels/:slug` vraća stanje `withdrawn` ili `deleted` umjesto 404 → S3
+- [x] `GET /v1/settings` + Cron Trigger poller + UC iz registryja za `launched`/`subclub` → S3 (odluke 101, 105, 106)
+- [x] `drift-check` uspoređuje postavke domovina-api ↔ D1 → S3 (odluka 315)
+- [x] (!) Deploy katalog Workera s novom migracijom (11. 11., verzija `5f5966f7`, korisnik odobrio) → vrata nakon S3
+- [ ] (!) `channel-slugs-sync --commit --confirm-production` (183 sluga u `domovina_ai.channel_slugs`) → S4 na vrhu
 
 ## F3 — aplikacija
 

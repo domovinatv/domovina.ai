@@ -34,7 +34,7 @@ Handoff se mijenja samo prema naprijed: gotovi `SN` se ne prepisuju.
 | S0 | Plan, TODO, handoffi | gotovo | 7508e8b | — | 2026-11-11; odluke 1–10 |
 | S1 | Mjerenje + matrica provedbe | gotovo, **vrata** | d287769 | — (bez koda) | 2026-11-11; odluke 100–111; 0 stvarnih vlasnika → pitanje na vrhu S2 |
 | S2 | domovina-api shema + RPC | gotovo, **vrata** | domovina-api 7d01d49 | 6 SQL testova zeleno (novi: 120 provjera) | 2026-11-11; odluke 200–208; produkcijska migracija je korisnikova |
-| S3 | katalog projekcija + API | | | | vrata: deploy |
+| S3 | katalog projekcija + API | gotovo, deployano | f39a34c | katalog 485 testova, 0 preskočenih | 2026-11-11; odluke 300–316; prod migracija S2 i deploy kataloga odobrio korisnik |
 | S4 | Ekran postavki + log + zahtjev za brisanje | | | | |
 | S5 | Provedba na ekranima | | | | |
 | S6 | Worker OG/noindex/sitemap | | | | ‖ S7 |
