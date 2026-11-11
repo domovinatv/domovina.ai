@@ -12,18 +12,18 @@ Legenda: `[x]` gotovo · `[ ]` otvoreno · `[~]` u radu · `(!)` traži korisnik
 
 - [x] Pokrivenost UC id-a: 182/186 s UC-om, 180 različitih, 1 UC = 3 sluga; bez UC-a `launched`, `subclub` (UC u registryju), `dijalog`, `x-…` → S1, odluke 100–102
 - [x] Radi li `youtube-claim` u produkciji: deployan, env postavljen, **0 `verified`** (5 sintetičkih iz 14. 10.); GCP verifikacija nije vidljiva iz CLI-a → S1, odluka 103
-- [ ] (!) Vrata: korisnik bira Google verifikaciju + prvi stvarni claim prije S2, ili paralelnu gradnju → prije S2
+- [x] (!) Vrata: prvi stvarni claim (`domovina_tv`, 11. 11.); odluke 108 i 109 potvrđene → S2, odluka 200
 - [x] Matrica: 20 prekidača × potrošač (repo, datoteka, funkcija), što „isključeno” znači za NOVE i za POSTOJEĆE epizode, latencija → S1, `research/2026-11-11-matrica-provedbe.md`, odluke 105–110
 - [x] Popis svega što trajno brisanje mora počistiti (R2 prefiksi, obje `Vary: Origin` varijante, Meili indeksi, RAG tablice, vijesti, push teme, katalog D1, registry) s naredbom koja broji objekte po kanalu → S1, `research/2026-11-11-popis-brisanja.md` (`ikra_institut`: 1 385 R2 objekata), odluka 111
 
 ## F1 — izvor istine (domovina-api)
 
-- [ ] Novac u SQL-u: `donations` i `paid_sponsor_moments` u pinka/sponzorskim funkcijama i `public_live_moments` → S2 (odluka 109)
+- [x] Novac u SQL-u: `donations` i `paid_sponsor_moments` u pinka/sponzorskim funkcijama i `public_live_moments` → S2 (odluka 109)
 
-- [ ] Migracija: `channel_settings` (trenutno stanje), `channel_settings_events` (append-only, trigger zabranjuje UPDATE/DELETE), `channel_deletion_requests`, `channel_tombstones` → S2
-- [ ] RPC `set_channel_setting(uc, key, value)`: pišu `primary` i `collaborator` sa `status='verified'` i `verified_at` mlađim od 90 dana; događaj i stanje u istoj transakciji → S2
-- [ ] RPC `request_channel_deletion` / `cancel_channel_deletion` (vlasnik) i `confirm_channel_deletion_by_phone` (samo service_role, operater nakon poziva) → S2
-- [ ] RLS testovi lokalno (anon čita stanje i tombstone, log čita samo vlasnik tog kanala, nitko ne mijenja log) → S2
+- [x] Migracija: `channel_settings` (trenutno stanje), `channel_settings_events` (append-only, trigger zabranjuje UPDATE/DELETE), `channel_deletion_requests`, `channel_tombstones` → S2
+- [x] RPC `set_channel_setting(uc, key, value)`: pišu `primary` i `collaborator` sa `status='verified'` i `verified_at` mlađim od 90 dana; događaj i stanje u istoj transakciji → S2
+- [x] RPC `request_channel_deletion` / `cancel_channel_deletion` (vlasnik) i `confirm_channel_deletion_by_phone` (samo service_role, operater nakon poziva) → S2
+- [x] RLS testovi lokalno (anon čita stanje i tombstone, log čita samo vlasnik tog kanala, nitko ne mijenja log) → S2, `domovina-api` `7d01d49`, 120 provjera
 - [ ] (!) Produkcijska migracija (`db-migrate.sh` iz domovina-api s backupom) → vrata nakon S2
 
 ## F2 — projekcija i API (katalog)

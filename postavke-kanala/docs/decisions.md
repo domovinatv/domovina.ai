@@ -122,3 +122,50 @@ Odluka se ne briše: zamijeni je novom koja je poziva.
      ne uklanjaju. R2 se briše listanjem prefiksa (`episode.json` ne navodi screenshotove ni
      OG slike). Mjerenje na `ikra_institut`: 1 385 R2 objekata, 2 776 purge unosa.
      [research/2026-11-11-popis-brisanja.md](research/2026-11-11-popis-brisanja.md).
+
+## S2 (2026-11-11, domovina-api)
+
+200. **Pretpostavke 108 i 109 potvrđene** (korisnik, 11. 11. 2026., vrata S2): ovisni AI
+     ključevi padaju s ulazom; prodan živ sponzorski trenutak traje do isteka slota.
+     Efektivno stanje računa jedna SQL funkcija (`domovina_ai.channel_effective_settings`),
+     a S3/S4/S5/S7 je čitaju ili preslikavaju, ne preračunavaju.
+201. **KYC se za postavke ne traži.** Odluka 3 navodi ulogu, status i 90 dana. Vlasništvo se
+     čita iz baze (`channel_claims`), ne iz JWT-a. KYC ostaje uvjet samo za isplate
+     (`safe-owner-add`). Trajno brisanje ionako potvrđuje telefonski poziv.
+202. **Slug → UC živi u `domovina_ai.channel_slugs`.** Pinka kampanje kanal nose po slugu
+     (`subject_type='podcast_channel'`, `subject_ref=slug`), a postavke po UC-u (odluka 7).
+     Migracija sije `domovina_tv`; S3 tablicu puni iz kataloga. Nepoznat slug = sve uključeno.
+203. **`settings` je rijedak jsonb**: samo ključevi koje je vlasnik postavio, nedostaje =
+     `true`. Postavljanje iste vrijednosti ne stvara događaj u logu.
+204. **Jedan log za postavke i brisanje** (`channel_settings_events.kind`: `setting`,
+     `deletion_requested`, `deletion_cancelled`, `deletion_phone_confirmed`,
+     `deletion_executed`): vlasnik na ekranu vidi jednu kronologiju.
+205. **Čitanje loga traži potvrđen claim bilo koje starosti; pisanje traži i < 90 dana.**
+     Vlasnik kojem je claim istekao vidi što se mijenjalo i obnavlja claim.
+206. **`paid_sponsor_moments=false` gasi izlog i nove kupnje, ne `public_live_moments`.**
+     Plaćen, a još nenamiren hold koji se namiri nakon isključivanja također traje do isteka.
+     Kupnja je započela prije isključivanja.
+207. **Tombstone piše `mark_channel_deletion_executed` (samo `service_role`)**, koju na kraju
+     poziva skripta iz S9; tombstone i log odbijaju UPDATE/DELETE za sve uloge.
+208. **Odstupanja izvedbe od ugovora, prihvaćena** (S2, migracija `20261111120000` u
+     domovina-api, commit `7d01d49`):
+     - Kampanja → kanal ide jednom funkcijom `pinka_finance.campaign_channel_uc`:
+       `podcast_channel` preko `channel_slugs` (pa slug iz tombstonea), `podcast_episode`
+       preko `episode_safes`, a za oboje je pad na `campaigns.youtube_channel_id`. Kad
+       ništa ne pogodi, uplata je dopuštena.
+     - Kampanja s timeline mapom (sponzorski crowdfund) kroz `create_contribution` čita
+       `paid_sponsor_moments`, a ostale čitaju `donations`. Provjera prekidača je prva
+       linija, prije `not_authenticated`.
+     - `record_sepa_contribution` i `record_onchain_contribution` se ne blokiraju, jer
+       bilježe novac koji je već stigao.
+     - Dodatni kodovi grešaka: `invalid_value`, `invalid_state: <stanje>`,
+       `invalid_transition`.
+     - `is_channel_settings_writer/reader(uc, uuid)` su izvršive za authenticated, jer ih
+       RLS policy zove. Prijavljen korisnik zato može pitati je li neki tuđi uuid vlasnik
+       kanala. Prihvaćeno: vlasništvo kanala nije tajna, a uuid tuđeg računa se ne vidi
+       nigdje u sučelju.
+     - Log nema FK na `auth.users`, kako brisanje računa ne bi kaskadiralo u append-only
+       log.
+     - Popravljeno prije commita: `campaign_channel_uc` i `campaign_channel_setting_enabled`
+       moraju imati EXECUTE za anon/authenticated, jer ih javni pogledi zovu. Bez toga
+       izlog i „Sponzorirano” padaju svima. Uhvatio ga je S2 test.
