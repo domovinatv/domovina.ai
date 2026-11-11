@@ -1137,3 +1137,31 @@ paralelni worktreeji ne sudare. Odluka se ne briše: zamijeni je novom koja je p
      `article_transitions` (stroj stanja iz migracije). Postojeći ID u produkciji ruši cijelu
      transakciju: nikad prepisivanje. Test: lažni tok → izvoz → prazna shema, isti broj
      redaka, sljedeći `runs.id` iza prenesenih, drugi prijenos pada.
+
+805. **Urednički ekran u jednom stupcu (korisnik, 2026-11-11).** Prvi pravi nacrt korisnik nije
+     mogao objaviti: „Objavi” postoji samo u stanju `approved`, a ekran je imao dvije nezavisne
+     liste (članak | 121 trenutak, sticky stupac sa svojim scrollom) i rečenice provjere u
+     trećem panelu ispod članka. Sada: traka koraka Nacrt → U pregledu → Odobreno → Objavljeno
+     i JEDAN glavni gumb (`flow.ts` `nextStep`), uz razlog blokade iste provjere koju radi
+     `approve_article` (`verify` nema, rečenice čekaju) i „Prijeđi na prvu”. Gumb je
+     onemogućen umjesto da vrati grešku iz baze. Rečenica provjere se nalazi u tekstu po
+     doslovnom podnizu (`segmentText`, redom); ne nađe li se, odlomak ostaje običan tekst, a
+     kartice idu ispod njega. Kartica označene rečenice stoji odmah iza odlomka: razlog
+     ljudskim riječima, trenuci iz `supported_by` s „Poslušaj” i potvrda. Jedan `<audio>` na dnu
+     (isječak `#t=od,do`) umjesto `<audio>` po trenutku. Popis trenutaka je samo u uređivanju
+     (za dodavanje citata), s filtrom. Stari testidi ostaju (e2e ih koristi).
+806. **Verzija spremljena u adminu čeka engine (stanje 2026-11-11).** `save_editor_version` piše
+     `verify = NULL`, a `approve_article` takvu verziju odbija (`not_verified`, migracija 006
+     ~r. 451). Verify je LLM + deterministički prolaz i radi samo u engineu, pa ga preglednik ne
+     može pokrenuti. Admin to kaže na blokadi („spremljena je u adminu, pa je engine mora
+     ponovno provjeriti”). Red čekanja je pogled `versions_awaiting_verify`; NITKO ga još ne
+     čita: dnevni job S8 mora prvo provjeriti njega (prije novih epizoda), inače uređen članak
+     u produkciji stoji zauvijek. Do Postgres adaptera (`db/sql.ts`) engine ne piše u
+     produkciju, pa je uređivanje u produkcijskom adminu zasad slijepa ulica: za članak 1
+     potvrđivati rečenice, ne uređivati.
+807. **Bug: uređivanje u adminu briše `content.related` (nađeno 2026-11-11, NIJE popravljeno).**
+     `save_editor_version` gradi `content` iz `schema`, `episode`, `title`, `lead`, `category`,
+     `blocks` i ne prenosi `related` s bazne verzije; verify ga prenosi (`...content`). Nakon
+     prvog uređivanja članak gubi blok „O istoj temi u drugim podcastima”. Popravak je nova
+     migracija (`'related', base.content -> 'related'` kad postoji) + test, a na produkciji ide
+     kroz paket `db/prod/` uz korisnikov pristanak (kao vrata a).
