@@ -1131,6 +1131,10 @@ poklapao s podcast.domovina.ai/dani/<d>. Izmjereno 10. 11. za 9. 11.: katalog 33
       sljedeći 0. Produkcija: `ingest-episode --all` promijenio 311 epizoda (verzija
       227); 5. 11. sada 31/34, preostale 3 (Tier 1) i 13 Tier 2 s 10. 11. nemaju
       Magisterium datoteku na CDN-u (provjereno u `episode.json`).
+      HR Magisterium stiže satima nakon članka (zaseban launchd posao), kad je KORAK 13.5
+      već prošao; zato `pipeline.domovina.ai/bridge/magisterium_poller.js` nakon potvrđenog
+      HR artefakta sam pokrene `ingest-episode <id>` (`58fe9c9`). Bez toga ocjena čeka
+      jutarnji `--all` u 08:45 (izmjereno: `1rzvldhbhVs`).
 1207. **Prošli dan više nema sat browser cachea** (dopuna 307, 11. 11.). `days/:date`
       stariji od jučer: `public, max-age=60, stale-while-revalidate=600` (bilo 3600/86400).
       Nakon uvoza ocjena (1206) `/dani/2026-11-09` je u pregledniku koji ga je otvorio
