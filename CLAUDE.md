@@ -68,6 +68,15 @@ Samostalna aplikacija (Node/TS engine + Astro portal) koja iz CDN artefakata pi�
 „Stanje lanca”. Izvan `vijesti/` lanac dira samo `web/_worker.js` i
 `scripts/test-social-tags.mjs` (S7).
 
+## Postavke kanala za vlasnika — `postavke-kanala/` (plan od 11. 11. 2026.)
+
+Vlasnik ili suradnik s potvrđenim vlasništvom uključuje/isključuje 20 funkcionalnosti
+nad kanalom (ili cijeli kanal), svaka promjena ide u append-only log, trajno brisanje =
+potvrda u aplikaciji + poziv na +385 98 967 9022, u katalogu ostaje trajni tombstone.
+Lanac S1–S10: plan `postavke-kanala/docs/plan.md`, radna lista `postavke-kanala/TODO.md`,
+handoffi `postavke-kanala/docs/handoffs/`. „Nastavi postavke kanala” = prvi neoznačeni
+`SN.md` u tablici „Stanje lanca”. S2, S7 i S8 se rade iz drugih repoa.
+
 ## Build & Deploy
 
 ```bash
