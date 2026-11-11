@@ -9,7 +9,7 @@
   // `npm run portal:release-check` (i build uz VIJESTI_RELEASE=1) pada dok je
   // ijedno prazno. Anon ključ je javan (Supabase `apikey`), nije tajna.
   "vars": {
-    "VIJESTI_ANON_KEY": "",
+    "VIJESTI_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsImlhdCI6MTc3OTExMTcxMywiZXhwIjo0OTMyNzExNzEzLCJyb2xlIjoiYW5vbiJ9.Q4Ef7xMc2dmjMyfJebPDyqNirnARZzMxTWe7i0dASPI",
     "VIJESTI_PUBLISHER_NAME": "",
     "VIJESTI_PUBLISHER_ADDRESS": "",
     "VIJESTI_EDITOR_IN_CHIEF": "",
