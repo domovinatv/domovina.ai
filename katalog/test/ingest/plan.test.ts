@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
+import { parseRegistry } from "../../src/input/index.ts";
 import { buildPlan } from "../../src/ingest/plan.ts";
+import { registrySlugToCdn } from "../../src/ingest/resolve.ts";
+import { fixtures } from "../input/fixtures.ts";
 import { fixturePlanInput } from "./input.ts";
 
 const input = fixturePlanInput();
@@ -189,5 +192,53 @@ describe("buildPlan nad fixtureima", () => {
 
   it("deterministički: dva plana nad istim ulazom su jednaka", () => {
     expect(buildPlan(fixturePlanInput())).toEqual(plan);
+  });
+});
+
+describe("UC iz registryja (odluka 101 lanca postavke-kanala)", () => {
+  // `subclub` je audio-direct: `youtube_channel_url` je https://subclub.com, a
+  // epizode nemaju YouTube `channel_id`. Registry ima `youtube.channel_id`.
+  const SUBCLUB_UC = "UCeq8LcFQ3ee_p8b-eYTARsg";
+  const withRegistry = (entries: Record<string, unknown>[]) => {
+    const raw = fixtures.registry() as { podcasts: unknown[] };
+    return buildPlan({ ...input, registry: parseRegistry({ ...raw, podcasts: [...raw.podcasts, ...entries] }) });
+  };
+  const subclubEntry = (channelId: unknown) => ({
+    slug: "subclub",
+    display_name: "Sub Club",
+    youtube: { type: "playlist", channel_id: channelId },
+    tracking: { enabled: true },
+  });
+
+  it("fixture bez registry unosa: subclub ostaje bez UC-a", () => {
+    expect(channel("subclub")?.youtubeChannelId).toBeNull();
+    expect(plan.report.ucFromRegistry).toEqual([]);
+  });
+
+  it("listing bez UC-a → UC iz registryja, i to se vidi u izvještaju", () => {
+    const p = withRegistry([subclubEntry(SUBCLUB_UC)]);
+    expect(p.channels.find((c) => c.slug === "subclub")?.youtubeChannelId).toBe(SUBCLUB_UC);
+    expect(p.report.ucFromRegistry).toEqual(["subclub"]);
+  });
+
+  it("registry slug s crticama se uspoređuje u CDN obliku", () => {
+    const p = withRegistry([{ ...subclubEntry(SUBCLUB_UC), slug: "sub-club" }]);
+    // `sub-club` → `sub_club` ≠ `subclub`: nema pogotka. Kanal s podvlakom pogađa.
+    expect(p.channels.find((c) => c.slug === "subclub")?.youtubeChannelId).toBeNull();
+    expect(registrySlugToCdn("40-dana-za-zivot")).toBe("40_dana_za_zivot");
+  });
+
+  it("izvor ima prednost: kanal s UC-om iz listinga ga ne mijenja", () => {
+    const p = withRegistry([
+      { slug: "nanovoroeni-x", display_name: "x", youtube: { channel_id: "UCaaaaaaaaaaaaaaaaaaaaaa" }, tracking: { enabled: true } },
+    ]);
+    const before = channel("40_dana_za_zivot")?.youtubeChannelId;
+    expect(p.channels.find((c) => c.slug === "40_dana_za_zivot")?.youtubeChannelId).toBe(before);
+    expect(p.report.ucFromRegistry).toEqual([]);
+  });
+
+  it("nevaljan channel_id u registryju se ne prenosi", () => {
+    const p = withRegistry([subclubEntry("@subclub")]);
+    expect(p.channels.find((c) => c.slug === "subclub")?.youtubeChannelId).toBeNull();
   });
 });

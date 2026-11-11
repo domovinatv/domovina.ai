@@ -2,6 +2,7 @@
 // Cache-Control i `caches.default`. SQL živi u `src/db/queries.ts`; ovdje se
 // samo izvršava. Ugovor odgovora: `contract/v1/*.schema.json`.
 import {
+  allChannelSettings,
   allChannels,
   catalogContext,
   channelBySlug,
@@ -12,8 +13,10 @@ import {
   MAX_PAGE_SIZE,
   prepare,
   type SqlQuery,
+  tombstoneBySlug,
 } from "../db/queries.ts";
 import type { Env } from "../env.ts";
+import { SETTING_KEYS } from "../settings/keys.ts";
 import { type CatalogContextValue, contextKey, forgetContext, recallContext, rememberContext } from "./context.ts";
 import { decodeCursor, encodeCursor, isIsoDate } from "./cursor.ts";
 
@@ -96,7 +99,8 @@ type Route =
   | { readonly kind: "channel"; readonly slug: string }
   | { readonly kind: "channelEpisodes"; readonly slug: string }
   | { readonly kind: "card"; readonly id: string }
-  | { readonly kind: "directory" };
+  | { readonly kind: "directory" }
+  | { readonly kind: "settings" };
 
 /** Segment putanje; `null` kad nije valjan URI-escape ili je prazan. */
 function segment(raw: string | undefined): string | null {
@@ -114,6 +118,7 @@ export function matchRoute(rest: string): Route | null {
   const [head, a, b] = parts;
   if (parts.length === 1 && head === "channels") return { kind: "channels" };
   if (parts.length === 1 && head === "directory") return { kind: "directory" };
+  if (parts.length === 1 && head === "settings") return { kind: "settings" };
   const first = segment(a);
   if (first === null) return null;
   if (parts.length === 2 && head === "days") return { kind: "day", date: first };
@@ -163,6 +168,43 @@ function parseTier(params: URLSearchParams): Parsed<1 | 2 | undefined> {
   return { ok: false, error: "bad_tier" };
 }
 
+// ---------------------------------------------------------------- postavke kanala
+
+/**
+ * 20 ključeva postavki (odluka 1) žive u `src/settings/keys.ts`, jedan popis za
+ * poller i API. Ključ u `effective` koji nije u popisu se u odgovorima ne
+ * prenosi (novi ključ prvo ulazi u ugovor, pa tek onda u odgovore).
+ */
+export { SETTING_KEYS };
+
+/** Stanje kanala za vlasnikove postavke; `active` se u odgovorima ne piše (rijetko polje). */
+export type ChannelStatus = "active" | "withdrawn" | "deleted";
+
+/**
+ * Isključeni poznati ključevi iz `effective`, abecedno. Isključeno = JSON `false`
+ * (ili 0, isto kao `json_extract(...) IS NOT 0` u SQL-u); ključ koji nedostaje =
+ * uključeno (tvrdi uvjet 4). `effective` se preslikava, ovisnosti se ne računaju.
+ */
+export function offKeys(effective: string | null): string[] {
+  if (effective === null) return [];
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(effective);
+  } catch {
+    return [];
+  }
+  if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) return [];
+  const obj = parsed as Record<string, unknown>;
+  return SETTING_KEYS.filter((k) => obj[k] === false || obj[k] === 0).sort();
+}
+
+/** `{ključ: false}` samo za isključene ključeve; `undefined` kad su svi uključeni. */
+function sparseSettings(effective: string | null): Record<string, false> | undefined {
+  const off = offKeys(effective);
+  if (off.length === 0) return undefined;
+  return Object.fromEntries(off.map((k) => [k, false]));
+}
+
 // ---------------------------------------------------------------- retci → JSON
 
 interface CardRow {
@@ -180,6 +222,11 @@ interface CardRow {
   readonly channel_slug: string | null;
   readonly channel_name: string | null;
   readonly channel_tier: number | null;
+  /** `json_extract(effective, '$.channel_enabled')`: 0 = povučen, NULL/1 = uključen. */
+  readonly channel_enabled: number | null;
+  readonly channel_magisterium: number | null;
+  /** `deleted_at` tombstonea po UC-u kanala; NULL = nije obrisan. */
+  readonly channel_deleted_at: string | null;
 }
 
 interface ChannelRow {
@@ -192,17 +239,39 @@ interface ChannelRow {
   readonly processed_count: number;
   readonly latest_published_date: string | null;
   readonly unregistered: number;
+  /** `channel_settings.effective` (JSON), NULL = nema retka = sve uključeno. */
+  readonly effective: string | null;
+  /** Tombstone po UC-u kanala; NULL = nije obrisan. */
+  readonly deleted_at: string | null;
+  readonly deleted_title: string | null;
 }
 
-/** Kartica epizode (odluka 301), snake_case kao `ChannelVideo.fromJson` / `HomeSnapshot`. */
+/** Stanje kanala kartice: tombstone > povučen > aktivan. */
+function cardStatus(r: CardRow): ChannelStatus {
+  if (r.channel_deleted_at !== null) return "deleted";
+  if (r.channel_enabled === 0) return "withdrawn";
+  return "active";
+}
+
+/**
+ * Kartica epizode (odluka 301), snake_case kao `ChannelVideo.fromJson` / `HomeSnapshot`.
+ *
+ * Postavke kanala (rijetka polja, kartica kanala bez postavki je ista kao prije):
+ * `status` samo kad kanal nije aktivan; `magisterium_off: true` kad je vlasnik
+ * isključio procjenu (ili je kanal povučen/obrisan, gdje je sve isključeno), uz
+ * `magisterium_score: null`, da aplikacija napiše „Vlasnik je isključio procjenu”
+ * umjesto praznog mjesta. Stari build polja ne čita i vidi samo `null` ocjenu.
+ */
 function card(r: CardRow): Record<string, unknown> {
-  return {
+  const status = cardStatus(r);
+  const magisteriumOff = status !== "active" || r.channel_magisterium === 0;
+  const out: Record<string, unknown> = {
     id: r.id,
     title: r.title,
     title_hr: r.title_hr,
     date: r.published_date,
     duration_seconds: r.duration_seconds,
-    magisterium_score: r.magisterium_score,
+    magisterium_score: magisteriumOff ? null : r.magisterium_score,
     p: r.flags,
     tier: r.tier,
     lang: r.lang,
@@ -213,10 +282,15 @@ function card(r: CardRow): Record<string, unknown> {
         ? null
         : { slug: r.channel_slug, name: r.channel_name, tier: r.channel_tier },
   };
+  if (status !== "active") out.status = status;
+  if (magisteriumOff) out.magisterium_off = true;
+  return out;
 }
 
+/** Kanal popisa ili zaglavlja; `settings` = samo isključeni ključevi, bez polja kad ih nema. */
 function channel(r: ChannelRow): Record<string, unknown> {
-  return {
+  const settings = sparseSettings(r.effective);
+  const out: Record<string, unknown> = {
     slug: r.slug,
     name: r.name,
     tier: r.tier,
@@ -227,6 +301,103 @@ function channel(r: ChannelRow): Record<string, unknown> {
     latest_published_date: r.latest_published_date,
     unregistered: r.unregistered === 1,
   };
+  if (settings !== undefined) out.settings = settings;
+  return out;
+}
+
+/** Stanje kanala iz retka: tombstone po UC-u > `channel_enabled` false > aktivan. */
+function channelState(r: ChannelRow): ChannelStatus {
+  if (r.deleted_at !== null) return "deleted";
+  return offKeys(r.effective).includes("channel_enabled") ? "withdrawn" : "active";
+}
+
+interface TombstoneRow {
+  readonly youtube_channel_id: string;
+  readonly channel_title: string | null;
+  readonly deleted_at: string;
+}
+
+/**
+ * Zaglavlje obrisanog kanala: samo identitet (ime iz tombstonea, bez avatara,
+ * 0 epizoda), da stari build koji `state` ne čita nacrta prazan kanal umjesto
+ * „katalog nije dostupan”. Kad retka kanala više nema, tier je 2 (kanal nije
+ * praćen, ništa se ne lista).
+ */
+function deletedChannel(slug: string, t: TombstoneRow, row: ChannelRow | undefined): Record<string, unknown> {
+  return {
+    slug: row?.slug ?? slug,
+    name: t.channel_title ?? row?.name ?? slug,
+    tier: row?.tier ?? 2,
+    lang: row?.lang ?? null,
+    avatar: null,
+    youtube_channel_id: t.youtube_channel_id,
+    processed_count: 0,
+    latest_published_date: null,
+    unregistered: row?.unregistered === 1,
+  };
+}
+
+/**
+ * Stanje kanala za `/channels/:slug` i njegove epizode; `null` = nema ni kanala ni
+ * tombstonea (404). Tombstone po slugu se traži samo kad retka kanala nema.
+ */
+type ChannelHead =
+  | { readonly status: "active" | "withdrawn"; readonly row: ChannelRow }
+  | { readonly status: "deleted"; readonly row: ChannelRow | undefined; readonly tombstone: TombstoneRow };
+
+async function channelHead(reader: Reader, slug: string, row: ChannelRow | undefined): Promise<ChannelHead | null> {
+  if (row !== undefined) {
+    const status = channelState(row);
+    if (status !== "deleted") return { status, row };
+    const deletedAt = row.deleted_at ?? "";
+    return {
+      status,
+      row,
+      tombstone: { youtube_channel_id: row.youtube_channel_id ?? "", channel_title: row.deleted_title, deleted_at: deletedAt },
+    };
+  }
+  const [t] = await reader.all<TombstoneRow>(tombstoneBySlug(slug));
+  return t === undefined ? null : { status: "deleted", row: undefined, tombstone: t };
+}
+
+/** Polja stanja na razini omotnice; prazno za aktivan kanal (odgovor kao prije). */
+function stateFields(head: ChannelHead): Record<string, unknown> {
+  if (head.status !== "deleted") return head.status === "active" ? {} : { state: "withdrawn" };
+  return { state: "deleted", deleted_at: head.tombstone.deleted_at };
+}
+
+interface SettingsRow {
+  readonly youtube_channel_id: string;
+  readonly effective: string | null;
+  readonly deleted_at: string | null;
+}
+
+/**
+ * `GET /v1/settings` (odluka 105): UC → stanje, samo kanali s barem jednim
+ * isključenim poznatim ključem ili tombstoneom. `off` preslikava `effective`;
+ * obrisan kanal ima sve ključeve isključene (od kanala ništa ne ostaje), bez
+ * obzira na zadnji redak postavki.
+ */
+export function settingsMap(rows: readonly SettingsRow[]): Record<string, Record<string, unknown>> {
+  const effective = new Map<string, string | null>();
+  const deleted = new Map<string, string>();
+  for (const r of rows) {
+    if (r.deleted_at !== null) deleted.set(r.youtube_channel_id, r.deleted_at);
+    else effective.set(r.youtube_channel_id, r.effective);
+  }
+  const out: Record<string, Record<string, unknown>> = {};
+  const ucs = [...new Set([...effective.keys(), ...deleted.keys()])].sort();
+  for (const uc of ucs) {
+    const deletedAt = deleted.get(uc);
+    if (deletedAt !== undefined) {
+      out[uc] = { status: "deleted", off: [...SETTING_KEYS].sort(), deleted_at: deletedAt };
+      continue;
+    }
+    const off = offKeys(effective.get(uc) ?? null);
+    if (off.length === 0) continue;
+    out[uc] = { status: off.includes("channel_enabled") ? "withdrawn" : "active", off };
+  }
+  return out;
 }
 
 // ---------------------------------------------------------------- izvršavanje
@@ -344,19 +515,31 @@ async function compute(reader: Reader, brand: string, req: Request0): Promise<Ou
       return list(p.map(channel), next);
     }
     case "channel": {
+      // Povučen i obrisan kanal nisu 404 (tvrdi uvjet 3): 200 sa `state`, a
+      // `item` je i dalje čitljiv kanal da ga stari build ne pročita kao kvar.
       const [row] = await reader.all<ChannelRow>(channelBySlug(brand, route.slug));
-      if (row === undefined) return { ok: false, status: 404, error: "channel_not_found" };
-      return { ok: true, body: { item: channel(row) } };
+      const head = await channelHead(reader, route.slug, row);
+      if (head === null) return { ok: false, status: 404, error: "channel_not_found" };
+      const item = head.status === "deleted" ? deletedChannel(route.slug, head.tombstone, head.row) : channel(head.row);
+      return { ok: true, body: { ...stateFields(head), item } };
     }
     case "channelEpisodes": {
       const cursor = after === undefined ? undefined : { publishedDate: after[0], id: after[1] };
-      const [head, rows] = await reader.batch([
+      const [headRows, rows] = await reader.batch([
         channelBySlug(brand, route.slug),
         channelEpisodes(brand, route.slug, n, cursor),
       ]);
-      if (head === undefined || head.length === 0) return { ok: false, status: 404, error: "channel_not_found" };
+      const head = await channelHead(reader, route.slug, (headRows ?? [])[0] as ChannelRow | undefined);
+      if (head === null) return { ok: false, status: 404, error: "channel_not_found" };
+      // Povučen ili obrisan kanal: prazan popis sa stanjem (stari build crta
+      // prazan kanal). Upit epizoda je već u istom batchu; rijedak slučaj.
+      if (head.status !== "active") return { ok: true, body: { ...stateFields(head), items: [], next: null } };
       const { page: p, next } = paginate((rows ?? []) as CardRow[], n - 1, episodeKey);
       return list(p.map(card), next);
+    }
+    case "settings": {
+      const rows = await reader.all<SettingsRow>(allChannelSettings());
+      return { ok: true, body: { settings: settingsMap(rows) } };
     }
     case "card": {
       const [row] = await reader.all<CardRow>(episodeCard(brand, route.id));
@@ -382,6 +565,7 @@ export function cacheControlFor(route: Route, now: Date): string {
     case "channel":
     case "channelEpisodes":
     case "directory":
+    case "settings":
       return CACHE_LIST;
   }
 }
@@ -390,6 +574,10 @@ export function cacheControlFor(route: Route, now: Date): string {
  * Ključ u `caches.default` (odluka 307): put + sortirani poznati parametri
  * (normalizirani, nepoznati odbačeni) + `_cv` = verzija kataloga. Novi uvoz daje
  * nove ključeve, pa purge po URL-u nikad ne treba.
+ *
+ * Postavke kanala (S3, `postavke-kanala/`) ne trebaju vlastitu invalidaciju:
+ * poller koji upiše promjenu u `channel_settings`/`channel_tombstones` doda i
+ * uspješan `ingest_runs` redak, pa nova verzija kataloga mijenja sve ključeve.
  */
 export function cacheKey(url: URL, req: Request0, catalog: string | null): string {
   const params: Record<string, string> = { ...(req.page?.canonical ?? {}) };
@@ -442,7 +630,7 @@ export async function handleV1(
   if (route.kind === "day" && !isIsoDate(route.date)) return errorResponse(400, "bad_date");
   let page: Page | undefined;
   let tier: 1 | 2 | undefined;
-  if (route.kind !== "channel" && route.kind !== "card") {
+  if (route.kind !== "channel" && route.kind !== "card" && route.kind !== "settings") {
     const p = parsePage(url.searchParams);
     if (!p.ok) return errorResponse(400, p.error);
     page = p.value;

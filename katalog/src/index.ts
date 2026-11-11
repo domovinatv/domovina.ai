@@ -2,6 +2,7 @@ import { handleIngest, handleIngestIds } from "./api/ingest.ts";
 import { API_PREFIX } from "./api/prefix.ts";
 import { errorResponse, handleV1, internalErrorResponse, jsonResponse } from "./api/v1.ts";
 import type { Env } from "./env.js";
+import { pollSettings } from "./settings/poller.ts";
 
 // Glavni modul izvozi SAMO handler: workerd svaki imenovani export čita kao
 // entrypoint (funkcija, klasa ili ExportedHandler), pa konstanta ovdje ruši
@@ -31,5 +32,19 @@ export default {
     } catch (err) {
       return internalErrorResponse(err, url);
     }
+  },
+
+  // Cron Trigger (`triggers.crons` u `wrangler.jsonc`): poller postavki kanala
+  // domovina-api → D1. `pollSettings` ne baca; greška je kod u
+  // `settings_poll_state.status`. U log Workera ide samo promjena ili greška
+  // (živost se vidi po `settings_poll_state.polled_at`).
+  async scheduled(_controller: ScheduledController, env: Env): Promise<void> {
+    const result = await pollSettings({
+      db: env.DB,
+      apiUrl: env.SETTINGS_API_URL,
+      anonKey: env.SETTINGS_ANON_KEY,
+      fetch: (input, init) => fetch(input, init),
+    });
+    if (result.status !== "ok" || result.catalog !== null) console.log(JSON.stringify({ settings_poll: result }));
   },
 } satisfies ExportedHandler<Env>;

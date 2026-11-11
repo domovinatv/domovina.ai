@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://domovina.ai/api/katalog/v1/contract/channel-episodes.schema.json",
   "title": "GET /channels/:slug/episodes",
-  "description": "Epizode kanala, najnovije prve, bez varijanti.",
+  "description": "Epizode kanala, najnovije prve, bez varijanti. Povučen kanal: state withdrawn, items [] i next null; obrisan: state deleted + deleted_at, items []. 404 samo kad nema ni kanala ni tombstonea.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -27,6 +27,12 @@
           "type": "null"
         }
       ]
+    },
+    "state": {
+      "$ref": "channel-settings.schema.json#/$defs/state"
+    },
+    "deleted_at": {
+      "$ref": "channel-settings.schema.json#/$defs/deleted_at"
     },
     "items": {
       "type": "array",
@@ -60,5 +66,31 @@
         }
       }
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "required": [
+          "state"
+        ],
+        "properties": {
+          "state": {
+            "const": "deleted"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "deleted_at"
+        ]
+      },
+      "else": {
+        "not": {
+          "required": [
+            "deleted_at"
+          ]
+        }
+      }
+    }
+  ]
 }

@@ -113,10 +113,19 @@ case $STATUS in
     ;;
   1)
     echo "$IZVJESTAJ"
-    notify "⚠️ <b>Katalog — D1 zaostaje za R2</b>
+    # Uz `--sync` epizodni drift završi kao 0 ili 2, pa je 1 ovdje drift
+    # postavki kanala ili slugova (izvještaj, ne popravlja se ovdje).
+    if [[ "$(field settings.status)" == "drift" ]]; then
+      notify "⚠️ <b>Katalog — postavke kanala ili slugovi nisu poravnati</b>
+<pre>$SAZETAK</pre>
+Postavke poravnava poller (minuta); trajni drift = pogledaj <code>settings_poll_state</code>.
+Slugovi: <code>npm run channel-slugs-sync -- --commit --confirm-production</code>"
+    else
+      notify "⚠️ <b>Katalog — D1 zaostaje za R2</b>
 <pre>$SAZETAK</pre>
 Pokreni u <code>katalog/</code>:
 <code>npm run drift-check -- --sync</code>"
+    fi
     exit 1
     ;;
   *)

@@ -50,6 +50,7 @@ function printReport(r) {
   line("eksperimentalne varijante", r.experimentalVariants.map((v) => `${v.id}(${v.base})`).join(" ") || "0");
   line("video_count ≠ listing", r.videoCountMismatch.map((m) => m.slug).join(" ") || "0");
   line("Tier 2 ID u Tier 1 listingu", ids(r.tier2AlsoInTier1));
+  line("UC iz registryja", ids(r.ucFromRegistry ?? []));
   if (r.keyCache) line("key cache: article / tier 1 / tier 2", `${r.keyCache.articleIds} / ${r.keyCache.tier1Ids} / ${r.keyCache.tier2Ids}`);
   if (r.keyCache) line("Tier 1 epizode bez article.json", r.keyCache.tier1WithoutArticle);
   if (r.written) line("promijenjeni retci (brand/kanal/ep.)", `${r.written.brands} / ${r.written.channels} / ${r.written.episodes}`);

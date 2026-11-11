@@ -131,6 +131,30 @@
           }
         }
       ]
+    },
+    "status": {
+      "description": "Stanje kanala epizode kad nije aktivan (povučen/obrisan); aktivan kanal polje nema",
+      "$ref": "channel-settings.schema.json#/$defs/state"
+    },
+    "magisterium_off": {
+      "description": "Vlasnik je isključio Magisterium procjenu (ili je kanal povučen/obrisan); magisterium_score je tada null. Polje izostaje kad procjena nije isključena",
+      "const": true
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "required": [
+          "magisterium_off"
+        ]
+      },
+      "then": {
+        "properties": {
+          "magisterium_score": {
+            "type": "null"
+          }
+        }
+      }
+    }
+  ]
 }

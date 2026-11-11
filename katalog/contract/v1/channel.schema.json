@@ -72,6 +72,9 @@
     "unregistered": {
       "description": "Tier 2 kanal bez registry unosa (yt-…, x-…), odluka 205",
       "type": "boolean"
+    },
+    "settings": {
+      "$ref": "channel-settings.schema.json#/$defs/sparse"
     }
   }
 }

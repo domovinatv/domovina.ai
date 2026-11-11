@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://domovina.ai/api/katalog/v1/contract/channel-settings.schema.json",
+  "title": "Postavke kanala (zajednički dijelovi)",
+  "description": "Vlasnikove postavke kanala (lanac postavke-kanala, S3). Ključ postavki je UC id; kanal bez retka i ključ koji nedostaje = uključeno. Sva polja su aditivna i rijetka: aktivan kanal bez isključenih ključeva izgleda kao prije.",
+  "$defs": {
+    "key": {
+      "description": "20 ključeva iz postavke-kanala/docs/decisions.md, odluka 1",
+      "enum": [
+        "channel_enabled",
+        "processing",
+        "home_featured",
+        "in_app_search",
+        "search_engines",
+        "push_notifications",
+        "cdn_playback",
+        "share_clips",
+        "ebook",
+        "article_summary",
+        "transcript_subtitles",
+        "english_translation",
+        "magisterium",
+        "highlights_reels",
+        "persons_mentions",
+        "news_portal",
+        "ai_assistants",
+        "donations",
+        "paid_sponsor_moments",
+        "sponsors_in_video"
+      ]
+    },
+    "sparse": {
+      "description": "Samo isključeni ključevi (vrijednost uvijek false); polje izostaje kad ih nema",
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {
+        "$ref": "#/$defs/key"
+      },
+      "additionalProperties": {
+        "const": false
+      }
+    },
+    "state": {
+      "description": "Stanje kanala kad nije aktivan; aktivan kanal polje nema",
+      "enum": [
+        "withdrawn",
+        "deleted"
+      ]
+    },
+    "status": {
+      "enum": [
+        "active",
+        "withdrawn",
+        "deleted"
+      ]
+    },
+    "deleted_at": {
+      "description": "Trenutak brisanja iz tombstonea (ISO 8601)",
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}"
+    }
+  }
+}

@@ -51,7 +51,10 @@ export interface ChannelCursor {
  */
 const CARD_COLUMNS = `e.id, e.title, e.title_hr, e.published_date, e.duration_seconds,
   e.magisterium_score, e.flags, e.tier, e.lang, e.variant_of, e.published_at,
-  c.slug AS channel_slug, c.name AS channel_name, c.tier AS channel_tier`;
+  c.slug AS channel_slug, c.name AS channel_name, c.tier AS channel_tier,
+  json_extract(s.effective, '$.channel_enabled') AS channel_enabled,
+  json_extract(s.effective, '$.magisterium') AS channel_magisterium,
+  t.deleted_at AS channel_deleted_at`;
 
 /**
  * PK tablica WITHOUT ROWID SQLite imenuje `sqlite_autoindex_<tablica>_1` i
@@ -61,14 +64,50 @@ const CHANNELS_PK = "sqlite_autoindex_channels_1";
 const EPISODES_PK = "sqlite_autoindex_episodes_1";
 /** UNIQUE (host) u `brands`; drugi uvjet u CREATE TABLE, zato `_2`. */
 const BRANDS_HOST = "sqlite_autoindex_brands_2";
+/** PK (UC) projekcije postavki i tombstonea (migracija 0005), WITHOUT ROWID. */
+const SETTINGS_PK = "sqlite_autoindex_channel_settings_1";
+const TOMBSTONES_PK = "sqlite_autoindex_channel_tombstones_1";
+
+/**
+ * Postavke kanala (lanac `postavke-kanala/`, S3). `channel_settings` i
+ * `channel_tombstones` se pridružuju po UC-u kanala (`LEFT JOIN` po PK, unutarnja
+ * petlja, pa redoslijed i raspon i dalje daje indeks popisa). Kanal bez retka
+ * postavki i ključ koji nedostaje u `effective` = uključeno (tvrdi uvjet 4):
+ * `json_extract` tada daje NULL, a `NULL IS NOT 0` je istina. `effective` je već
+ * razriješen u domovina-api (master i ovisni ključevi); ovdje se samo čita.
+ *
+ * Kanal bez UC-a (`youtube_channel_id` NULL: RSS, X izvor) nema postavki u v1
+ * (odluka 102): LEFT JOIN po NULL ne nalazi ništa.
+ */
+function settingsJoin(uc: string): string {
+  return `LEFT JOIN channel_settings AS s INDEXED BY ${SETTINGS_PK} ON s.youtube_channel_id = ${uc}
+    LEFT JOIN channel_tombstones AS t INDEXED BY ${TOMBSTONES_PK} ON t.youtube_channel_id = ${uc}`;
+}
+
+/** Kanal nije povučen (`channel_enabled` nije 0) ni obrisan (nema tombstone po UC-u). */
+const VISIBLE = `json_extract(s.effective, '$.channel_enabled') IS NOT 0 AND t.youtube_channel_id IS NULL`;
+
+/**
+ * Uz `VISIBLE`: vlasnik nije isključio `home_featured` (heroj, railovi, „Danas u
+ * korpusu”). Samo popisi epizoda koji hrane naslovnicu; kanal i njegove epizode
+ * ostaju dostupni na `/channels/:slug`.
+ */
+const FEATURED = `${VISIBLE} AND json_extract(s.effective, '$.home_featured') IS NOT 0`;
 
 function cardFrom(index: string): string {
   return `FROM episodes AS e INDEXED BY ${index}
-    LEFT JOIN channels AS c INDEXED BY ${CHANNELS_PK} ON c.brand = e.brand AND c.slug = e.channel_slug`;
+    LEFT JOIN channels AS c INDEXED BY ${CHANNELS_PK} ON c.brand = e.brand AND c.slug = e.channel_slug
+    ${settingsJoin("c.youtube_channel_id")}`;
 }
 
-const CHANNEL_COLUMNS = `slug, youtube_channel_id, name, tier, lang, avatar, processed_count,
-  latest_published_date, unregistered`;
+// Stupci kanala su kvalificirani: `youtube_channel_id` postoji i u `s` i `t`.
+// Tablica kanala namjerno nema alias (plan upita je imenuje `channels`).
+const CHANNEL_COLUMNS = `channels.slug, channels.youtube_channel_id, channels.name, channels.tier,
+  channels.lang, channels.avatar, channels.processed_count, channels.latest_published_date,
+  channels.unregistered, s.effective AS effective, t.deleted_at AS deleted_at,
+  t.channel_title AS deleted_title`;
+
+const CHANNEL_JOIN = settingsJoin("channels.youtube_channel_id");
 
 function checkLimit(limit: number): number {
   if (!Number.isInteger(limit) || limit < 1 || limit > MAX_PAGE_SIZE + 1) {
@@ -106,6 +145,7 @@ export function latestEpisodes(brand: string, limit: number, after?: EpisodeCurs
     return {
       sql: `SELECT ${CARD_COLUMNS} ${cardFrom("episodes_by_date")}
         WHERE e.brand = ?1 AND e.published_date IS NOT NULL AND e.variant_of IS NULL
+          AND ${FEATURED}
         ORDER BY e.published_date DESC, e.id DESC
         LIMIT ?2`,
       params: [brand, n],
@@ -114,6 +154,7 @@ export function latestEpisodes(brand: string, limit: number, after?: EpisodeCurs
   return {
     sql: `SELECT ${CARD_COLUMNS} ${cardFrom("episodes_by_date")}
       WHERE e.brand = ?1 AND (e.published_date, e.id) < (?2, ?3) AND e.variant_of IS NULL
+        AND ${FEATURED}
       ORDER BY e.published_date DESC, e.id DESC
       LIMIT ?4`,
     params: [brand, after.publishedDate, after.id, n],
@@ -139,6 +180,7 @@ export function episodesOnDay(
     return {
       sql: `SELECT ${CARD_COLUMNS} ${cardFrom("episodes_by_date")}
         WHERE e.brand = ?1 AND e.published_date = ?2 AND e.variant_of IS NULL
+          AND ${FEATURED}
         ORDER BY e.published_date DESC, e.id DESC
         LIMIT ?3`,
       params: [brand, day, n],
@@ -147,6 +189,7 @@ export function episodesOnDay(
   return {
     sql: `SELECT ${CARD_COLUMNS} ${cardFrom("episodes_by_date")}
       WHERE e.brand = ?1 AND e.published_date = ?2 AND e.id < ?3 AND e.variant_of IS NULL
+        AND ${FEATURED}
       ORDER BY e.published_date DESC, e.id DESC
       LIMIT ?4`,
     params: [brand, day, afterId, n],
@@ -201,16 +244,18 @@ export function channelDirectory(
   if (after === undefined) {
     return {
       sql: `SELECT ${CHANNEL_COLUMNS} FROM channels INDEXED BY channels_directory
-        WHERE brand = ?1 AND tier = ?2 AND latest_published_date IS NOT NULL
-        ORDER BY latest_published_date DESC, slug DESC
+        ${CHANNEL_JOIN}
+        WHERE brand = ?1 AND tier = ?2 AND latest_published_date IS NOT NULL AND ${VISIBLE}
+        ORDER BY latest_published_date DESC, channels.slug DESC
         LIMIT ?3`,
       params: [brand, tier, n],
     };
   }
   return {
     sql: `SELECT ${CHANNEL_COLUMNS} FROM channels INDEXED BY channels_directory
-      WHERE brand = ?1 AND tier = ?2 AND (latest_published_date, slug) < (?3, ?4)
-      ORDER BY latest_published_date DESC, slug DESC
+      ${CHANNEL_JOIN}
+      WHERE brand = ?1 AND tier = ?2 AND (latest_published_date, channels.slug) < (?3, ?4) AND ${VISIBLE}
+      ORDER BY latest_published_date DESC, channels.slug DESC
       LIMIT ?5`,
     params: [brand, tier, after.latestPublishedDate, after.slug, n],
   };
@@ -227,27 +272,68 @@ export function allChannels(brand: string, limit: number, after?: ChannelCursor)
   if (after === undefined) {
     return {
       sql: `SELECT ${CHANNEL_COLUMNS} FROM channels INDEXED BY channels_all_by_date
-        WHERE brand = ?1 AND processed_count >= 1 AND latest_published_date IS NOT NULL
-        ORDER BY latest_published_date DESC, slug DESC
+        ${CHANNEL_JOIN}
+        WHERE brand = ?1 AND processed_count >= 1 AND latest_published_date IS NOT NULL AND ${VISIBLE}
+        ORDER BY latest_published_date DESC, channels.slug DESC
         LIMIT ?2`,
       params: [brand, n],
     };
   }
   return {
     sql: `SELECT ${CHANNEL_COLUMNS} FROM channels INDEXED BY channels_all_by_date
-      WHERE brand = ?1 AND processed_count >= 1 AND (latest_published_date, slug) < (?2, ?3)
-      ORDER BY latest_published_date DESC, slug DESC
+      ${CHANNEL_JOIN}
+      WHERE brand = ?1 AND processed_count >= 1 AND (latest_published_date, channels.slug) < (?2, ?3) AND ${VISIBLE}
+      ORDER BY latest_published_date DESC, channels.slug DESC
       LIMIT ?4`,
     params: [brand, after.latestPublishedDate, after.slug, n],
   };
 }
 
-/** Zaglavlje kanala (`/channels/:slug`, i provjera postojanja za njegove epizode). Po PK. */
+/**
+ * Zaglavlje kanala (`/channels/:slug`, i provjera postojanja za njegove epizode).
+ * Po PK, uz postavke i tombstone po UC-u: povučen ili obrisan kanal nije 404
+ * (tvrdi uvjet 3), stanje računa API.
+ */
 export function channelBySlug(brand: string, slug: string): SqlQuery {
   return {
     sql: `SELECT ${CHANNEL_COLUMNS} FROM channels INDEXED BY ${CHANNELS_PK}
-      WHERE brand = ?1 AND slug = ?2`,
+      ${CHANNEL_JOIN}
+      WHERE brand = ?1 AND channels.slug = ?2`,
     params: [brand, slug],
+  };
+}
+
+/**
+ * Tombstone po slugu (`/channels/:slug` kad kanala više nema u katalogu): slug
+ * je u JSON polju `slugs` iz trenutka brisanja. Čita se samo kad `channelBySlug`
+ * ne nađe redak, pa je sken tombstonea (rijetki, trajni retci) cijena 404-a, ne
+ * svakog zahtjeva. Tombstone nije po brendu (postavke su vlasnikove). Bez
+ * `INDEXED BY`: namjeran sken, nema raspona čiji bi `rows_read` ovisio o planu.
+ */
+export function tombstoneBySlug(slug: string): SqlQuery {
+  return {
+    sql: `SELECT youtube_channel_id, channel_title, deleted_at
+      FROM channel_tombstones
+      WHERE EXISTS (SELECT 1 FROM json_each(channel_tombstones.slugs) WHERE value = ?1)
+      LIMIT 1`,
+    params: [slug],
+  };
+}
+
+/**
+ * Sve postavke i svi tombstonei (`GET /v1/settings`, odluka 105), po UC-u.
+ * Nije po brendu. `rows_read` = broj redaka postavki + broj tombstonea: retke
+ * imaju samo kanali s vlasnikom (stotine, ne tisuće), pa sken je namjeran.
+ * Filtar „barem jedan isključen ključ” radi API nad poznatim ključevima.
+ */
+export function allChannelSettings(): SqlQuery {
+  return {
+    sql: `SELECT youtube_channel_id, effective, NULL AS deleted_at
+        FROM channel_settings
+      UNION ALL
+      SELECT youtube_channel_id, NULL AS effective, deleted_at
+        FROM channel_tombstones`,
+    params: [],
   };
 }
 

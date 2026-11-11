@@ -17,7 +17,9 @@
     "fixtures:refresh": "node scripts/fixtures-refresh.mjs",
     "synth": "node scripts/synth.ts",
     "measure": "node scripts/measure.ts",
-    "latency": "node scripts/latency.ts"
+    "latency": "node scripts/latency.ts",
+    "channel-slugs-sync": "node scripts/channel-slugs-sync.ts",
+    "settings-latency": "node scripts/settings-latency.ts"
   },
   "devDependencies": {
     "@cfworker/json-schema": "4.1.1",

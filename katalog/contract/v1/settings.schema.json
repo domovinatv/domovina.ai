@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://domovina.ai/api/katalog/v1/contract/settings.schema.json",
+  "title": "GET /settings",
+  "description": "Vlasnikove postavke po UC-u (odluka 105 lanca postavke-kanala): samo kanali s barem jednim isključenim ključem ili tombstoneom. Nije po brendu. UC kojeg nema = sve uključeno.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "catalog",
+    "settings",
+    "meta"
+  ],
+  "properties": {
+    "version": {
+      "const": "1"
+    },
+    "catalog": {
+      "description": "ID zadnjeg uspješnog uvoza (ingest_runs), null kad ga nema",
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[0-9]+$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "settings": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string",
+        "minLength": 1
+      },
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "status",
+          "off"
+        ],
+        "properties": {
+          "status": {
+            "$ref": "channel-settings.schema.json#/$defs/status"
+          },
+          "off": {
+            "description": "Isključeni ključevi, abecedno, bez ponavljanja; obrisan kanal ima svih 20",
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "$ref": "channel-settings.schema.json#/$defs/key"
+            }
+          },
+          "deleted_at": {
+            "$ref": "channel-settings.schema.json#/$defs/deleted_at"
+          }
+        },
+        "if": {
+          "properties": {
+            "status": {
+              "const": "deleted"
+            }
+          }
+        },
+        "then": {
+          "required": [
+            "deleted_at"
+          ]
+        },
+        "else": {
+          "not": {
+            "required": [
+              "deleted_at"
+            ]
+          }
+        }
+      }
+    },
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rows_read"
+      ],
+      "properties": {
+        "rows_read": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

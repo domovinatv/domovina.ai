@@ -15,7 +15,17 @@
 
   // Brend kad host zahtjeva nije u `brands.host` (npr. `wrangler dev` na
   // localhostu), odluka 305.
-  "vars": { "DEFAULT_BRAND": "domovina" },
+  // `SETTINGS_API_URL`: korijen domovina-api za poller postavki kanala
+  // (lanac `postavke-kanala/`, S3). Ključ je secret `SETTINGS_ANON_KEY`
+  // (`wrangler secret put SETTINGS_ANON_KEY`); bez njega poller bilježi
+  // `disabled` i ne zove mrežu.
+  "vars": { "DEFAULT_BRAND": "domovina", "SETTINGS_API_URL": "https://api.domovina.ai" },
+
+  // Poller postavki kanala svake minute (`scheduled` u `src/index.ts`). Zastoj
+  // promjene vlasnika do API-ja: do 60 s čekanja na cron + trajanje poziva +
+  // do 30 s memorije konteksta u izolatu (CONTEXT_TTL_MS) + rub
+  // (`max-age=60, stale-while-revalidate=600` na popisima).
+  "triggers": { "crons": ["* * * * *"] },
 
   "d1_databases": [
     {
@@ -41,6 +51,11 @@
       // i certifikat. Host nije u `brands.host`, pa brend daje DEFAULT_BRAND.
       "routes": [{ "pattern": "katalog-staging.domovina.ai", "custom_domain": true }],
       "vars": { "DEFAULT_BRAND": "domovina" },
+      // Bez crona: staging nema `SETTINGS_ANON_KEY` ni `SETTINGS_API_URL`, pa bi
+      // svaka minuta samo upisala `disabled`. `triggers` se nasljeđuje s vrha,
+      // zato se ovdje izričito prazni. Poller se na stagingu (ili lokalno)
+      // pokreće ručno: `wrangler dev --test-scheduled` + `/__scheduled`.
+      "triggers": { "crons": [] },
       "d1_databases": [
         {
           "binding": "DB",

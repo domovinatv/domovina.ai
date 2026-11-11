@@ -13,9 +13,17 @@
 // Token: env `INGEST_TOKEN`, inače redak `INGEST_TOKEN=` u `katalog/.dev.vars`
 // (gitignoran). Vrijednost se nikad ne ispisuje.
 //
-// Exit: 0 poravnato (ili popravljeno i konvergiralo), 1 drift (bez `--sync`),
-// 2 ne mogu provjeriti. Pravila i zašto je `extra` samo informativan:
-// `scripts/lib/drift.ts`. launchd omotač: `scripts/drift-check-launchd.sh`.
+// Postavke kanala (lanac `postavke-kanala/`, S3): uz epizode se uspoređuju i
+// `public_channel_settings` + tombstonei domovina-api ↔ `GET /api/katalog/v1/settings`
+// i pokrivenost `channel_slugs` (`scripts/lib/settings-drift.ts`). Taj dio je samo
+// izvještaj (postavke poravnava poller, slugove `npm run channel-slugs-sync`),
+// `--sync` ga ne dira. `--settings-api` (zadano https://api.domovina.ai),
+// `--skip-settings` ga preskače. Anon ključ: `scripts/lib/supabase-keys.ts`.
+//
+// Exit: 0 poravnato (ili popravljeno i konvergiralo), 1 drift (bez `--sync`, ili
+// drift postavki/slugova), 2 ne mogu provjeriti (bilo koji dio). Pravila i zašto
+// je `extra` samo informativan: `scripts/lib/drift.ts`. launchd omotač:
+// `scripts/drift-check-launchd.sh`.
 //
 // Node 24+ (type stripping, odluka 118).
 import { readFile, stat, writeFile } from "node:fs/promises";
@@ -33,6 +41,10 @@ import {
   type DriftReport,
 } from "./lib/drift.ts";
 import { BACKFILL_PATH, KATALOG, KEY_CACHE_PATH, MAGISTERIUM_CACHE_PATH, readOptionalText, REGISTRY_PATH } from "./lib/paths.ts";
+import { combineExit, formatSettingsReport, runSettingsDrift, type SettingsDriftReport } from "./lib/settings-drift.ts";
+import { resolveSupabaseKey } from "./lib/supabase-keys.ts";
+import { parseRegistry } from "../src/input/index.ts";
+import { registryUcBySlug } from "../src/ingest/plan.ts";
 
 async function resolveToken(): Promise<string | null> {
   const fromEnv = process.env.INGEST_TOKEN;
@@ -53,6 +65,8 @@ async function main(): Promise<number> {
         base: { type: "string", default: DEFAULT_BASE },
         json: { type: "string" },
         verbose: { type: "boolean", default: false },
+        "settings-api": { type: "string", default: "https://api.domovina.ai" },
+        "skip-settings": { type: "boolean", default: false },
       },
     }).values;
   } catch (err) {
@@ -94,18 +108,35 @@ async function main(): Promise<number> {
       /* nema datoteke: greška je već u izvještaju */
     }
   }
-  const out = report.exitCode === EXIT_UNKNOWN ? console.error : console.log;
+  let settings: SettingsDriftReport | undefined;
+  if (!args["skip-settings"]) {
+    const settingsApi = args["settings-api"];
+    settings = await runSettingsDrift({
+      katalogBase: args.base,
+      apiBase: settingsApi,
+      anonKey: await resolveSupabaseKey(settingsApi, "anon"),
+      fetch: (input, init) => fetch(input, init),
+      registryUc: async () => registryUcBySlug(parseRegistry(JSON.parse(await readFile(REGISTRY_PATH, "utf8")) as unknown)),
+    });
+    lines.push(...formatSettingsReport(settings));
+  }
+  const exitCode = settings === undefined ? report.exitCode : combineExit(report.exitCode, settings.exitCode);
+
+  const out = exitCode === EXIT_UNKNOWN ? console.error : console.log;
   for (const l of lines) out(l);
 
   if (args.json !== undefined) {
     try {
-      await writeFile(args.json, `${JSON.stringify(report, null, 2)}\n`);
+      // `status`/`exitCode` na vrhu ostaju epizodni (launchd ih čita);
+      // `settings` nosi svoj ishod, `combinedExitCode` je exit procesa.
+      const json = settings === undefined ? report : { ...report, settings, combinedExitCode: exitCode };
+      await writeFile(args.json, `${JSON.stringify(json, null, 2)}\n`);
     } catch (err) {
       console.error(`--json ${args.json}: ${err instanceof Error ? err.message : String(err)}`);
       return EXIT_UNKNOWN;
     }
   }
-  return report.exitCode;
+  return exitCode;
 }
 
 // Sve što izleti mimo `runDriftCheck` je „ne znam” (2), nikad drift (1).

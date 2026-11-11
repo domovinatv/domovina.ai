@@ -10,10 +10,13 @@ export default defineConfig({
         // Migracije se čitaju u Nodeu (ovdje) i predaju testnom workeru kao
         // binding; `test/setup.ts` ih primijeni na lokalni D1.
         // `INGEST_TOKEN` je testni secret za `/ingest` (odluka 602); nikad kroz
-        // `.dev.vars`, koja je lokalna i gitignorana.
+        // `.dev.vars`, koja je lokalna i gitignorana. `SETTINGS_ANON_KEY` je
+        // izričito prazan: ključ iz `.dev.vars` ne smije pokrenuti poller
+        // prema mreži iz testa (testovi pollera predaju svoj `fetch`).
         bindings: {
           TEST_MIGRATIONS: await readD1Migrations("./migrations"),
           INGEST_TOKEN: "test-ingest-token",
+          SETTINGS_ANON_KEY: "",
         },
         // Mreža prema van je u testu zatvorena i na razini runtimea: svaki
         // `fetch` koji ne ide na binding završi ovdje. Uz stub u

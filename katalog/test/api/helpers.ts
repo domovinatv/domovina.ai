@@ -21,6 +21,7 @@ export type Contract =
   | "channel-episodes"
   | "channel-response"
   | "card-response"
+  | "settings"
   | "ingest-response"
   | "ingest-ids"
   | "error";

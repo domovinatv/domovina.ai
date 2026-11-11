@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://domovina.ai/api/katalog/v1/contract/channel-response.schema.json",
   "title": "GET /channels/:slug",
-  "description": "Zaglavlje kanala.",
+  "description": "Zaglavlje kanala. Povučen kanal: state withdrawn, item je cijeli kanal; obrisan: state deleted + deleted_at, item je samo identitet (bez avatara, 0 epizoda). 404 samo kad nema ni kanala ni tombstonea.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -27,6 +27,12 @@
         }
       ]
     },
+    "state": {
+      "$ref": "channel-settings.schema.json#/$defs/state"
+    },
+    "deleted_at": {
+      "$ref": "channel-settings.schema.json#/$defs/deleted_at"
+    },
     "item": {
       "$ref": "channel.schema.json"
     },
@@ -43,5 +49,31 @@
         }
       }
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "required": [
+          "state"
+        ],
+        "properties": {
+          "state": {
+            "const": "deleted"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "deleted_at"
+        ]
+      },
+      "else": {
+        "not": {
+          "required": [
+            "deleted_at"
+          ]
+        }
+      }
+    }
+  ]
 }

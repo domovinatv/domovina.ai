@@ -3,7 +3,8 @@
 import type { ChannelIndex, ChannelListing, EpisodeInfo, EpisodeSummary, Registry } from "../input/index.ts";
 import { isoInstant, zagrebDay } from "../input/publish-dates.ts";
 import { experimentalVariants, flagsFromFiles } from "./keys.ts";
-import { createResolver, type NoChannelReason, type ResolutionVia } from "./resolve.ts";
+import { UC_PATTERN } from "../settings/keys.ts";
+import { createResolver, registrySlugToCdn, type NoChannelReason, type ResolutionVia } from "./resolve.ts";
 
 export interface Brand {
   readonly id: string;
@@ -102,6 +103,12 @@ export interface PlanReport {
   }[];
   /** Tier 2 ID koji je u nekom Tier 1 listingu: preskočen, tier 1 ima prednost. */
   readonly tier2AlsoInTier1: readonly string[];
+  /**
+   * Kanali kojima je UC došao iz registryja (`youtube.channel_id`), jer ga listing,
+   * `index.json` ni epizode nemaju: audio-direct izvori `launched` i `subclub`
+   * (odluka 101 lanca `postavke-kanala/`).
+   */
+  readonly ucFromRegistry: readonly string[];
 }
 
 export interface ImportPlan {
@@ -122,6 +129,21 @@ interface ChannelDraft {
   readonly listingRows: number;
   /** Datum + ID epizode od koje je uzeto ime (Tier 2: najnovija epizoda, odluka 207). */
   nameFrom: string;
+}
+
+/**
+ * Slug kanala → UC iz registryja (`youtube.channel_id`), samo valjan `UC…`.
+ * Registry slug se upisuje i u CDN obliku (`40-dana` → `40_dana`, odluka 204).
+ * Dijele ga uvoz (pad kad izvor nema UC) i `scripts/channel-slugs-sync.ts`.
+ */
+export function registryUcBySlug(registry: Registry): Map<string, string> {
+  const out = new Map<string, string>();
+  for (const e of registry.entries) {
+    if (e.youtubeChannelId === null || !UC_PATTERN.test(e.youtubeChannelId)) continue;
+    out.set(e.slug, e.youtubeChannelId);
+    out.set(registrySlugToCdn(e.slug), e.youtubeChannelId);
+  }
+  return out;
 }
 
 const byKey = (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0);
@@ -276,11 +298,23 @@ export function buildPlan(input: PlanInput): ImportPlan {
     if (e.publishedDate !== null && (c.latest === null || e.publishedDate > c.latest)) c.latest = e.publishedDate;
     counts.set(e.channelSlug, c);
   }
+  // UC iz registryja kad ga izvori kanala nemaju (odluka 101 lanca `postavke-kanala/`):
+  // postavke vlasnika se vežu po UC-u, pa kanal bez UC-a ne bi imao postavke.
+  // Izvor ima prednost, registry je pad.
+  const registryUc = registryUcBySlug(input.registry);
+  const ucFromRegistry: string[] = [];
+  const ucOf = (d: ChannelDraft): string | null => {
+    if (d.youtubeChannelId !== null) return d.youtubeChannelId;
+    const uc = registryUc.get(d.slug);
+    if (uc === undefined) return null;
+    ucFromRegistry.push(d.slug);
+    return uc;
+  };
   const channelRows: ChannelRow[] = [...channels.values()]
     .sort((a, b) => byKey(a.slug, b.slug))
     .map((d) => ({
       slug: d.slug,
-      youtubeChannelId: d.youtubeChannelId,
+      youtubeChannelId: ucOf(d),
       name: d.name,
       tier: d.tier,
       lang: null,
@@ -316,6 +350,7 @@ export function buildPlan(input: PlanInput): ImportPlan {
     experimentalVariants: variants,
     videoCountMismatch,
     tier2AlsoInTier1,
+    ucFromRegistry,
   };
   return { channels: channelRows, episodes, report };
 }

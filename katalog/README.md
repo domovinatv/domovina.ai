@@ -25,3 +25,11 @@ Sintetički katalog (S4): `npm run synth -- --episodes 100000 --seed 1 --persist
 stvarnog korpusa skaliranom na N (`src/synth/korpus.ts`,
 `docs/research/2026-11-06-raspodjela-korpusa.md`); posluži ga `npx wrangler dev --local
 --persist-to .wrangler/synth-100k --port 8799`.
+
+Postavke kanala (lanac `../postavke-kanala/`, S3): Cron Trigger svake minute pokreće
+poller `src/settings/poller.ts` (domovina-api `public_channel_settings` + tombstonei → D1;
+var `SETTINGS_API_URL`, secret `SETTINGS_ANON_KEY`, bez njega `disabled`).
+`npm run channel-slugs-sync` (dry-run; `--commit` piše, prema produkciji samo uz
+`--confirm-production`) puni `domovina_ai.channel_slugs`; `npm run settings-latency`
+mjeri promjena → D1 nad lokalnim stackom domovina-api; `drift-check` uspoređuje i postavke
+(`--skip-settings` preskače).

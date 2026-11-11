@@ -8,4 +8,15 @@ export interface Env {
    * Bez njega ingest vraća 503 `ingest_disabled` (odluka 602).
    */
   readonly INGEST_TOKEN?: string;
+  /**
+   * Korijen domovina-api za poller postavki kanala (var; produkcija
+   * `https://api.domovina.ai`). Bez njega poller bilježi `disabled`.
+   */
+  readonly SETTINGS_API_URL?: string;
+  /**
+   * Anon ključ domovina-api za javne poglede postavki (secret, `wrangler secret put
+   * SETTINGS_ANON_KEY`). Bez njega poller ne zove mrežu i bilježi `disabled`
+   * (obrazac odluke 602).
+   */
+  readonly SETTINGS_ANON_KEY?: string;
 }

@@ -122,14 +122,20 @@ describe("migracije", () => {
     ).all<{ type: string; name: string }>();
     expect(results).toEqual([
       { type: "index", name: "channels_all_by_date" },
+      { type: "index", name: "channels_by_uc" },
       { type: "index", name: "channels_directory" },
       { type: "index", name: "episodes_by_channel" },
       { type: "index", name: "episodes_by_date" },
       { type: "index", name: "ingest_runs_ok" },
       { type: "table", name: "brands" },
+      { type: "table", name: "channel_settings" },
+      { type: "table", name: "channel_tombstones" },
       { type: "table", name: "channels" },
       { type: "table", name: "episodes" },
       { type: "table", name: "ingest_runs" },
+      { type: "table", name: "settings_poll_state" },
+      { type: "trigger", name: "channel_tombstones_no_delete" },
+      { type: "trigger", name: "channel_tombstones_no_update" },
     ]);
   });
 
@@ -322,5 +328,46 @@ describe("ograničenja sheme", () => {
     await expect(insert("2026-11-05T12:05:00Z", "running", null)).rejects.toThrow(/constraint/i);
     await expect(insert("2026-11-05T11:00:00Z", "failed", null)).rejects.toThrow(/constraint/i);
     await expect(insert("2026-11-05T12:05:00Z", "ok", "[1,2]")).rejects.toThrow(/constraint/i);
+  });
+
+  it("channel_settings: effective je JSON objekt, vremena su valjana (i s mikrosekundama iz PostgRESTa)", async () => {
+    const insert = (uc: string, effective: string, at: string) =>
+      env.DB.prepare(
+        "INSERT INTO channel_settings (youtube_channel_id, effective, source_updated_at, synced_at) VALUES (?1, ?2, ?3, ?3)",
+      )
+        .bind(uc, effective, at)
+        .run();
+    await expect(insert("UCmig1", '{"ebook":false}', "2026-11-11T19:07:01.651675+00:00")).resolves.toBeDefined();
+    await expect(insert("UCmig2", "[false]", now)).rejects.toThrow(/constraint/i);
+    await expect(insert("UCmig3", "nije json", now)).rejects.toThrow(/constraint/i);
+    await expect(insert("UCmig4", "{}", "jučer")).rejects.toThrow(/constraint/i);
+    await expect(insert("", "{}", now)).rejects.toThrow(/constraint/i);
+  });
+
+  it("channel_tombstones: slugs je JSON polje; UPDATE i DELETE odbija trigger", async () => {
+    const insert = (uc: string, slugs: string) =>
+      env.DB.prepare(
+        `INSERT INTO channel_tombstones (youtube_channel_id, channel_title, slugs, requested_at, phone_confirmed_at, deleted_at, synced_at)
+         VALUES (?1, 'Kanal', ?2, NULL, NULL, ?3, ?3)`,
+      )
+        .bind(uc, slugs, now)
+        .run();
+    await expect(insert("UCmigT1", '["kanal"]')).resolves.toBeDefined();
+    await expect(insert("UCmigT2", '{"a":1}')).rejects.toThrow(/constraint/i);
+    await expect(env.DB.prepare("UPDATE channel_tombstones SET channel_title = 'x' WHERE youtube_channel_id = 'UCmigT1'").run()).rejects.toThrow(/trajan/);
+    await expect(env.DB.prepare("DELETE FROM channel_tombstones WHERE youtube_channel_id = 'UCmigT1'").run()).rejects.toThrow(/trajan/);
+    const row = await env.DB.prepare("SELECT count(*) AS n FROM channel_tombstones WHERE youtube_channel_id = 'UCmigT1'").first();
+    expect(row).toEqual({ n: 1 });
+  });
+
+  it("settings_poll_state: kursor je NULL ili vrijeme, status nije prazan", async () => {
+    const insert = (source: string, cursor: string | null, status: string) =>
+      env.DB.prepare("INSERT INTO settings_poll_state (source, cursor, polled_at, status) VALUES (?1, ?2, ?3, ?4)")
+        .bind(source, cursor, now, status)
+        .run();
+    await expect(insert("mig-a", null, "disabled")).resolves.toBeDefined();
+    await expect(insert("mig-b", "2026-11-11T19:07:01.651675+00:00", "ok")).resolves.toBeDefined();
+    await expect(insert("mig-c", "nije vrijeme", "ok")).rejects.toThrow(/constraint/i);
+    await expect(insert("mig-d", null, "")).rejects.toThrow(/constraint/i);
   });
 });
