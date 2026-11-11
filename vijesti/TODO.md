@@ -22,11 +22,11 @@ Legenda: `[x]` gotovo · `[ ]` otvoreno · `[~]` u radu · `(!)` traži korisnik
 - [x] `vijesti extract <id>` CLI → S2
 - [x] Ocjena vijesti (novost, tko govori, konkretna tvrdnja) → S3
 - [x] Backend `agy` (tmux, po uzoru na `fetch.domovina.tv/lib/agy_tmux.js`) + `npm run eval` (`--channels`, `--limit`, `--max-calls`, procjena prije poziva), testirano bez pravih poziva → S4 (prvi dio)
-- [ ] (!) ODGOĐENO (korisnik 6.11., odluka 315): pravo mjerenje kroz `agy` na uzorku ~40 epizoda / 8 kanala (~440 poziva, 5–8 h, $0). Korisnik kaže kad; pokreće se noću s `run_in_background`, bez praćenja napretka. Naredbe (iz `vijesti/`): `VIJESTI_LLM_BACKEND=agy npm run eval -- --channels mreze_rijeci,iva_kraljevic,catholic_futurist,domovina_tv --limit 5 --dry-run`, pa isto s `--max-calls 500`, pa `npm run eval:report -- --out docs/research/YYYY-MM-DD-f0-mjerenje.md` (odluke 400–412) → kasnije, prije S7
+- [ ] (!) MINI MJERENJE (korisnik 11.11., odluka 800; zamjenjuje puno mjerenje od ~440 poziva iz odluke 315): pokreće se tek NAKON reseta tjednog agy limita (11.11. ostalo 6 %, a fetch ga treba za članke). 1–2 epizode po kanalu, tvrda ograda `--max-calls 100`, noću s `run_in_background`, bez praćenja napretka. Naredbe (iz `vijesti/`): `VIJESTI_LLM_BACKEND=agy npm run eval -- --channels mreze_rijeci,iva_kraljevic,catholic_futurist,domovina_tv --limit 2 --dry-run`, pa isto s `--max-calls 100`, pa `npm run eval:report -- --out docs/research/YYYY-MM-DD-f0-mjerenje.md` → prije Previewa s pravim podacima (S8)
 <!-- doc-refs:ignore-start -->
 - [ ] Izvještaj `docs/research/YYYY-MM-DD-f0-mjerenje.md`, svaka brojka s naredbom → S3
 <!-- doc-refs:ignore-end -->
-- [ ] Pravih 10 nacrta (agy) nakon odgođenog mjerenja; `--fake` daje 5 (5 fixturea), `docs/research/2026-11-06-prvi-nacrti.md` → nakon mjerenja
+- [ ] Pravih nacrta (agy) iz mini mjerenja, koliko ih ograda od 100 poziva da; `--fake` daje 5 (5 fixturea), `docs/research/2026-11-06-prvi-nacrti.md` → nakon mjerenja
 - [ ] (!) Odluka korisnika: nastavljamo li na F1 i s kojim pragom ocjene (nakon mjerenja; do tada privremeni prag) → prije S7
 
 ## F1 — prvi format i javna objava

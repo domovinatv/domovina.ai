@@ -1070,3 +1070,16 @@ paralelni worktreeji ne sudare. Odluka se ne briše: zamijeni je novom koja je p
      (korisnik 6.11.: „nije, radi pripremu”), a S7 kaže da Preview s pravim podacima čeka
      odluku. Preview, Lighthouse nad njim (TTFB ruba) i purge ruba pri ispravku/povlačenju
      (S6, odluka 608) prelaze u S8, iza vrata.
+
+## Prije S8 (2026-11-11)
+
+800. **Puno mjerenje F0 zamijenjeno mini mjerenjem nakon reseta agy kvote (korisnik, 2026-11-11).**
+     Tjedni limit Google AI Pro (agy) je 11.11. na 6 %, a isti `agy` pipeline
+     (`fetch.domovina.tv`) treba za pisanje članaka. Uzorak od ~440 poziva (odluka 315) bi ga
+     potrošio. Novo: 1–2 epizode po kanalu, tvrda ograda `--max-calls 100`, tek nakon reseta
+     tjednog limita. Dovoljno za odluku F1 da/ne i prag ocjene, ne za pouzdan „vijesti dnevno”
+     po kanalu; to izvještaj piše uz brojku. Vrata a–f (migracija, izdavač, AEM, allowlist,
+     deploy, robots) ne troše agy i rješavaju se odmah, neovisno o mjerenju. Preview s pravim
+     podacima i dnevni job (S8) i dalje čekaju mini mjerenje. Revizija: ako mini uzorak ne da
+     jasan odgovor o pragu, prvih tjedan dana dnevnog joba s niskim limitom služi kao nastavak
+     mjerenja (ništa se ne objavljuje bez urednika).
