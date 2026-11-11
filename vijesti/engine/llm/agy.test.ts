@@ -287,7 +287,7 @@ describe('agy u konfiguraciji', () => {
     expect(llm.model).toBe('agy:gemini-3.8-flash-high');
     expect(llmConfigFromEnv({ VIJESTI_LLM_BACKEND: 'agy', VIJESTI_AGY_TIMEOUT_SEC: '90' }).agy.timeoutMs).toBe(90_000);
     expect(() => llmConfigFromEnv({ VIJESTI_LLM_BACKEND: 'agy', VIJESTI_AGY_TIMEOUT_SEC: '0' })).toThrow(/TIMEOUT/);
-    expect(() => llmConfigFromEnv({ VIJESTI_LLM_BACKEND: 'claude' })).toThrow(/vertex, studio, agy/);
+    expect(() => llmConfigFromEnv({ VIJESTI_LLM_BACKEND: 'gpt' })).toThrow(/vertex, studio, agy, claude/);
   });
 
   it('runs.tokens_estimated: agy poziv označi run, Vertex poziv ne', async () => {

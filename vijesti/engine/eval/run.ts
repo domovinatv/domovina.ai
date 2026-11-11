@@ -47,10 +47,10 @@ import {
   type SampleRejection,
 } from './sample.js';
 
-export type EvalBackend = 'agy' | 'vertex' | 'studio' | 'fake';
+export type EvalBackend = 'agy' | 'claude' | 'vertex' | 'studio' | 'fake';
 
 /** Pretpostavljeno trajanje poziva za procjenu (odluka 408). agy: 23–124 s izmjereno u pipelineu 28.10. */
-export const SECONDS_PER_CALL: Record<EvalBackend, number> = { agy: 60, vertex: 15, studio: 15, fake: 0 };
+export const SECONDS_PER_CALL: Record<EvalBackend, number> = { agy: 60, claude: 30, vertex: 15, studio: 15, fake: 0 };
 
 /**
  * Pretpostavke procjene koje nisu u promptu (odluka 408). Izlaz uključuje
@@ -347,7 +347,7 @@ const usd = (n: number | null) => (n === null ? 'nepoznato' : `$${n.toFixed(2)}`
 
 export function formatEstimate(e: EvalEstimate, opts: { backend: EvalBackend; maxCalls: number | null }): string {
   const cost =
-    opts.backend === 'agy'
+    opts.backend === 'agy' || opts.backend === 'claude'
       ? `$0 (pretplata); API-ekvivalent po Vertex cjeniku ${usd(e.apiEquivalentUsd)} (procjena)`
       : opts.backend === 'fake'
         ? `$0 (lažni LLM); API-ekvivalent ${usd(e.apiEquivalentUsd)} (procjena)`

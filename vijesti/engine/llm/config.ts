@@ -20,6 +20,7 @@ import {
   DEFAULT_AGY_TIMEOUT_MS,
   type AgyIo,
 } from './agy.js';
+import { createClaudeClient, DEFAULT_CLAUDE_MODEL, DEFAULT_CLAUDE_TIMEOUT_MS, type ClaudeExec } from './claude.js';
 import type { RunRecorder } from './runs.js';
 import type { LlmClient, LlmPricing } from './types.js';
 import { createGcloudTokenProvider } from './vertex-auth.js';
@@ -36,8 +37,14 @@ export interface VertexConfig {
 }
 
 /** `agy`: Gemini kroz Antigravity CLI u tmuxu, na pretplati (odluke 315, 400). */
-export type LlmBackend = GeminiBackend | 'agy';
-export const LLM_BACKENDS: readonly LlmBackend[] = ['vertex', 'studio', 'agy'];
+/** `claude`: Claude Code CLI (`claude -p`) na pretplati, odluka 802. */
+export type LlmBackend = GeminiBackend | 'agy' | 'claude';
+export const LLM_BACKENDS: readonly LlmBackend[] = ['vertex', 'studio', 'agy', 'claude'];
+
+export interface ClaudeConfig {
+  model: string;
+  timeoutMs: number;
+}
 
 export interface AgyConfig {
   session: string;
@@ -56,6 +63,7 @@ export interface LlmConfig {
   pricingSource: 'env' | 'default' | 'subscription' | null;
   vertex: VertexConfig;
   agy: AgyConfig;
+  claude: ClaudeConfig;
   schemaField: GeminiSchemaField;
 }
 
@@ -157,8 +165,8 @@ export function llmConfigFromEnv(
   }
   let pricing: LlmPricing | null;
   let pricingSource: LlmConfig['pricingSource'] = null;
-  if (backend === 'agy') {
-    // Pretplata (Google AI Pro): stvarni trošak je $0; env cijena se ne primjenjuje.
+  if (backend === 'agy' || backend === 'claude') {
+    // Pretplata (Google AI Pro / Claude): stvarni trošak je $0; env cijena se ne primjenjuje.
     pricing = { inPerMTok: 0, outPerMTok: 0 };
     pricingSource = 'subscription';
   } else if (inPer !== null && outPer !== null) {
@@ -168,7 +176,16 @@ export function llmConfigFromEnv(
     pricing = defaultPricing(backend, model, vertex.location, nowMs);
     if (pricing) pricingSource = 'default';
   }
-  return { backend, apiKey, model, pricing, pricingSource, vertex, agy, schemaField };
+  const rawClaudeTimeout = env.VIJESTI_CLAUDE_TIMEOUT_SEC?.trim();
+  const claudeTimeoutSec = rawClaudeTimeout ? Number(rawClaudeTimeout) : DEFAULT_CLAUDE_TIMEOUT_MS / 1000;
+  if (!Number.isFinite(claudeTimeoutSec) || claudeTimeoutSec <= 0) {
+    throw new Error(`VIJESTI_CLAUDE_TIMEOUT_SEC nije pozitivan broj: ${rawClaudeTimeout ?? ''}`);
+  }
+  const claude: ClaudeConfig = {
+    model: env.VIJESTI_CLAUDE_MODEL?.trim() || DEFAULT_CLAUDE_MODEL,
+    timeoutMs: claudeTimeoutSec * 1000,
+  };
+  return { backend, apiKey, model, pricing, pricingSource, vertex, agy, claude, schemaField };
 }
 
 export interface LlmClientDeps {
@@ -179,10 +196,20 @@ export interface LlmClientDeps {
   retry?: Partial<RetryPolicy>;
   /** Zadano pravi tmux (testovi daju lažni sloj). */
   agyIo?: AgyIo;
+  /** Zadano pravi `claude` proces (testovi daju lažni). */
+  claudeExec?: ClaudeExec;
 }
 
 /** Pravi Gemini klijent po konfiguraciji (CLI, eval). */
 export function createLlmFromConfig(cfg: LlmConfig, deps: LlmClientDeps): LlmClient {
+  if (cfg.backend === 'claude') {
+    return createClaudeClient({
+      recorder: deps.recorder,
+      model: cfg.claude.model,
+      timeoutMs: cfg.claude.timeoutMs,
+      ...(deps.claudeExec && { exec: deps.claudeExec }),
+    });
+  }
   if (cfg.backend === 'agy') {
     return createAgyClient({
       io: deps.agyIo ?? createTmuxAgyIo(),
@@ -223,6 +250,12 @@ export function createLlmFromConfig(cfg: LlmConfig, deps: LlmClientDeps): LlmCli
 
 /** Jedan redak za ispis prije pokretanja (bez ključa i tokena). */
 export function describeLlmConfig(cfg: LlmConfig): string {
+  if (cfg.backend === 'claude') {
+    return (
+      `claude -p model=${cfg.claude.model} timeout=${String(cfg.claude.timeoutMs / 1000)} s  ` +
+      `$0 (pretplata, troši Claude kvotu), tokeni izmjereni`
+    );
+  }
   if (cfg.backend === 'agy') {
     return (
       `agy tmux=${cfg.agy.session} model=${cfg.agy.model} dir=${cfg.agy.dir} ` +

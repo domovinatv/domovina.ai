@@ -7,3 +7,4 @@ export * from './config.js';
 export * from './vertex-auth.js';
 export * from './estimate.js';
 export * from './agy.js';
+export * from './claude.js';
