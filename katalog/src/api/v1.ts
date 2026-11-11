@@ -174,6 +174,7 @@ interface CardRow {
   readonly tier: number;
   readonly lang: string | null;
   readonly variant_of: string | null;
+  readonly published_at: string | null;
   readonly channel_slug: string | null;
   readonly channel_name: string | null;
   readonly channel_tier: number | null;
@@ -204,6 +205,7 @@ function card(r: CardRow): Record<string, unknown> {
     tier: r.tier,
     lang: r.lang,
     variant_of: r.variant_of,
+    published_at: r.published_at,
     channel:
       r.channel_slug === null || r.channel_name === null || r.channel_tier === null
         ? null

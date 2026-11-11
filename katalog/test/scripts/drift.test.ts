@@ -66,6 +66,7 @@ function episode(id: string, channelSlug: string | null = "kanal"): EpisodeRow {
     magisteriumScore: null,
     flags: 0,
     variantOf: null,
+    publishedAt: null,
   };
 }
 

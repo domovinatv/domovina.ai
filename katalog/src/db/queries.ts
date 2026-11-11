@@ -50,7 +50,7 @@ export interface ChannelCursor {
  * redoslijed i raspon i dalje daje indeks epizoda.
  */
 const CARD_COLUMNS = `e.id, e.title, e.title_hr, e.published_date, e.duration_seconds,
-  e.magisterium_score, e.flags, e.tier, e.lang, e.variant_of,
+  e.magisterium_score, e.flags, e.tier, e.lang, e.variant_of, e.published_at,
   c.slug AS channel_slug, c.name AS channel_name, c.tier AS channel_tier`;
 
 /**

@@ -150,6 +150,7 @@ const EPISODE_KEYS = [
   "magisteriumScore",
   "flags",
   "variantOf",
+  "publishedAt",
 ] as const satisfies readonly (keyof EpisodeRow)[];
 
 /** Kanal prema CHECK ograničenjima `channels` (0001, 0002). */
@@ -172,7 +173,15 @@ function channelRow(value: unknown, path: string): ChannelRow {
   };
 }
 
-/** Epizoda prema CHECK ograničenjima `episodes` (0001, 0003). */
+/** `published_at` prema CHECK-u iz 0004: `YYYY-MM-DDTHH:MM:SSZ` i stvaran trenutak. */
+function instantOrNull(value: unknown, path: string): string | null {
+  if (value === null) return null;
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(value)) fail(path);
+  const ms = Date.parse(value);
+  return Number.isFinite(ms) && new Date(ms).toISOString().replace(".000Z", "Z") === value ? value : fail(path);
+}
+
+/** Epizoda prema CHECK ograničenjima `episodes` (0001, 0003, 0004). */
 function episodeRow(value: unknown, path: string): EpisodeRow {
   const o = object(value, path, EPISODE_KEYS);
   const d = o.durationSeconds;
@@ -189,6 +198,7 @@ function episodeRow(value: unknown, path: string): EpisodeRow {
     magisteriumScore: o.magisteriumScore === null ? null : integer(o.magisteriumScore, `${path}.magisteriumScore`, 0, 100),
     flags: integer(o.flags, `${path}.flags`, 0, 511),
     variantOf: textOrNull(o.variantOf, `${path}.variantOf`),
+    publishedAt: instantOrNull(o.publishedAt, `${path}.publishedAt`),
   };
 }
 

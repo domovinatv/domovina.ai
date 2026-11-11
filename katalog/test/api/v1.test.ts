@@ -73,6 +73,7 @@ describe("GET /days/:date", () => {
       tier: 2,
       lang: "hr",
       variant_of: null,
+      published_at: null,
       channel: { slug: "subclub", name: "Sub Club by RevenueCat", tier: 1 },
     });
   });

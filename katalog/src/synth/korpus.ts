@@ -242,6 +242,7 @@ export class Korpus {
         magisteriumScore: rnd() < SHARE_MAGISTERIUM ? Math.floor(rnd() * 101) : null,
         flags: 1 + Math.floor(rnd() * 511),
         variantOf,
+        publishedAt: date === null ? null : `${date}T12:00:00Z`,
       };
       tally.add(row);
       total++;

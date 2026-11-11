@@ -103,6 +103,7 @@ export function synthesizeS3(opts: S3Options): Synthetic {
       magisteriumScore: null,
       flags: 0,
       variantOf,
+      publishedAt: null,
     });
   };
   for (const c of channelSpecs) {

@@ -74,6 +74,8 @@ describe("buildPlan nad fixtureima", () => {
       magisteriumScore: null,
       flags: 511,
       variantOf: null,
+      // yt-dlp `timestamp` iz info.json (odluka 1205).
+      publishedAt: "2026-07-16T15:47:10Z",
     });
     expect(episode("hmM9f_3Mqm4")).toMatchObject({ durationSeconds: null, flags: 15 });
     expect(episode("0sxT3NF8yFg")).toMatchObject({ channelSlug: null, publishedDate: "2026-11-03", flags: 511 });
@@ -92,6 +94,7 @@ describe("buildPlan nad fixtureima", () => {
       magisteriumScore: null,
       flags: 15,
       variantOf: null,
+      publishedAt: null,
     });
   });
 
@@ -162,6 +165,18 @@ describe("buildPlan nad fixtureima", () => {
     expect(p.channels.find((c) => c.slug === "yt-UCckHqySbfy5FcPP6MD_S-Yg")?.latestPublishedDate).toBe("2026-09-24");
     expect(p.report.dates.backfill).toBe(2);
     expect(p.report.dates.changedByBackfill).toEqual(["KLPD-Meu4e8", "hmM9f_3Mqm4"]);
+  });
+
+  it("trenutak objave: backfill ima prednost, Tier 2 pada na timestamp, Tier 1 bez backfilla null", () => {
+    const publishTimes = new Map([
+      ["KLPD-Meu4e8", "2020-02-09T19:00:00Z"],
+      ["CUJmOc91C64", "2026-07-16T15:00:00Z"],
+    ]);
+    const p = buildPlan({ ...input, publishTimes });
+    const at = (id: string) => p.episodes.find((e) => e.id === id)?.publishedAt;
+    expect(at("KLPD-Meu4e8")).toBe("2020-02-09T19:00:00Z");
+    expect(at("CUJmOc91C64")).toBe("2026-07-16T15:00:00Z");
+    expect(plan.episodes.filter((e) => e.tier === 1).every((e) => e.publishedAt === null)).toBe(true);
   });
 
   it("bez backfilla: Tier 2 s timestampom broji se kao timestamp, ostalo kao izvor", () => {

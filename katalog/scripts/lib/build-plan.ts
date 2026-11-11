@@ -8,6 +8,7 @@ import {
   parseEpisodeInfo,
   parseEpisodeSummary,
   parsePublishDates,
+  parsePublishTimes,
   parseRegistry,
 } from "../../src/input/index.ts";
 import { articleIds } from "../../src/ingest/keys.ts";
@@ -72,8 +73,21 @@ export async function buildImportPlan(input: BuildImportPlanInput): Promise<{ pl
     input.publishDatesText === undefined || input.publishDatesText === null
       ? undefined
       : parseWith(parsePublishDates, input.publishDatesText, input.publishDatesPath ?? "backfill.json");
-  input.log?.(`točni dani objave (backfill.json): ${publishDates?.size ?? "nema datoteke"}`);
-  const plan = buildPlan({ index, listings, registry, tier2, ...(publishDates === undefined ? {} : { publishDates }) });
+  const publishTimes =
+    input.publishDatesText === undefined || input.publishDatesText === null
+      ? undefined
+      : parseWith(parsePublishTimes, input.publishDatesText, input.publishDatesPath ?? "backfill.json");
+  input.log?.(
+    `točni dani objave (backfill.json): ${publishDates?.size ?? "nema datoteke"}, s trenutkom: ${publishTimes?.size ?? 0}`,
+  );
+  const plan = buildPlan({
+    index,
+    listings,
+    registry,
+    tier2,
+    ...(publishDates === undefined ? {} : { publishDates }),
+    ...(publishTimes === undefined ? {} : { publishTimes }),
+  });
   const report: ImportReport = {
     ...plan.report,
     keyCache: {

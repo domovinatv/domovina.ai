@@ -1111,9 +1111,20 @@ poklapao s podcast.domovina.ai/dani/<d>. Izmjereno 10. 11. za 9. 11.: katalog 33
       scroll nikad ne krene i ostaje samo „Učitaj još”. `_list` nakon layouta zove
       `_onScroll` (isti prag 1,5 ekrana); gumb ostaje za grešku. Testovi ekrana idu na
       390 px, plus po jedan test mreže na 1400 px.
+1205. **Sat objave = stupac `published_at`** (migracija 0004, 11. 11.). Kartica dobiva
+      `published_at` (UTC, `YYYY-MM-DDTHH:MM:SSZ`, aditivno u `card.schema.json`); `date`
+      i dalje dijeli na dane (Europe/Zagreb). Izvor: `backfill.json` `published_at`
+      (`parsePublishTimes`), inače yt-dlp `timestamp` iz `info.json` (Tier 2); Tier 1 bez
+      backfill zapisa ostaje NULL. Probni uvoz 11. 11.: 45 303 trenutka u backfillu, dan
+      iz backfilla 3129 + iz `timestamp` 107 → sat ima ~3236 od 3840 epizoda. CHECK je
+      `strftime('%Y-%m-%dT%H:%M:%SZ', x) IS x`: GLOB s 14 klasa D1 odbija („pattern too
+      complex”). `/ingest` traži ključ `publishedAt`, pa skripta i Worker idu zajedno:
+      migracija → deploy Workera → `ingest-episode --all`. Aplikacija (v2.0.230) crta
+      sat, trajanje i Magisterium pilulu na `/dani/` i retku Tier 2 kanala; bez polja
+      sat izostavlja. Redoslijed unutar dana je i dalje `id DESC`.
 
 Otvoreno (10. 11.): jutarnji `ingest-episode --all` u `drift-check-launchd.sh` još nije
 prošao kroz pravi launchd run (prvi 11. 11. u 08:45). Redoslijed unutar dana je
-`id DESC` (praktično nasumičan); po satu objave traži novi stupac (`published_at`) +
-migraciju + ponovni uvoz. Rail „U korpusu” prikazuje i Tier 1 (dupla s „Najnovije
+`id DESC` (praktično nasumičan); stupac `published_at` postoji od odluke 1205, a
+poredak po njemu traži indeks i novi kursor. Rail „U korpusu” prikazuje i Tier 1 (dupla s „Najnovije
 epizode”); prijedlog filtra nije odlučen.

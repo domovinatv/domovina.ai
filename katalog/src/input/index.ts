@@ -29,5 +29,5 @@ export {
   parseEpisodeManifest,
   parseEpisodeSummary,
 } from "./episode.ts";
-export { parsePublishDates, zagrebDay } from "./publish-dates.ts";
+export { isoInstant, parsePublishDates, parsePublishTimes, zagrebDay } from "./publish-dates.ts";
 export { parseRegistry, type Registry, type RegistryEntry } from "./registry.ts";

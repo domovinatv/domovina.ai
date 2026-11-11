@@ -45,6 +45,7 @@ function episode(id: string, channelSlug: string | null, tier: 1 | 2 = 2): Episo
     magisteriumScore: null,
     flags: 0,
     variantOf: null,
+    publishedAt: "2026-11-05T18:00:00Z",
   };
 }
 

@@ -1,7 +1,7 @@
 // Plan uvoza: od parsiranih ulaza do redaka za D1 i izvještaja. Čisto, bez
 // I/O (uvoznik `scripts/import.mjs` dohvaća, `write.ts` upisuje). Odluke 200–212.
 import type { ChannelIndex, ChannelListing, EpisodeInfo, EpisodeSummary, Registry } from "../input/index.ts";
-import { zagrebDay } from "../input/publish-dates.ts";
+import { isoInstant, zagrebDay } from "../input/publish-dates.ts";
 import { experimentalVariants, flagsFromFiles } from "./keys.ts";
 import { createResolver, type NoChannelReason, type ResolutionVia } from "./resolve.ts";
 
@@ -38,6 +38,8 @@ export interface EpisodeRow {
   readonly flags: number;
   /** Osnovni ID kad je epizoda eksperimentalna varijanta (odluke 208, 302), inače `null`. */
   readonly variantOf: string | null;
+  /** Trenutak objave u UTC-u (`YYYY-MM-DDTHH:MM:SSZ`, odluka 1205), `null` kad nije poznat. */
+  readonly publishedAt: string | null;
 }
 
 /** Tier 2 epizoda kako je uvoznik dohvatio: `null` = datoteka nema ni nakon retryja. */
@@ -60,6 +62,8 @@ export interface PlanInput {
    * listingom i `info.json` (odluka 1200). Nema ih → stari izvori.
    */
   readonly publishDates?: ReadonlyMap<string, string>;
+  /** Trenuci objave iz istog `backfill.json` (`parsePublishTimes`, odluka 1205). */
+  readonly publishTimes?: ReadonlyMap<string, string>;
 }
 
 export interface PlanReport {
@@ -126,6 +130,7 @@ export function buildPlan(input: PlanInput): ImportPlan {
   const episodes: EpisodeRow[] = [];
   const tier1Ids = new Set<string>();
   const publishDates = input.publishDates ?? new Map<string, string>();
+  const publishTimes = input.publishTimes ?? new Map<string, string>();
   const dates = { backfill: 0, timestamp: 0, source: 0, changedByBackfill: [] as string[] };
   /** Dan epizode: backfill → `fallback` (već izračunat iz izvora epizode). */
   const dayOf = (id: string, fallback: string | null, viaTimestamp: boolean): string | null => {
@@ -171,6 +176,7 @@ export function buildPlan(input: PlanInput): ImportPlan {
         magisteriumScore: v.magisteriumScore,
         flags: v.flags,
         variantOf: null,
+        publishedAt: publishTimes.get(v.id) ?? null,
       });
     }
   }
@@ -244,6 +250,7 @@ export function buildPlan(input: PlanInput): ImportPlan {
       magisteriumScore: null,
       flags: flagsFromFiles(t.files),
       variantOf: null,
+      publishedAt: publishTimes.get(t.id) ?? (ts === null ? null : isoInstant(ts * 1000)),
     });
   }
 
