@@ -136,7 +136,7 @@ void main() {
     expect(find.text('1:06:01'), findsOneWidget);
     expect(find.text('79'), findsOneWidget);
     expect(find.byIcon(Icons.church), findsOneWidget);
-    expect(find.byIcon(Icons.timelapse), findsOneWidget, reason: 'Druga nema');
+    expect(find.byIcon(Icons.timer_outlined), findsOneWidget, reason: 'Druga nema');
     expect(tester.takeException(), isNull);
 
     // Isto u desktop mreži.

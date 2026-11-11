@@ -44,7 +44,7 @@ class CatalogCardMeta extends StatelessWidget {
         if (duration != null)
           _chip(
             theme,
-            Icons.timelapse,
+            Icons.timer_outlined,
             duration,
             l.catalogMetaDuration(duration),
           ),
