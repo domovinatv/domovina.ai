@@ -13,7 +13,10 @@ import {
 } from "../../src/input/index.ts";
 import { articleIds } from "../../src/ingest/keys.ts";
 import { buildPlan, type ImportPlan, type PlanReport, type Tier2Input } from "../../src/ingest/plan.ts";
+import { readFile } from "node:fs/promises";
 import { parseWith, pool, type Cdn, type HttpStats } from "./cdn.ts";
+import { loadMagisteriumScores, MAGISTERIUM_FILE, magisteriumSizes } from "./magisterium-scores.ts";
+import { fileStore } from "./magisterium-store.ts";
 
 export const CONCURRENCY = 6;
 
@@ -37,6 +40,11 @@ export interface BuildImportPlanInput {
   /** `backfill.json` iz fetch repoa (`readOptionalText`); `null` = nema točnih dana (odluka 1200). */
   readonly publishDatesText?: string | null;
   readonly publishDatesPath?: string;
+  /**
+   * Lokalni cache Magisterium ocjena Tier 2 (odluka 1206). Bez njega Tier 2
+   * ostaje bez ocjene (testovi, fixturei). Veličine čita iz [keyCachePath].
+   */
+  readonly magisteriumCachePath?: string;
   readonly cdn: Cdn;
   readonly concurrency?: number;
   readonly log?: (line: string) => void;
@@ -68,6 +76,26 @@ export async function buildImportPlan(input: BuildImportPlanInput): Promise<{ pl
       files: filesById.get(id) ?? new Set(),
     };
   });
+
+  if (input.magisteriumCachePath !== undefined) {
+    const withFile = tier2.filter((t) => t.files.has(MAGISTERIUM_FILE)).map((t) => t.id);
+    const m = await loadMagisteriumScores({
+      ids: withFile,
+      sizes: magisteriumSizes(await readFile(input.keyCachePath, "utf8")),
+      cdn,
+      store: fileStore(input.magisteriumCachePath),
+      concurrency: limit,
+    });
+    for (let i = 0; i < tier2.length; i++) {
+      const t = tier2[i];
+      const score = t === undefined ? undefined : m.scores.get(t.id);
+      if (t !== undefined && score !== undefined) tier2[i] = { ...t, magisteriumScore: score };
+    }
+    input.log?.(
+      `Magisterium Tier 2: ${withFile.length} s datotekom, ${m.cached} iz cachea, ${m.fetched} dohvaćeno, ` +
+        `${[...m.scores.values()].filter((s) => s !== null).length} s ocjenom`,
+    );
+  }
 
   const publishDates =
     input.publishDatesText === undefined || input.publishDatesText === null

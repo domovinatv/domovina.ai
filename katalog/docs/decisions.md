@@ -1122,6 +1122,15 @@ poklapao s podcast.domovina.ai/dani/<d>. Izmjereno 10. 11. za 9. 11.: katalog 33
       migracija → deploy Workera → `ingest-episode --all`. Aplikacija (v2.0.230) crta
       sat, trajanje i Magisterium pilulu na `/dani/` i retku Tier 2 kanala; bez polja
       sat izostavlja. Redoslijed unutar dana je i dalje `id DESC`.
+1206. **Tier 2 dobiva Magisterium ocjenu** (11. 11.). Uvoznik ju je hardkodirao na NULL,
+      a ekran epizode je čita iz `article.magisterium.json` `overall_score` — `/dani/2026-11-05`
+      je pokazivao 1 ocjenu od 34 epizode. Sada `scripts/lib/magisterium-scores.ts` čita isto
+      polje. Datoteka ima ~94 kB i CDN je ne cachira (`DYNAMIC`), a puni plan se gradi
+      nakon svake epizode, pa ide kroz lokalni cache `.cache/magisterium-scores.json`
+      (ID → veličina iz key cachea + ocjena): prvi plan 311 dohvata / 20 s, svaki
+      sljedeći 0. Produkcija: `ingest-episode --all` promijenio 311 epizoda (verzija
+      227); 5. 11. sada 31/34, preostale 3 (Tier 1) i 13 Tier 2 s 10. 11. nemaju
+      Magisterium datoteku na CDN-u (provjereno u `episode.json`).
 
 Otvoreno (10. 11.): jutarnji `ingest-episode --all` u `drift-check-launchd.sh` još nije
 prošao kroz pravi launchd run (prvi 11. 11. u 08:45). Redoslijed unutar dana je

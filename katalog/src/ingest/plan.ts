@@ -49,6 +49,8 @@ export interface Tier2Input {
   readonly summary: EpisodeSummary | null;
   /** Imena datoteka u `data/<id>/` iz key cachea. */
   readonly files: ReadonlySet<string>;
+  /** `overall_score` iz `article.magisterium.json` (odluka 1206); bez polja = `null`. */
+  readonly magisteriumScore?: number | null;
 }
 
 export interface PlanInput {
@@ -247,7 +249,7 @@ export function buildPlan(input: PlanInput): ImportPlan {
       durationSeconds: info === null ? (summary?.durationSeconds ?? null) : info.durationSeconds,
       tier: 2,
       lang: summary?.language ?? null,
-      magisteriumScore: null,
+      magisteriumScore: t.magisteriumScore ?? null,
       flags: flagsFromFiles(t.files),
       variantOf: null,
       publishedAt: publishTimes.get(t.id) ?? (ts === null ? null : isoInstant(ts * 1000)),

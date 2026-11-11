@@ -59,7 +59,7 @@ function printReport(r) {
 // ---- Glavni tok ------------------------------------------------------------
 
 async function main() {
-  const { BACKFILL_PATH, KATALOG, KEY_CACHE_PATH, readOptionalText, REGISTRY_PATH } = await import("./lib/paths.ts");
+  const { BACKFILL_PATH, KATALOG, KEY_CACHE_PATH, MAGISTERIUM_CACHE_PATH, readOptionalText, REGISTRY_PATH } = await import("./lib/paths.ts");
   const { createCdn } = await import("./lib/cdn.ts");
   const { buildImportPlan } = await import("./lib/build-plan.ts");
   const K = await import("../src/ingest/keys.ts");
@@ -75,6 +75,7 @@ async function main() {
     registryPath: REGISTRY_PATH,
     publishDatesText: await readOptionalText(BACKFILL_PATH),
     publishDatesPath: BACKFILL_PATH,
+    magisteriumCachePath: MAGISTERIUM_CACHE_PATH,
     cdn: createCdn(),
     log: (line) => console.log(line),
   });

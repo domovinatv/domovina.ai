@@ -29,3 +29,12 @@ export async function readOptionalText(path: string): Promise<string | null> {
     throw err;
   }
 }
+
+/**
+ * Lokalni cache Magisterium ocjena Tier 2 epizoda (odluka 1206): ID → veličina
+ * `article.magisterium.json` iz key cachea + `overall_score`. U `.cache/`
+ * (gitignore); obrisan cache = jedan puni dohvat (~350 × ~94 kB).
+ */
+export const MAGISTERIUM_CACHE_PATH = process.env.KATALOG_MAGISTERIUM_CACHE_PATH
+  ? resolve(process.env.KATALOG_MAGISTERIUM_CACHE_PATH)
+  : join(KATALOG, ".cache", "magisterium-scores.json");
