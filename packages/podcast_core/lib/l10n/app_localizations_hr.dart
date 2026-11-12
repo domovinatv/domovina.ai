@@ -4926,4 +4926,350 @@ class AppLocalizationsHr extends AppLocalizations {
   @override
   String get channelCatalogUnavailableBody =>
       'Provjeri vezu pa pokušaj ponovno.';
+
+  @override
+  String get channelSettingsTitle => 'Postavke kanala';
+
+  @override
+  String get channelSettingsSignIn => 'Za postavke kanala prvo se prijavi.';
+
+  @override
+  String get channelSettingsNotOwner =>
+      'Postavke kanala mijenja samo potvrđeni vlasnik ili suradnik kanala.';
+
+  @override
+  String get channelSettingsLoadFailed =>
+      'Postavke kanala trenutačno se ne mogu učitati.';
+
+  @override
+  String get channelSettingsReverifyBody =>
+      'Vlasništvo je potvrđeno prije više od 90 dana, pa su postavke samo za čitanje. Kad ponovno potvrdiš vlasništvo, opet ih možeš mijenjati.';
+
+  @override
+  String get channelSettingsReverifyAction => 'Ponovno potvrdi vlasništvo';
+
+  @override
+  String get channelSettingsTombstoned =>
+      'Kanal je trajno obrisan. Postavke se više ne mogu mijenjati.';
+
+  @override
+  String get channelSettingsGroupPresence => 'Prisutnost';
+
+  @override
+  String get channelSettingsGroupMedia => 'Reprodukcija i dijeljenje';
+
+  @override
+  String get channelSettingsGroupAi => 'AI obrada';
+
+  @override
+  String get channelSettingsGroupMoney => 'Novac';
+
+  @override
+  String get channelSettingsKeyChannelEnabled => 'Kanal uključen';
+
+  @override
+  String get channelSettingsOffChannelEnabled =>
+      'Isključeno: kanal se povlači iz cijele aplikacije, a sve ostale postavke vrijede kao isključene.';
+
+  @override
+  String get channelSettingsKeyProcessing => 'Obrada novih epizoda';
+
+  @override
+  String get channelSettingsOffProcessing =>
+      'Isključeno: nove epizode se ne preuzimaju ni obrađuju.';
+
+  @override
+  String get channelSettingsKeyHomeFeatured => 'Isticanje na naslovnici';
+
+  @override
+  String get channelSettingsOffHomeFeatured =>
+      'Isključeno: kanala nema u istaknutom dijelu naslovnice, u „Upravo stiglo”, u nizovima epizoda ni u „Danas u korpusu”.';
+
+  @override
+  String get channelSettingsKeyInAppSearch => 'Pretraga u aplikaciji';
+
+  @override
+  String get channelSettingsOffInAppSearch =>
+      'Isključeno: epizode kanala ne pojavljuju se u pretrazi aplikacije.';
+
+  @override
+  String get channelSettingsKeySearchEngines => 'Tražilice';
+
+  @override
+  String get channelSettingsOffSearchEngines =>
+      'Isključeno: stranice kanala dobivaju oznaku „noindex” i izostaju iz mape stranica, pa ih tražilice ne prikazuju.';
+
+  @override
+  String get channelSettingsKeyPushNotifications =>
+      'Obavijesti o novim epizodama';
+
+  @override
+  String get channelSettingsOffPushNotifications =>
+      'Isključeno: pratitelji ne dobivaju obavijesti o novim epizodama.';
+
+  @override
+  String get channelSettingsKeyCdnPlayback =>
+      'Reprodukcija s našeg poslužitelja';
+
+  @override
+  String get channelSettingsOffCdnPlayback =>
+      'Isključeno: epizode se ne puštaju s našeg poslužitelja, nego samo kroz službeni YouTube player.';
+
+  @override
+  String get channelSettingsKeyShareClips => 'Isječci za dijeljenje';
+
+  @override
+  String get channelSettingsOffShareClips =>
+      'Isključeno: nema isječaka po poglavlju, okomitih videa ni slika za dijeljenje po trenutku.';
+
+  @override
+  String get channelSettingsKeyEbook => 'E-knjiga';
+
+  @override
+  String get channelSettingsOffEbook =>
+      'Isključeno: epizode nemaju e-knjigu (EPUB).';
+
+  @override
+  String get channelSettingsKeyArticleSummary => 'Članak i sažetak';
+
+  @override
+  String get channelSettingsOffArticleSummary =>
+      'Isključeno: epizode nemaju članak ni sažetak.';
+
+  @override
+  String get channelSettingsKeyTranscriptSubtitles => 'Transkript i titlovi';
+
+  @override
+  String get channelSettingsOffTranscriptSubtitles =>
+      'Isključeno: nema transkripta, titlova ni pretrage unutar epizode.';
+
+  @override
+  String get channelSettingsKeyEnglishTranslation => 'Prijevod na engleski';
+
+  @override
+  String get channelSettingsOffEnglishTranslation =>
+      'Isključeno: epizode nemaju englesko izdanje.';
+
+  @override
+  String get channelSettingsKeyMagisterium => 'Magisterium procjena';
+
+  @override
+  String get channelSettingsOffMagisterium =>
+      'Isključeno: umjesto ocjene stoji „Vlasnik je isključio procjenu”.';
+
+  @override
+  String get channelSettingsKeyHighlightsReels => 'Istaknuti trenuci';
+
+  @override
+  String get channelSettingsOffHighlightsReels =>
+      'Isključeno: epizode nemaju istaknute trenutke.';
+
+  @override
+  String get channelSettingsKeyPersonsMentions => 'Osobe i spomeni';
+
+  @override
+  String get channelSettingsOffPersonsMentions =>
+      'Isključeno: epizode kanala ne ulaze u profile osoba ni u kanale osoba.';
+
+  @override
+  String get channelSettingsKeyNewsPortal => 'Portal vijesti';
+
+  @override
+  String get channelSettingsOffNewsPortal =>
+      'Isključeno: epizode kanala ne koriste se za članke na portalu vijesti.';
+
+  @override
+  String get channelSettingsKeyAiAssistants => 'AI asistenti';
+
+  @override
+  String get channelSettingsOffAiAssistants =>
+      'Isključeno: epizode kanala nisu dostupne AI asistentima (MCP) ni semantičkoj pretrazi.';
+
+  @override
+  String get channelSettingsKeyDonations => 'Donacije';
+
+  @override
+  String get channelSettingsOffDonations =>
+      'Isključeno: kanal nema zid podrške i ne prima donacije.';
+
+  @override
+  String get channelSettingsKeyPaidSponsorMoments =>
+      'Plaćeni sponzorski trenuci';
+
+  @override
+  String get channelSettingsOffPaidSponsorMoments =>
+      'Isključeno: nema izloga ni prodaje sponzorskih trenutaka. Već prodani trenuci traju do isteka.';
+
+  @override
+  String get channelSettingsKeySponsorsInVideo => 'Sponzori u snimci';
+
+  @override
+  String get channelSettingsOffSponsorsInVideo =>
+      'Isključeno: epizode nemaju sekciju „Uz podršku”.';
+
+  @override
+  String get channelSettingsCdnPlaybackNote =>
+      'Safari i iOS tada otvaraju youtube.com, jer ondje ugrađeni YouTube player ne radi.';
+
+  @override
+  String get channelSettingsBlockedByMaster =>
+      'Ne vrijedi dok je kanal isključen.';
+
+  @override
+  String channelSettingsBlockedByParent(String parent) {
+    return 'Ne vrijedi dok je isključeno „$parent”.';
+  }
+
+  @override
+  String get channelSettingsBlockedGeneric =>
+      'Trenutačno ne vrijedi zbog drugih postavki kanala.';
+
+  @override
+  String get channelSettingsLogTitle => 'Povijest promjena';
+
+  @override
+  String get channelSettingsLogEmpty => 'Još nema promjena.';
+
+  @override
+  String get channelSettingsLogLoadFailed =>
+      'Povijest promjena trenutačno se ne može učitati.';
+
+  @override
+  String get channelSettingsLogLoadOlder => 'Učitaj starije';
+
+  @override
+  String get channelSettingsLogSaving => 'Sprema se…';
+
+  @override
+  String get channelSettingsValueOn => 'uključeno';
+
+  @override
+  String get channelSettingsValueOff => 'isključeno';
+
+  @override
+  String channelSettingsLogSettingChange(String label, String to, String from) {
+    return '$label: $to (prije $from)';
+  }
+
+  @override
+  String get channelSettingsLogDeletionRequested =>
+      'Zatraženo trajno brisanje kanala';
+
+  @override
+  String get channelSettingsLogDeletionCancelled =>
+      'Zahtjev za trajno brisanje otkazan';
+
+  @override
+  String get channelSettingsLogDeletionPhoneConfirmed =>
+      'Zahtjev za trajno brisanje potvrđen telefonom';
+
+  @override
+  String get channelSettingsLogDeletionExecuted => 'Kanal trajno obrisan';
+
+  @override
+  String get channelSettingsLogUnknown => 'Promjena';
+
+  @override
+  String get channelSettingsRoleOwner => 'Vlasnik';
+
+  @override
+  String get channelSettingsRoleCollaborator => 'Suradnik';
+
+  @override
+  String get channelSettingsRoleOperator => 'Operater';
+
+  @override
+  String get channelSettingsRoleSystem => 'Sustav';
+
+  @override
+  String channelSettingsWhoYou(String role) {
+    return '$role (ti)';
+  }
+
+  @override
+  String channelSettingsLogMeta(String who, String when) {
+    return '$who · $when';
+  }
+
+  @override
+  String get channelSettingsDeleteTitle => 'Trajno brisanje kanala';
+
+  @override
+  String get channelSettingsDeleteBody =>
+      'Briše se sve što o kanalu imamo: epizode, mediji, članci, transkripti i indeksi pretrage. Ostaju samo trajan zapis o kanalu i trenutku brisanja, povijest promjena i financijski zapisi. Brisanje se ne može poništiti.';
+
+  @override
+  String channelSettingsDeleteConfirmLabel(String name) {
+    return 'Za potvrdu upiši ime kanala: $name';
+  }
+
+  @override
+  String get channelSettingsDeleteAction => 'Zatraži trajno brisanje';
+
+  @override
+  String get channelSettingsDeleteNoTitle =>
+      'Ime kanala nije poznato, pa se zahtjev ne može poslati iz aplikacije. Za brisanje nazovi +385 98 967 9022.';
+
+  @override
+  String channelSettingsDeleteRequestedAt(String when) {
+    return 'Zahtjev za trajno brisanje zaprimljen je $when.';
+  }
+
+  @override
+  String get channelSettingsDeleteCallToFinish =>
+      'Za dovršetak nazovi +385 98 967 9022.';
+
+  @override
+  String get channelSettingsDeleteCancelAction => 'Otkaži zahtjev';
+
+  @override
+  String channelSettingsDeletePhoneConfirmed(String when) {
+    return 'Poziv je potvrđen $when. Brisanje slijedi i zahtjev se više ne može otkazati.';
+  }
+
+  @override
+  String get channelSettingsDeleteRequestedSnack =>
+      'Zahtjev je zaprimljen. Za dovršetak nazovi +385 98 967 9022.';
+
+  @override
+  String get channelSettingsDeleteCancelledSnack =>
+      'Zahtjev za trajno brisanje je otkazan.';
+
+  @override
+  String get channelSettingsErrorLoginRequired =>
+      'Prijava je istekla. Prijavi se ponovno.';
+
+  @override
+  String get channelSettingsErrorNotOwner =>
+      'Nemaš pravo mijenjati ovaj kanal. Možda treba ponovno potvrditi vlasništvo.';
+
+  @override
+  String get channelSettingsErrorUnknownKey =>
+      'Ova postavka još nije podržana. Osvježi aplikaciju.';
+
+  @override
+  String get channelSettingsErrorChannelDeleted => 'Kanal je trajno obrisan.';
+
+  @override
+  String get channelSettingsErrorNameMismatch =>
+      'Upisano ime se ne poklapa s imenom kanala.';
+
+  @override
+  String get channelSettingsErrorAlreadyRequested =>
+      'Zahtjev za trajno brisanje već postoji.';
+
+  @override
+  String get channelSettingsErrorNoOpenRequest =>
+      'Nema zahtjeva koji se može otkazati.';
+
+  @override
+  String get channelSettingsErrorGeneric =>
+      'Promjena nije spremljena. Pokušaj ponovno.';
+
+  @override
+  String get channelSettingsDonationsOffBanner =>
+      'Donacije su isključene u postavkama kanala, pa zid podrške ne prima uplate.';
+
+  @override
+  String get channelSettingsOpenAction => 'Otvori postavke';
 }

@@ -6171,5 +6171,429 @@
   "channelCatalogUnavailableBody": "Provjeri vezu pa pokušaj ponovno.",
   "@channelCatalogUnavailableBody": {
     "description": "Objašnjenje uz „Kanal se trenutačno ne može učitati”."
+  },
+  "channelSettingsTitle": "Postavke kanala",
+  "@channelSettingsTitle": {
+    "description": "Naslov ekrana postavki kanala, stavka izbornika i gumb na ekranu vlasništva."
+  },
+  "channelSettingsSignIn": "Za postavke kanala prvo se prijavi.",
+  "@channelSettingsSignIn": {
+    "description": "Poruka odjavljenom korisniku na ekranu postavki kanala."
+  },
+  "channelSettingsNotOwner": "Postavke kanala mijenja samo potvrđeni vlasnik ili suradnik kanala.",
+  "@channelSettingsNotOwner": {
+    "description": "Korisnik nema potvrđen claim nad kanalom."
+  },
+  "channelSettingsLoadFailed": "Postavke kanala trenutačno se ne mogu učitati.",
+  "@channelSettingsLoadFailed": {
+    "description": "Greška pri učitavanju postavki."
+  },
+  "channelSettingsReverifyBody": "Vlasništvo je potvrđeno prije više od 90 dana, pa su postavke samo za čitanje. Kad ponovno potvrdiš vlasništvo, opet ih možeš mijenjati.",
+  "@channelSettingsReverifyBody": {
+    "description": "Claim stariji od 90 dana: ekran samo za čitanje."
+  },
+  "channelSettingsReverifyAction": "Ponovno potvrdi vlasništvo",
+  "@channelSettingsReverifyAction": {
+    "description": "Gumb koji vodi na ponovnu potvrdu vlasništva."
+  },
+  "channelSettingsTombstoned": "Kanal je trajno obrisan. Postavke se više ne mogu mijenjati.",
+  "@channelSettingsTombstoned": {
+    "description": "Kanal ima tombstone."
+  },
+  "channelSettingsGroupPresence": "Prisutnost",
+  "@channelSettingsGroupPresence": {
+    "description": "Naslov skupine prekidača."
+  },
+  "channelSettingsGroupMedia": "Reprodukcija i dijeljenje",
+  "@channelSettingsGroupMedia": {
+    "description": "Naslov skupine prekidača."
+  },
+  "channelSettingsGroupAi": "AI obrada",
+  "@channelSettingsGroupAi": {
+    "description": "Naslov skupine prekidača."
+  },
+  "channelSettingsGroupMoney": "Novac",
+  "@channelSettingsGroupMoney": {
+    "description": "Naslov skupine prekidača."
+  },
+  "channelSettingsKeyChannelEnabled": "Kanal uključen",
+  "@channelSettingsKeyChannelEnabled": {
+    "description": "Naziv prekidača postavke kanala."
+  },
+  "channelSettingsOffChannelEnabled": "Isključeno: kanal se povlači iz cijele aplikacije, a sve ostale postavke vrijede kao isključene.",
+  "@channelSettingsOffChannelEnabled": {
+    "description": "Jedna rečenica: što isključenje prekidača znači."
+  },
+  "channelSettingsKeyProcessing": "Obrada novih epizoda",
+  "@channelSettingsKeyProcessing": {
+    "description": "Naziv prekidača postavke kanala."
+  },
+  "channelSettingsOffProcessing": "Isključeno: nove epizode se ne preuzimaju ni obrađuju.",
+  "@channelSettingsOffProcessing": {
+    "description": "Jedna rečenica: što isključenje prekidača znači."
+  },
+  "channelSettingsKeyHomeFeatured": "Isticanje na naslovnici",
+  "@channelSettingsKeyHomeFeatured": {
+    "description": "Naziv prekidača postavke kanala."
+  },
+  "channelSettingsOffHomeFeatured": "Isključeno: kanala nema u istaknutom dijelu naslovnice, u „Upravo stiglo”, u nizovima epizoda ni u „Danas u korpusu”.",
+  "@channelSettingsOffHomeFeatured": {
+    "description": "Jedna rečenica: što isključenje prekidača znači."
+  },
+  "channelSettingsKeyInAppSearch": "Pretraga u aplikaciji",
+  "@channelSettingsKeyInAppSearch": {
+    "description": "Naziv prekidača postavke kanala."
+  },
+  "channelSettingsOffInAppSearch": "Isključeno: epizode kanala ne pojavljuju se u pretrazi aplikacije.",
+  "@channelSettingsOffInAppSearch": {
+    "description": "Jedna rečenica: što isključenje prekidača znači."
+  },
+  "channelSettingsKeySearchEngines": "Tražilice",
+  "@channelSettingsKeySearchEngines": {
+    "description": "Naziv prekidača postavke kanala."
+  },
+  "channelSettingsOffSearchEngines": "Isključeno: stranice kanala dobivaju oznaku „noindex” i izostaju iz mape stranica, pa ih tražilice ne prikazuju.",
+  "@channelSettingsOffSearchEngines": {
+    "description": "Jedna rečenica: što isključenje prekidača znači."
+  },
+  "channelSettingsKeyPushNotifications": "Obavijesti o novim epizodama",
+  "@channelSettingsKeyPushNotifications": {
+    "description": "Naziv prekidača postavke kanala."
+  },
+  "channelSettingsOffPushNotifications": "Isključeno: pratitelji ne dobivaju obavijesti o novim epizodama.",
+  "@channelSettingsOffPushNotifications": {
+    "description": "Jedna rečenica: što isključenje prekidača znači."
+  },
+  "channelSettingsKeyCdnPlayback": "Reprodukcija s našeg poslužitelja",
+  "@channelSettingsKeyCdnPlayback": {
+    "description": "Naziv prekidača postavke kanala."
+  },
+  "channelSettingsOffCdnPlayback": "Isključeno: epizode se ne puštaju s našeg poslužitelja, nego samo kroz službeni YouTube player.",
+  "@channelSettingsOffCdnPlayback": {
+    "description": "Jedna rečenica: što isključenje prekidača znači."
+  },
+  "channelSettingsKeyShareClips": "Isječci za dijeljenje",
+  "@channelSettingsKeyShareClips": {
+    "description": "Naziv prekidača postavke kanala."
+  },
+  "channelSettingsOffShareClips": "Isključeno: nema isječaka po poglavlju, okomitih videa ni slika za dijeljenje po trenutku.",
+  "@channelSettingsOffShareClips": {
+    "description": "Jedna rečenica: što isključenje prekidača znači."
+  },
+  "channelSettingsKeyEbook": "E-knjiga",
+  "@channelSettingsKeyEbook": {
+    "description": "Naziv prekidača postavke kanala."
+  },
+  "channelSettingsOffEbook": "Isključeno: epizode nemaju e-knjigu (EPUB).",
+  "@channelSettingsOffEbook": {
+    "description": "Jedna rečenica: što isključenje prekidača znači."
+  },
+  "channelSettingsKeyArticleSummary": "Članak i sažetak",
+  "@channelSettingsKeyArticleSummary": {
+    "description": "Naziv prekidača postavke kanala."
+  },
+  "channelSettingsOffArticleSummary": "Isključeno: epizode nemaju članak ni sažetak.",
+  "@channelSettingsOffArticleSummary": {
+    "description": "Jedna rečenica: što isključenje prekidača znači."
+  },
+  "channelSettingsKeyTranscriptSubtitles": "Transkript i titlovi",
+  "@channelSettingsKeyTranscriptSubtitles": {
+    "description": "Naziv prekidača postavke kanala."
+  },
+  "channelSettingsOffTranscriptSubtitles": "Isključeno: nema transkripta, titlova ni pretrage unutar epizode.",
+  "@channelSettingsOffTranscriptSubtitles": {
+    "description": "Jedna rečenica: što isključenje prekidača znači."
+  },
+  "channelSettingsKeyEnglishTranslation": "Prijevod na engleski",
+  "@channelSettingsKeyEnglishTranslation": {
+    "description": "Naziv prekidača postavke kanala."
+  },
+  "channelSettingsOffEnglishTranslation": "Isključeno: epizode nemaju englesko izdanje.",
+  "@channelSettingsOffEnglishTranslation": {
+    "description": "Jedna rečenica: što isključenje prekidača znači."
+  },
+  "channelSettingsKeyMagisterium": "Magisterium procjena",
+  "@channelSettingsKeyMagisterium": {
+    "description": "Naziv prekidača postavke kanala."
+  },
+  "channelSettingsOffMagisterium": "Isključeno: umjesto ocjene stoji „Vlasnik je isključio procjenu”.",
+  "@channelSettingsOffMagisterium": {
+    "description": "Jedna rečenica: što isključenje prekidača znači."
+  },
+  "channelSettingsKeyHighlightsReels": "Istaknuti trenuci",
+  "@channelSettingsKeyHighlightsReels": {
+    "description": "Naziv prekidača postavke kanala."
+  },
+  "channelSettingsOffHighlightsReels": "Isključeno: epizode nemaju istaknute trenutke.",
+  "@channelSettingsOffHighlightsReels": {
+    "description": "Jedna rečenica: što isključenje prekidača znači."
+  },
+  "channelSettingsKeyPersonsMentions": "Osobe i spomeni",
+  "@channelSettingsKeyPersonsMentions": {
+    "description": "Naziv prekidača postavke kanala."
+  },
+  "channelSettingsOffPersonsMentions": "Isključeno: epizode kanala ne ulaze u profile osoba ni u kanale osoba.",
+  "@channelSettingsOffPersonsMentions": {
+    "description": "Jedna rečenica: što isključenje prekidača znači."
+  },
+  "channelSettingsKeyNewsPortal": "Portal vijesti",
+  "@channelSettingsKeyNewsPortal": {
+    "description": "Naziv prekidača postavke kanala."
+  },
+  "channelSettingsOffNewsPortal": "Isključeno: epizode kanala ne koriste se za članke na portalu vijesti.",
+  "@channelSettingsOffNewsPortal": {
+    "description": "Jedna rečenica: što isključenje prekidača znači."
+  },
+  "channelSettingsKeyAiAssistants": "AI asistenti",
+  "@channelSettingsKeyAiAssistants": {
+    "description": "Naziv prekidača postavke kanala."
+  },
+  "channelSettingsOffAiAssistants": "Isključeno: epizode kanala nisu dostupne AI asistentima (MCP) ni semantičkoj pretrazi.",
+  "@channelSettingsOffAiAssistants": {
+    "description": "Jedna rečenica: što isključenje prekidača znači."
+  },
+  "channelSettingsKeyDonations": "Donacije",
+  "@channelSettingsKeyDonations": {
+    "description": "Naziv prekidača postavke kanala."
+  },
+  "channelSettingsOffDonations": "Isključeno: kanal nema zid podrške i ne prima donacije.",
+  "@channelSettingsOffDonations": {
+    "description": "Jedna rečenica: što isključenje prekidača znači."
+  },
+  "channelSettingsKeyPaidSponsorMoments": "Plaćeni sponzorski trenuci",
+  "@channelSettingsKeyPaidSponsorMoments": {
+    "description": "Naziv prekidača postavke kanala."
+  },
+  "channelSettingsOffPaidSponsorMoments": "Isključeno: nema izloga ni prodaje sponzorskih trenutaka. Već prodani trenuci traju do isteka.",
+  "@channelSettingsOffPaidSponsorMoments": {
+    "description": "Jedna rečenica: što isključenje prekidača znači."
+  },
+  "channelSettingsKeySponsorsInVideo": "Sponzori u snimci",
+  "@channelSettingsKeySponsorsInVideo": {
+    "description": "Naziv prekidača postavke kanala."
+  },
+  "channelSettingsOffSponsorsInVideo": "Isključeno: epizode nemaju sekciju „Uz podršku”.",
+  "@channelSettingsOffSponsorsInVideo": {
+    "description": "Jedna rečenica: što isključenje prekidača znači."
+  },
+  "channelSettingsCdnPlaybackNote": "Safari i iOS tada otvaraju youtube.com, jer ondje ugrađeni YouTube player ne radi.",
+  "@channelSettingsCdnPlaybackNote": {
+    "description": "Napomena ispod prekidača reprodukcije s CDN-a."
+  },
+  "channelSettingsBlockedByMaster": "Ne vrijedi dok je kanal isključen.",
+  "@channelSettingsBlockedByMaster": {
+    "description": "Objašnjenje uz onemogućen prekidač kad je glavni isključen."
+  },
+  "channelSettingsBlockedByParent": "Ne vrijedi dok je isključeno „{parent}”.",
+  "@channelSettingsBlockedByParent": {
+    "description": "Objašnjenje uz ovisni prekidač koji gasi roditelj.",
+    "placeholders": {
+      "parent": {
+        "type": "String"
+      }
+    }
+  },
+  "channelSettingsBlockedGeneric": "Trenutačno ne vrijedi zbog drugih postavki kanala.",
+  "@channelSettingsBlockedGeneric": {
+    "description": "Ovisni prekidač bez poznatog roditelja."
+  },
+  "channelSettingsLogTitle": "Povijest promjena",
+  "@channelSettingsLogTitle": {
+    "description": "Naslov loga promjena."
+  },
+  "channelSettingsLogEmpty": "Još nema promjena.",
+  "@channelSettingsLogEmpty": {
+    "description": "Prazan log."
+  },
+  "channelSettingsLogLoadFailed": "Povijest promjena trenutačno se ne može učitati.",
+  "@channelSettingsLogLoadFailed": {
+    "description": "Greška pri učitavanju loga."
+  },
+  "channelSettingsLogLoadOlder": "Učitaj starije",
+  "@channelSettingsLogLoadOlder": {
+    "description": "Gumb za stariju stranicu loga."
+  },
+  "channelSettingsLogSaving": "Sprema se…",
+  "@channelSettingsLogSaving": {
+    "description": "Lokalni red loga dok se promjena sprema."
+  },
+  "channelSettingsValueOn": "uključeno",
+  "@channelSettingsValueOn": {
+    "description": "Vrijednost prekidača u logu."
+  },
+  "channelSettingsValueOff": "isključeno",
+  "@channelSettingsValueOff": {
+    "description": "Vrijednost prekidača u logu."
+  },
+  "channelSettingsLogSettingChange": "{label}: {to} (prije {from})",
+  "@channelSettingsLogSettingChange": {
+    "description": "Red loga za promjenu prekidača.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      },
+      "from": {
+        "type": "String"
+      }
+    }
+  },
+  "channelSettingsLogDeletionRequested": "Zatraženo trajno brisanje kanala",
+  "@channelSettingsLogDeletionRequested": {
+    "description": "Red loga."
+  },
+  "channelSettingsLogDeletionCancelled": "Zahtjev za trajno brisanje otkazan",
+  "@channelSettingsLogDeletionCancelled": {
+    "description": "Red loga."
+  },
+  "channelSettingsLogDeletionPhoneConfirmed": "Zahtjev za trajno brisanje potvrđen telefonom",
+  "@channelSettingsLogDeletionPhoneConfirmed": {
+    "description": "Red loga."
+  },
+  "channelSettingsLogDeletionExecuted": "Kanal trajno obrisan",
+  "@channelSettingsLogDeletionExecuted": {
+    "description": "Red loga."
+  },
+  "channelSettingsLogUnknown": "Promjena",
+  "@channelSettingsLogUnknown": {
+    "description": "Red loga nepoznate vrste."
+  },
+  "channelSettingsRoleOwner": "Vlasnik",
+  "@channelSettingsRoleOwner": {
+    "description": "Tko je napravio promjenu."
+  },
+  "channelSettingsRoleCollaborator": "Suradnik",
+  "@channelSettingsRoleCollaborator": {
+    "description": "Tko je napravio promjenu."
+  },
+  "channelSettingsRoleOperator": "Operater",
+  "@channelSettingsRoleOperator": {
+    "description": "Promjena izvora phone."
+  },
+  "channelSettingsRoleSystem": "Sustav",
+  "@channelSettingsRoleSystem": {
+    "description": "Promjena izvora system."
+  },
+  "channelSettingsWhoYou": "{role} (ti)",
+  "@channelSettingsWhoYou": {
+    "description": "Promjenu je napravio trenutni korisnik.",
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "channelSettingsLogMeta": "{who} · {when}",
+  "@channelSettingsLogMeta": {
+    "description": "Tko i kada, ispod reda loga.",
+    "placeholders": {
+      "who": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "channelSettingsDeleteTitle": "Trajno brisanje kanala",
+  "@channelSettingsDeleteTitle": {
+    "description": "Naslov odjeljka brisanja."
+  },
+  "channelSettingsDeleteBody": "Briše se sve što o kanalu imamo: epizode, mediji, članci, transkripti i indeksi pretrage. Ostaju samo trajan zapis o kanalu i trenutku brisanja, povijest promjena i financijski zapisi. Brisanje se ne može poništiti.",
+  "@channelSettingsDeleteBody": {
+    "description": "Objašnjenje što trajno brisanje briše."
+  },
+  "channelSettingsDeleteConfirmLabel": "Za potvrdu upiši ime kanala: {name}",
+  "@channelSettingsDeleteConfirmLabel": {
+    "description": "Oznaka polja za upis imena kanala.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "channelSettingsDeleteAction": "Zatraži trajno brisanje",
+  "@channelSettingsDeleteAction": {
+    "description": "Gumb zahtjeva za brisanje."
+  },
+  "channelSettingsDeleteNoTitle": "Ime kanala nije poznato, pa se zahtjev ne može poslati iz aplikacije. Za brisanje nazovi +385 98 967 9022.",
+  "@channelSettingsDeleteNoTitle": {
+    "description": "Claim nema naslov kanala."
+  },
+  "channelSettingsDeleteRequestedAt": "Zahtjev za trajno brisanje zaprimljen je {when}.",
+  "@channelSettingsDeleteRequestedAt": {
+    "description": "Stanje otvorenog zahtjeva.",
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "channelSettingsDeleteCallToFinish": "Za dovršetak nazovi +385 98 967 9022.",
+  "@channelSettingsDeleteCallToFinish": {
+    "description": "Uputa za telefonsku potvrdu brisanja."
+  },
+  "channelSettingsDeleteCancelAction": "Otkaži zahtjev",
+  "@channelSettingsDeleteCancelAction": {
+    "description": "Gumb otkazivanja zahtjeva za brisanje."
+  },
+  "channelSettingsDeletePhoneConfirmed": "Poziv je potvrđen {when}. Brisanje slijedi i zahtjev se više ne može otkazati.",
+  "@channelSettingsDeletePhoneConfirmed": {
+    "description": "Zahtjev potvrđen telefonom.",
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "channelSettingsDeleteRequestedSnack": "Zahtjev je zaprimljen. Za dovršetak nazovi +385 98 967 9022.",
+  "@channelSettingsDeleteRequestedSnack": {
+    "description": "Potvrda nakon zahtjeva za brisanje."
+  },
+  "channelSettingsDeleteCancelledSnack": "Zahtjev za trajno brisanje je otkazan.",
+  "@channelSettingsDeleteCancelledSnack": {
+    "description": "Potvrda nakon otkazivanja."
+  },
+  "channelSettingsErrorLoginRequired": "Prijava je istekla. Prijavi se ponovno.",
+  "@channelSettingsErrorLoginRequired": {
+    "description": "Greška login_required."
+  },
+  "channelSettingsErrorNotOwner": "Nemaš pravo mijenjati ovaj kanal. Možda treba ponovno potvrditi vlasništvo.",
+  "@channelSettingsErrorNotOwner": {
+    "description": "Greška not_owner."
+  },
+  "channelSettingsErrorUnknownKey": "Ova postavka još nije podržana. Osvježi aplikaciju.",
+  "@channelSettingsErrorUnknownKey": {
+    "description": "Greška unknown_key."
+  },
+  "channelSettingsErrorChannelDeleted": "Kanal je trajno obrisan.",
+  "@channelSettingsErrorChannelDeleted": {
+    "description": "Greška channel_deleted."
+  },
+  "channelSettingsErrorNameMismatch": "Upisano ime se ne poklapa s imenom kanala.",
+  "@channelSettingsErrorNameMismatch": {
+    "description": "Greška confirm_name_mismatch."
+  },
+  "channelSettingsErrorAlreadyRequested": "Zahtjev za trajno brisanje već postoji.",
+  "@channelSettingsErrorAlreadyRequested": {
+    "description": "Greška deletion_already_requested."
+  },
+  "channelSettingsErrorNoOpenRequest": "Nema zahtjeva koji se može otkazati.",
+  "@channelSettingsErrorNoOpenRequest": {
+    "description": "Greška no_open_request."
+  },
+  "channelSettingsErrorGeneric": "Promjena nije spremljena. Pokušaj ponovno.",
+  "@channelSettingsErrorGeneric": {
+    "description": "Svaka druga greška."
+  },
+  "channelSettingsDonationsOffBanner": "Donacije su isključene u postavkama kanala, pa zid podrške ne prima uplate.",
+  "@channelSettingsDonationsOffBanner": {
+    "description": "Traka na ekranu kampanja kad je donations isključen."
+  },
+  "channelSettingsOpenAction": "Otvori postavke",
+  "@channelSettingsOpenAction": {
+    "description": "Gumb s trake kampanja na postavke kanala."
   }
 }

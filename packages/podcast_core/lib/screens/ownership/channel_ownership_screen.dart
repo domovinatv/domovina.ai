@@ -24,6 +24,7 @@ import '../../services/data_service.dart';
 import '../../services/locale_service.dart';
 import '../../services/wallet_service.dart';
 import '../../router/nav.dart';
+import 'channel_settings_screen.dart' show channelSettingsLocation;
 
 // ───────────────────────────────────────────────────────────────────────────
 // Per-channel claim flow
@@ -78,6 +79,15 @@ class _Crumbs extends StatelessWidget {
       child: Row(mainAxisSize: MainAxisSize.min, children: row),
     );
   }
+}
+
+/// Isti breadcrumb za susjedne ekrane vlasnika (postavke kanala).
+class OwnershipCrumbs extends StatelessWidget {
+  final List<(String, VoidCallback?)> items;
+  const OwnershipCrumbs(this.items, {super.key});
+
+  @override
+  Widget build(BuildContext context) => _Crumbs(items);
 }
 
 class ChannelOwnershipScreen extends StatefulWidget {
@@ -237,6 +247,19 @@ class _ChannelOwnershipScreenState extends State<ChannelOwnershipScreen> {
       Text(title ?? ucId, style: Theme.of(context).textTheme.titleLarge),
       const SizedBox(height: 4),
       Text(ucId, style: Theme.of(context).textTheme.bodySmall),
+      // Postavke kanala (lanac postavke-kanala, S4): samo za potvrđen claim.
+      if (_claim?.isVerified == true) ...[
+        const SizedBox(height: 12),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: OutlinedButton.icon(
+            key: const ValueKey('ownership-channel-settings'),
+            onPressed: () => drillDown(context, channelSettingsLocation(ucId)),
+            icon: const Icon(Icons.tune),
+            label: Text(l.channelSettingsTitle),
+          ),
+        ),
+      ],
       const SizedBox(height: 24),
       if (_error != null) ...[
         _errorBanner(context, _error!),
@@ -806,10 +829,19 @@ class _MyChannelsScreenState extends State<MyChannelsScreen> {
               drillDown(context,
                   '/account/channels/${c.youtubeChannelId}/campaigns');
             }
+            if (v == 'settings') {
+              drillDown(context, channelSettingsLocation(c.youtubeChannelId));
+            }
             if (v == 'reverify') _reverify(c);
             if (v == 'revoke') _confirmRevoke(c);
           },
           itemBuilder: (_) => [
+            // Postavke kanala — samo za verificirane kanale (S4).
+            if (c.isVerified)
+              PopupMenuItem(
+                value: 'settings',
+                child: Text(l.channelSettingsTitle),
+              ),
             // Pinka "Zid podrške" kampanje — samo za verificirane kanale.
             if (c.isVerified)
               PopupMenuItem(

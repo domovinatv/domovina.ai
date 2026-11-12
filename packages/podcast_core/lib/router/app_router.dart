@@ -20,6 +20,7 @@ import '../screens/account/account_screen.dart';
 import '../screens/auth/auth_callback_screen.dart';
 import '../screens/auth/invite_screen.dart';
 import '../screens/ownership/channel_ownership_screen.dart';
+import '../screens/ownership/channel_settings_screen.dart';
 import '../screens/ownership/campaigns/channel_campaigns_screen.dart';
 import '../screens/ownership/campaigns/campaign_manage_screen.dart';
 import '../pinka_sdk/pinka_sdk.dart';
@@ -191,6 +192,19 @@ GoRouter createRouter() {
             key: ValueKey('my-channels'),
             child: MyChannelsScreen(),
           ),
+        ),
+      // Postavke kanala za vlasnika (lanac postavke-kanala, S4). Ključ nosi
+      // samo identitet kanala.
+      if (flags.channelOwnership)
+        GoRoute(
+          path: '/account/channels/:ucId/postavke',
+          pageBuilder: (context, state) {
+            final ucId = state.pathParameters['ucId']!;
+            return NoTransitionPage(
+              key: ValueKey('channel-settings-$ucId'),
+              child: ChannelSettingsScreen(youtubeChannelId: ucId),
+            );
+          },
         ),
       // Pinka kampanje za verificirani kanal (vlasnik administrira) — vidi
       // lib/screens/ownership/campaigns/. Faza A: upravljanje postojećima.

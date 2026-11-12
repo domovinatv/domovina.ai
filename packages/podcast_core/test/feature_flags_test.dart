@@ -81,6 +81,7 @@ const ownershipRoutes = {
   '/youtube-claim/callback',
   '/account/channels',
   '/account/channels/:ucId',
+  '/account/channels/:ucId/postavke',
 };
 
 /// Brand-neutralne rute koje nijedan flag ne smije dirati.

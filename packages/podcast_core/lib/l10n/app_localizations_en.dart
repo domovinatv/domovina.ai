@@ -4879,4 +4879,350 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get channelCatalogUnavailableBody =>
       'Check your connection and try again.';
+
+  @override
+  String get channelSettingsTitle => 'Channel settings';
+
+  @override
+  String get channelSettingsSignIn =>
+      'Sign in first to manage channel settings.';
+
+  @override
+  String get channelSettingsNotOwner =>
+      'Only a verified owner or collaborator can change channel settings.';
+
+  @override
+  String get channelSettingsLoadFailed =>
+      'Channel settings can\'t be loaded right now.';
+
+  @override
+  String get channelSettingsReverifyBody =>
+      'Ownership was verified more than 90 days ago, so the settings are read-only. Verify ownership again to change them.';
+
+  @override
+  String get channelSettingsReverifyAction => 'Verify ownership again';
+
+  @override
+  String get channelSettingsTombstoned =>
+      'This channel has been permanently deleted. Its settings can no longer be changed.';
+
+  @override
+  String get channelSettingsGroupPresence => 'Presence';
+
+  @override
+  String get channelSettingsGroupMedia => 'Playback and sharing';
+
+  @override
+  String get channelSettingsGroupAi => 'AI processing';
+
+  @override
+  String get channelSettingsGroupMoney => 'Money';
+
+  @override
+  String get channelSettingsKeyChannelEnabled => 'Channel enabled';
+
+  @override
+  String get channelSettingsOffChannelEnabled =>
+      'Off: the channel is withdrawn from the whole app and every other setting counts as off.';
+
+  @override
+  String get channelSettingsKeyProcessing => 'Processing new episodes';
+
+  @override
+  String get channelSettingsOffProcessing =>
+      'Off: new episodes are neither downloaded nor processed.';
+
+  @override
+  String get channelSettingsKeyHomeFeatured => 'Featured on the home page';
+
+  @override
+  String get channelSettingsOffHomeFeatured =>
+      'Off: the channel is left out of the home page hero, \"Just arrived\", episode rows and \"Today in the corpus\".';
+
+  @override
+  String get channelSettingsKeyInAppSearch => 'In-app search';
+
+  @override
+  String get channelSettingsOffInAppSearch =>
+      'Off: the channel\'s episodes don\'t appear in the app\'s search.';
+
+  @override
+  String get channelSettingsKeySearchEngines => 'Search engines';
+
+  @override
+  String get channelSettingsOffSearchEngines =>
+      'Off: the channel\'s pages are marked \"noindex\" and left out of the sitemap, so search engines don\'t show them.';
+
+  @override
+  String get channelSettingsKeyPushNotifications => 'New episode notifications';
+
+  @override
+  String get channelSettingsOffPushNotifications =>
+      'Off: followers get no notifications about new episodes.';
+
+  @override
+  String get channelSettingsKeyCdnPlayback => 'Playback from our servers';
+
+  @override
+  String get channelSettingsOffCdnPlayback =>
+      'Off: episodes aren\'t played from our servers, only through the official YouTube player.';
+
+  @override
+  String get channelSettingsKeyShareClips => 'Clips for sharing';
+
+  @override
+  String get channelSettingsOffShareClips =>
+      'Off: no per-chapter clips, vertical videos or per-moment share images.';
+
+  @override
+  String get channelSettingsKeyEbook => 'E-book';
+
+  @override
+  String get channelSettingsOffEbook => 'Off: episodes have no e-book (EPUB).';
+
+  @override
+  String get channelSettingsKeyArticleSummary => 'Article and summary';
+
+  @override
+  String get channelSettingsOffArticleSummary =>
+      'Off: episodes have no article or summary.';
+
+  @override
+  String get channelSettingsKeyTranscriptSubtitles =>
+      'Transcript and subtitles';
+
+  @override
+  String get channelSettingsOffTranscriptSubtitles =>
+      'Off: no transcript, subtitles or search within an episode.';
+
+  @override
+  String get channelSettingsKeyEnglishTranslation => 'English translation';
+
+  @override
+  String get channelSettingsOffEnglishTranslation =>
+      'Off: episodes have no English edition.';
+
+  @override
+  String get channelSettingsKeyMagisterium => 'Magisterium assessment';
+
+  @override
+  String get channelSettingsOffMagisterium =>
+      'Off: instead of a score, the episode shows \"The owner turned off the assessment\".';
+
+  @override
+  String get channelSettingsKeyHighlightsReels => 'Highlights';
+
+  @override
+  String get channelSettingsOffHighlightsReels =>
+      'Off: episodes have no highlights.';
+
+  @override
+  String get channelSettingsKeyPersonsMentions => 'People and mentions';
+
+  @override
+  String get channelSettingsOffPersonsMentions =>
+      'Off: the channel\'s episodes are left out of person profiles and person channels.';
+
+  @override
+  String get channelSettingsKeyNewsPortal => 'News portal';
+
+  @override
+  String get channelSettingsOffNewsPortal =>
+      'Off: the channel\'s episodes aren\'t used for news portal articles.';
+
+  @override
+  String get channelSettingsKeyAiAssistants => 'AI assistants';
+
+  @override
+  String get channelSettingsOffAiAssistants =>
+      'Off: the channel\'s episodes aren\'t available to AI assistants (MCP) or semantic search.';
+
+  @override
+  String get channelSettingsKeyDonations => 'Donations';
+
+  @override
+  String get channelSettingsOffDonations =>
+      'Off: the channel has no support wall and accepts no donations.';
+
+  @override
+  String get channelSettingsKeyPaidSponsorMoments => 'Paid sponsor moments';
+
+  @override
+  String get channelSettingsOffPaidSponsorMoments =>
+      'Off: no storefront and no sales of sponsor moments. Moments already sold run until they expire.';
+
+  @override
+  String get channelSettingsKeySponsorsInVideo => 'Sponsors in the recording';
+
+  @override
+  String get channelSettingsOffSponsorsInVideo =>
+      'Off: episodes have no \"Supported by\" section.';
+
+  @override
+  String get channelSettingsCdnPlaybackNote =>
+      'Safari and iOS then open youtube.com, because the embedded YouTube player doesn\'t work there.';
+
+  @override
+  String get channelSettingsBlockedByMaster =>
+      'Has no effect while the channel is turned off.';
+
+  @override
+  String channelSettingsBlockedByParent(String parent) {
+    return 'Has no effect while \"$parent\" is off.';
+  }
+
+  @override
+  String get channelSettingsBlockedGeneric =>
+      'Currently has no effect because of other channel settings.';
+
+  @override
+  String get channelSettingsLogTitle => 'Change history';
+
+  @override
+  String get channelSettingsLogEmpty => 'No changes yet.';
+
+  @override
+  String get channelSettingsLogLoadFailed =>
+      'The change history can\'t be loaded right now.';
+
+  @override
+  String get channelSettingsLogLoadOlder => 'Load older';
+
+  @override
+  String get channelSettingsLogSaving => 'Saving…';
+
+  @override
+  String get channelSettingsValueOn => 'on';
+
+  @override
+  String get channelSettingsValueOff => 'off';
+
+  @override
+  String channelSettingsLogSettingChange(String label, String to, String from) {
+    return '$label: $to (was $from)';
+  }
+
+  @override
+  String get channelSettingsLogDeletionRequested =>
+      'Permanent deletion requested';
+
+  @override
+  String get channelSettingsLogDeletionCancelled =>
+      'Deletion request cancelled';
+
+  @override
+  String get channelSettingsLogDeletionPhoneConfirmed =>
+      'Deletion request confirmed by phone';
+
+  @override
+  String get channelSettingsLogDeletionExecuted =>
+      'Channel permanently deleted';
+
+  @override
+  String get channelSettingsLogUnknown => 'Change';
+
+  @override
+  String get channelSettingsRoleOwner => 'Owner';
+
+  @override
+  String get channelSettingsRoleCollaborator => 'Collaborator';
+
+  @override
+  String get channelSettingsRoleOperator => 'Operator';
+
+  @override
+  String get channelSettingsRoleSystem => 'System';
+
+  @override
+  String channelSettingsWhoYou(String role) {
+    return '$role (you)';
+  }
+
+  @override
+  String channelSettingsLogMeta(String who, String when) {
+    return '$who · $when';
+  }
+
+  @override
+  String get channelSettingsDeleteTitle => 'Permanently delete the channel';
+
+  @override
+  String get channelSettingsDeleteBody =>
+      'Everything we hold about the channel is deleted: episodes, media, articles, transcripts and search indexes. Only a permanent record of the channel and the moment of deletion, the change history and financial records remain. Deletion can\'t be undone.';
+
+  @override
+  String channelSettingsDeleteConfirmLabel(String name) {
+    return 'To confirm, type the channel name: $name';
+  }
+
+  @override
+  String get channelSettingsDeleteAction => 'Request permanent deletion';
+
+  @override
+  String get channelSettingsDeleteNoTitle =>
+      'The channel name is unknown, so the request can\'t be sent from the app. To delete the channel, call +385 98 967 9022.';
+
+  @override
+  String channelSettingsDeleteRequestedAt(String when) {
+    return 'The permanent deletion request was received on $when.';
+  }
+
+  @override
+  String get channelSettingsDeleteCallToFinish =>
+      'To complete it, call +385 98 967 9022.';
+
+  @override
+  String get channelSettingsDeleteCancelAction => 'Cancel the request';
+
+  @override
+  String channelSettingsDeletePhoneConfirmed(String when) {
+    return 'The call was confirmed on $when. Deletion will follow and the request can no longer be cancelled.';
+  }
+
+  @override
+  String get channelSettingsDeleteRequestedSnack =>
+      'Request received. To complete it, call +385 98 967 9022.';
+
+  @override
+  String get channelSettingsDeleteCancelledSnack =>
+      'The deletion request was cancelled.';
+
+  @override
+  String get channelSettingsErrorLoginRequired =>
+      'Your session has expired. Sign in again.';
+
+  @override
+  String get channelSettingsErrorNotOwner =>
+      'You can\'t change this channel. You may need to verify ownership again.';
+
+  @override
+  String get channelSettingsErrorUnknownKey =>
+      'This setting isn\'t supported yet. Refresh the app.';
+
+  @override
+  String get channelSettingsErrorChannelDeleted =>
+      'The channel has been permanently deleted.';
+
+  @override
+  String get channelSettingsErrorNameMismatch =>
+      'The name you typed doesn\'t match the channel name.';
+
+  @override
+  String get channelSettingsErrorAlreadyRequested =>
+      'A deletion request already exists.';
+
+  @override
+  String get channelSettingsErrorNoOpenRequest =>
+      'There\'s no request to cancel.';
+
+  @override
+  String get channelSettingsErrorGeneric =>
+      'The change wasn\'t saved. Try again.';
+
+  @override
+  String get channelSettingsDonationsOffBanner =>
+      'Donations are turned off in the channel settings, so the support wall accepts no payments.';
+
+  @override
+  String get channelSettingsOpenAction => 'Open settings';
 }

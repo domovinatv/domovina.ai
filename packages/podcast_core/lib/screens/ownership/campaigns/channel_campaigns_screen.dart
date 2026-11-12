@@ -5,14 +5,24 @@ import '../../../models/channel_claim.dart';
 import '../../../pinka_sdk/pinka_sdk.dart';
 import '../../../services/auth_service.dart';
 import '../../../services/channel_ownership_service.dart';
+import '../../../services/channel_settings_service.dart';
 import '../../../router/nav.dart';
+import '../channel_settings_screen.dart' show ChannelDonationsOffBanner;
 
 /// Lista Pinka kampanja ankeriranih na verificirani kanal (UC… id). Ulaz iz
 /// "Moji kanali". Faza A: pregled + ulaz u upravljanje (bez in-app kreiranja).
 class ChannelCampaignsScreen extends StatefulWidget {
   final String youtubeChannelId; // UC…
 
-  const ChannelCampaignsScreen({super.key, required this.youtubeChannelId});
+  /// Postavke kanala (traka „donacije isključene”); `null` =
+  /// [ChannelSettingsBackend.instance].
+  final ChannelSettingsBackend? settingsBackend;
+
+  const ChannelCampaignsScreen({
+    super.key,
+    required this.youtubeChannelId,
+    this.settingsBackend,
+  });
 
   @override
   State<ChannelCampaignsScreen> createState() => _ChannelCampaignsScreenState();
@@ -22,6 +32,7 @@ class _ChannelCampaignsScreenState extends State<ChannelCampaignsScreen> {
   bool _loading = true;
   ChannelClaim? _claim;
   List<PinkaOwnerCampaign> _campaigns = const [];
+  ChannelSettings? _settings;
 
   @override
   void initState() {
@@ -37,10 +48,23 @@ class _ChannelCampaignsScreenState extends State<ChannelCampaignsScreen> {
         ? await PinkaAdminClient.instance
             .listCampaignsForChannel(widget.youtubeChannelId)
         : const <PinkaOwnerCampaign>[];
+    // Postavke kanala: samo informacija (backend uplate ionako odbija), pa
+    // greška ne ruši ekran.
+    ChannelSettings? settings;
+    if (claim?.isVerified ?? false) {
+      try {
+        settings = await (widget.settingsBackend ??
+                ChannelSettingsBackend.instance)
+            .fetchSettings(widget.youtubeChannelId);
+      } on ChannelSettingsException {
+        settings = null;
+      }
+    }
     if (!mounted) return;
     setState(() {
       _claim = claim;
       _campaigns = campaigns;
+      _settings = settings;
       _loading = false;
     });
   }
@@ -70,6 +94,11 @@ class _ChannelCampaignsScreenState extends State<ChannelCampaignsScreen> {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
+                if (_settings != null)
+                  ChannelDonationsOffBanner(
+                    youtubeChannelId: widget.youtubeChannelId,
+                    settings: _settings!,
+                  ),
                 if (_campaigns.isEmpty)
                   _empty(l, theme)
                 else

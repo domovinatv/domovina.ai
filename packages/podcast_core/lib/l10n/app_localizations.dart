@@ -7738,6 +7738,576 @@ abstract class AppLocalizations {
   /// In hr, this message translates to:
   /// **'Provjeri vezu pa pokušaj ponovno.'**
   String get channelCatalogUnavailableBody;
+
+  /// Naslov ekrana postavki kanala, stavka izbornika i gumb na ekranu vlasništva.
+  ///
+  /// In hr, this message translates to:
+  /// **'Postavke kanala'**
+  String get channelSettingsTitle;
+
+  /// Poruka odjavljenom korisniku na ekranu postavki kanala.
+  ///
+  /// In hr, this message translates to:
+  /// **'Za postavke kanala prvo se prijavi.'**
+  String get channelSettingsSignIn;
+
+  /// Korisnik nema potvrđen claim nad kanalom.
+  ///
+  /// In hr, this message translates to:
+  /// **'Postavke kanala mijenja samo potvrđeni vlasnik ili suradnik kanala.'**
+  String get channelSettingsNotOwner;
+
+  /// Greška pri učitavanju postavki.
+  ///
+  /// In hr, this message translates to:
+  /// **'Postavke kanala trenutačno se ne mogu učitati.'**
+  String get channelSettingsLoadFailed;
+
+  /// Claim stariji od 90 dana: ekran samo za čitanje.
+  ///
+  /// In hr, this message translates to:
+  /// **'Vlasništvo je potvrđeno prije više od 90 dana, pa su postavke samo za čitanje. Kad ponovno potvrdiš vlasništvo, opet ih možeš mijenjati.'**
+  String get channelSettingsReverifyBody;
+
+  /// Gumb koji vodi na ponovnu potvrdu vlasništva.
+  ///
+  /// In hr, this message translates to:
+  /// **'Ponovno potvrdi vlasništvo'**
+  String get channelSettingsReverifyAction;
+
+  /// Kanal ima tombstone.
+  ///
+  /// In hr, this message translates to:
+  /// **'Kanal je trajno obrisan. Postavke se više ne mogu mijenjati.'**
+  String get channelSettingsTombstoned;
+
+  /// Naslov skupine prekidača.
+  ///
+  /// In hr, this message translates to:
+  /// **'Prisutnost'**
+  String get channelSettingsGroupPresence;
+
+  /// Naslov skupine prekidača.
+  ///
+  /// In hr, this message translates to:
+  /// **'Reprodukcija i dijeljenje'**
+  String get channelSettingsGroupMedia;
+
+  /// Naslov skupine prekidača.
+  ///
+  /// In hr, this message translates to:
+  /// **'AI obrada'**
+  String get channelSettingsGroupAi;
+
+  /// Naslov skupine prekidača.
+  ///
+  /// In hr, this message translates to:
+  /// **'Novac'**
+  String get channelSettingsGroupMoney;
+
+  /// Naziv prekidača postavke kanala.
+  ///
+  /// In hr, this message translates to:
+  /// **'Kanal uključen'**
+  String get channelSettingsKeyChannelEnabled;
+
+  /// Jedna rečenica: što isključenje prekidača znači.
+  ///
+  /// In hr, this message translates to:
+  /// **'Isključeno: kanal se povlači iz cijele aplikacije, a sve ostale postavke vrijede kao isključene.'**
+  String get channelSettingsOffChannelEnabled;
+
+  /// Naziv prekidača postavke kanala.
+  ///
+  /// In hr, this message translates to:
+  /// **'Obrada novih epizoda'**
+  String get channelSettingsKeyProcessing;
+
+  /// Jedna rečenica: što isključenje prekidača znači.
+  ///
+  /// In hr, this message translates to:
+  /// **'Isključeno: nove epizode se ne preuzimaju ni obrađuju.'**
+  String get channelSettingsOffProcessing;
+
+  /// Naziv prekidača postavke kanala.
+  ///
+  /// In hr, this message translates to:
+  /// **'Isticanje na naslovnici'**
+  String get channelSettingsKeyHomeFeatured;
+
+  /// Jedna rečenica: što isključenje prekidača znači.
+  ///
+  /// In hr, this message translates to:
+  /// **'Isključeno: kanala nema u istaknutom dijelu naslovnice, u „Upravo stiglo”, u nizovima epizoda ni u „Danas u korpusu”.'**
+  String get channelSettingsOffHomeFeatured;
+
+  /// Naziv prekidača postavke kanala.
+  ///
+  /// In hr, this message translates to:
+  /// **'Pretraga u aplikaciji'**
+  String get channelSettingsKeyInAppSearch;
+
+  /// Jedna rečenica: što isključenje prekidača znači.
+  ///
+  /// In hr, this message translates to:
+  /// **'Isključeno: epizode kanala ne pojavljuju se u pretrazi aplikacije.'**
+  String get channelSettingsOffInAppSearch;
+
+  /// Naziv prekidača postavke kanala.
+  ///
+  /// In hr, this message translates to:
+  /// **'Tražilice'**
+  String get channelSettingsKeySearchEngines;
+
+  /// Jedna rečenica: što isključenje prekidača znači.
+  ///
+  /// In hr, this message translates to:
+  /// **'Isključeno: stranice kanala dobivaju oznaku „noindex” i izostaju iz mape stranica, pa ih tražilice ne prikazuju.'**
+  String get channelSettingsOffSearchEngines;
+
+  /// Naziv prekidača postavke kanala.
+  ///
+  /// In hr, this message translates to:
+  /// **'Obavijesti o novim epizodama'**
+  String get channelSettingsKeyPushNotifications;
+
+  /// Jedna rečenica: što isključenje prekidača znači.
+  ///
+  /// In hr, this message translates to:
+  /// **'Isključeno: pratitelji ne dobivaju obavijesti o novim epizodama.'**
+  String get channelSettingsOffPushNotifications;
+
+  /// Naziv prekidača postavke kanala.
+  ///
+  /// In hr, this message translates to:
+  /// **'Reprodukcija s našeg poslužitelja'**
+  String get channelSettingsKeyCdnPlayback;
+
+  /// Jedna rečenica: što isključenje prekidača znači.
+  ///
+  /// In hr, this message translates to:
+  /// **'Isključeno: epizode se ne puštaju s našeg poslužitelja, nego samo kroz službeni YouTube player.'**
+  String get channelSettingsOffCdnPlayback;
+
+  /// Naziv prekidača postavke kanala.
+  ///
+  /// In hr, this message translates to:
+  /// **'Isječci za dijeljenje'**
+  String get channelSettingsKeyShareClips;
+
+  /// Jedna rečenica: što isključenje prekidača znači.
+  ///
+  /// In hr, this message translates to:
+  /// **'Isključeno: nema isječaka po poglavlju, okomitih videa ni slika za dijeljenje po trenutku.'**
+  String get channelSettingsOffShareClips;
+
+  /// Naziv prekidača postavke kanala.
+  ///
+  /// In hr, this message translates to:
+  /// **'E-knjiga'**
+  String get channelSettingsKeyEbook;
+
+  /// Jedna rečenica: što isključenje prekidača znači.
+  ///
+  /// In hr, this message translates to:
+  /// **'Isključeno: epizode nemaju e-knjigu (EPUB).'**
+  String get channelSettingsOffEbook;
+
+  /// Naziv prekidača postavke kanala.
+  ///
+  /// In hr, this message translates to:
+  /// **'Članak i sažetak'**
+  String get channelSettingsKeyArticleSummary;
+
+  /// Jedna rečenica: što isključenje prekidača znači.
+  ///
+  /// In hr, this message translates to:
+  /// **'Isključeno: epizode nemaju članak ni sažetak.'**
+  String get channelSettingsOffArticleSummary;
+
+  /// Naziv prekidača postavke kanala.
+  ///
+  /// In hr, this message translates to:
+  /// **'Transkript i titlovi'**
+  String get channelSettingsKeyTranscriptSubtitles;
+
+  /// Jedna rečenica: što isključenje prekidača znači.
+  ///
+  /// In hr, this message translates to:
+  /// **'Isključeno: nema transkripta, titlova ni pretrage unutar epizode.'**
+  String get channelSettingsOffTranscriptSubtitles;
+
+  /// Naziv prekidača postavke kanala.
+  ///
+  /// In hr, this message translates to:
+  /// **'Prijevod na engleski'**
+  String get channelSettingsKeyEnglishTranslation;
+
+  /// Jedna rečenica: što isključenje prekidača znači.
+  ///
+  /// In hr, this message translates to:
+  /// **'Isključeno: epizode nemaju englesko izdanje.'**
+  String get channelSettingsOffEnglishTranslation;
+
+  /// Naziv prekidača postavke kanala.
+  ///
+  /// In hr, this message translates to:
+  /// **'Magisterium procjena'**
+  String get channelSettingsKeyMagisterium;
+
+  /// Jedna rečenica: što isključenje prekidača znači.
+  ///
+  /// In hr, this message translates to:
+  /// **'Isključeno: umjesto ocjene stoji „Vlasnik je isključio procjenu”.'**
+  String get channelSettingsOffMagisterium;
+
+  /// Naziv prekidača postavke kanala.
+  ///
+  /// In hr, this message translates to:
+  /// **'Istaknuti trenuci'**
+  String get channelSettingsKeyHighlightsReels;
+
+  /// Jedna rečenica: što isključenje prekidača znači.
+  ///
+  /// In hr, this message translates to:
+  /// **'Isključeno: epizode nemaju istaknute trenutke.'**
+  String get channelSettingsOffHighlightsReels;
+
+  /// Naziv prekidača postavke kanala.
+  ///
+  /// In hr, this message translates to:
+  /// **'Osobe i spomeni'**
+  String get channelSettingsKeyPersonsMentions;
+
+  /// Jedna rečenica: što isključenje prekidača znači.
+  ///
+  /// In hr, this message translates to:
+  /// **'Isključeno: epizode kanala ne ulaze u profile osoba ni u kanale osoba.'**
+  String get channelSettingsOffPersonsMentions;
+
+  /// Naziv prekidača postavke kanala.
+  ///
+  /// In hr, this message translates to:
+  /// **'Portal vijesti'**
+  String get channelSettingsKeyNewsPortal;
+
+  /// Jedna rečenica: što isključenje prekidača znači.
+  ///
+  /// In hr, this message translates to:
+  /// **'Isključeno: epizode kanala ne koriste se za članke na portalu vijesti.'**
+  String get channelSettingsOffNewsPortal;
+
+  /// Naziv prekidača postavke kanala.
+  ///
+  /// In hr, this message translates to:
+  /// **'AI asistenti'**
+  String get channelSettingsKeyAiAssistants;
+
+  /// Jedna rečenica: što isključenje prekidača znači.
+  ///
+  /// In hr, this message translates to:
+  /// **'Isključeno: epizode kanala nisu dostupne AI asistentima (MCP) ni semantičkoj pretrazi.'**
+  String get channelSettingsOffAiAssistants;
+
+  /// Naziv prekidača postavke kanala.
+  ///
+  /// In hr, this message translates to:
+  /// **'Donacije'**
+  String get channelSettingsKeyDonations;
+
+  /// Jedna rečenica: što isključenje prekidača znači.
+  ///
+  /// In hr, this message translates to:
+  /// **'Isključeno: kanal nema zid podrške i ne prima donacije.'**
+  String get channelSettingsOffDonations;
+
+  /// Naziv prekidača postavke kanala.
+  ///
+  /// In hr, this message translates to:
+  /// **'Plaćeni sponzorski trenuci'**
+  String get channelSettingsKeyPaidSponsorMoments;
+
+  /// Jedna rečenica: što isključenje prekidača znači.
+  ///
+  /// In hr, this message translates to:
+  /// **'Isključeno: nema izloga ni prodaje sponzorskih trenutaka. Već prodani trenuci traju do isteka.'**
+  String get channelSettingsOffPaidSponsorMoments;
+
+  /// Naziv prekidača postavke kanala.
+  ///
+  /// In hr, this message translates to:
+  /// **'Sponzori u snimci'**
+  String get channelSettingsKeySponsorsInVideo;
+
+  /// Jedna rečenica: što isključenje prekidača znači.
+  ///
+  /// In hr, this message translates to:
+  /// **'Isključeno: epizode nemaju sekciju „Uz podršku”.'**
+  String get channelSettingsOffSponsorsInVideo;
+
+  /// Napomena ispod prekidača reprodukcije s CDN-a.
+  ///
+  /// In hr, this message translates to:
+  /// **'Safari i iOS tada otvaraju youtube.com, jer ondje ugrađeni YouTube player ne radi.'**
+  String get channelSettingsCdnPlaybackNote;
+
+  /// Objašnjenje uz onemogućen prekidač kad je glavni isključen.
+  ///
+  /// In hr, this message translates to:
+  /// **'Ne vrijedi dok je kanal isključen.'**
+  String get channelSettingsBlockedByMaster;
+
+  /// Objašnjenje uz ovisni prekidač koji gasi roditelj.
+  ///
+  /// In hr, this message translates to:
+  /// **'Ne vrijedi dok je isključeno „{parent}”.'**
+  String channelSettingsBlockedByParent(String parent);
+
+  /// Ovisni prekidač bez poznatog roditelja.
+  ///
+  /// In hr, this message translates to:
+  /// **'Trenutačno ne vrijedi zbog drugih postavki kanala.'**
+  String get channelSettingsBlockedGeneric;
+
+  /// Naslov loga promjena.
+  ///
+  /// In hr, this message translates to:
+  /// **'Povijest promjena'**
+  String get channelSettingsLogTitle;
+
+  /// Prazan log.
+  ///
+  /// In hr, this message translates to:
+  /// **'Još nema promjena.'**
+  String get channelSettingsLogEmpty;
+
+  /// Greška pri učitavanju loga.
+  ///
+  /// In hr, this message translates to:
+  /// **'Povijest promjena trenutačno se ne može učitati.'**
+  String get channelSettingsLogLoadFailed;
+
+  /// Gumb za stariju stranicu loga.
+  ///
+  /// In hr, this message translates to:
+  /// **'Učitaj starije'**
+  String get channelSettingsLogLoadOlder;
+
+  /// Lokalni red loga dok se promjena sprema.
+  ///
+  /// In hr, this message translates to:
+  /// **'Sprema se…'**
+  String get channelSettingsLogSaving;
+
+  /// Vrijednost prekidača u logu.
+  ///
+  /// In hr, this message translates to:
+  /// **'uključeno'**
+  String get channelSettingsValueOn;
+
+  /// Vrijednost prekidača u logu.
+  ///
+  /// In hr, this message translates to:
+  /// **'isključeno'**
+  String get channelSettingsValueOff;
+
+  /// Red loga za promjenu prekidača.
+  ///
+  /// In hr, this message translates to:
+  /// **'{label}: {to} (prije {from})'**
+  String channelSettingsLogSettingChange(String label, String to, String from);
+
+  /// Red loga.
+  ///
+  /// In hr, this message translates to:
+  /// **'Zatraženo trajno brisanje kanala'**
+  String get channelSettingsLogDeletionRequested;
+
+  /// Red loga.
+  ///
+  /// In hr, this message translates to:
+  /// **'Zahtjev za trajno brisanje otkazan'**
+  String get channelSettingsLogDeletionCancelled;
+
+  /// Red loga.
+  ///
+  /// In hr, this message translates to:
+  /// **'Zahtjev za trajno brisanje potvrđen telefonom'**
+  String get channelSettingsLogDeletionPhoneConfirmed;
+
+  /// Red loga.
+  ///
+  /// In hr, this message translates to:
+  /// **'Kanal trajno obrisan'**
+  String get channelSettingsLogDeletionExecuted;
+
+  /// Red loga nepoznate vrste.
+  ///
+  /// In hr, this message translates to:
+  /// **'Promjena'**
+  String get channelSettingsLogUnknown;
+
+  /// Tko je napravio promjenu.
+  ///
+  /// In hr, this message translates to:
+  /// **'Vlasnik'**
+  String get channelSettingsRoleOwner;
+
+  /// Tko je napravio promjenu.
+  ///
+  /// In hr, this message translates to:
+  /// **'Suradnik'**
+  String get channelSettingsRoleCollaborator;
+
+  /// Promjena izvora phone.
+  ///
+  /// In hr, this message translates to:
+  /// **'Operater'**
+  String get channelSettingsRoleOperator;
+
+  /// Promjena izvora system.
+  ///
+  /// In hr, this message translates to:
+  /// **'Sustav'**
+  String get channelSettingsRoleSystem;
+
+  /// Promjenu je napravio trenutni korisnik.
+  ///
+  /// In hr, this message translates to:
+  /// **'{role} (ti)'**
+  String channelSettingsWhoYou(String role);
+
+  /// Tko i kada, ispod reda loga.
+  ///
+  /// In hr, this message translates to:
+  /// **'{who} · {when}'**
+  String channelSettingsLogMeta(String who, String when);
+
+  /// Naslov odjeljka brisanja.
+  ///
+  /// In hr, this message translates to:
+  /// **'Trajno brisanje kanala'**
+  String get channelSettingsDeleteTitle;
+
+  /// Objašnjenje što trajno brisanje briše.
+  ///
+  /// In hr, this message translates to:
+  /// **'Briše se sve što o kanalu imamo: epizode, mediji, članci, transkripti i indeksi pretrage. Ostaju samo trajan zapis o kanalu i trenutku brisanja, povijest promjena i financijski zapisi. Brisanje se ne može poništiti.'**
+  String get channelSettingsDeleteBody;
+
+  /// Oznaka polja za upis imena kanala.
+  ///
+  /// In hr, this message translates to:
+  /// **'Za potvrdu upiši ime kanala: {name}'**
+  String channelSettingsDeleteConfirmLabel(String name);
+
+  /// Gumb zahtjeva za brisanje.
+  ///
+  /// In hr, this message translates to:
+  /// **'Zatraži trajno brisanje'**
+  String get channelSettingsDeleteAction;
+
+  /// Claim nema naslov kanala.
+  ///
+  /// In hr, this message translates to:
+  /// **'Ime kanala nije poznato, pa se zahtjev ne može poslati iz aplikacije. Za brisanje nazovi +385 98 967 9022.'**
+  String get channelSettingsDeleteNoTitle;
+
+  /// Stanje otvorenog zahtjeva.
+  ///
+  /// In hr, this message translates to:
+  /// **'Zahtjev za trajno brisanje zaprimljen je {when}.'**
+  String channelSettingsDeleteRequestedAt(String when);
+
+  /// Uputa za telefonsku potvrdu brisanja.
+  ///
+  /// In hr, this message translates to:
+  /// **'Za dovršetak nazovi +385 98 967 9022.'**
+  String get channelSettingsDeleteCallToFinish;
+
+  /// Gumb otkazivanja zahtjeva za brisanje.
+  ///
+  /// In hr, this message translates to:
+  /// **'Otkaži zahtjev'**
+  String get channelSettingsDeleteCancelAction;
+
+  /// Zahtjev potvrđen telefonom.
+  ///
+  /// In hr, this message translates to:
+  /// **'Poziv je potvrđen {when}. Brisanje slijedi i zahtjev se više ne može otkazati.'**
+  String channelSettingsDeletePhoneConfirmed(String when);
+
+  /// Potvrda nakon zahtjeva za brisanje.
+  ///
+  /// In hr, this message translates to:
+  /// **'Zahtjev je zaprimljen. Za dovršetak nazovi +385 98 967 9022.'**
+  String get channelSettingsDeleteRequestedSnack;
+
+  /// Potvrda nakon otkazivanja.
+  ///
+  /// In hr, this message translates to:
+  /// **'Zahtjev za trajno brisanje je otkazan.'**
+  String get channelSettingsDeleteCancelledSnack;
+
+  /// Greška login_required.
+  ///
+  /// In hr, this message translates to:
+  /// **'Prijava je istekla. Prijavi se ponovno.'**
+  String get channelSettingsErrorLoginRequired;
+
+  /// Greška not_owner.
+  ///
+  /// In hr, this message translates to:
+  /// **'Nemaš pravo mijenjati ovaj kanal. Možda treba ponovno potvrditi vlasništvo.'**
+  String get channelSettingsErrorNotOwner;
+
+  /// Greška unknown_key.
+  ///
+  /// In hr, this message translates to:
+  /// **'Ova postavka još nije podržana. Osvježi aplikaciju.'**
+  String get channelSettingsErrorUnknownKey;
+
+  /// Greška channel_deleted.
+  ///
+  /// In hr, this message translates to:
+  /// **'Kanal je trajno obrisan.'**
+  String get channelSettingsErrorChannelDeleted;
+
+  /// Greška confirm_name_mismatch.
+  ///
+  /// In hr, this message translates to:
+  /// **'Upisano ime se ne poklapa s imenom kanala.'**
+  String get channelSettingsErrorNameMismatch;
+
+  /// Greška deletion_already_requested.
+  ///
+  /// In hr, this message translates to:
+  /// **'Zahtjev za trajno brisanje već postoji.'**
+  String get channelSettingsErrorAlreadyRequested;
+
+  /// Greška no_open_request.
+  ///
+  /// In hr, this message translates to:
+  /// **'Nema zahtjeva koji se može otkazati.'**
+  String get channelSettingsErrorNoOpenRequest;
+
+  /// Svaka druga greška.
+  ///
+  /// In hr, this message translates to:
+  /// **'Promjena nije spremljena. Pokušaj ponovno.'**
+  String get channelSettingsErrorGeneric;
+
+  /// Traka na ekranu kampanja kad je donations isključen.
+  ///
+  /// In hr, this message translates to:
+  /// **'Donacije su isključene u postavkama kanala, pa zid podrške ne prima uplate.'**
+  String get channelSettingsDonationsOffBanner;
+
+  /// Gumb s trake kampanja na postavke kanala.
+  ///
+  /// In hr, this message translates to:
+  /// **'Otvori postavke'**
+  String get channelSettingsOpenAction;
 }
 
 class _AppLocalizationsDelegate
