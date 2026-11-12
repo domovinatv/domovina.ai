@@ -274,6 +274,16 @@ obriše svoj DerivedData prije builda.
   vjerojatno ista zabrana, plus ovisnost o montiranju prije daemona).
   Pravilo: jedan iOS runtime (~8 GB) ostaje na internom disku; `Devices`,
   `iOS DeviceSupport`, DerivedData i Archives smiju van.
+
+  **12. 11. popravljeno bez restarta**: kad su `Images`/`Cryptex`/`Caches`
+  ponovno stvarne mape na internom disku, `simdiskimaged` se sam oporavio
+  (110. pokretanje) i montirao zaostali iOS 18.1. `ibtool` tada više ne visi
+  nego za 7 s padne s „iOS 26.2 Platform Not Installed": **runtime mora
+  odgovarati Xcodeu** (26.3 traži 26.x), stari runtime ne vrijedi.
+  `xcodebuild -downloadPlatform iOS` skinuo je iOS 26.3.1 (8,4 GB, interni disk
+  30 → 22 GB slobodno), nakon čega `ibtool --compile` za `LaunchScreen`
+  prolazi za 18 s. Provjera prije nightlyja:
+  `xcrun ibtool --compile /tmp/LS.storyboardc ios/Runner/Base.lproj/LaunchScreen.storyboard --target-device iphone --minimum-deployment-target 13.0`.
 - **`last-built-sha` se zapisuje samo na uspjeh** — pao build se sljedeću noć
   pokušava ponovno umjesto da bude preskočen kao „već obrađen".
 
