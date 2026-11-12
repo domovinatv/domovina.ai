@@ -233,3 +233,44 @@ Odluka se ne briše: zamijeni je novom koja je poziva.
      `stale-while-revalidate` na popisima). Produkcijski zastoj nije izmjeren (nema
      verificiranog vlasnika koji bi mijenjao postavke); mjeri ga S4 prvim stvarnim
      prekidačem.
+
+## S4 (2026-11-12, aplikacija: ekran postavki)
+
+400. **Ekran postavki čita `domovina_ai.public_channel_settings` (sirovo + efektivno), ne
+     katalog.** Katalog kasni do ~1,5 min i nosi samo efektivni `off`, a prekidač mora
+     pokazati što je vlasnik postavio. `ChannelSettingsCatalog.fetch/parse`
+     (`lib/services/channel_settings_service.dart`) postoji za S5; ne baca, `null` =
+     nedostupno.
+401. **Prekidač prikazuje sirovu vrijednost**, a siv je kad je sirovo `true` i efektivno
+     `false`. Efektivno stanje uvijek dolazi iz viewa ili odgovora RPC-a (odluka 200).
+     Klijentska mapa roditelja služi samo za tekst: prvi roditelj sa sirovim `false` redom
+     `channel_enabled` → `transcript_subtitles` → `article_summary`, preko lanca; inače
+     generičan tekst.
+402. **Optimistično pisanje**: red „Sprema se…” ostaje dok se log ponovno ne učita (bez
+     treptaja). Na grešku se vraća samo taj ključ, a istovremene promjene drugih ključeva ostaju.
+403. **Log se učitava po 50 redova**, a „Učitaj starije” ide preko `p_before`. Imena računa
+     RPC ne vraća, pa „tko” znači ulogu, uz „(ti)” kad je `account_id` trenutni korisnik.
+404. **Samo za čitanje**: claim stariji od 90 dana (uz radnju ponovne potvrde kroz
+     `/account/channels/:uc`), kanal s tombstoneom i uloga koja nije primary/collaborator.
+     Nepotvrđen claim dobiva samo poruku, jer ni log ne smije čitati.
+405. **Claim bez `channel_title` nema obrazac za brisanje**, samo telefon, jer bi backend vratio
+     `confirm_name_mismatch`. Brisanje i otkazivanje nemaju dodatni dijalog: upis točnog
+     imena je potvrda, a poziv je drugi korak.
+406. **Kodovi grešaka**: prepoznaju se poznati prefiksi (8 iz S2 + `invalid_state`,
+     `invalid_transition`), sve ostalo je `unknown`, a iznimka koja nije Postgrest je
+     `network`.
+407. **Telefon je na dva mjesta**: konstante `kChannelDeletionPhoneDisplay/Uri` i doslovno u
+     3 HR + 3 EN ARB stringa. Promjena broja mijenja oba mjesta.
+408. **Traka „donacije isključene” na ekranu kampanja čita efektivni `donations`**, pa se
+     prikazuje i za povučen ili obrisan kanal. Backend uplate ionako odbija (odluka 109).
+     Testirana je samo traka, jer ekran kampanja ovisi o Supabase singletonima.
+409. **`channel-slugs-sync --commit --confirm-production` izvršen 12. 11.** (korisnik
+     odobrio): upisano 183 sluga, nakon upisa razlika 0 (184 slug → UC; bez UC-a ostaju
+     `dijalog` i `x-1973380383166050304`, odluka 102). `launched`/`subclub` su UC već imali iz
+     ingesta (iz registryja 0). Naredba: `cd katalog && npm run channel-slugs-sync` (dry-run).
+410. **Produkcijski zastoj (odluka 316) i dalje nije izmjeren**: ekran je na produkciji, a
+     mjerenje traži da vlasnik `domovina_tv` (korisnik) prebaci jedan prekidač. Izmjeri se na
+     vrhu S5: vrijeme RPC-a → `curl -s https://domovina.ai/api/katalog/v1/settings` pokazuje
+     promjenu, pa prekidač vratiti.
+411. **Tekstovi novog ekrana su na „ti”**, a postojeći `ownership*` stringovi na susjednim
+     ekranima još su na „Vi” („Niste…”). Nije dirano. Usklađivanje je zaseban posao, izvan lanca.

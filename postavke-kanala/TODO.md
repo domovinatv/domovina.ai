@@ -34,13 +34,13 @@ Legenda: `[x]` gotovo · `[ ]` otvoreno · `[~]` u radu · `(!)` traži korisnik
 - [x] `GET /v1/settings` + Cron Trigger poller + UC iz registryja za `launched`/`subclub` → S3 (odluke 101, 105, 106)
 - [x] `drift-check` uspoređuje postavke domovina-api ↔ D1 → S3 (odluka 315)
 - [x] (!) Deploy katalog Workera s novom migracijom (11. 11., verzija `5f5966f7`, korisnik odobrio) → vrata nakon S3
-- [ ] (!) `channel-slugs-sync --commit --confirm-production` (183 sluga u `domovina_ai.channel_slugs`) → S4 na vrhu
+- [x] (!) `channel-slugs-sync --commit --confirm-production`: 183 sluga upisano 12. 11., razlika 0 → S4, odluka 409
 
 ## F3 — aplikacija
 
-- [ ] `ChannelSettingsService` + model (20 ključeva, zadano sve uključeno, nepoznat ključ = uključen) → S4
-- [ ] Ekran `/account/channels/:ucId/postavke`: glavni prekidač + 19 u 4 skupine, kronološki log promjena, zahtjev za trajno brisanje s potvrdom i telefonom +385 98 967 9022 → S4
-- [ ] ARB HR + EN, „ti”, bez emojija, lektor → S4
+- [x] `ChannelSettingsService` + model (20 ključeva, zadano sve uključeno, nepoznat ključ = uključen) → S4
+- [x] Ekran `/account/channels/:ucId/postavke`: glavni prekidač + 19 u 4 skupine, kronološki log promjena, zahtjev za trajno brisanje s potvrdom i telefonom +385 98 967 9022 → S4
+- [x] ARB HR + EN, „ti”, bez emojija, lektor → S4 (`9ed0a41`, 95 ključeva `channelSettings*`)
 - [ ] Provedba na ekranima: kanal, epizoda (oba prikaza), naslovnica, pretraga, osobe, TV; „Vlasnik je isključio procjenu” umjesto Magisterium ocjene; CDN reprodukcija isključena → `InAppYouTubePlayer` → S5
 - [ ] Ekran „Vlasnik je povukao sadržaj” (+ YouTube poveznica) i „Kanal je trajno uklonjen dd. mm. gggg.” → S5
 - [ ] Worker: OG/JSON-LD za povučen i obrisan kanal, `noindex`, sitemap bez njih → S6
