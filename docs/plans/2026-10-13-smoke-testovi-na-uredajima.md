@@ -1,5 +1,8 @@
 # Smoke testovi na pravim uređajima nakon nightly builda — plan
 
+> **Zastarjelo kao opis stanja.** Trenutna referenca (iz skripti, 12. 11. 2026.):
+> `docs/smoke-testovi.md`. Ovaj plan ostaje kao povijest odluka i prvih mjerenja.
+
 Status (13. 10. 2026. navečer): **faze 0–4 implementirane**, prva noćna
 vožnja u nightlyju tek predstoji. Što postoji:
 

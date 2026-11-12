@@ -18,7 +18,7 @@
 # SMOKE_DEVICES (id-evi odvojeni razmakom/zarezom) — tada samo oni.
 #
 # Exit: 0 pass, 1 fail, 2 unknown (nema uređaja, sve „ne mogu provjeriti”).
-# Plan: docs/plans/2026-10-13-smoke-testovi-na-uredajima.md
+# Referenca: docs/smoke-testovi.md
 set -uo pipefail
 cd "$(dirname "$0")/.."
 BN="${1:?build broj}"
@@ -42,9 +42,12 @@ mapfile -t DEVICES < <(flutter devices --machine --device-timeout 30 2>/dev/null
 
 LINES=(); FAIL=0; PASS_ANDROID=0; PASS_IOS=0
 label() { case $1 in 0) echo "ok" ;; 1) echo "PAO" ;; *) echo "nije provjereno" ;; esac; }
+dur() { printf '%d min %02d s' $(($1 / 60)) $(($1 % 60)); }
+T_ALL=$SECONDS
 
 for row in "${DEVICES[@]}"; do
   IFS='|' read -r kind id name <<<"$row"
+  t0=$SECONDS
   if [[ $kind == android ]]; then
     ./scripts/release-smoke.sh "$id" --aab "$AAB" > "$LOGDIR/$id-release.log" 2>&1; r1=$?
   elif [[ -n "$IPA" ]]; then
@@ -52,9 +55,12 @@ for row in "${DEVICES[@]}"; do
   else
     echo "nema development IPA-e (build/ios/ipa-dev)" > "$LOGDIR/$id-release.log"; r1=2
   fi
+  t1=$SECONDS
   ./scripts/smoke-device.sh "$id" > "$LOGDIR/$id-ui.log" 2>&1; r2=$?
+  t2=$SECONDS
 
-  line="$name: release $(label $r1), ui $(label $r2)"
+  # Trajanje uključuje čekanje na bravu uređaja (do 20 min po testu).
+  line="$name: release $(label $r1) ($(dur $((t1 - t0)))), ui $(label $r2) ($(dur $((t2 - t1))))"
   # Razlog pada: prvi konkretan redak iz loga.
   for pair in "$r1:$LOGDIR/$id-release.log" "$r2:$LOGDIR/$id-ui.log"; do
     rc=${pair%%:*}; log=${pair#*:}
@@ -84,6 +90,7 @@ else
   RESULT=unknown
 fi
 
+LINES+=("ukupno: $(dur $((SECONDS - T_ALL)))")
 { echo "result=$RESULT"; printf '%s\n' "${LINES[@]}"; } > "$OUTDIR/$BN.txt"
 printf '%s\n' "${LINES[@]}"
 case $RESULT in pass) exit 0 ;; fail) exit 1 ;; *) exit 2 ;; esac

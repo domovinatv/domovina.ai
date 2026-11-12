@@ -407,8 +407,8 @@ PLAY_OK="$("$ROOT/scripts/store-status.rb" --json 2>/dev/null \
                          || REPORT+=("🤖⚠️ Play internal: versionCode ${BN} NIJE potvrđen čitanjem")
 
 # ── 8b. smoke na uređajima farme ─────────────────────────────────────────────
-# Isti binarni paket koji je upravo uploadan, na 2 Androida + 2 iPhonea
-# spojena na ovaj Mac (docs/plans/2026-10-13-smoke-testovi-na-uredajima.md).
+# Isti binarni paket koji je upravo uploadan, na uređajima farme spojenima
+# na ovaj Mac (SMOKE_DEVICES u .env). Referenca: docs/smoke-testovi.md.
 # NE blokira upload — build je već interni; vrata su na promociji
 # (smoke-gate.sh u asc-submit.rb / play-promote.sh). NIGHTLY_SMOKE=0 gasi.
 SMOKE_RC=0
@@ -417,10 +417,13 @@ if [[ "${NIGHTLY_SMOKE:-1}" == "1" ]]; then
   SMOKE_T0=$SECONDS
   SMOKE_OUT=$("${TIMEOUT_BIN:-command}" ${TIMEOUT_BIN:+-k 30 120m} ./scripts/nightly-smoke.sh "$BN" 2>&1) || SMOKE_RC=$?
   echo "$SMOKE_OUT"
+  # Trajanje i u padu: zastoj ili timeout se vidi upravo po trajanju.
+  SMOKE_DUR=$(dur $((SECONDS - SMOKE_T0)))
   case $SMOKE_RC in
-    0) REPORT+=("🧪 Smoke ${BN}: prošao na svim uređajima — $(dur $((SECONDS - SMOKE_T0)))") ;;
-    1) REPORT+=("🧪❌ Smoke ${BN}: PAO — ovaj build NE promovirati") ;;
-    *) REPORT+=("🧪⚠️ Smoke ${BN}: nije potpuno provjeren (uređaj zauzet/odspojen?)") ;;
+    0) REPORT+=("🧪 Smoke ${BN}: prošao na svim uređajima — ${SMOKE_DUR}") ;;
+    1) REPORT+=("🧪❌ Smoke ${BN}: PAO — ovaj build NE promovirati — ${SMOKE_DUR}") ;;
+    124|137) REPORT+=("🧪⚠️ Smoke ${BN}: prekinut nakon ${SMOKE_DUR} (timeout 120 min)") ;;
+    *) REPORT+=("🧪⚠️ Smoke ${BN}: nije potpuno provjeren (uređaj zauzet/odspojen?) — ${SMOKE_DUR}") ;;
   esac
   while IFS= read -r l; do [[ -n "$l" ]] && REPORT+=("   $l"); done \
     < <(grep -E '^(.+: release |   ↳ |nijedan uređaj)' <<<"$SMOKE_OUT")

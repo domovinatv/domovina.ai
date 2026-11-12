@@ -293,8 +293,9 @@ obriše svoj DerivedData prije builda.
 <!-- .nightly/smoke/builds/ je izlaz nightlyja, ne datoteka u repou. -->
 
 Nakon uploada i verifikacije storeova nightly zove
-`scripts/nightly-smoke.sh <build>` nad 2 Androida i 2 iPhonea spojena na
-ovaj Mac. Upload ne blokira; ishod ide u istu Telegram poruku i u
+`scripts/nightly-smoke.sh <build>` nad uređajima farme spojenima na ovaj Mac
+(`SMOKE_DEVICES`). Referenca (tijek, što obara koju razinu, stanja uređaja,
+vrata): `docs/smoke-testovi.md`. Upload ne blokira; ishod ide u istu Telegram poruku i u
 `.nightly/smoke/builds/<build>.txt`, koji čitaju vrata promocije
 (`scripts/smoke-gate.sh` iz `asc-submit.rb` / `play-promote.sh`). Za iOS
 `build-mobile-release.sh` uz `EXPORT_DEV_IPA=1` iz istog archivea izveze i
@@ -338,9 +339,11 @@ SAMO kad prođe (grana `0)`); „PAO" i „nije potpuno provjeren" ga nemaju, a
 smoke u nightlyju nije prošao nijednom, pa jedine ranije brojke su ostatak
 „ukupno − izmjereni koraci" u `.nightly/reports/` (uključuje i čekanje
 TestFlight VALID): 5–8 min kad su uređaji bili zaključani (test se ne
-pokrene), 21–47 min kad se stvarno testiralo. Otvoreno: bilježiti trajanje
-uvijek, i po uređaju/razini u `.nightly/smoke/builds/<build>.txt`.
+pokrene), 21–47 min kad se stvarno testiralo. Popravljeno istog dana:
+trajanje ide u Telegram u svakoj grani (i „prekinut nakon … (timeout)" za
+124/137), a `nightly-smoke.sh` ga piše po uređaju i razini u
+`.nightly/smoke/builds/<build>.txt` uz redak `ukupno:`.
 <!-- doc-refs:ignore-end -->
 
-Vezani dokumenti: `docs/plans/2026-10-13-smoke-testovi-na-uredajima.md`, `docs/plans/2026-11-09-store-build-na-github-actions.md`
+Vezani dokumenti: `docs/smoke-testovi.md` (referenca), `docs/plans/2026-10-13-smoke-testovi-na-uredajima.md`, `docs/plans/2026-11-09-store-build-na-github-actions.md`
 (skripte, mjerenja, zamke uređaja).
