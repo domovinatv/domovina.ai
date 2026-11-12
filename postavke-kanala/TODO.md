@@ -43,14 +43,14 @@ Legenda: `[x]` gotovo · `[ ]` otvoreno · `[~]` u radu · `(!)` traži korisnik
 - [x] ARB HR + EN, „ti”, bez emojija, lektor → S4 (`9ed0a41`, 95 ključeva `channelSettings*`)
 - [x] Provedba na ekranima: kanal, epizoda (oba prikaza), naslovnica, pretraga, osobe, TV; „Vlasnik je isključio procjenu” umjesto Magisterium ocjene; CDN reprodukcija isključena → `InAppYouTubePlayer` → S5 (`bffd406`, odluke 500–509)
 - [x] Ekran „Vlasnik je povukao sadržaj” (+ YouTube poveznica) i „Kanal je trajno uklonjen dd. mm. gggg.” → S5 (`ChannelGoneView`)
-- [ ] Worker: OG/JSON-LD za povučen i obrisan kanal, `noindex`, sitemap bez njih → S6
+- [x] Worker: OG/JSON-LD za povučen i obrisan kanal, `noindex`, sitemap bez njih → S6 (`591d48d`, odluke 600–607; `og:video` i Cast receiver isto)
 
 ## F4 — ostali potrošači
 
 - [ ] Pipeline (`fetch.domovina.tv`): ne obrađuje nove epizode kad je obrada ili master isključen; preskače generiranje isključenih AI artefakata; tombstone UC nikad se ne vraća kroz otkrivanje (Tier 2) → S7 (radi se iz fetch repoa)
 - [ ] Meili (`episodes`, `segments`) i semantika/RAG (`domovina-rag`): filtar po postavkama → S8
 - [ ] Push (`domovina-push`): ne šalje za isključen kanal → S8
-- [ ] `domovina-cutter` i `/api/search` `purpose` → S8; KORAK 13, Vertex, WhatsApp skripta, glasački bazen → S7; `og:video`, Cast receiver → S6 (odluka 110)
+- [ ] `domovina-cutter` i `/api/search` `purpose` → S8; KORAK 13, Vertex, WhatsApp skripta, glasački bazen → S7; `og:video`, Cast receiver → S6 gotovo (odluke 603, 605)
 - [ ] (!) Vijesti (`vijesti/`, drugi lanac): ugovor kako engine čita postavke; izvedba ide u lancu vijesti → S8 (dogovor)
 
 ## F5 — trajno brisanje i objava

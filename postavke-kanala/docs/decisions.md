@@ -343,3 +343,53 @@ Odluka se ne briše: zamijeni je novom koja je poziva.
      bez scrolla. Test (`channel_settings_screen_test.dart`) čuva samo broj stupaca po
      širini — testni font Ahem je širi od Intera, pa „stane bez scrolla” u testu ne vrijedi
      (na 1440×900 prijavljuje prelijevanje kojeg u pregledniku nema).
+
+## S6 (2026-11-12, worker: OG, noindex, sitemap, Cast)
+
+600. **Worker čita stanje iz kataloga `GET /settings`, ne iz `/channels/:slug` po zahtjevu.**
+     Jedan poziv kroz binding `KATALOG` (`fetchChannelSettings` u `web/_worker.js`) daje stanje
+     za `/v/`, `/m/`, `/c/` i sitemap; epizoda kanal zna iz `info.json` `channel_id`, Tier 1
+     kanal iz `youtube_channel_url` u listingu i `index.json`. Memorija izolata 60 s, po
+     `CATALOG_API` i bindingu; na grešci ostaje zadnja poznata mapa. Fail-open kao aplikacija
+     (odluka 500): bez kataloga povučen kanal izgleda kao prije, uključujući sitemap.
+     Tier 2 i kanal kojem je S9 obrisao listing čitaju `state`/`deleted_at` iz
+     `/channels/:slug` (odluka 309); taj poziv ide paralelno s `/settings`, da se dva
+     timeouta kataloga (800 ms) ne zbroje.
+601. **Povučen i obrisan kanal imaju jedan OG** (`injectGoneTags`) na `/c/<slug>` i svim
+     podrutama (`/doniraj`, `/support`, `/oglasi`) te na svim varijantama `/v/` i `/m/`
+     (`/t/<sec>`, `/en`, `/hr`, `/sponzoriraj`): naslov i opis prema ARB `channelGone*`
+     (ime brenda umjesto „domovina.ai”, `/en` na engleskom), `og-image.png`, JSON-LD `WebPage`
+     umjesto `VideoObject`/`PodcastSeries`, bez hreflanga i bez ijednog podatka epizode
+     (naslov, opis, thumbnail, og:video). Ime kanala ostaje (identitet, ne sadržaj). Povučen
+     ima `relatedLink` na YouTube (video za `/v/`, kanal za `/c/`), obrisan nema (odluka 507).
+     Datum je zagrebački `dd. mm. gggg.`. `X-Robots-Tag: noindex` i `<meta name="robots">`.
+602. **Povučen/obrisan OG se cachira 5 min, ostali 1 h kao prije.** Povratak kanala tako je na
+     rubu vidljiv za ~5 min; povlačenje kasni do 1 h (matrica §3), osim uz purge obje
+     `Vary: Origin` varijante.
+603. **Ključevi na aktivnom kanalu:** `search_engines` → `noindex` na `/v/`, `/m/`, `/c/` (i
+     Tier 2) i izvan sitemapa zajedno s epizodama; `cdn_playback` → bez `og:video*` i JSON-LD
+     `contentUrl`; `share_clips` → bez `og-t-<sec>` slike (pada na `og-share.jpg`);
+     `article_summary` → opis iz `info.json`, bez AI sekcije u `/t/` (poglavlja s YouTubea
+     ostaju); `english_translation` → `/en` dobiva HR OG, canonical na HR i bez hreflanga
+     (odluka 503; nije 301, jer bi preglednik trajno pamtio preusmjerenje i nakon uključivanja).
+604. **`donations`/`paid_sponsor_moments` isključeni:** `/c/<slug>/doniraj|support|oglasi`
+     dobivaju OG kanala uz `noindex`, `/v/<id>/sponzoriraj` plain SPA uz `noindex` — aplikacija
+     ondje prikazuje „isključeno” (`ChannelFeatureOffGuard`), pa OG ne smije nuditi donaciju
+     ni kupnju.
+605. **Cast receiver ima vrata u zasebnoj skripti** (`web/cast-receiver-gate.js`, učitava je
+     `cast-receiver.html`): prije svakog LOAD-a `info.json` epizode + `/api/katalog/v1/settings?t=<minuta>`;
+     povučen/obrisan kanal i `cdn_playback` off → `LOAD_FAILED` (`CONTENT_FILTERED`).
+     Fail-open: bez ID-a, na mrežnoj grešci ili nakon 2,5 s reprodukcija ide. Odvojena
+     skripta je zbog Node testa bez CAF-a. Na pravom televizoru nije isprobano.
+606. **Testovi:** `node scripts/test-worker-postavke-kanala.mjs` (lažni katalog i CDN, bez mreže,
+     134 provjere; mutacija `isOff → false` ruši 19) i `scripts/test-social-tags.mjs`
+     `testChannelSettingsLive` (čita živi `/settings`, za najviše 4 skrivena kanala provjerava
+     `noindex`, OG i sitemap). Na dan S6 u produkciji nema nijednog isključenog ključa, pa živi
+     dio provjerava samo kontrolu (kanal bez postavki je indeksiran) i serviranje gate skripte.
+     `test-worker-katalog-kanal.mjs` sada broji pozive kartice odvojeno od `/settings`.
+607. **Otvoreno (nije paket S6):** `/v/<id>` obrisanog kanala nakon S9 (kad `info.json` više
+     nema) worker ne prepoznaje, pa daje plain SPA (`no-store`), ne OG s datumom brisanja; za
+     to treba `GET /episodes/:id/card` sa stanjem kanala ili popis ID-eva u tombstoneu → S9.
+     `/p/<slug>` JSON-LD i dalje može nabrajati epizode kanala s `search_engines` ili
+     `persons_mentions` isključenim (matrica §5): `domovina-rag` nastupe ne veže uz UC → S8.
+     `/dani/` OG već filtrira katalog (S3).
