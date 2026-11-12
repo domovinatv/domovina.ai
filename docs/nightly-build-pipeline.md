@@ -323,6 +323,8 @@ javi iOS ui „nije provjereno”, to je prvi osumnjičenik.
   Configurator, briše uređaj); postavlja se ručno. Bez šifre Power tipka ne smeta:
   smoke ga probudi, a `devicectl … lockState` javlja `passcodeRequired`.
 
+<!-- doc-refs:ignore-start -->
+<!-- .nightly/smoke/builds/ je izlaz nightlyja, ne datoteka u repou. -->
 ### Trajanje smokea (12. 11. 2026.)
 
 Prvi nightly u kojem je smoke prošao na svim uređajima (build 254, ručni
@@ -338,6 +340,7 @@ smoke u nightlyju nije prošao nijednom, pa jedine ranije brojke su ostatak
 TestFlight VALID): 5–8 min kad su uređaji bili zaključani (test se ne
 pokrene), 21–47 min kad se stvarno testiralo. Otvoreno: bilježiti trajanje
 uvijek, i po uređaju/razini u `.nightly/smoke/builds/<build>.txt`.
+<!-- doc-refs:ignore-end -->
 
 Vezani dokumenti: `docs/plans/2026-10-13-smoke-testovi-na-uredajima.md`, `docs/plans/2026-11-09-store-build-na-github-actions.md`
 (skripte, mjerenja, zamke uređaja).
