@@ -322,3 +322,15 @@ Odluka se ne briše: zamijeni je novom koja je poziva.
      `cdn_playback` računa katalog.
 509. **Ikona preuzimanja vlasništva ostaje na povučenom `/c/`**, da vlasnik dođe natrag
      do postavki i uključi kanal.
+510. **Produkcijski zastoj izmjeren 12. 11. (dopuna odluke 316).** Vlasnik `domovina_tv`
+     isključio je `ebook`: događaj u logu `13:13:59.13 UTC`
+     (`domovina-api: ./scripts/db-psql.sh -c "'select * from domovina_ai.channel_settings_events order by 1 desc limit 3'"`),
+     a `curl -s https://domovina.ai/api/katalog/v1/settings` ga je prvi put pokazao u
+     `13:15:05 UTC` (provjera svake 3 s), dakle **≤ 66 s** do ruba. Preglednik je zatim u
+     13:15:55 i dalje dobio prazan odgovor iz svog HTTP cachea (`max-age=60,
+     stale-while-revalidate=600`), pa je e-knjiga ostala ponuđena; nakon svježeg dohvata u
+     13:16:51 nestala je (živa provjera S5 na `/v/QkcpHsj43rE`). Popravak (v2.0.234):
+     klijent traži `/settings?t=<minuta>`; katalog nepoznate parametre izbacuje iz ključa
+     rubnog cachea, pa rub i dalje dijeli jedan zapis. Ukupno: do ~2 min od prekidača do
+     nove sesije aplikacije; otvorena sesija vidi promjenu najkasnije za 5 min
+     (`ChannelVisibility.maxAge`) ili pri ponovnom učitavanju.
