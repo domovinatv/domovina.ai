@@ -393,3 +393,51 @@ Odluka se ne briše: zamijeni je novom koja je poziva.
      `/p/<slug>` JSON-LD i dalje može nabrajati epizode kanala s `search_engines` ili
      `persons_mentions` isključenim (matrica §5): `domovina-rag` nastupe ne veže uz UC → S8.
      `/dani/` OG već filtrira katalog (S3).
+
+## S7 (2026-11-12, pipeline u `fetch.domovina.tv`)
+
+Kod: `fetch.domovina.tv` `9b96aa5d` (modul) + `1de73cad` (integracija). Opis za pipeline:
+`fetch.domovina.tv/docs/2026-11-12-postavke-kanala-u-pipelineu.md`.
+
+700. **Izvor stanja za pipeline je katalog `GET /v1/settings`** (odgovor na §C-13 matrice),
+     jednom po runu: `run_pipeline.sh` zapiše snimku i izveze `CHANNEL_SETTINGS_FILE`, a
+     skripta pokrenuta sama dohvati jednom (15 min svježe). Jedan odgovor nosi i tombstone,
+     pa nema drugog izvora. Modul `lib/channel_settings.js` ponovno zatvara `off` po
+     ovisnostima iz odluke 108, iako je odgovor već efektivan.
+701. **Obrada je fail-closed, čitači nisu.** Nedostupan katalog (3 pokušaja, 15 s) → snimka
+     `ok:false`, svaki korak obrade preskače SVE epizode (i kanale bez retka) uz
+     `⛔ POSTAVKE KANALA NEDOSTUPNE`; run se ne ruši. Čitači (KORAK 13, watch, discover,
+     WhatsApp, glasački bazen) koriste zadnju uspješnu snimku
+     (`storage/.channel_settings.last_ok.json`), a bez nje ne filtriraju i to javljaju: druga
+     su linija, a prazna naslovnica je gora greška. WhatsApp `--commit` i glasački bazen
+     `--commit` uz zastarjelu snimku odbijaju rad.
+702. **UC epizode = `info.json` `channel_id` ∪ UC kanala liste iz registryja.** Isključeno
+     kod bilo kojeg od njih = preskoči. Direktorij `domovina_tv` traži registry slug
+     `domovina-tv` (46 od 62 direktorija ima samo oblik s crticom).
+703. **Svaki korak obrade provjerava `processing` + master + svoj ključ** (`checkStep`), pa
+     isključena obrada zaustavlja i epizodu koja je već skinuta (odgovor na §C-4: provjera u
+     svakom koraku, ne samo prije uploada).
+704. **Preskočena epizoda ne dobiva nikakav trag** (`failed[]`, `completed[]`,
+     `.words.skipped.json`, done-cache): kad vlasnik uključi ključ, sljedeći run je obradi.
+     Ništa se ne briše (odluka 8).
+705. **Medij se ne skida kad su `cdn_playback` i `transcript_subtitles` oboje off**
+     (odluka 108: nema što objaviti). Lista Tier 1 se provjerava po kanalu liste prije
+     skidanja; epizoda tuđeg kanala na listi hvata se u `convert_to_wav`/ASR po `info.json`.
+     Ad-hoc (`--unlisted-url`/`--video-id`) pita `yt-dlp --print channel_id` samo kad katalog
+     ima barem jedan isključen kanal.
+706. **KORAK 13 filtrira po kanalu, ne po epizodi**: povučen ili obrisan kanal izostaje iz
+     `index.json`, listinga (ne piše se novi, stari na R2 ostaje), `home.json` i
+     `search.json`; `home_featured` off samo iz `home.json`, `in_app_search` off samo iz
+     `search.json`. Bez isključenih kanala izlaz je bajt-identičan (ETag stabilan, test).
+707. **Tombstone UC se nikad ne vraća**: `watch_candidates.js` ga ne prati, `discover.js`
+     ga izbacuje u aggregate/triage/classify/apply (i uz `--force`, i za playliste vlasnika),
+     Tier 2 ne stvara job. U discover `ledger.json` se ne piše (izvor istine je katalog).
+708. **Glasački bazen**: povučen ili obrisan UC ispada iz skupa kandidata prije `--limit`, pa
+     ga postojeća logika označi `withdrawn` (nikad DELETE). Skripta nije pokretana (glasanje
+     skriveno, voting-drift ugašen).
+709. **Poznate rupe, svjesno ostavljene**: KORAK 2.5 (rclone WAV na Drive) i ugašeni KORAK 6
+     nemaju ogradu; `render_reels.js` objava šalje već postojeći `reels.json`; Magisterium job
+     koji pokrene admin skripta preskoči s exit 0, a bridge ga označi kao failed (drugi repo);
+     izvorni jezik za `diarized.en.srt` (odluka 508) nije označen jer nijedan kanal na
+     engleskom nije prijavio problem. Revizija: prvi vlasnik koji isključi ključ, ili prvi
+     kanal na engleskom koji ga isključi.

@@ -47,10 +47,10 @@ Legenda: `[x]` gotovo · `[ ]` otvoreno · `[~]` u radu · `(!)` traži korisnik
 
 ## F4 — ostali potrošači
 
-- [ ] Pipeline (`fetch.domovina.tv`): ne obrađuje nove epizode kad je obrada ili master isključen; preskače generiranje isključenih AI artefakata; tombstone UC nikad se ne vraća kroz otkrivanje (Tier 2) → S7 (radi se iz fetch repoa)
+- [x] Pipeline (`fetch.domovina.tv`): ne obrađuje nove epizode kad je obrada ili master isključen; preskače generiranje isključenih AI artefakata; tombstone UC nikad se ne vraća kroz otkrivanje (Tier 2) → S7 (`1de73cad`, odluke 700–709)
 - [ ] Meili (`episodes`, `segments`) i semantika/RAG (`domovina-rag`): filtar po postavkama → S8
 - [ ] Push (`domovina-push`): ne šalje za isključen kanal → S8
-- [ ] `domovina-cutter` i `/api/search` `purpose` → S8; KORAK 13, Vertex, WhatsApp skripta, glasački bazen → S7; `og:video`, Cast receiver → S6 gotovo (odluke 603, 605)
+- [ ] `domovina-cutter` i `/api/search` `purpose` → S8; KORAK 13, Vertex, WhatsApp skripta, glasački bazen → S7 gotovo (odluke 706, 708); `og:video`, Cast receiver → S6 gotovo (odluke 603, 605)
 - [ ] (!) Vijesti (`vijesti/`, drugi lanac): ugovor kako engine čita postavke; izvedba ide u lancu vijesti → S8 (dogovor)
 
 ## F5 — trajno brisanje i objava
