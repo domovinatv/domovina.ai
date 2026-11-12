@@ -257,6 +257,23 @@ obriše svoj DerivedData prije builda.
   (vani je od 15. 10. i radilo je), runtime ne. Provjera:
   `gtimeout 30 xcrun simctl list devices booted`. Trajno rješenje:
   `docs/plans/2026-11-09-store-build-na-github-actions.md`.
+
+  **Dokazano 12. 11. iz `log show` (`process == "simdiskimaged"`)**: runtimeovi
+  NE MOGU na vanjski disk, ni uz koju postavku. `simdiskimaged` (root daemon)
+  za `Images` traži stvarni direktorij — symlink daje „Not a directory", a
+  sadržaj na vanjskom volumenu „Operation not permitted" (i nakon
+  `diskutil enableOwnership`). Tada sam sebe sruši
+  (`ImageManager.swift:393: Fatal error: Unable to check the secure storage
+  directory`), launchd ga respawna (izmjereno 109×) pa ga ostavi u
+  `spawn scheduled`; `launchctl kickstart` tada visi i treba restart Maca.
+  `xcodebuild -downloadPlatform iOS` u tom stanju vrati „Unable to connect to
+  simulator" (exit 70). Na DOMOVINA2TB je `Images` uz to bio prazan — runtime
+  nije preseljen nego je nestao. Odbačeno: hardlink (ne prelazi volumen, APFS
+  nema hardlink direktorija), Xcode.app na vanjskom disku (3,7 GB; runtime
+  ionako nije u njemu), mount point APFS volumena na `Images` (nepodržano,
+  vjerojatno ista zabrana, plus ovisnost o montiranju prije daemona).
+  Pravilo: jedan iOS runtime (~8 GB) ostaje na internom disku; `Devices`,
+  `iOS DeviceSupport`, DerivedData i Archives smiju van.
 - **`last-built-sha` se zapisuje samo na uspjeh** — pao build se sljedeću noć
   pokušava ponovno umjesto da bude preskočen kao „već obrađen".
 
