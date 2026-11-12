@@ -1366,5 +1366,13 @@
   "channelSettingsErrorNoOpenRequest": "There's no request to cancel.",
   "channelSettingsErrorGeneric": "The change wasn't saved. Try again.",
   "channelSettingsDonationsOffBanner": "Donations are turned off in the channel settings, so the support wall accepts no payments.",
-  "channelSettingsOpenAction": "Open settings"
+  "channelSettingsOpenAction": "Open settings",
+  "channelGoneWithdrawn": "The owner has withdrawn this content from domovina.ai",
+  "channelGoneWithdrawnBody": "The recording is still available on YouTube.",
+  "channelGoneDeleted": "This channel was permanently removed from domovina.ai on {date}.",
+  "channelGoneDeletedNoDate": "This channel was permanently removed from domovina.ai.",
+  "channelGoneOpenYouTube": "Open on YouTube",
+  "channelGoneBackHome": "Go to the home page",
+  "magisteriumOffByOwner": "The owner has turned off the assessment",
+  "channelFeatureOffByOwner": "The channel owner has turned this feature off."
 }

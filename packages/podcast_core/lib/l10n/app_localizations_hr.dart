@@ -5272,4 +5272,34 @@ class AppLocalizationsHr extends AppLocalizations {
 
   @override
   String get channelSettingsOpenAction => 'Otvori postavke';
+
+  @override
+  String get channelGoneWithdrawn =>
+      'Vlasnik je povukao ovaj sadržaj s domovina.ai';
+
+  @override
+  String get channelGoneWithdrawnBody =>
+      'Snimka je i dalje dostupna na YouTubeu.';
+
+  @override
+  String channelGoneDeleted(String date) {
+    return 'Kanal je trajno uklonjen s domovina.ai $date.';
+  }
+
+  @override
+  String get channelGoneDeletedNoDate =>
+      'Kanal je trajno uklonjen s domovina.ai.';
+
+  @override
+  String get channelGoneOpenYouTube => 'Otvori na YouTubeu';
+
+  @override
+  String get channelGoneBackHome => 'Na naslovnicu';
+
+  @override
+  String get magisteriumOffByOwner => 'Vlasnik je isključio procjenu';
+
+  @override
+  String get channelFeatureOffByOwner =>
+      'Vlasnik kanala je isključio ovu mogućnost.';
 }

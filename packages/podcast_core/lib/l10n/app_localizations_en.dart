@@ -5225,4 +5225,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get channelSettingsOpenAction => 'Open settings';
+
+  @override
+  String get channelGoneWithdrawn =>
+      'The owner has withdrawn this content from domovina.ai';
+
+  @override
+  String get channelGoneWithdrawnBody =>
+      'The recording is still available on YouTube.';
+
+  @override
+  String channelGoneDeleted(String date) {
+    return 'This channel was permanently removed from domovina.ai on $date.';
+  }
+
+  @override
+  String get channelGoneDeletedNoDate =>
+      'This channel was permanently removed from domovina.ai.';
+
+  @override
+  String get channelGoneOpenYouTube => 'Open on YouTube';
+
+  @override
+  String get channelGoneBackHome => 'Go to the home page';
+
+  @override
+  String get magisteriumOffByOwner => 'The owner has turned off the assessment';
+
+  @override
+  String get channelFeatureOffByOwner =>
+      'The channel owner has turned this feature off.';
 }

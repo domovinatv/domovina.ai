@@ -8308,6 +8308,54 @@ abstract class AppLocalizations {
   /// In hr, this message translates to:
   /// **'Otvori postavke'**
   String get channelSettingsOpenAction;
+
+  /// Kanal ili epizoda povučeni s domovina.ai (postavke kanala, channel_enabled isključen). Nikad 404.
+  ///
+  /// In hr, this message translates to:
+  /// **'Vlasnik je povukao ovaj sadržaj s domovina.ai'**
+  String get channelGoneWithdrawn;
+
+  /// Druga rečenica ispod naslova povučenog sadržaja.
+  ///
+  /// In hr, this message translates to:
+  /// **'Snimka je i dalje dostupna na YouTubeu.'**
+  String get channelGoneWithdrawnBody;
+
+  /// Kanal trajno obrisan (tombstone). date = dd. mm. gggg.
+  ///
+  /// In hr, this message translates to:
+  /// **'Kanal je trajno uklonjen s domovina.ai {date}.'**
+  String channelGoneDeleted(String date);
+
+  /// Kao channelGoneDeleted, kad datum nije poznat.
+  ///
+  /// In hr, this message translates to:
+  /// **'Kanal je trajno uklonjen s domovina.ai.'**
+  String get channelGoneDeletedNoDate;
+
+  /// Poveznica na izvorni YouTube kanal ili video uz povučen sadržaj.
+  ///
+  /// In hr, this message translates to:
+  /// **'Otvori na YouTubeu'**
+  String get channelGoneOpenYouTube;
+
+  /// Gumb s ekrana povučenog/obrisanog sadržaja na naslovnicu.
+  ///
+  /// In hr, this message translates to:
+  /// **'Na naslovnicu'**
+  String get channelGoneBackHome;
+
+  /// Umjesto Magisterium ocjene kad je vlasnik kanala isključio procjenu (odluka 2).
+  ///
+  /// In hr, this message translates to:
+  /// **'Vlasnik je isključio procjenu'**
+  String get magisteriumOffByOwner;
+
+  /// Ruta značajke (donacije, izlog oglasa) koju je vlasnik kanala isključio.
+  ///
+  /// In hr, this message translates to:
+  /// **'Vlasnik kanala je isključio ovu mogućnost.'**
+  String get channelFeatureOffByOwner;
 }
 
 class _AppLocalizationsDelegate

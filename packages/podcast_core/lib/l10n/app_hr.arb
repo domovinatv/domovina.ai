@@ -6078,17 +6078,32 @@
   "catalogMetaPublished": "Objavljeno na YouTubeu u {time}",
   "@catalogMetaPublished": {
     "description": "Tooltip uz sat objave epizode u popisu dana / kanala iz kataloga.",
-    "placeholders": { "time": { "type": "String", "example": "18:00" } }
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "18:00"
+      }
+    }
   },
   "catalogMetaDuration": "Trajanje {duration}",
   "@catalogMetaDuration": {
     "description": "Tooltip uz trajanje epizode u popisu iz kataloga.",
-    "placeholders": { "duration": { "type": "String", "example": "1:06:01" } }
+    "placeholders": {
+      "duration": {
+        "type": "String",
+        "example": "1:06:01"
+      }
+    }
   },
   "catalogMetaScore": "Magisterium ocjena {score} od 100",
   "@catalogMetaScore": {
     "description": "Tooltip uz Magisterium ocjenu epizode u popisu iz kataloga.",
-    "placeholders": { "score": { "type": "int", "example": "79" } }
+    "placeholders": {
+      "score": {
+        "type": "int",
+        "example": "79"
+      }
+    }
   },
   "channelsScopeFollowed": "Pratimo",
   "@channelsScopeFollowed": {
@@ -6595,5 +6610,42 @@
   "channelSettingsOpenAction": "Otvori postavke",
   "@channelSettingsOpenAction": {
     "description": "Gumb s trake kampanja na postavke kanala."
+  },
+  "channelGoneWithdrawn": "Vlasnik je povukao ovaj sadržaj s domovina.ai",
+  "@channelGoneWithdrawn": {
+    "description": "Kanal ili epizoda povučeni s domovina.ai (postavke kanala, channel_enabled isključen). Nikad 404."
+  },
+  "channelGoneWithdrawnBody": "Snimka je i dalje dostupna na YouTubeu.",
+  "@channelGoneWithdrawnBody": {
+    "description": "Druga rečenica ispod naslova povučenog sadržaja."
+  },
+  "channelGoneDeleted": "Kanal je trajno uklonjen s domovina.ai {date}.",
+  "@channelGoneDeleted": {
+    "description": "Kanal trajno obrisan (tombstone). date = dd. mm. gggg.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "channelGoneDeletedNoDate": "Kanal je trajno uklonjen s domovina.ai.",
+  "@channelGoneDeletedNoDate": {
+    "description": "Kao channelGoneDeleted, kad datum nije poznat."
+  },
+  "channelGoneOpenYouTube": "Otvori na YouTubeu",
+  "@channelGoneOpenYouTube": {
+    "description": "Poveznica na izvorni YouTube kanal ili video uz povučen sadržaj."
+  },
+  "channelGoneBackHome": "Na naslovnicu",
+  "@channelGoneBackHome": {
+    "description": "Gumb s ekrana povučenog/obrisanog sadržaja na naslovnicu."
+  },
+  "magisteriumOffByOwner": "Vlasnik je isključio procjenu",
+  "@magisteriumOffByOwner": {
+    "description": "Umjesto Magisterium ocjene kad je vlasnik kanala isključio procjenu (odluka 2)."
+  },
+  "channelFeatureOffByOwner": "Vlasnik kanala je isključio ovu mogućnost.",
+  "@channelFeatureOffByOwner": {
+    "description": "Ruta značajke (donacije, izlog oglasa) koju je vlasnik kanala isključio."
   }
 }
