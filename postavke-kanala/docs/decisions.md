@@ -334,3 +334,12 @@ Odluka se ne briše: zamijeni je novom koja je poziva.
      rubnog cachea, pa rub i dalje dijeli jedan zapis. Ukupno: do ~2 min od prekidača do
      nove sesije aplikacije; otvorena sesija vidi promjenu najkasnije za 5 min
      (`ChannelVisibility.maxAge`) ili pri ponovnom učitavanju.
+
+511. **Ekran postavki na desktopu u stupcima (v2.0.235, na zahtjev vlasnika).** Ispod 960 px
+     jedan stupac do 720 px (mobitel nepromijenjen). 960–1279: prisutnost + reprodukcija +
+     novac | AI. Od 1280 (sadržaj do 1560 px): prisutnost + trajno brisanje | AI (8, najviši
+     stupac) | reprodukcija + novac; glavni prekidač na vrhu (do 720 px), dnevnik ispod
+     svega. Provjereno u Braveu 1568×762: svih 20 prekidača, brisanje i dnevnik na ekranu
+     bez scrolla. Test (`channel_settings_screen_test.dart`) čuva samo broj stupaca po
+     širini — testni font Ahem je širi od Intera, pa „stane bez scrolla” u testu ne vrijedi
+     (na 1440×900 prijavljuje prelijevanje kojeg u pregledniku nema).
