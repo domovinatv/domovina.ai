@@ -159,8 +159,9 @@ Future<void> _pump(
   WidgetTester tester,
   FakeBackend backend, {
   Future<bool> Function(Uri)? launcher,
+  Size size = const Size(1000, 9000),
 }) async {
-  tester.view.physicalSize = const Size(1000, 9000);
+  tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1.0;
   addTearDown(tester.view.reset);
   await tester.pumpWidget(
@@ -182,6 +183,20 @@ SwitchListTile _tile(WidgetTester tester, String key) =>
     tester.widget<SwitchListTile>(find.byKey(ValueKey('channel-setting-$key')));
 
 void main() {
+  // Stvarno „stane bez scrolla” se ne da izmjeriti ovdje: testni font
+  // (Ahem) je širi od Intera pa je svaki redak viši nego u pregledniku.
+  // Test zato čuva broj stupaca po širini; visinu provjeri u pregledniku.
+  for (final (width, columns) in [(390.0, 1), (1000.0, 2), (1440.0, 3)]) {
+    testWidgets('širina $width: $columns stupac/a prekidača', (tester) async {
+      await _pump(tester, FakeBackend(), size: Size(width, 9000));
+      final xs = {
+        for (final k in kChannelSettingKeys.skip(1))
+          tester.getRect(find.byKey(ValueKey('channel-setting-$k'))).left,
+      };
+      expect(xs, hasLength(columns));
+    });
+  }
+
   testWidgets('točno 20 prekidača, svi uključeni i omogućeni', (tester) async {
     await _pump(tester, FakeBackend());
     expect(find.byType(SwitchListTile), findsNWidgets(20));

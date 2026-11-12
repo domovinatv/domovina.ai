@@ -425,14 +425,17 @@ class _ChannelSettingsScreenState extends State<ChannelSettingsScreen> {
           ? const Center(child: CircularProgressIndicator())
           : LayoutBuilder(
               builder: (context, c) {
-                // Sadržaj najviše 720 px, ali scroll ide do ruba ekrana:
-                // razmak je padding LISTE, ne omotač oko nje.
-                final side = math.max(0.0, (c.maxWidth - 720) / 2);
+                // Uski ekran: jedan stupac do 720 px. Desktop: skupine
+                // prekidača u 2–3 stupca, da se sve vidi bez scrolla.
+                // Scroll ide do ruba ekrana: razmak je padding LISTE.
+                final columns = _columnsFor(c.maxWidth);
+                final maxW = columns == 1 ? 720.0 : 1560.0;
+                final side = math.max(0.0, (c.maxWidth - maxW) / 2);
                 return RefreshIndicator(
                   onRefresh: _load,
                   child: ListView(
                     padding: EdgeInsets.fromLTRB(side, 16, side, 32),
-                    children: _body(context, l),
+                    children: _body(context, l, columns),
                   ),
                 );
               },
@@ -440,7 +443,41 @@ class _ChannelSettingsScreenState extends State<ChannelSettingsScreen> {
     );
   }
 
-  List<Widget> _body(BuildContext context, AppLocalizations l) {
+  /// Broj stupaca za širinu: < 960 jedan (mobitel, kao prije), do 1280
+  /// dva, iznad tri.
+  static int _columnsFor(double width) => width >= 1280
+      ? 3
+      : width >= 960
+      ? 2
+      : 1;
+
+  List<Widget> _group(
+    BuildContext context,
+    AppLocalizations l,
+    ChannelSettingGroup group,
+    String heading,
+  ) => [
+    const SizedBox(height: 8),
+    _heading(Theme.of(context), heading),
+    for (final key in channelSettingKeysOf(group)) _switch(context, l, key),
+  ];
+
+  Widget _columnsRow(List<List<Widget>> cols) => Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      for (var i = 0; i < cols.length; i++) ...[
+        if (i > 0) const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: cols[i],
+          ),
+        ),
+      ],
+    ],
+  );
+
+  List<Widget> _body(BuildContext context, AppLocalizations l, int columns) {
     final theme = Theme.of(context);
     if (_userId == null) return [_info(theme, l.channelSettingsSignIn)];
     final claim = _claim;
@@ -472,25 +509,103 @@ class _ChannelSettingsScreenState extends State<ChannelSettingsScreen> {
             label: Text(l.channelSettingsReverifyAction),
           ),
         ),
-      _switch(context, l, kChannelEnabledKey),
-      for (final (group, heading) in [
-        (ChannelSettingGroup.presence, l.channelSettingsGroupPresence),
-        (ChannelSettingGroup.media, l.channelSettingsGroupMedia),
-        (ChannelSettingGroup.ai, l.channelSettingsGroupAi),
-        (ChannelSettingGroup.money, l.channelSettingsGroupMoney),
-      ]) ...[
-        const SizedBox(height: 8),
-        _heading(theme, heading),
-        for (final key in channelSettingKeysOf(group)) _switch(context, l, key),
-      ],
-      const SizedBox(height: 16),
-      const Divider(),
+      if (columns == 1)
+        _switch(context, l, kChannelEnabledKey)
+      else
+        // Glavni prekidač ne treba punu širinu desktopa.
+        Align(
+          alignment: Alignment.centerLeft,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 720),
+            child: _switch(context, l, kChannelEnabledKey),
+          ),
+        ),
+      ..._groupsAndRest(context, l, columns),
+    ];
+  }
+
+  List<Widget> _groupsAndRest(
+    BuildContext context,
+    AppLocalizations l,
+    int columns,
+  ) {
+    final theme = Theme.of(context);
+    final presence = _group(
+      context,
+      l,
+      ChannelSettingGroup.presence,
+      l.channelSettingsGroupPresence,
+    );
+    final media = _group(
+      context,
+      l,
+      ChannelSettingGroup.media,
+      l.channelSettingsGroupMedia,
+    );
+    final ai = _group(
+      context,
+      l,
+      ChannelSettingGroup.ai,
+      l.channelSettingsGroupAi,
+    );
+    final money = _group(
+      context,
+      l,
+      ChannelSettingGroup.money,
+      l.channelSettingsGroupMoney,
+    );
+    final log = [
       _heading(theme, l.channelSettingsLogTitle),
       ..._logSection(context, l),
-      const SizedBox(height: 16),
-      const Divider(),
-      _deletionSection(context, l),
     ];
+    final deletion = _deletionSection(context, l);
+    switch (columns) {
+      case 1:
+        return [
+          ...presence,
+          ...media,
+          ...ai,
+          ...money,
+          const SizedBox(height: 16),
+          const Divider(),
+          ...log,
+          const SizedBox(height: 16),
+          const Divider(),
+          deletion,
+        ];
+      case 2:
+        // AI (8 ključeva) sam; ostale tri skupine (11) u prvom stupcu.
+        return [
+          _columnsRow([
+            [...presence, ...media, ...money],
+            ai,
+          ]),
+          const SizedBox(height: 16),
+          const Divider(),
+          _columnsRow([
+            log,
+            [deletion],
+          ]),
+        ];
+      default:
+        // Prisutnost + brisanje | AI | medij + novac; dnevnik ispod.
+        // Najviši stupac je AI (8 prekidača), ostala dva su niža.
+        return [
+          _columnsRow([
+            [
+              ...presence,
+              const SizedBox(height: 16),
+              const Divider(),
+              deletion,
+            ],
+            ai,
+            [...media, ...money],
+          ]),
+          const SizedBox(height: 16),
+          const Divider(),
+          ...log,
+        ];
+    }
   }
 
   Widget _pad(Widget child) => Padding(
