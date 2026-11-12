@@ -355,7 +355,7 @@ export default {
     // Sitemap — MORA biti prije ASSETS grane ispod: `/sitemap.xml` ima
     // ekstenziju pa bi ga `/\.\w{1,8}$/` poslao u env.ASSETS.fetch() i dobio
     // 404 (fajl ne postoji u web/). Jedna ruta, jedan urlset.
-    if (path === '/sitemap.xml') return handleSitemap();
+    if (path === '/sitemap.xml') return handleSitemap(env);
 
     // Portal vijesti — /vijesti i /vijesti/* pripadaju Workeru `domovina-vijesti`
     // (vijesti/portal, Astro). U produkciji ga veže zonska ruta
@@ -479,7 +479,7 @@ export default {
       // na hrvatski original.
       const summaryPath = lang === 'en' ? 'summary.en.json' : 'summary.json';
       const articlePath = lang === 'en' ? 'article.en.json' : 'article.json';
-      const [info, summaryLocalized, summaryHr, articleLocalized, articleHr, ogSections, hasOgShare] = await Promise.all([
+      const [info, summaryLocalized, summaryHr, articleLocalized, articleHr, ogSections, hasOgShare, settings] = await Promise.all([
         fetchJson(`${CDN}/data/${ytId}/info.json`),
         fetchJson(`${CDN}/data/${ytId}/${summaryPath}`),
         lang === 'en' ? fetchJson(`${CDN}/data/${ytId}/summary.json`) : Promise.resolve(null),
@@ -489,9 +489,31 @@ export default {
         (typeof tSec === 'number' && lang === 'en') ? fetchJson(`${CDN}/data/${ytId}/article.json`) : Promise.resolve(null),
         (typeof tSec === 'number') ? fetchJson(`${CDN}/images/${ytId}/og-sections.json`) : Promise.resolve(null),
         headOk(`${CDN}/images/${ytId}/og-share.jpg`),
+        // Postavke kanala (S6) — paralelno, da ne produlje zahtjev.
+        fetchChannelSettings(env),
       ]);
-      const summary = summaryLocalized || summaryHr;
-      const article = articleLocalized || articleHr;
+
+      // Povučen ili obrisan kanal: bez ijednog podatka epizode (tvrdi uvjet 3).
+      // UC epizode je `info.channel_id`; bez info.json kanal se ne zna.
+      const policy = channelPolicy(settings, info && info.channel_id);
+      if (info && policy.status !== 'active') {
+        return goneResponse(await (await indexPromise).text(), {
+          status: policy.status,
+          deletedAt: policy.deletedAt,
+          name: info.channel || null,
+          url: `${SITE}${path}`,
+          youtubeUrl: info.webpage_url
+            || `https://www.youtube.com/watch?v=${info._variant_of || ytId}`,
+          lang,
+        });
+      }
+      // english_translation isključen: /en dobiva HR OG, canonical na HR i
+      // bez hreflang en (odluka 503; aplikacija /en zamjenjuje HR rutom).
+      const noEn = isOff(policy, 'english_translation');
+      const pageLang = noEn ? 'hr' : lang;
+      const aiOff = isOff(policy, 'article_summary');
+      const summary = aiOff ? null : (noEn ? (lang === 'en' ? summaryHr : summaryLocalized) : (summaryLocalized || summaryHr));
+      const article = aiOff ? null : (noEn ? (lang === 'en' ? articleHr : articleLocalized) : (articleLocalized || articleHr));
 
       // Section-specific og:image override. Manifest mape:
       //   sections    → { "<startSec>": "og-t-<sec>.jpg" }
@@ -500,11 +522,11 @@ export default {
       // EN bez svoje slike pada na HR sliku — pogrešan jezik u slici je i dalje
       // bolji od generičkog og-share.jpg bez tog trenutka.
       let sectionImageUrl = null;
-      if (info && article && ogSections && typeof tSec === 'number') {
+      if (info && article && ogSections && typeof tSec === 'number' && !isOff(policy, 'share_clips')) {
         const sec = findArticleSection(article, tSec, info.duration);
         if (sec && typeof sec._start === 'number') {
           const key = String(sec._start);
-          const filename = (lang === 'en' ? ogSections.sections_en?.[key] : null)
+          const filename = (pageLang === 'en' ? ogSections.sections_en?.[key] : null)
             || ogSections.sections?.[key];
           if (filename) {
             sectionImageUrl = `${CDN}/images/${ytId}/${filename}`;
@@ -514,7 +536,14 @@ export default {
 
       if (info) {
         const indexHtml = await (await indexPromise).text();
-        return htmlResponse(injectEpisodeTags(indexHtml, ytId, info, summary, article, hasOgShare, tSec, viewMode, sectionImageUrl, lang), 'public, max-age=3600, s-maxage=3600');
+        const res = htmlResponse(
+          injectEpisodeTags(indexHtml, ytId, info, summary, article, hasOgShare, tSec, viewMode, sectionImageUrl, pageLang, {
+            noEn,
+            noVideo: isOff(policy, 'cdn_playback'),
+          }),
+          'public, max-age=3600, s-maxage=3600',
+        );
+        return isOff(policy, 'search_engines') ? noindex(res) : res;
       }
       // info ne postoji — Flutter će prikazati grešku, servamo plain index
       return htmlResponse(await (await indexPromise).text(), 'no-store');
@@ -527,10 +556,26 @@ export default {
     const sponsorVMatch = path.match(/^\/v\/([A-Za-z0-9_-]{6,20})\/sponzoriraj$/);
     if (sponsorVMatch) {
       const id = sponsorVMatch[1];
-      const [info, summary] = await Promise.all([
+      const [info, summary, settings] = await Promise.all([
         fetchJson(`${CDN}/data/${id}/info.json`),
         fetchJson(`${CDN}/data/${id}/summary.json`),
+        fetchChannelSettings(env),
       ]);
+      const policy = channelPolicy(settings, info && info.channel_id);
+      if (info && policy.status !== 'active') {
+        return goneResponse(await (await indexPromise).text(), {
+          status: policy.status,
+          deletedAt: policy.deletedAt,
+          name: info.channel || null,
+          url: `${SITE}${path}`,
+          youtubeUrl: info.webpage_url || `https://www.youtube.com/watch?v=${info._variant_of || id}`,
+        });
+      }
+      if (info && isOff(policy, 'paid_sponsor_moments')) {
+        // Prodaja isključena: aplikacija prikaže „isključeno" (ChannelFeatureOffGuard),
+        // pa ponuda brandu u OG-u ne smije stajati.
+        return noindex(htmlResponse(await (await indexPromise).text(), 'no-store'));
+      }
       if (info) {
         const indexHtml = await (await indexPromise).text();
         return htmlResponse(
@@ -576,16 +621,43 @@ export default {
     if (cSupportMatch || cAdsMatch || cMatch) {
       const slug = (cSupportMatch || cAdsMatch || cMatch)[1];
       const channelId = slug.replace(/-/g, '_');
+      // Postavke kreću odmah, ali se čekaju tek uz listing ili uz karticu
+      // kataloga — inače bi Tier 2 čekao dva timeouta kataloga zaredom.
+      const settingsPromise = fetchChannelSettings(env);
       const channel = await fetchJson(
         `${CDN}/channels/data/${channelId}.json?${channelCacheBuster()}`,
       );
       if (channel && channel.name) {
+        const settings = await settingsPromise;
         const indexHtml = await (await indexPromise).text();
+        const uc = extractUcId(channel);
+        const policy = channelPolicy(settings, uc);
+        // Povučen ili obrisan kanal: isti prikaz na /c/<slug> i podrutama.
+        if (policy.status !== 'active') {
+          return goneResponse(indexHtml, {
+            status: policy.status,
+            deletedAt: policy.deletedAt,
+            name: channel.name,
+            url: `${SITE}${path}`,
+            youtubeUrl: uc ? `https://www.youtube.com/channel/${uc}` : null,
+          });
+        }
+        const index = (res) => (isOff(policy, 'search_engines') ? noindex(res) : res);
+        // Izlog/zid uz isključen ključ: aplikacija prikaže „isključeno", pa
+        // OG ne smije nuditi kupnju ni donaciju — padaju na OG kanala.
+        const adsOn = cAdsMatch && !isOff(policy, 'paid_sponsor_moments');
+        const supportOn = cSupportMatch && !isOff(policy, 'donations');
+        if ((cAdsMatch && !adsOn) || (cSupportMatch && !supportOn)) {
+          return noindex(htmlResponse(
+            injectChannelTags(indexHtml, slug, channel),
+            'public, max-age=3600, s-maxage=3600',
+          ));
+        }
         if (cAdsMatch) {
-          return htmlResponse(
+          return index(htmlResponse(
             injectSponsorStoreTags(indexHtml, slug, channel),
             'public, max-age=3600, s-maxage=3600',
-          );
+          ));
         }
         if (cSupportMatch) {
           // Kampanja preko ISTOG RPC-a koji app zove (PinkaClient
@@ -594,15 +666,15 @@ export default {
             env,
             [extractUcId(channel), channelId].filter(Boolean),
           );
-          return htmlResponse(
+          return index(htmlResponse(
             injectSupportTags(indexHtml, slug, cSupportMatch[2], channel, campaign),
             'public, max-age=3600, s-maxage=3600',
-          );
+          ));
         }
-        return htmlResponse(
+        return index(htmlResponse(
           injectChannelTags(indexHtml, slug, channel),
           'public, max-age=3600, s-maxage=3600',
-        );
+        ));
       }
       // Tier 2 (kanal bez listinga, samo u katalogu) — samo goli /c/<slug>,
       // i tek nakon listinga, da Tier 1 ne plaća subrequest. Kartica ide kroz
@@ -610,15 +682,32 @@ export default {
       // timeoutu ostaje plain SPA kao i prije. Katalog 404 = kanala nema ni
       // ondje: SPA + noindex, kao nevaljan /dani/ datum.
       if (cMatch) {
-        const catalog = await fetchCatalogChannel(env, slug);
+        // Ovdje završava i obrisan kanal kojem je S9 obrisao listing: katalog
+        // ga iz tombstonea vraća kao `state: deleted` (odluka 309).
+        const [catalog, settings] = await Promise.all([
+          fetchCatalogChannel(env, slug),
+          settingsPromise,
+        ]);
         if (catalog && catalog.item) {
           const indexHtml = await (await indexPromise).text();
+          const policy = channelPolicy(settings, catalog.uc);
+          const status = catalog.state !== 'active' ? catalog.state : policy.status;
+          if (status !== 'active') {
+            return goneResponse(indexHtml, {
+              status,
+              deletedAt: catalog.deletedAt || policy.deletedAt,
+              name: catalog.item.name,
+              url: `${SITE}${path}`,
+              youtubeUrl: catalog.item.youtubeUrl,
+            });
+          }
           const res = htmlResponse(
             injectCatalogChannelTags(indexHtml, slug, catalog.item),
             'public, max-age=3600, s-maxage=3600',
           );
-          // Kanal bez ijedne obrađene epizode je tanka stranica.
-          return catalog.item.processedCount > 0 ? res : noindex(res);
+          // Kanal bez ijedne obrađene epizode je tanka stranica; vlasnik može
+          // isključiti i tražilice.
+          return catalog.item.processedCount > 0 && !isOff(policy, 'search_engines') ? res : noindex(res);
         }
         if (catalog && catalog.missing) {
           return noindex(htmlResponse(await (await indexPromise).text(), 'no-store'));
@@ -782,11 +871,11 @@ async function cachePutText(cache, key, text, maxAge) {
 }
 
 /** GET /sitemap.xml — cache-first, build tek na promašaj. */
-async function handleSitemap() {
+async function handleSitemap(env) {
   const cache = edgeCache();
   const cached = await cacheGetText(cache, sitemapCacheUrl());
   if (cached) return xmlResponse(cached);
-  return buildSitemap(cache);
+  return buildSitemap(cache, env);
 }
 
 /** Channel id (`slijedi_svoj_poziv_2`) → /c/ slug (`slijedi-svoj-poziv-2`). */
@@ -801,16 +890,20 @@ function lastmodDate(value) {
   return m ? m[1] : null;
 }
 
-async function buildSitemap(cache) {
-  const [index, personIndex] = await Promise.all([
+async function buildSitemap(cache, env) {
+  const [index, personIndex, settings] = await Promise.all([
     fetchJson(`${CDN}/channels/data/index.json?${channelCacheBuster()}`),
     fetchJson(PERSONS_API),
+    fetchChannelSettings(env),
   ]);
 
   const generated = lastmodDate(index?.generated_at);
-  // Filtriramo na oblik id-a koji /c/ ruta uopće može poslužiti.
+  // Filtriramo na oblik id-a koji /c/ ruta uopće može poslužiti. Povučen,
+  // obrisan i kanal s isključenim `search_engines` ne ulaze ni sa stranicom
+  // kanala ni s epizodama (postavke kanala, S6; fail-open bez kataloga).
   const channels = (Array.isArray(index?.channels) ? index.channels : [])
-    .filter((ch) => /^[a-z0-9_]{2,80}$/.test(String(ch?.id ?? '')));
+    .filter((ch) => /^[a-z0-9_]{2,80}$/.test(String(ch?.id ?? '')))
+    .filter((ch) => !isOff(channelPolicy(settings, extractUcId(ch)), 'search_engines'));
   const persons = Array.isArray(personIndex?.persons)
     ? personIndex.persons
     : (Array.isArray(personIndex) ? personIndex : []);
@@ -1084,7 +1177,10 @@ function isoDuration(seconds) {
   return out;
 }
 
-function injectEpisodeTags(indexHtml, ytId, info, summary, article, hasOgShare, tSec, viewMode, sectionImageUrl, lang = 'hr') {
+// `opts` (postavke kanala, S6): `noEn` — `english_translation` isključen, pa
+// stranica nema EN varijantu (bez hreflang en / og:locale:alternate);
+// `noVideo` — `cdn_playback` isključen, pa nema og:video ni contentUrl.
+function injectEpisodeTags(indexHtml, ytId, info, summary, article, hasOgShare, tSec, viewMode, sectionImageUrl, lang = 'hr', opts = {}) {
   const copy = SHARE_COPY[lang] || SHARE_COPY.hr;
   // EN naslov je `title_en` iz summary.en.json (AI prijevod naslova). HR
   // varijanta ostaje izvorni YouTube naslov, isto kao do 27.10.2026. — tada je
@@ -1184,7 +1280,7 @@ function injectEpisodeTags(indexHtml, ytId, info, summary, article, hasOgShare, 
   const ogUrl = (viewMode === 'm')
     ? `${SITE}/m/${ytId}${typeof tSec === 'number' ? `/t/${tSec}` : ''}${langSuffix}`
     : canonical;
-  const altLinks = [
+  const altLinks = opts.noEn ? '' : [
     `  <link rel="alternate" hreflang="hr" href="${SITE}${basePath}">`,
     `  <link rel="alternate" hreflang="en" href="${SITE}${basePath}/en">`,
     `  <link rel="alternate" hreflang="x-default" href="${SITE}${basePath}">`,
@@ -1192,7 +1288,7 @@ function injectEpisodeTags(indexHtml, ytId, info, summary, article, hasOgShare, 
   const channel = info.channel || APP_NAME;
   const releaseDate = formatUploadDate(info.upload_date);
   const isoDur = isoDuration(info.duration);
-  const videoUrl = `${CDN}/data/${ytId}/video.mp4`;
+  const videoUrl = opts.noVideo ? null : `${CDN}/data/${ytId}/video.mp4`;
   // Varijanta epizode ima sintetički ID (`OspwepfLO_2`); YouTube zna samo
   // pravi ID izvorne epizode iz `_variant_of`. CDN/og URL-ovi ostaju na ytId.
   const ytUrl = info.webpage_url
@@ -1214,8 +1310,7 @@ ${altLinks}
 
   <meta property="og:type" content="video.other">
   <meta property="og:locale" content="${copy.locale}">
-  <meta property="og:locale:alternate" content="${lang === 'en' ? 'hr_HR' : 'en_US'}">
-  <meta property="og:site_name" content="${APP_NAME}">
+${opts.noEn ? '' : `  <meta property="og:locale:alternate" content="${lang === 'en' ? 'hr_HR' : 'en_US'}">\n`}  <meta property="og:site_name" content="${APP_NAME}">
   <meta property="og:logo" content="${SITE}/og-image-square.png">
   <meta property="og:title" content="${x(title)}">
   <meta property="og:description" content="${x(desc)}">
@@ -1224,7 +1319,7 @@ ${altLinks}
   <meta property="og:image:type" content="${thumbMime}">
   <meta property="og:image:width" content="${thumbW}">
   <meta property="og:image:height" content="${thumbH}">
-  <meta property="og:image:alt" content="${x(title)}">
+  <meta property="og:image:alt" content="${x(title)}">${videoUrl ? `
   <meta property="og:video" content="${videoUrl}">
   <meta property="og:video:secure_url" content="${videoUrl}">
   <meta property="og:video:type" content="video/mp4">${
@@ -1233,7 +1328,7 @@ ${altLinks}
     releaseDate ? `\n  <meta property="og:video:release_date" content="${releaseDate}">` : ''
   }${
     typeof tSec === 'number' ? `\n  <meta property="og:video:start_time" content="${tSec}">` : ''
-  }
+  }` : ''}
   <meta property="article:author" content="${x(channel)}">${
     releaseDate ? `\n  <meta property="article:published_time" content="${releaseDate}">` : ''
   }
@@ -1957,7 +2052,8 @@ async function fetchCatalogDay(env, date) {
 /**
  * Kartica kanala iz kataloga (GET /channels/<slug>) za Tier 2 kanal, koji nema
  * statični listing. Tri ishoda:
- *   { item }        — kanal postoji (polja provjerena i normalizirana);
+ *   { item, state, deletedAt, uc } — kanal postoji (polja provjerena i
+ *                     normalizirana); `state` je active | withdrawn | deleted;
  *   { missing: true } — katalog je odgovorio 404 `channel_not_found`;
  *   null            — katalog nije dostupan ili je odgovor nečitljiv.
  * Drugi 404 (npr. kriva verzija API-ja) NIJE „kanala nema", nego null.
@@ -1982,7 +2078,12 @@ async function fetchCatalogChannel(env, slug) {
   const ytId = typeof it.youtube_channel_id === 'string'
     && /^UC[A-Za-z0-9_-]{22}$/.test(it.youtube_channel_id) ? it.youtube_channel_id : null;
   const lang = typeof it.lang === 'string' && /^[a-z]{2,3}(-[A-Za-z]{2})?$/.test(it.lang) ? it.lang : 'hr';
+  // Stanje kanala (odluka 309): povučen i obrisan su 200 sa `state` na omotnici.
+  const state = body.state === 'withdrawn' || body.state === 'deleted' ? body.state : 'active';
   return {
+    state,
+    deletedAt: state === 'deleted' && typeof body.deleted_at === 'string' ? body.deleted_at : null,
+    uc: ytId,
     item: {
       name,
       processedCount: Number.isInteger(count) && count > 0 ? count : 0,
@@ -1992,6 +2093,167 @@ async function fetchCatalogChannel(env, slug) {
       lang,
     },
   };
+}
+
+// --- Postavke kanala za vlasnika (postavke-kanala S6) -----------------------
+//
+// Izvor je katalog `GET /settings` kroz binding KATALOG (odluka 105):
+// { UC: { status: 'active'|'withdrawn'|'deleted', off: [ključevi], deleted_at? } },
+// samo kanali s barem jednim isključenim ključem ili tombstoneom. Jedan poziv po
+// zahtjevu, uz memoriju izolata SETTINGS_TTL_MS. Fail-open kao aplikacija
+// (odluka 500): bez kataloga, bez UC-a ili kanal izvan mape = sve uključeno.
+// Povučen ili obrisan kanal gasi svaki ključ, i kad `off` ne bi bio potpun.
+const SETTINGS_TTL_MS = 60 * 1000;
+let settingsMemo = null; // { api, svc, at, map }
+
+/**
+ * Mapa postavki ili null kad katalog nije dostupan / odgovor nije čitljiv.
+ * Memorija vrijedi za isti CATALOG_API i isti binding; na grešci se vraća
+ * zadnja poznata mapa (kao ChannelVisibility u aplikaciji).
+ */
+async function fetchChannelSettings(env) {
+  const api = BRAND.CATALOG_API;
+  const svc = env && env.KATALOG;
+  const same = settingsMemo && settingsMemo.api === api && settingsMemo.svc === svc;
+  if (same && Date.now() - settingsMemo.at < SETTINGS_TTL_MS) return settingsMemo.map;
+  const r = await catalogGet(env, '/settings');
+  const s = r && r.ok && r.body && r.body.version === '1' ? r.body.settings : null;
+  if (!s || typeof s !== 'object' || Array.isArray(s)) return same ? settingsMemo.map : null;
+  const map = new Map();
+  for (const [uc, v] of Object.entries(s)) {
+    if (!/^UC[A-Za-z0-9_-]{22}$/.test(uc) || !v || typeof v !== 'object') continue;
+    const status = v.status === 'withdrawn' || v.status === 'deleted' ? v.status : 'active';
+    const off = new Set(Array.isArray(v.off) ? v.off.filter((k) => typeof k === 'string') : []);
+    if (off.has('channel_enabled') && status === 'active') continue; // nekonzistentno → ne nagađaj
+    map.set(uc, {
+      status,
+      off,
+      deletedAt: status === 'deleted' && typeof v.deleted_at === 'string' ? v.deleted_at : null,
+    });
+  }
+  settingsMemo = { api, svc, at: Date.now(), map };
+  return map;
+}
+
+/** Politika jednog kanala; uvijek objekt (aktivan kad nema podataka). */
+function channelPolicy(settings, uc) {
+  const p = settings && typeof uc === 'string' ? settings.get(uc) : null;
+  return p || { status: 'active', off: new Set(), deletedAt: null };
+}
+
+/** Je li ključ isključen (povučen/obrisan kanal gasi sve). */
+function isOff(policy, key) {
+  return policy.status !== 'active' || policy.off.has(key);
+}
+
+/** ISO trenutak → "12. 11. 2026." u Europe/Zagreb (kao ChannelGoneView.formatDate). */
+function goneDate(iso) {
+  const d = new Date(iso);
+  if (!iso || Number.isNaN(d.getTime())) return null;
+  let ymd = d.toISOString().slice(0, 10);
+  try {
+    const s = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Europe/Zagreb', year: 'numeric', month: '2-digit', day: '2-digit',
+    }).format(d);
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) ymd = s;
+  } catch (_) {}
+  const [y, m, day] = ymd.split('-');
+  return `${day}. ${m}. ${y}.`;
+}
+
+// Tekstovi prate ARB `channelGone*` (app_hr.arb / app_en.arb), uz ime brenda
+// umjesto „domovina.ai". Obrisan kanal NEMA poveznicu na YouTube, povučen je
+// ima (odluka 507).
+const GONE_COPY = {
+  hr: {
+    withdrawn: () => `Vlasnik je povukao ovaj sadržaj s ${APP_NAME}`,
+    withdrawnBody: (name) => (name
+      ? `Kanal ${name} povukao je svoj sadržaj. Snimka je i dalje dostupna na YouTubeu.`
+      : 'Snimka je i dalje dostupna na YouTubeu.'),
+    deleted: (date) => (date
+      ? `Kanal je trajno uklonjen s ${APP_NAME} ${date}`
+      : `Kanal je trajno uklonjen s ${APP_NAME}.`),
+    deletedBody: (name) => (name
+      ? `Kanal ${name} više nije dostupan na ${APP_NAME}.`
+      : `Ovaj sadržaj više nije dostupan na ${APP_NAME}.`),
+    locale: 'hr_HR',
+    htmlLang: 'hr',
+  },
+  en: {
+    withdrawn: () => `The owner has withdrawn this content from ${APP_NAME}`,
+    withdrawnBody: (name) => (name
+      ? `The channel ${name} has withdrawn its content. The recording is still available on YouTube.`
+      : 'The recording is still available on YouTube.'),
+    deleted: (date) => (date
+      ? `This channel was permanently removed from ${APP_NAME} on ${date}`
+      : `This channel was permanently removed from ${APP_NAME}.`),
+    deletedBody: (name) => (name
+      ? `The channel ${name} is no longer available on ${APP_NAME}.`
+      : `This content is no longer available on ${APP_NAME}.`),
+    locale: 'en_US',
+    htmlLang: 'en',
+  },
+};
+
+/**
+ * OG/JSON-LD povučenog ili obrisanog kanala, za /c/ i /v/ (sve varijante):
+ * naslov i opis o povlačenju, generička slika, BEZ sadržaja epizode (ni
+ * naslova, ni opisa, ni thumbnaila). Ime kanala smije stajati — to je
+ * identitet, ne sadržaj. `youtubeUrl` samo za povučen kanal.
+ */
+function injectGoneTags(indexHtml, { status, deletedAt, name, url, youtubeUrl, lang = 'hr' }) {
+  const copy = GONE_COPY[lang] || GONE_COPY.hr;
+  const deleted = status === 'deleted';
+  const title = deleted ? copy.deleted(goneDate(deletedAt)) : copy.withdrawn();
+  const desc = deleted ? copy.deletedBody(name) : copy.withdrawnBody(name);
+  const image = `${SITE}/og-image.png`;
+  const ld = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: title,
+    description: desc,
+    url,
+    inLanguage: copy.htmlLang,
+    publisher: { '@type': 'Organization', name: APP_NAME, url: SITE },
+  };
+  if (!deleted && youtubeUrl) ld.relatedLink = youtubeUrl;
+  const tags = `
+  <title>${x(title)} – ${x(APP_NAME)}</title>
+  <meta name="description" content="${x(desc)}">
+  <meta name="robots" content="noindex">
+  <link rel="canonical" href="${x(url)}">
+
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="${copy.locale}">
+  <meta property="og:site_name" content="${x(APP_NAME)}">
+  <meta property="og:logo" content="${SITE}/og-image-square.png">
+  <meta property="og:title" content="${x(title)}">
+  <meta property="og:description" content="${x(desc)}">
+  <meta property="og:url" content="${x(url)}">
+  <meta property="og:image" content="${image}">
+  <meta property="og:image:alt" content="${x(title)}">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="${x(title)}">
+  <meta name="twitter:description" content="${x(desc)}">
+  <meta name="twitter:image" content="${image}">
+
+  <script type="application/ld+json">
+${JSON.stringify(ld, null, 2)}
+  </script>`;
+  const html = stripHeadMeta(indexHtml)
+    .replace(/<meta\s[^>]*name=["']robots["'][^>]*>/gi, '')
+    .replace(/<link\s[^>]*rel=["']alternate["'][^>]*hreflang=[^>]*>/gi, '')
+    .replace(/<html([^>]*?)\slang=["'][^"']*["']/i, `<html$1 lang="${copy.htmlLang}"`);
+  return html.replace('</head>', `${tags}\n</head>`);
+}
+
+// Povučen/obrisan prikaz se mijenja kad vlasnik vrati kanal: kraći cache od
+// običnog OG-a (1 h), da povratak bude vidljiv za ~5 min.
+const GONE_CACHE = 'public, max-age=300, s-maxage=300';
+
+function goneResponse(indexHtml, opts) {
+  return noindex(htmlResponse(injectGoneTags(indexHtml, opts), GONE_CACHE));
 }
 
 /**
@@ -2167,6 +2429,7 @@ function jsonLdVideoObject({ title, desc, thumb, canonical, releaseDate, isoDur,
     },
     author: { '@type': 'Person', name: channel },
   };
+  if (!videoUrl) delete obj.contentUrl; // cdn_playback isključen
   if (releaseDate) obj.uploadDate = releaseDate;
   if (isoDur) obj.duration = isoDur;
 

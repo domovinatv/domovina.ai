@@ -46,7 +46,11 @@ const card = (over = {}) => ({
   meta: { rows_read: 4 },
 });
 
-/** Lažni binding: bilježi URL-ove; `handler(url)` vraća Response ili baca. */
+/**
+ * Lažni binding: bilježi URL-ove; `handler(url)` vraća Response ili baca.
+ * `/settings` (postavke kanala, S6) zove svaka ruta kanala, pa ga provjere
+ * „katalog se ne zove" broje odvojeno (`cardCalls`).
+ */
 function fakeKatalog(handler) {
   const calls = [];
   return {
@@ -57,6 +61,7 @@ function fakeKatalog(handler) {
     },
   };
 }
+const cardCalls = (k) => k.calls.filter((u) => !u.startsWith(`${CATALOG}/settings`));
 const json = (body, status = 200) => new Response(JSON.stringify(body), {
   status, headers: { 'Content-Type': 'application/json' },
 });
@@ -98,7 +103,7 @@ section('Tier 1: listing postoji → katalog se NE zove, izlaz bajt-identičan')
   const k = fakeKatalog(() => json(card()));
   const a = await get('/c/radio-mreznica', { KATALOG: k });
   const b = await get('/c/radio-mreznica', {});
-  check('KATALOG nije pozvan', k.calls.length === 0, k.calls.join(' '));
+  check('kartica kataloga nije tražena (samo /settings)', cardCalls(k).length === 0 && k.calls.length === 1, k.calls.join(' '));
   check('isto tijelo s bindingom i bez', a.html === b.html);
   check('isti Cache-Control', a.res.headers.get('cache-control') === b.res.headers.get('cache-control'));
   check('Tier 1 OG naslov', meta(a.html, 'property', 'og:title') === 'Radio Mrežnica — AI obrada podcasta');
@@ -109,7 +114,7 @@ section('Tier 2: katalog nađe kanal (bez avatara, 6 epizoda)');
   const k = fakeKatalog(() => json(card()));
   const { res, html } = await get('/c/tribina', { KATALOG: k });
   const desc = meta(html, 'property', 'og:description') || '';
-  check('jedan poziv na /channels/tribina', k.calls.length === 1 && k.calls[0] === `${CATALOG}/channels/tribina`, k.calls.join(' '));
+  check('jedan poziv na /channels/tribina (+ /settings)', cardCalls(k).length === 1 && cardCalls(k)[0] === `${CATALOG}/channels/tribina`, k.calls.join(' '));
   check('200', res.status === 200);
   check('Cache-Control 1 h', res.headers.get('cache-control') === 'public, max-age=3600, s-maxage=3600', res.headers.get('cache-control'));
   check('bez X-Robots-Tag', !res.headers.get('x-robots-tag'));
@@ -201,13 +206,13 @@ for (const [label, handler, slow] of [
   if (slow) check(`${label}: odustaje do ~800 ms`, ms < 1500, `${ms} ms`);
 }
 
-section('podrute i brendovi ne zovu katalog');
+section('podrute i brendovi ne traže karticu kataloga');
 {
   const k = fakeKatalog(() => json(card()));
   await get('/c/tribina/oglasi', { KATALOG: k });
   await get('/c/tribina/doniraj', { KATALOG: k });
   await get('/c/tribina/claim', { KATALOG: k });
-  check('/oglasi, /doniraj, /claim: 0 poziva', k.calls.length === 0, k.calls.join(' '));
+  check('/oglasi, /doniraj, /claim: 0 poziva kartice', cardCalls(k).length === 0, k.calls.join(' '));
   const kb = fakeKatalog(() => json(card()));
   const r = await get('/c/tribina', { KATALOG: kb, SITE: 'https://podcasterium.com' });
   check('brend sa SITE bez CATALOG_API: 0 poziva', kb.calls.length === 0);

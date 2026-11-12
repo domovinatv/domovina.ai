@@ -803,6 +803,84 @@ async function testVijestiRoute(path) {
   return { ytId: path, passed, failed };
 }
 
+/**
+ * Postavke kanala (S6) nad živim stanjem: katalog `/settings` kaže koji su
+ * kanali povučeni, obrisani ili bez tražilica; za svaki (najviše 4) /c/<slug>
+ * mora nositi `X-Robots-Tag: noindex` (povučen/obrisan i svoj OG), a sitemap
+ * ga ne smije sadržavati. Kad u produkciji takvog kanala nema, provjerava se
+ * samo da se ništa ne skriva bez razloga; same slučajeve pokriva
+ * scripts/test-worker-postavke-kanala.mjs (lažni katalog, bez mreže).
+ */
+async function testChannelSettingsLive() {
+  console.log(`\n${BOLD}── postavke kanala (živo)${RESET}  ${BASE}/api/katalog/v1/settings`);
+  let passed = 0;
+  let failed = 0;
+  const pass = (l, d = '') => { console.log(`  ${ok(l.padEnd(34))} ${d}`); passed++; };
+  const bad = (l, d = '') => { console.log(`  ${fail(l.padEnd(34))} ${d}`); failed++; };
+  const UA = { 'User-Agent': 'DominovinaBot/1.0 (social-tag-tester)' };
+
+  let settings = null;
+  let index = null;
+  try {
+    const [a, b] = await Promise.all([
+      fetch(`${BASE}/api/katalog/v1/settings?t=${Math.floor(Date.now() / 60000)}`, { headers: UA }),
+      fetch('https://cdn.domovina.ai/channels/data/index.json', { headers: UA }),
+    ]);
+    if (a.ok) settings = (await a.json()).settings;
+    if (b.ok) index = await b.json();
+  } catch (_) {}
+  if (!settings || !index) {
+    console.log(`  ${warn('katalog ili index.json nedostupan — preskačem živi dio')}`);
+  } else {
+    const slugByUc = new Map();
+    for (const ch of index.channels || []) {
+      const m = String(ch.youtube_channel_url || '').match(/\/channel\/(UC[A-Za-z0-9_-]{22})/);
+      if (m && /^[a-z0-9_]{2,80}$/.test(ch.id)) slugByUc.set(m[1], ch.id.replace(/_/g, '-'));
+    }
+    const hidden = Object.entries(settings)
+      .filter(([, v]) => v.status !== 'active' || (v.off || []).includes('search_engines'))
+      .map(([uc, v]) => ({ uc, v, slug: slugByUc.get(uc) }))
+      .filter((h) => h.slug);
+    console.log(`  ${warn(`${Object.keys(settings).length} kanala s isključenim ključem, ${hidden.length} skriveno od tražilica (s listingom)`)}`);
+    for (const h of hidden.slice(0, 4)) {
+      const res = await fetch(`${BASE}/c/${h.slug}`, { headers: { ...UA, Accept: 'text/html' } });
+      const html = await res.text();
+      const robots = res.headers.get('x-robots-tag');
+      (robots === 'noindex' ? pass : bad)(`/c/${h.slug} noindex`, String(robots));
+      if (h.v.status !== 'active') {
+        const t = extractMeta(html, 'property', 'og:title') || '';
+        const want = h.v.status === 'deleted' ? 'Kanal je trajno uklonjen' : 'Vlasnik je povukao';
+        (t.startsWith(want) ? pass : bad)(`/c/${h.slug} OG ${h.v.status}`, `"${t}"`);
+      }
+    }
+    try {
+      const xml = await (await fetch(`${BASE}/sitemap.xml`, { headers: UA })).text();
+      const leaked = hidden.filter((h) => xml.includes(`/c/${h.slug}<`)).map((h) => h.slug);
+      (leaked.length === 0 ? pass : bad)('sitemap bez skrivenih kanala', leaked.join(', '));
+      // Sitemap se cachira 1 h: kanal skriven u zadnjem satu smije još biti unutra.
+      if (leaked.length) console.log(`  ${warn('sitemap je u edge cacheu do 1 h — ponovi kasnije prije zaključka')}`);
+    } catch (e) {
+      bad('sitemap dohvat', e.message);
+    }
+    // Kontrola: kanal bez postavki ne smije dobiti noindex.
+    const tier1Uc = [...slugByUc.entries()].find(([, s]) => s === TIER1_CHANNEL.slug)?.[0];
+    if (tier1Uc && !settings[tier1Uc]) {
+      const r = await fetch(`${BASE}/c/${TIER1_CHANNEL.slug}`, { headers: { ...UA, Accept: 'text/html' } });
+      (!r.headers.get('x-robots-tag') ? pass : bad)(`/c/${TIER1_CHANNEL.slug} indeksiran`, String(r.headers.get('x-robots-tag')));
+    }
+  }
+
+  // Vrata Cast receivera (odluka 110) moraju biti servirana uz receiver.
+  try {
+    const r = await fetch(`${BASE}/cast-receiver-gate.js`, { headers: UA });
+    const body = r.ok ? await r.text() : '';
+    (body.includes('DomovinaCastGate') ? pass : bad)('/cast-receiver-gate.js', `HTTP ${r.status}`);
+  } catch (e) {
+    bad('/cast-receiver-gate.js', e.message);
+  }
+  return { ytId: 'postavke kanala', passed, failed };
+}
+
 async function main() {
   console.log(`${BOLD}DOMOVINA.ai — Social Tag Tester${RESET}`);
   console.log(`Target: ${BOLD}${BASE}${RESET}`);
@@ -842,6 +920,8 @@ async function main() {
   // Google Cast receiver — oba oblika URL-a, 200 bez COEP-a.
   results.push(await testCastReceiver('/cast-receiver.html'));
   results.push(await testCastReceiver('/cast-receiver'));
+  // Postavke kanala (S6) — povučeni/obrisani/bez tražilica nad živim stanjem.
+  results.push(await testChannelSettingsLive());
 
   const totalPassed = results.reduce((s, r) => s + r.passed, 0);
   const totalFailed = results.reduce((s, r) => s + r.failed, 0);

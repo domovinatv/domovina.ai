@@ -5,8 +5,10 @@
   Televizor otvara ovu stranicu kad pošiljatelj (Android/iOS aplikacija, kasnije
   Chrome) pokrene sesiju s našim App ID-om. Pošiljatelj preda MediaInformation
   (URL medija na cdn.domovina.ai, titlovi kao VTT text track, metapodaci), a
-  televizor sam povlači bajtove — ova stranica ne dohvaća ništa osim medija i
-  slika koje joj pošiljatelj navede.
+  televizor sam povlači bajtove. Osim medija i slika koje pošiljatelj navede,
+  prije svakog LOAD-a dohvati `info.json` epizode i katalog `/settings`
+  (cast-receiver-gate.js): povučen ili obrisan kanal i isključen `cdn_playback`
+  se ne reproduciraju (postavke kanala, odluka 110).
 
   Plaćeni sponzorski trenuci („Sponzorirano · {brand}", DSA čl. 26) stižu u
   MediaInformation.customData; ugovor je u docs/plans/2026-10-17-cast-na-tv.md
@@ -26,6 +28,7 @@
   <meta charset="utf-8">
   <title>DOMOVINA.ai</title>
   <script src="https://www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
+  <script src="/cast-receiver-gate.js?v=1"></script>
   <style>
     :root {
       --brand-navy: #002F6C;
@@ -212,13 +215,36 @@
     var playerManager = context.getPlayerManager();
     var EventType = cast.framework.events.EventType;
 
+    // Odbijen LOAD: pošiljatelj dobije LOAD_FAILED; ništa se ne reproducira.
+    function rejectLoad(reason) {
+      var M = cast.framework.messages;
+      var err = new M.ErrorData(M.ErrorType.LOAD_FAILED);
+      if (M.ErrorReason && M.ErrorReason.CONTENT_FILTERED) err.reason = M.ErrorReason.CONTENT_FILTERED;
+      log('LOAD odbijen (postavke kanala): ' + reason);
+      return err;
+    }
+
     // customData se čita iz LOAD poruke: tada je sigurno vezan uz medij koji
-    // upravo krene, a ne uz prethodni.
+    // upravo krene, a ne uz prethodni. Prije toga vrata postavki kanala
+    // (cast-receiver-gate.js); bez skripte reprodukcija ide kao prije.
     playerManager.setMessageInterceptor(
       cast.framework.messages.MessageType.LOAD,
       function (request) {
-        applyCustomData(request && request.media ? request.media.customData : null);
-        return request;
+        var media = request && request.media ? request.media : null;
+        var gate = window.DomovinaCastGate;
+        if (!gate) {
+          applyCustomData(media ? media.customData : null);
+          return request;
+        }
+        return gate.decide(media, {
+          fetch: window.fetch.bind(window),
+          siteOrigin: location.origin,
+          cdnFallback: 'https://cdn.domovina.ai',
+        }).then(function (d) {
+          if (!d.allowed) return rejectLoad(d.reason);
+          applyCustomData(media ? media.customData : null);
+          return request;
+        });
       }
     );
 
