@@ -8321,10 +8321,10 @@ abstract class AppLocalizations {
   /// **'Snimka je i dalje dostupna na YouTubeu.'**
   String get channelGoneWithdrawnBody;
 
-  /// Kanal trajno obrisan (tombstone). date = dd. mm. gggg.
+  /// Kanal trajno obrisan (tombstone). date = dd. mm. gggg. (datum nosi završnu točku, pa je rečenica nema)
   ///
   /// In hr, this message translates to:
-  /// **'Kanal je trajno uklonjen s domovina.ai {date}.'**
+  /// **'Kanal je trajno uklonjen s domovina.ai {date}'**
   String channelGoneDeleted(String date);
 
   /// Kao channelGoneDeleted, kad datum nije poznat.
@@ -8356,6 +8356,12 @@ abstract class AppLocalizations {
   /// In hr, this message translates to:
   /// **'Vlasnik kanala je isključio ovu mogućnost.'**
   String get channelFeatureOffByOwner;
+
+  /// Uz ugrađeni YouTube player kad je vlasnik kanala isključio reprodukciju s našeg CDN-a (cdn_playback).
+  ///
+  /// In hr, this message translates to:
+  /// **'Vlasnik kanala reprodukciju dopušta samo preko YouTubea.'**
+  String get episodeYouTubeOnlyByOwner;
 }
 
 class _AppLocalizationsDelegate

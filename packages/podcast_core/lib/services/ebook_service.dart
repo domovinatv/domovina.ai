@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 
 import 'cdn_config.dart';
+import 'channel_feature_gate.dart';
 
 /// Jedno izdanje e-knjige epizode na CDN-u (`book.epub` ili `book.en.epub`).
 class EbookEdition {
@@ -65,7 +66,18 @@ class EbookService {
   /// Ima li epizoda e-knjigu, i u kojim jezicima. Rezultat se pamti za život
   /// sesije — knjiga koja postoji ne nestaje, a za onu koje nema korisnik ionako
   /// ne vidi nikakav gumb pa ponovni probe nema što promijeniti.
-  static Future<EbookAvailability> probe(String videoId) {
+  ///
+  /// Vlasnik kanala s isključenim `ebook` → [EbookAvailability.none] bez
+  /// HEAD-a (postavke kanala, matrica §9). Ishod se tada ne pamti, pa se
+  /// ponovno uključena knjiga pojavi pri sljedećem otvaranju epizode.
+  static Future<EbookAvailability> probe(String videoId) async {
+    if (!await ChannelFeatureGate.isEnabled(videoId, EpisodeKey.ebook)) {
+      return EbookAvailability.none;
+    }
+    return _probeCached(videoId);
+  }
+
+  static Future<EbookAvailability> _probeCached(String videoId) {
     final cached = _availability[videoId];
     if (cached != null) return Future.value(cached);
     final running = _inFlight[videoId];

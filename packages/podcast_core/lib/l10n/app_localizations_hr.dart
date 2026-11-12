@@ -5283,7 +5283,7 @@ class AppLocalizationsHr extends AppLocalizations {
 
   @override
   String channelGoneDeleted(String date) {
-    return 'Kanal je trajno uklonjen s domovina.ai $date.';
+    return 'Kanal je trajno uklonjen s domovina.ai $date';
   }
 
   @override
@@ -5302,4 +5302,8 @@ class AppLocalizationsHr extends AppLocalizations {
   @override
   String get channelFeatureOffByOwner =>
       'Vlasnik kanala je isključio ovu mogućnost.';
+
+  @override
+  String get episodeYouTubeOnlyByOwner =>
+      'Vlasnik kanala reprodukciju dopušta samo preko YouTubea.';
 }

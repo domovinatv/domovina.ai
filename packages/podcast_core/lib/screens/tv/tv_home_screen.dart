@@ -13,6 +13,7 @@ import '../../models/person_hub.dart';
 import '../../screens/home/home_feed.dart';
 import '../../services/cdn_config.dart';
 import '../../services/channel_cache.dart';
+import '../../services/channel_visibility_filters.dart';
 import '../../services/person_channel_flag.dart';
 import '../../services/person_index_cache.dart';
 import '../../services/watch_progress_service.dart';
@@ -255,7 +256,10 @@ class _TvHomeScreenState extends State<TvHomeScreen> {
                     return _buildError(theme, l, snap.error);
                   }
                   // Index ucitan — kick off per-channel prefetch.
-                  final channels = snap.data!.channels;
+                  // Trenutno vidljivi index: postavke kanala mogu stići
+                  // nakon indexa (povučen kanal tada ispada iz lanea).
+                  final channels =
+                      _channelCache.index?.channels ?? snap.data!.channels;
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     _channelCache.prefetchAll(channels);
                     _maybeBootstrapFeatured();
@@ -347,7 +351,7 @@ class _TvHomeScreenState extends State<TvHomeScreen> {
           // bez ovog prostora gornji rub kartice udara u hero ispod.
           SizedBox(height: metrics.heroToRailGap),
 
-          if (_continueWatching.isNotEmpty) ...[
+          if (visibleContinueWatching(_continueWatching).isNotEmpty) ...[
             TvRail(
               eyebrow: l.tvRailContinueListening,
               height: metrics.episodeRailHeight,
@@ -356,7 +360,7 @@ class _TvHomeScreenState extends State<TvHomeScreen> {
                 horizontal: metrics.pagePadH,
               ),
               cards: [
-                for (final wp in _continueWatching)
+                for (final wp in visibleContinueWatching(_continueWatching))
                   TvEpisodeCard(
                     episodeId: wp.episodeId,
                     title: wp.episodeTitle ?? wp.episodeId,

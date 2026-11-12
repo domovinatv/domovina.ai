@@ -82,6 +82,29 @@ void swapPresentation(BuildContext context, String location) {
   context.replace(location);
 }
 
+/// Ista lokacija bez jezičnog sufiksa `/en` (`/v/<id>/t/<sec>/en?p=x` →
+/// `/v/<id>/t/<sec>?p=x`). Za [swapPresentation] kad vlasnik kanala isključi
+/// engleski prijevod (postavke kanala, odluka 503): HR sadržaj se ne smije
+/// prikazivati na EN URL-u. Lokacija bez sufiksa se vraća nepromijenjena.
+String withoutEnSuffix(String location) {
+  final uri = Uri.parse(location);
+  final segs = uri.pathSegments;
+  if (segs.isEmpty || segs.last != 'en') return location;
+  return uri
+      .replace(path: '/${segs.sublist(0, segs.length - 1).join('/')}')
+      .toString();
+}
+
+/// Zamijeni trenutnu rutu istom bez `/en` (vidi [withoutEnSuffix]). Bez
+/// routera (testovi) ne radi ništa.
+void dropEnSuffix(BuildContext context) {
+  final router = GoRouter.maybeOf(context);
+  if (router == null) return;
+  final here = router.routeInformationProvider.value.uri.toString();
+  final hr = withoutEnSuffix(here);
+  if (hr != here) router.replace(hr);
+}
+
 /// Peer → peer: epizoda → srodna epizoda, kandidat → kandidat.
 ///
 /// Zamjenjuje vrh stoga umjesto da ga produbi — inače bi „još jedna epizoda"

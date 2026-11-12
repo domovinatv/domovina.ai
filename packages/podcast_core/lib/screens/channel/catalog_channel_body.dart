@@ -6,10 +6,12 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../l10n/app_localizations.dart';
 import '../../router/nav.dart';
 import '../../services/catalog_client.dart';
+import '../../services/channel_visibility.dart';
 import '../../services/cdn_config.dart';
 import '../../services/scroll_memory.dart';
 import '../../src/log.dart' show log;
 import '../../widgets/cached_thumbnail.dart';
+import '../../widgets/channel_gone_view.dart';
 import '../../widgets/person_monogram.dart';
 import '../catalog_day/catalog_card_meta.dart';
 import '../catalog_day/catalog_day_format.dart';
@@ -58,16 +60,24 @@ class _CatalogChannelBodyState extends State<CatalogChannelBody> {
   bool _moreFailed = false;
 
   CatalogClient get _client => CatalogClient.instance;
+  late final ChannelVisibility _vis;
+
+  void _onVisibility() {
+    if (mounted) setState(() {});
+  }
 
   @override
   void initState() {
     super.initState();
+    _vis = ChannelVisibility.instance;
+    _vis.addListener(_onVisibility);
     _scroll.addListener(_onScroll);
     unawaited(_load());
   }
 
   @override
   void dispose() {
+    _vis.removeListener(_onVisibility);
     _scroll.removeListener(_onScroll);
     _scroll.dispose();
     super.dispose();
@@ -196,7 +206,18 @@ class _CatalogChannelBodyState extends State<CatalogChannelBody> {
           ),
         );
       case _Phase.ready:
-        return _list(theme, l, _info!);
+        final info = _info!;
+        final uc = info.youtubeChannelId;
+        // `state` iz kataloga (odluka 309) ILI svježija mapa postavki.
+        if (info.isGone || _vis.isGone(uc)) {
+          final deleted = info.isDeleted || _vis.isDeleted(uc);
+          return ChannelGoneView(
+            ucId: uc,
+            isDeleted: deleted,
+            deletedAt: info.deletedAt ?? _vis.deletedAt(uc),
+          );
+        }
+        return _list(theme, l, info);
     }
   }
 

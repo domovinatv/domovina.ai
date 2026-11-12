@@ -13,6 +13,8 @@ import '../../models/podcast_outline.dart';
 import '../../services/cdn_config.dart';
 import '../../services/data_service.dart';
 import '../../services/episode_playback_session.dart';
+import '../../services/open_url.dart';
+import '../../widgets/episode_channel_owner.dart';
 import '../../widgets/cached_thumbnail.dart';
 import 'widgets/tv_focus.dart';
 import 'widgets/tv_key_hint.dart';
@@ -141,6 +143,12 @@ class _TvEpisodeScreenState extends State<TvEpisodeScreen> {
       final data = await EpisodeData.load(youtubeId: widget.youtubeId);
       if (!mounted) return;
       setState(() => _data = data);
+      // Povučen kanal ili reprodukcija samo preko YouTubea (postavke kanala):
+      // naš player se ne otvara. Sesija u tijeku se ne prekida (odluka 501).
+      if (data.isChannelGone || episodeYouTubeOnly(data)) {
+        _playerFocus.requestFocus();
+        return;
+      }
       final wasOpen = _session.isOpen;
       await _session.open(data, startAtSeconds: widget.startAtSeconds);
       if (!mounted) return;
@@ -222,6 +230,13 @@ class _TvEpisodeScreenState extends State<TvEpisodeScreen> {
   // ---------------------------------------------------------------------------
 
   Future<void> _togglePlay() async {
+    final d = _data;
+    if (d != null && episodeYouTubeOnly(d)) {
+      // OK na playeru otvara YouTube (aplikaciju na Android TV-u).
+      final url = episodeSourceUrl(d);
+      if (url != null) openUrl(url);
+      return;
+    }
     final p = _player;
     if (p == null) return;
     if (p.state.playing) {
@@ -294,6 +309,9 @@ class _TvEpisodeScreenState extends State<TvEpisodeScreen> {
     if (_error != null) return _buildError(theme, l);
     final data = _data;
     if (data == null) return _buildLoading(theme, l);
+    if (data.isChannelGone) {
+      return EpisodeChannelGoneScreen(data: data, showBack: false);
+    }
 
     final chapters = _flatChapters(data.outline);
 
@@ -580,7 +598,8 @@ class _TvEpisodeScreenState extends State<TvEpisodeScreen> {
     // ne dođe (TV preko Tailscale/3G zna trebati 5-10s za buffer prvog frame-a).
     // Bez ovoga korisnik vidi crni pravokutnik i misli da je app pukao.
     final showBackdrop = !ready || !_firstFrame;
-    final showBufferingSpinner = !_firstFrame || _buffering;
+    final youTubeOnly = episodeYouTubeOnly(data);
+    final showBufferingSpinner = !youTubeOnly && (!_firstFrame || _buffering);
 
     // U fullscreen modu pad-ovi i radius su 0 (video popunjava cijeli ekran).
     // U side-by-side layout-u, _buildBody vec daje vanjski padding, pa
@@ -638,6 +657,42 @@ class _TvEpisodeScreenState extends State<TvEpisodeScreen> {
                     color: Colors.black.withValues(alpha: 0.55),
                     alignment: Alignment.center,
                     child: _buildBufferRing(theme, l, ready),
+                  ),
+
+                // Vlasnik kanala je isključio reprodukciju s CDN-a: umjesto
+                // beskonačnog prstena rečenica i ponuda YouTubea (OK).
+                if (youTubeOnly)
+                  Container(
+                    color: Colors.black.withValues(alpha: 0.7),
+                    alignment: Alignment.center,
+                    padding: const EdgeInsets.all(32),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.smart_display,
+                          color: Colors.white70,
+                          size: 48,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          l.episodeYouTubeOnlyByOwner,
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            color: Colors.white,
+                          ),
+                        ),
+                        if (episodeSourceUrl(data) != null) ...[
+                          const SizedBox(height: 12),
+                          Text(
+                            l.channelGoneOpenYouTube,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              color: Colors.white70,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
                   ),
 
                 Positioned.fill(

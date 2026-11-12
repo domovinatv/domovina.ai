@@ -3,6 +3,9 @@ import 'package:intl/intl.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../models/catalog_card.dart';
+import '../../services/channel_cache.dart';
+import '../../services/channel_setting_keys.dart';
+import '../../services/channel_visibility.dart';
 import '../../widgets/magisterium_section.dart';
 
 /// Meta redak epizode iz kataloga: sat objave na YouTubeu, trajanje i
@@ -19,7 +22,23 @@ class CatalogCardMeta extends StatelessWidget {
   static bool hasAny(CatalogCard c) =>
       c.publishedAt != null ||
       c.durationDisplay != null ||
-      c.magisteriumScore != null;
+      scoreOf(c) != null;
+
+  /// Ocjena za prikaz, ili `null`: katalog je maskira (`magisterium_off`,
+  /// odluka 311), a svježija mapa postavki kanala (`magisterium`) isto —
+  /// kartica tada nema ni ocjene ni značke (odluka 504).
+  static int? scoreOf(CatalogCard c) {
+    if (c.magisteriumOff) return null;
+    final slug = c.channel?.slug;
+    if (slug != null &&
+        !ChannelVisibility.instance.isEnabled(
+          channelCache.ucFor(slug),
+          ChannelKey.magisterium,
+        )) {
+      return null;
+    }
+    return c.magisteriumScore;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +47,7 @@ class CatalogCardMeta extends StatelessWidget {
     final l = AppLocalizations.of(context);
     final published = card.publishedAt;
     final duration = card.durationDisplay;
-    final score = card.magisteriumScore;
+    final score = scoreOf(card);
     final time = published == null
         ? null
         : DateFormat.Hm(

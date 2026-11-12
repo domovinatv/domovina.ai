@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import '../../l10n/app_localizations.dart';
 import '../../src/log.dart' show log;
 import '../../router/nav.dart';
+import '../../services/channel_visibility.dart';
 import '../../services/data_service.dart';
 import '../../services/open_url.dart';
 import 'youtube_watch_player_native.dart'
@@ -45,8 +46,17 @@ class _YouTubeWatchScreenState extends State<YouTubeWatchScreen> {
 
   Future<void> _checkProcessed() async {
     try {
-      final summary =
-          await DataService(youtubeId: widget.videoId).loadSummary();
+      final svc = DataService(youtubeId: widget.videoId);
+      // `info.json` prvi: iz njega se zna kanal. Povučen ili obrisan kanal
+      // (postavke kanala) nema gumb na epizodu; ostala stanja epizoda zna
+      // sama, a isključen članak ionako znači da sažetka nema.
+      final info = await svc.loadInfo();
+      final uc = info.youtubeChannelId;
+      if (uc != null) {
+        await ChannelVisibility.instance.ready();
+        if (ChannelVisibility.instance.isGone(uc)) return;
+      }
+      final summary = await svc.loadSummary();
       if (mounted && summary != null) setState(() => _processed = true);
     } catch (e) {
       // Bez gumba je ispravan ishod: player radi i bez naše obrade.

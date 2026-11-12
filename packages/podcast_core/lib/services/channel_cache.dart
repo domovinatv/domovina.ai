@@ -6,6 +6,8 @@ import '../models/channel_index.dart';
 import '../models/channel_detail.dart';
 import '../models/home_snapshot.dart';
 import '../models/search_corpus.dart';
+import 'channel_setting_keys.dart';
+import 'channel_visibility.dart';
 import 'data_service.dart';
 
 /// Singleton in-memory cache za index + sve channel detaile.
@@ -43,8 +45,84 @@ class ChannelCache extends ChangeNotifier {
   int get total => _total;
   bool get done => _done;
 
-  /// Cacheirani index — null ako jos nije ucitan.
-  ChannelIndex? get index => _index;
+  /// Cacheirani index — null ako jos nije ucitan. Bez kanala koje je
+  /// vlasnik povukao ili obrisao (postavke kanala, `channel_enabled`), i bez
+  /// prosječne ocjene kanala kojem je isključen `magisterium` — vidi
+  /// [visibleIndexOf]. Sirovi index (za traženje po imenu/UC-u) je [rawIndex].
+  ChannelIndex? get index {
+    final raw = _index;
+    return raw == null ? null : visibleIndexOf(raw);
+  }
+
+  /// Index kakav je stigao s CDN-a, s povučenim kanalima. Samo za traženje
+  /// identiteta (UC, ime), nikad za popis koji korisnik vidi.
+  ChannelIndex? get rawIndex => _index;
+
+  ChannelIndex? _visibleFor;
+  Map<String, Object?>? _visibleSnapshot;
+  ChannelIndex? _visibleIndex;
+
+  /// [raw] bez povučenih/obrisanih kanala i s maskiranom ocjenom. Kad nijedan
+  /// kanal nema ograničenje, vraća ISTI objekt (ponašanje kao prije S5).
+  ChannelIndex visibleIndexOf(ChannelIndex raw) {
+    final vis = ChannelVisibility.instance;
+    final snap = vis.snapshot;
+    if (snap.isEmpty) return raw;
+    if (identical(_visibleFor, raw) &&
+        identical(_visibleSnapshot, snap) &&
+        _visibleIndex != null) {
+      return _visibleIndex!;
+    }
+    final channels = <ChannelSummary>[
+      for (final c in raw.channels)
+        if (!vis.isGone(c.youtubeChannelId))
+          vis.isEnabled(c.youtubeChannelId, ChannelKey.magisterium)
+              ? c
+              : c.withoutDomainScore(),
+    ];
+    final out = ChannelIndex(
+      version: raw.version,
+      channelCount: channels.length,
+      channels: channels,
+    );
+    _visibleFor = raw;
+    _visibleSnapshot = snap;
+    _visibleIndex = out;
+    return out;
+  }
+
+  /// `UC…` kanala po našem internom id-u (`/c/:slug`), iz indexa ili već
+  /// učitanog listinga. `null` dok ni jedno nije stiglo (fail-open).
+  String? ucFor(String channelId) {
+    for (final c in _index?.channels ?? const <ChannelSummary>[]) {
+      if (c.id == channelId) return c.youtubeChannelId;
+    }
+    return _cache[channelId]?.youtubeChannelId;
+  }
+
+  /// Je li vlasnik kanal povukao ili obrisao.
+  bool isChannelGone(String channelId) =>
+      ChannelVisibility.instance.isGone(ucFor(channelId));
+
+  /// Vrijedi li ključ postavki [key] za kanal (povučen kanal gasi sve).
+  bool channelAllows(String channelId, String key) =>
+      ChannelVisibility.instance.isEnabled(ucFor(channelId), key);
+
+  /// Stanje postavki kanala se promijenilo ([ChannelVisibility] je stigao ili
+  /// se osvježio): popisi koji filtriraju moraju se iznova izračunati.
+  void visibilityChanged() => notifyListeners();
+
+  /// Epizoda kako je kartice smiju prikazati: bez ocjene kad je `magisterium`
+  /// isključen (odluka 504).
+  ChannelVideo _shown(String channelId, ChannelVideo v) =>
+      channelAllows(channelId, ChannelKey.magisterium) ? v : v.withoutDomainScore();
+
+  ChannelDetail _shownDetail(ChannelDetail d) {
+    final uc = d.youtubeChannelId ?? ucFor(d.id);
+    return ChannelVisibility.instance.isEnabled(uc, ChannelKey.magisterium)
+        ? d
+        : d.withoutDomainScore();
+  }
 
   /// Kanali u redoslijedu koji naslovnica prikazuje (aktivni sort mode ili
   /// spremljeni shuffle). Null dok se prvi put ne izračuna.
@@ -58,7 +136,21 @@ class ChannelCache extends ChangeNotifier {
   /// asinkronih skokova. To je razlog zbog kojeg nikakvo vraćanje scroll
   /// pozicije nije moglo pogoditi metu: meta se pomicala ispod njega.
   List<ChannelSummary>? _orderedChannels;
-  List<ChannelSummary>? get orderedChannels => _orderedChannels;
+
+  /// Zapamćeni redoslijed, propušten kroz trenutno vidljivi index: kanal koji
+  /// je vlasnik u međuvremenu povukao ispada, a ostali zadržavaju mjesto (bez
+  /// ponovnog izračuna i skeletona na naslovnici).
+  List<ChannelSummary>? get orderedChannels {
+    final ordered = _orderedChannels;
+    final visible = index;
+    if (ordered == null || visible == null || identical(visible, _index)) {
+      return ordered;
+    }
+    final byId = {for (final c in visible.channels) c.id: c};
+    return [
+      for (final c in ordered) ?byId[c.id],
+    ];
+  }
 
   /// Zapamti izračunati redoslijed. Ne notifira — pozivatelj je naslovnica koja
   /// ionako radi `setState` u istom potezu, a notifikacija bi ovdje značila
@@ -72,17 +164,22 @@ class ChannelCache extends ChangeNotifier {
     _orderedChannels = null;
   }
 
-  /// Ucitaj index (samo jednom, cacheira se).
+  /// Ucitaj index (samo jednom, cacheira se). Vraća vidljivi index ([index]).
   Future<ChannelIndex> loadIndex() async {
-    if (_index != null) return _index!;
+    if (_index != null) return index!;
     // Spremljeni index stiže odmah; noviji (novi kanal, nova zadnja epizoda)
     // zamijeni ga kad revalidacija završi. Redoslijed naslovnice se tada NE
     // preračunava ispod korisnika — novi poredak vrijedi od sljedećeg ulaska.
     _index = await ChannelService.loadIndex(onUpdate: (fresh) {
       _index = fresh;
-      _total = fresh.channels.length;
+      _total = index!.channels.length;
       notifyListeners();
     });
+    return index!;
+  }
+
+  Future<ChannelIndex> _loadRawIndex() async {
+    await loadIndex();
     return _index!;
   }
 
@@ -124,11 +221,11 @@ class ChannelCache extends ChangeNotifier {
     return [
       ...full,
       for (final e in snap.episodes)
-        if (seen.add(e.video.id))
+        if (seen.add(e.video.id) && !isChannelGone(e.channelId))
           (
             channelId: e.channelId,
             channelName: _channelName(e.channelId),
-            video: e.video,
+            video: _shown(e.channelId, e.video),
           ),
     ];
   }
@@ -200,8 +297,12 @@ class ChannelCache extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Dohvati cached channel detail — null ako jos nije ucitan.
-  ChannelDetail? get(String channelId) => _cache[channelId];
+  /// Dohvati cached channel detail — null ako jos nije ucitan. Povučen kanal
+  /// se vraća (ekran kanala iz njega čita UC); ocjena je maskirana.
+  ChannelDetail? get(String channelId) {
+    final d = _cache[channelId];
+    return d == null ? null : _shownDetail(d);
+  }
 
   /// Look up square avatar URL za kanal po imenu (match info.json `channel`
   /// polje s index.json `name` poljem). Null ako index nije ucitan ili
@@ -232,24 +333,31 @@ class ChannelCache extends ChangeNotifier {
   /// Ucitaj channel detail (cache-first, network fallback).
   Future<ChannelDetail> loadChannel(String channelId) async {
     final cached = _cache[channelId];
-    if (cached != null) return cached;
+    if (cached != null) return _shownDetail(cached);
     final detail = _withSearchText(await ChannelService.loadChannel(channelId,
         onUpdate: (fresh) => _replaceChannel(channelId, fresh)));
     _cache[channelId] = detail;
-    return detail;
+    return _shownDetail(detail);
   }
 
-  /// Svi ucitani video zapisi iz svih kanala (za globalni search).
+  /// Svi ucitani video zapisi iz svih kanala (za globalni search). Bez
+  /// kanala koje je vlasnik povukao ili obrisao (`channel_enabled`), s
+  /// maskiranom ocjenom kad je `magisterium` isključen.
   List<({String channelId, String channelName, ChannelVideo video})>
       get allVideos {
     final result =
         <({String channelId, String channelName, ChannelVideo video})>[];
+    final vis = ChannelVisibility.instance;
+    final filtering = vis.snapshot.isNotEmpty;
     for (final detail in _cache.values) {
+      final uc = filtering ? (detail.youtubeChannelId ?? ucFor(detail.id)) : null;
+      if (filtering && vis.isGone(uc)) continue;
+      final mask = filtering && !vis.isEnabled(uc, ChannelKey.magisterium);
       for (final video in detail.videos) {
         result.add((
           channelId: detail.id,
           channelName: detail.name,
-          video: video,
+          video: mask ? video.withoutDomainScore() : video,
         ));
       }
     }
@@ -267,7 +375,7 @@ class ChannelCache extends ChangeNotifier {
           return (
             channelId: detail.id,
             channelName: detail.name,
-            video: video,
+            video: _shown(detail.id, video),
           );
         }
       }
@@ -280,7 +388,7 @@ class ChannelCache extends ChangeNotifier {
         return (
           channelId: e.channelId,
           channelName: _channelName(e.channelId),
-          video: e.video,
+          video: _shown(e.channelId, e.video),
         );
       }
     }
@@ -316,6 +424,10 @@ class ChannelCache extends ChangeNotifier {
     _homeSnapshotFuture = null;
     _searchCorpus = null;
     _searchCorpusFuture = null;
+    _orderedChannels = null;
+    _visibleFor = null;
+    _visibleSnapshot = null;
+    _visibleIndex = null;
     _loaded = 0;
     _total = 0;
     _done = false;
@@ -336,9 +448,11 @@ class ChannelCache extends ChangeNotifier {
     final cached = findVideo(videoId);
     if (cached != null) return cached;
 
+    // Sirovi index: epizoda povučenog kanala se i dalje NALAZI (ekran epizode
+    // tada crta „vlasnik je povukao sadržaj”, ne 404).
     final ChannelIndex idx;
     try {
-      idx = await loadIndex();
+      idx = await _loadRawIndex();
     } catch (e) {
       log('ChannelCache.findVideoAsync: index failed: $e');
       return null;

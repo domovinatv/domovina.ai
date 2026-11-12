@@ -13,6 +13,7 @@ import '../../services/app_install_banner.dart';
 import '../../services/cdn_config.dart';
 import '../../services/episode_prefetch.dart';
 import '../../services/channel_cache.dart';
+import '../../services/channel_visibility_filters.dart';
 import '../../services/local_prefs.dart';
 import '../../services/page_meta.dart';
 import '../../services/scroll_memory.dart';
@@ -258,7 +259,7 @@ class _HomeScreenState extends State<HomeScreen> {
               indexFuture: _indexFuture,
               orderedChannels: _orderedChannels,
               channelCache: _channelCache,
-              continueWatching: _continueWatching,
+              continueWatching: visibleContinueWatching(_continueWatching),
               onChannelsLoaded: (channels) async {
                 // Samo izračun redoslijeda za prikaz. Prefetch je premješten u
                 // initState (vezan na index load) da se ne preskoči zbog race-a.

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 
+import '../services/channel_feature_gate.dart';
 import '../services/clip_service.dart';
 import '../services/open_url.dart';
 import '../l10n/app_localizations.dart';
@@ -24,8 +25,15 @@ class ClipShareButton extends StatelessWidget {
     required this.title,
   });
 
+  /// Smije li se isječak epizode [videoId] nuditi: vlasnik kanala ga gasi
+  /// ključem `share_clips` (postavke kanala, matrica §8). Jedno mjesto za
+  /// poglavlja u oba prikaza i članak.
+  static bool allowedFor(String videoId) =>
+      ChannelFeatureGate.isEnabledNow(videoId, EpisodeKey.shareClips);
+
   @override
   Widget build(BuildContext context) {
+    if (!allowedFor(videoId)) return const SizedBox.shrink();
     final theme = Theme.of(context);
     return IconButton(
       icon: const Icon(Icons.ios_share, size: 18),
@@ -54,6 +62,7 @@ Future<void> showClipShareSheet(
   required int endSec,
   required String title,
 }) {
+  if (!ClipShareButton.allowedFor(videoId)) return Future.value();
   return showModalBottomSheet<void>(
     context: context,
     showDragHandle: true,

@@ -71,6 +71,25 @@ class ChannelSummary {
     return d.width != d.height;
   }
 
+  /// Isti kanal bez prosječne domenske ocjene (vlasnik je isključio
+  /// `magisterium`, odluka 504).
+  ChannelSummary withoutDomainScore() => avgMagisteriumScore == null
+      ? this
+      : ChannelSummary(
+          id: id,
+          name: name,
+          avatarSquare: avatarSquare,
+          avatarCover: avatarCover,
+          avatarCoverDimensions: avatarCoverDimensions,
+          youtubeChannelUrl: youtubeChannelUrl,
+          youtubeChannelId: youtubeChannelId,
+          youtubePlaylistUrl: youtubePlaylistUrl,
+          followerCount: followerCount,
+          videoCount: videoCount,
+          totalDurationSeconds: totalDurationSeconds,
+          latestVideo: latestVideo,
+        );
+
   factory ChannelSummary.fromJson(Map<String, dynamic> json) {
     final lv = json['latest_video'];
     final coverDim = json['avatar_cover_dimensions'];

@@ -16,6 +16,7 @@ import '../pinka_sdk/pinka_sdk.dart';
 import '../services/background_audio.dart';
 import '../services/background_playback.dart';
 import '../services/cdn_config.dart';
+import '../services/channel_feature_gate.dart';
 import '../services/ebook_service.dart';
 import '../services/channel_cache.dart';
 import '../services/data_service.dart';
@@ -38,6 +39,7 @@ import '../services/url_sync.dart';
 import '../services/view_mode.dart';
 import '../services/watch_progress_service.dart';
 import '../widgets/ebook_sheet.dart';
+import '../widgets/episode_channel_owner.dart';
 import '../widgets/episode_status_card.dart';
 import '../widgets/anonymous_signin_bar.dart';
 import '../widgets/audio_poster.dart';
@@ -107,6 +109,13 @@ class _EpisodeSimpleScreenState extends State<EpisodeSimpleScreen> {
       final data = await EpisodeData.load(youtubeId: widget.youtubeId);
       if (mounted) {
         setState(() => _data = data);
+        if (data.isChannelGone) return;
+        // Vlasnik je isključio engleski prijevod: `/m/<id>/en` → HR ruta
+        // (postavke kanala, odluka 503).
+        if (widget.initialLanguageEn &&
+            !data.featureOn(EpisodeKey.englishTranslation)) {
+          dropEnSuffix(context);
+        }
         // Isti format naslova kao worker edge-inject za /v/ i /m/.
         setPageMeta(
           title: data.displayTitle,
@@ -120,6 +129,11 @@ class _EpisodeSimpleScreenState extends State<EpisodeSimpleScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final gone = _data;
+    if (gone != null && gone.isChannelGone) {
+      // Povučen/obrisan kanal: nikad 404 ni player (tvrdi uvjet 3).
+      return EpisodeChannelGoneScreen(data: gone);
+    }
     if (_data != null) {
       return _SimpleEpisodeContent(
         data: _data!,
@@ -906,7 +920,8 @@ class _SimpleEpisodeContentState extends State<_SimpleEpisodeContent>
             mainAxisSize: MainAxisSize.min,
             children: [
               const AnonymousSignInBar(applyBottomSafeArea: false),
-              if (AppBrand.config.flags.pinka)
+              if (AppBrand.config.flags.pinka &&
+                  data.featureOn(EpisodeKey.donations))
                 PinkaSupportBar.episode(
                   youtubeId: data.youtubeId,
                   applyBottomSafeArea: false,
@@ -1233,6 +1248,10 @@ class _PlayerTab extends StatelessWidget {
           ),
 
           if (ytMode) YouTubeModeBar(onExit: onExitYtMode),
+
+          // Vlasnik kanala je isključio reprodukciju s CDN-a: iznad je
+          // službeni YouTube embed, a ovdje rečenica zašto (`cdn_playback`).
+          if (episodeYouTubeOnly(data)) const OwnerYouTubeCaption(),
 
           // Mobitel u portraitu: titl ispod slike (isto kao u `VideoPanel`).
           if (videoReady &&
@@ -1642,6 +1661,11 @@ class _InfoTab extends StatelessWidget {
         ),
         const SizedBox(height: 12),
 
+        // Vlasnik kanala je isključio procjenu: tab „Magisterium” se ne
+        // prikazuje, a rečenica stoji ovdje (odluka 2/504).
+        if (episodeMagisteriumOffByOwner(data))
+          const MagisteriumOffNotice(padding: EdgeInsets.only(bottom: 12)),
+
         // E-knjiga: ista ponuda kao na detaljnom ekranu, pa oba pogleda o istoj
         // epizodi nude isto. Kartica se sama sakrije kad knjige nema.
         EbookCard(
@@ -1653,7 +1677,7 @@ class _InfoTab extends StatelessWidget {
 
         // Napredak obrade — ista kartica kao na detaljnom ekranu, pa oba
         // pogleda o istoj epizodi kazu istu stvar.
-        if (summary == null) ...[
+        if (summary == null && data.featureOn(EpisodeKey.articleSummary)) ...[
           EpisodeStatusCard(
             status: data.status,
             audioOnly: data.isAudioOnly,

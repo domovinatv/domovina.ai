@@ -2,6 +2,8 @@ import '../../brand/app_brand.dart';
 import '../../l10n/app_localizations.dart';
 import '../../models/channel_detail.dart';
 import '../../services/channel_cache.dart';
+import '../../services/channel_setting_keys.dart';
+import '../../services/channel_visibility.dart';
 
 /// Cross-channel video s denormaliziranim channel kontekstom.
 typedef FeedVideo = ({String channelId, String channelName, ChannelVideo video});
@@ -85,6 +87,20 @@ class HomeFeed {
   /// railu s "U obradi" oznakom.
   static bool isFreshUnprocessed(FeedVideo v) =>
       !(v.video.pipeline?.hasArticle ?? false);
+
+  /// Smije li epizoda na naslovnicu: vlasnik kanala nije isključio
+  /// `home_featured` (ni povukao kanal). Kanal ostaje u `/channels`, na
+  /// `/c/` i u korisnikovim popisima — ovo filtrira samo urednički izbor
+  /// (hero, railovi). Bez retka postavki uvijek `true`.
+  static bool isAllowedOnHome(FeedVideo v) =>
+      channelCache.channelAllows(v.channelId, ChannelKey.homeFeatured);
+
+  /// [all] bez epizoda kanala kojima je isključen `home_featured`. Isti
+  /// popis (bez kopiranja) kad nijedan kanal nema ograničenje.
+  static List<FeedVideo> onlyHomeAllowed(List<FeedVideo> all) =>
+      ChannelVisibility.instance.snapshot.isEmpty
+          ? all
+          : all.where(isAllowedOnHome).toList();
 
   /// Zadana domenska ocjena aktivnog brenda: Magisterium score kad je
   /// `flags.domainScore` upaljen, inače `null` (ranker pada na potpunost
@@ -198,6 +214,7 @@ class HomeFeed {
     int featuredSlots = 3,
     String pin = heroPin,
   }) {
+    all = onlyHomeAllowed(all);
     final picks = _pickFeaturedCarousel(all,
         limit: limit,
         score: score,
@@ -408,7 +425,7 @@ class HomeFeed {
       {int limit = 20, FeedVideo? excludeFeatured}) {
     // Samo spremne epizode (s člankom) — neobrađene iz permisivnog channel
     // indexa se ne prikazuju u "Najnovije epizode".
-    final filtered = all
+    final filtered = onlyHomeAllowed(all)
         .where(isReadyForHome)
         .where((v) =>
             excludeFeatured == null || v.video.id != excludeFeatured.video.id)
@@ -428,6 +445,7 @@ class HomeFeed {
       List<String>? featuredChannels}) {
     final featured = featuredChannels ?? AppBrand.config.featuredChannels;
     if (featured.isEmpty) return const [];
+    all = onlyHomeAllowed(all);
     final queues = [
       for (final id in featured)
         all
@@ -475,7 +493,7 @@ class HomeFeed {
       }
     }
 
-    final filtered = all
+    final filtered = onlyHomeAllowed(all)
         .where(isFreshUnprocessed)
         .where((v) => recent(v.video.date))
         .where((v) =>
@@ -531,7 +549,8 @@ class HomeFeed {
       if (latest == null) return false;
       if (at.difference(latest).inDays <= heroRecentDays) return false;
     }
-    return cache.allVideos.any((v) => _isHiQualityRecent(v, at));
+    return onlyHomeAllowed(cache.allVideos)
+        .any((v) => _isHiQualityRecent(v, at));
   }
 
   /// Provjeri ima li dovoljno podataka da feed nije prazan/skeleton.

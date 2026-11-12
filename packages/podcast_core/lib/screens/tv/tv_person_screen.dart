@@ -6,6 +6,8 @@ import 'package:flutter/services.dart';
 import '../../l10n/app_localizations.dart';
 import '../../src/log.dart' show log;
 import '../../models/person_hub.dart';
+import '../../services/channel_visibility.dart';
+import '../../services/channel_visibility_filters.dart';
 import '../../services/person_channel_flag.dart';
 import '../../services/person_service.dart';
 import '../../widgets/person_monogram.dart';
@@ -70,7 +72,12 @@ class _TvPersonScreenState extends State<TvPersonScreen> {
   void initState() {
     super.initState();
     log('TvPersonScreen.init slug=${widget.slug}');
-    _future = PersonService.fetch(widget.slug);
+    // Postavke kanala (`persons_mentions`), isto kao `PersonScreen`.
+    _future = PersonService.fetch(widget.slug).then((hub) async {
+      if (hub == null) return null;
+      await ChannelVisibility.instance.ready();
+      return visiblePersonHub(hub);
+    });
     PersonChannelFlag.instance.addListener(_onFlagChanged);
     unawaited(Future.microtask(_initFlag));
   }
@@ -451,7 +458,7 @@ class _TvPersonScreenState extends State<TvPersonScreen> {
                           ? e.title!.trim()
                           : e.youtubeId,
                       subtitle: e.channelDisplayName.replaceAll('_', ' '),
-                      magisteriumScore: e.magisteriumScore,
+                      magisteriumScore: personEpisodeScore(e),
                       width: cardWidth,
                       // Autofocus prva kartica prve sekcije — D-pad UP iz nje
                       // fokusira NATRAG.

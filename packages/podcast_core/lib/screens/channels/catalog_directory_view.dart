@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../l10n/app_localizations.dart';
 import '../../router/nav.dart';
 import '../../services/catalog_client.dart';
+import '../../services/channel_visibility.dart';
 import '../../services/scroll_memory.dart';
 import '../../src/log.dart' show log;
 import '../../widgets/person_monogram.dart';
@@ -203,7 +204,12 @@ class _CatalogDirectoryViewState extends State<CatalogDirectoryView> {
           final columns = constraints.maxWidth < 600
               ? 1
               : (available / _maxTileWidth).floor().clamp(2, 99);
-          final rows = (_items.length / columns).ceil();
+          // Postavke kanala mogu biti svježije od memoiziranog popisa.
+          final shown = [
+            for (final c in _items)
+              if (!ChannelVisibility.instance.isGone(c.youtubeChannelId)) c,
+          ];
+          final rows = (shown.length / columns).ceil();
           return ListView.builder(
             controller: _scroll,
             // Rubni padding UNUTAR scrollabla (CLAUDE.md, scrollabilne liste).
@@ -226,7 +232,7 @@ class _CatalogDirectoryViewState extends State<CatalogDirectoryView> {
               final row = i - 1;
               if (row < rows) {
                 final first = row * columns;
-                final last = (first + columns).clamp(0, _items.length);
+                final last = (first + columns).clamp(0, shown.length);
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 10),
                   // Kartice u redu iste visine; prazna mjesta zadnjeg reda
@@ -240,8 +246,8 @@ class _CatalogDirectoryViewState extends State<CatalogDirectoryView> {
                           Expanded(
                             child: k < last
                                 ? CatalogChannelTile(
-                                    channel: _items[k],
-                                    onTap: () => _open(_items[k]),
+                                    channel: shown[k],
+                                    onTap: () => _open(shown[k]),
                                   )
                                 : const SizedBox.shrink(),
                           ),

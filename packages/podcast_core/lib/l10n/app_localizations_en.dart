@@ -5236,7 +5236,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String channelGoneDeleted(String date) {
-    return 'This channel was permanently removed from domovina.ai on $date.';
+    return 'This channel was permanently removed from domovina.ai on $date';
   }
 
   @override
@@ -5255,4 +5255,8 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get channelFeatureOffByOwner =>
       'The channel owner has turned this feature off.';
+
+  @override
+  String get episodeYouTubeOnlyByOwner =>
+      'The channel owner allows playback only on YouTube.';
 }

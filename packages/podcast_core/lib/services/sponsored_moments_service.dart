@@ -21,6 +21,7 @@ import '../brand/app_brand.dart';
 import '../src/log.dart' show log;
 import '../models/sponsor_offer.dart';
 import '../models/sponsored_moment.dart';
+import 'channel_feature_gate.dart';
 
 /// Kampanja sponzorskih trenutaka po kanalu. MVP ima jednu (ugovor §1, O1:
 /// jedna kampanja i jedna `timeline` karta za SVE epizode kanala).
@@ -77,6 +78,14 @@ class SponsoredMomentsService {
   Future<SponsoredMoments?> loadLive(String youtubeId) async {
     // Trenutke prodaje izlog uz pinku; brend bez nje ih ne prikazuje.
     if (!AppBrand.config.flags.pinka) return null;
+    // Vlasnik kanala je isključio plaćene trenutke: traka i značka u sva tri
+    // playera nestaju jer je ovo jedini izvor (postavke kanala, matrica §19).
+    if (!await ChannelFeatureGate.isEnabled(
+      youtubeId,
+      EpisodeKey.paidSponsorMoments,
+    )) {
+      return null;
+    }
     try {
       final rows = await _client
           .schema(_schema)

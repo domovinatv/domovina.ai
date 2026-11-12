@@ -11,6 +11,8 @@ import '../../models/channel_detail.dart';
 import '../../services/analytics/analytics.dart';
 import '../../services/cdn_config.dart';
 import '../../services/channel_cache.dart';
+import '../../services/channel_setting_keys.dart';
+import '../../services/channel_visibility.dart';
 import '../../services/entitlement_service.dart';
 import '../../services/person_channel_flag.dart';
 import '../../services/person_index_cache.dart';
@@ -536,6 +538,11 @@ class _SearchOverlayState extends State<_SearchOverlay> {
   List<ChannelSummary> _localChannels(List<String> tokens) {
     final scored = <(double, ChannelSummary)>[];
     for (final ch in widget.channels) {
+      // Vlasnik je isključio pretragu u aplikaciji (`in_app_search`).
+      if (!ChannelVisibility.instance
+          .isEnabled(ch.youtubeChannelId, ChannelKey.inAppSearch)) {
+        continue;
+      }
       final s = localMatchScoreFolded(tokens, foldText(ch.name));
       if (s > 0) scored.add((s, ch));
     }

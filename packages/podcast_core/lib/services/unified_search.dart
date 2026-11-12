@@ -14,6 +14,7 @@ library;
 
 import '../models/channel_detail.dart';
 import '../utils/text_search.dart';
+import 'channel_visibility_filters.dart';
 import 'meili_client.dart';
 import 'search_service.dart';
 
@@ -229,6 +230,11 @@ const double _kSemanticWeightLongQuery = 2;
 /// [channelName] pretvara slug kanala (Meili, semantika) u ime za prikaz;
 /// vraća `null` kad ga ne zna. Skriveni kanali ([isHiddenChannel]) se nikad
 /// ne prikazuju, ni kao slug.
+///
+/// [allow] izbacuje pogotke kanala kojima je vlasnik isključio pretragu u
+/// aplikaciji (`in_app_search`) ili kanal povukao — iz sva tri izvora, na
+/// jednom mjestu. Zadano [isSearchable] (postavke kanala); bez retka
+/// postavki propušta sve.
 List<EpisodeHit> mergeSearchResults({
   required String query,
   List<LocalEpisodeMatch> local = const [],
@@ -236,7 +242,10 @@ List<EpisodeHit> mergeSearchResults({
   List<SemanticResult> semantic = const [],
   required String? Function(String slug) channelName,
   int maxMoments = 3,
+  bool Function(String videoId, String channelSlug)? allow,
 }) {
+  final allowed =
+      allow ?? (String id, String slug) => isSearchable(id, channelSlug: slug);
   // Funkcijske riječi („o", „je", „što") ne moraju biti istaknute da bi
   // pogodak bio „po naslovu".
   final tokens = queryTokens(contentQuery(query));
@@ -250,6 +259,7 @@ List<EpisodeHit> mergeSearchResults({
 
   for (var i = 0; i < local.length; i++) {
     final m = local[i];
+    if (!allowed(m.video.id, m.channelId)) continue;
     final a = acc(m.video.id)
       ..sources.add(SearchSource.local)
       ..localRank = i
@@ -264,6 +274,7 @@ List<EpisodeHit> mergeSearchResults({
   for (var i = 0; i < meili.length; i++) {
     final h = meili[i];
     if (h.youtubeId.isEmpty) continue;
+    if (!allowed(h.youtubeId, h.channel)) continue;
     final a = acc(h.youtubeId)
       ..sources.add(SearchSource.meili)
       ..meiliRank ??= i;
@@ -286,6 +297,7 @@ List<EpisodeHit> mergeSearchResults({
   var semanticEpisodes = 0;
   for (final r in semantic) {
     if (r.youtubeId.isEmpty) continue;
+    if (!allowed(r.youtubeId, r.channel)) continue;
     final a = acc(r.youtubeId)..sources.add(SearchSource.semantic);
     // Rang epizode, ne chunka: pet chunkova jedne epizode je jedan glas.
     a.semanticRank ??= semanticEpisodes++;

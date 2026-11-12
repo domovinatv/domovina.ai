@@ -18,6 +18,8 @@ import '../../models/channel_index.dart';
 import '../../push/push_transport.dart';
 import '../../router/nav.dart';
 import '../../services/channel_cache.dart';
+import '../../services/channel_setting_keys.dart';
+import '../../services/channel_visibility.dart';
 import '../../services/follow_service.dart';
 import '../../services/push_topics.dart';
 import '../../src/log.dart' show log;
@@ -142,7 +144,12 @@ class _NotificationsScreenState extends State<NotificationsScreen>
     final cs = theme.colorScheme;
     final denied = _push.permission == PushPermission.denied;
     final all = _push.allEpisodes;
-    final channels = _channels;
+    // Kanal kojem je vlasnik isključio obavijesti (`push_notifications`) se
+    // ne nudi za pretplatu.
+    final channels = _channels
+        ?.where((c) => ChannelVisibility.instance
+            .isEnabled(c.youtubeChannelId, ChannelKey.pushNotifications))
+        .toList();
 
     return Align(
       alignment: Alignment.topCenter,

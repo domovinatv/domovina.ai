@@ -33,6 +33,9 @@ import '../screens/voting/voting_screen.dart';
 import '../screens/youtube_watch/youtube_watch_screen.dart';
 import '../screens/sponsor/sponsor_episode_screen.dart';
 import '../screens/sponsor/sponsor_store_screen.dart';
+import '../services/channel_setting_keys.dart';
+import '../services/sponsored_moments_service.dart' show SponsorCampaign;
+import '../widgets/channel_feature_off_guard.dart';
 import '../services/episode_language.dart';
 import '../services/tv_mode.dart';
 
@@ -137,10 +140,16 @@ GoRouter createRouter() {
             final channelId = slug.replaceAll('-', '_');
             return NoTransitionPage(
               key: ValueKey('support-$slug'),
-              child: PinkaCampaignScreen.channel(
+              // Vlasnik je isključio donacije → poruka umjesto zida (S5).
+              child: ChannelFeatureOffGuard(
+                featureKey: ChannelKey.donations,
                 channelId: channelId,
-                youtubeChannelId: state.uri.queryParameters['uc'],
-                channelName: state.uri.queryParameters['name'],
+                ucId: state.uri.queryParameters['uc'],
+                child: PinkaCampaignScreen.channel(
+                  channelId: channelId,
+                  youtubeChannelId: state.uri.queryParameters['uc'],
+                  channelName: state.uri.queryParameters['name'],
+                ),
               ),
             );
           },
@@ -157,7 +166,11 @@ GoRouter createRouter() {
           final slug = state.pathParameters['slug']!;
           return NoTransitionPage(
             key: ValueKey('sponsor-store-$slug'),
-            child: SponsorStoreScreen(channelId: slug.replaceAll('-', '_')),
+            child: ChannelFeatureOffGuard(
+              featureKey: ChannelKey.paidSponsorMoments,
+              channelId: slug.replaceAll('-', '_'),
+              child: SponsorStoreScreen(channelId: slug.replaceAll('-', '_')),
+            ),
           );
         },
       ),
@@ -316,9 +329,15 @@ GoRouter createRouter() {
           final videoId = state.pathParameters['videoId']!;
           return NoTransitionPage(
             key: ValueKey('sponsor-v-$videoId'),
-            child: SponsorEpisodeScreen(
-              youtubeId: videoId,
-              orderId: state.uri.queryParameters['narudzba'],
+            // Karta trenutaka postoji samo za kanal kampanje
+            // (`SponsorEpisodeScreen._campaign`), pa je to i kanal provjere.
+            child: ChannelFeatureOffGuard(
+              featureKey: ChannelKey.paidSponsorMoments,
+              channelId: SponsorCampaign.domovinaTv.channelId,
+              child: SponsorEpisodeScreen(
+                youtubeId: videoId,
+                orderId: state.uri.queryParameters['narudzba'],
+              ),
             ),
           );
         },

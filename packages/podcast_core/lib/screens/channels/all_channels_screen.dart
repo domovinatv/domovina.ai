@@ -159,6 +159,7 @@ class _AllChannelsViewState extends State<AllChannelsView> {
     // build()-a bi to srušilo frame. Zato microtask + lokalno stanje.
     PersonChannelFlag.instance.addListener(_onFlagChanged);
     personIndexCache.addListener(_onIndexChanged);
+    channelCache.addListener(_onIndexChanged);
     unawaited(Future.microtask(_initPersonChannels));
     _init();
   }
@@ -201,13 +202,19 @@ class _AllChannelsViewState extends State<AllChannelsView> {
   void dispose() {
     PersonChannelFlag.instance.removeListener(_onFlagChanged);
     personIndexCache.removeListener(_onIndexChanged);
+    channelCache.removeListener(_onIndexChanged);
     _searchCtrl.dispose();
     _scrollCtrl.dispose();
     super.dispose();
   }
 
+  /// Trenutno vidljivi kanali: postavke kanala (povučen kanal) mogu stići
+  /// nakon što je index učitan, pa se čita iz cachea pri svakom buildu.
+  List<ChannelSummary> get _visibleChannels =>
+      channelCache.index?.channels ?? _channels;
+
   List<ChannelSummary> get _ordered =>
-      applySortMode(_channels, _sortMode, customOrder: _customOrder);
+      applySortMode(_visibleChannels, _sortMode, customOrder: _customOrder);
 
   /// Osobe koje smiju stajati uz kanale — backend je već primijenio prag i
   /// opt-out (`is_virtual_channel`), frontend ne preračunava. Najviše nastupa
@@ -279,7 +286,8 @@ class _AllChannelsViewState extends State<AllChannelsView> {
   }
 
   Future<void> _onShuffle() async {
-    final shuffled = List<ChannelSummary>.from(_channels)..shuffle(Random());
+    final shuffled =
+        List<ChannelSummary>.from(_visibleChannels)..shuffle(Random());
     final ids = shuffled.map((c) => c.id).toList();
     await saveCustomOrder(ids);
     await saveSortMode(ChannelSortMode.custom);

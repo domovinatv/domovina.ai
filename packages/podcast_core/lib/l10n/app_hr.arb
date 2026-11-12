@@ -6619,9 +6619,9 @@
   "@channelGoneWithdrawnBody": {
     "description": "Druga rečenica ispod naslova povučenog sadržaja."
   },
-  "channelGoneDeleted": "Kanal je trajno uklonjen s domovina.ai {date}.",
+  "channelGoneDeleted": "Kanal je trajno uklonjen s domovina.ai {date}",
   "@channelGoneDeleted": {
-    "description": "Kanal trajno obrisan (tombstone). date = dd. mm. gggg.",
+    "description": "Kanal trajno obrisan (tombstone). date = dd. mm. gggg. (datum nosi završnu točku, pa je rečenica nema)",
     "placeholders": {
       "date": {
         "type": "String"
@@ -6647,5 +6647,9 @@
   "channelFeatureOffByOwner": "Vlasnik kanala je isključio ovu mogućnost.",
   "@channelFeatureOffByOwner": {
     "description": "Ruta značajke (donacije, izlog oglasa) koju je vlasnik kanala isključio."
+  },
+  "episodeYouTubeOnlyByOwner": "Vlasnik kanala reprodukciju dopušta samo preko YouTubea.",
+  "@episodeYouTubeOnlyByOwner": {
+    "description": "Uz ugrađeni YouTube player kad je vlasnik kanala isključio reprodukciju s našeg CDN-a (cdn_playback)."
   }
 }

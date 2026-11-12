@@ -31,6 +31,9 @@ import '../services/channel_cache.dart';
 import '../services/episode_catalog_lookup.dart';
 import '../services/data_service.dart';
 import '../services/cdn_config.dart';
+import '../models/channel_settings.dart' show CatalogChannelSettings;
+import '../services/channel_feature_gate.dart';
+import '../services/channel_visibility.dart';
 import '../services/ebook_service.dart';
 import '../services/notification_art.dart';
 import '../services/open_url.dart';
@@ -64,6 +67,8 @@ import '../widgets/parallel_article_view.dart';
 import '../widgets/person_needle_highlight.dart' show hasPersonMention;
 import '../widgets/entities_section.dart';
 import '../widgets/ebook_sheet.dart';
+import '../widgets/channel_gone_view.dart';
+import '../widgets/episode_channel_owner.dart';
 import '../widgets/episode_status_card.dart';
 import '../widgets/youtube_embed.dart';
 import '../widgets/resume_hint_banner.dart';
@@ -152,6 +157,13 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
       );
       if (mounted) {
         setState(() => _data = data);
+        if (data.isChannelGone) return;
+        // Vlasnik je isključio engleski prijevod: `/en` URL se zamijeni HR
+        // rutom umjesto da nosi hrvatski sadržaj (postavke kanala, odluka 503).
+        if (widget.initialLanguageEn &&
+            !data.featureOn(EpisodeKey.englishTranslation)) {
+          dropEnSuffix(context);
+        }
         // Runtime <title>/og meta za živu SPA sesiju — isti format kao
         // worker edge-inject za /v/ (crawleri i dalje idu kroz _worker.js).
         setPageMeta(
@@ -166,12 +178,18 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_data != null) {
+    final data = _data;
+    if (data != null) {
+      // Povučen/obrisan kanal: nikad 404 ni player (tvrdi uvjet 3).
+      if (data.isChannelGone) return EpisodeChannelGoneScreen(data: data);
       return _EpisodeContent(
-        data: _data!,
+        data: data,
         startAtSeconds: widget.startAtSeconds,
         initialLanguageEn: widget.initialLanguageEn,
-        highlightPersonSlug: widget.highlightPersonSlug,
+        // `persons_mentions` isključen: nema sidra `?p=<slug>` (odluka 505).
+        highlightPersonSlug: data.featureOn(EpisodeKey.personsMentions)
+            ? widget.highlightPersonSlug
+            : null,
         openVideo: widget.openVideo,
       );
     }
@@ -249,6 +267,10 @@ class _QueuedEpisodeScreenState extends State<_QueuedEpisodeScreen> {
   QueuedEpisodeListing? _listed;
   bool _searching = true;
 
+  /// Postavke kanala kad je vlasnik kanal povukao ili obrisao (inače null).
+  CatalogChannelSettings? _gone;
+  String? _goneUc;
+
   @override
   void initState() {
     super.initState();
@@ -260,10 +282,23 @@ class _QueuedEpisodeScreenState extends State<_QueuedEpisodeScreen> {
       widget.youtubeId,
       findVideo: channelCache.findVideoAsync,
     );
+    // Povučen/obrisan kanal: ni epizoda u redu čekanja nema embed ni 404,
+    // nego prikaz povučenog sadržaja (tvrdi uvjet 3).
+    final slug = hit?.channelSlug;
+    final uc = slug == null ? null : channelCache.ucFor(slug);
+    CatalogChannelSettings? gone;
+    if (uc != null) {
+      await ChannelVisibility.instance.ready();
+      if (ChannelVisibility.instance.isGone(uc)) {
+        gone = ChannelVisibility.instance.of(uc);
+      }
+    }
     if (!mounted) return;
     setState(() {
       _listed = hit;
       _searching = false;
+      _gone = gone;
+      _goneUc = uc;
     });
     if (hit != null) {
       log(
@@ -290,6 +325,31 @@ class _QueuedEpisodeScreenState extends State<_QueuedEpisodeScreen> {
     // ID nije ni u jednom kanalu — to je prava 404, ne epizoda u obradi.
     if (listed == null) {
       return _NotFoundScreen(youtubeId: widget.youtubeId);
+    }
+
+    final gone = _gone;
+    if (gone != null) {
+      final ytId = listed.youtubeVideoId;
+      return Scaffold(
+        backgroundColor: theme.colorScheme.surfaceContainerLow,
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            tooltip: l.commonBack,
+            onPressed: () => back(context),
+          ),
+        ),
+        body: SafeArea(
+          child: ChannelGoneView(
+            ucId: _goneUc,
+            isDeleted: gone.isDeleted,
+            deletedAt: gone.deletedAt,
+            youtubeUrl: ytId == null
+                ? null
+                : 'https://www.youtube.com/watch?v=$ytId',
+          ),
+        ),
+      );
     }
 
     // Isti raspored kao basic layout: na širokom ekranu player desno, status
@@ -452,8 +512,15 @@ class _YouTubeSidePanel extends StatelessWidget {
   /// jedini sadržaj stupca, a YouTube kontrole na 360 dp postaju skučene.
   static const double width = 440;
 
-  const _YouTubeSidePanel({required this.youtubeId, String? videoId})
-    : videoId = videoId ?? youtubeId;
+  /// Vlasnik kanala je isključio reprodukciju s CDN-a — rečenica ispod
+  /// playera kaže to, a ne „dok ne obradimo”.
+  final bool byOwner;
+
+  const _YouTubeSidePanel({
+    required this.youtubeId,
+    String? videoId,
+    this.byOwner = false,
+  }) : videoId = videoId ?? youtubeId;
 
   @override
   Widget build(BuildContext context) {
@@ -484,7 +551,9 @@ class _YouTubeSidePanel extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    l.episodeYouTubeUntilProcessed,
+                    byOwner
+                        ? l.episodeYouTubeOnlyByOwner
+                        : l.episodeYouTubeUntilProcessed,
                     style: theme.textTheme.labelSmall?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
@@ -2547,7 +2616,12 @@ class _EpisodeContentState extends State<_EpisodeContent>
 
   /// „Pronađi u epizodi" — tap na trenutak skoči u playeru i, na uskom
   /// ekranu, otvori panel playera (isto kao „Poslušaj" sponzora).
-  Widget _findInEpisodeSection() => FindInEpisodeSection(
+  /// „Pronađi u epizodi” traži po transkriptu — vlasnik kanala ga gasi s
+  /// `transcript_subtitles` (postavke kanala, matrica §11).
+  Widget _findInEpisodeSection() =>
+      !widget.data.featureOn(EpisodeKey.transcriptSubtitles)
+      ? const SizedBox.shrink()
+      : FindInEpisodeSection(
         youtubeId: widget.data.youtubeId,
         onJump: _videoReady
             ? (sec) {
@@ -2762,17 +2836,26 @@ class _EpisodeContentState extends State<_EpisodeContent>
                 youtubeId: data.youtubeId,
                 summary: summaryForUi.summary,
               ),
+              // Vlasnik je isključio reprodukciju s CDN-a: službeni YouTube
+              // embed umjesto našeg playera (postavke kanala, `cdn_playback`).
+              if (episodeYouTubeOnly(data))
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+                  child: OwnerYouTubePlayback(data: data),
+                ),
               // Traka spomenutih osoba odmah ispod naslova. Puna sekcija
               // entiteta je na dnu članka — predaleko da se vidi tko je u
               // epizodi, i predaleko za crveni marker kad se dođe s /p/ profila.
               PeopleRail(
                 summary: summaryForUi.summary,
                 highlightPersonSlug: widget.highlightPersonSlug,
+                linkProfiles: data.featureOn(EpisodeKey.personsMentions),
               ),
               // "Zid podrške" za epizodu — sam se sakrije ako epizoda nema
               // aktivnu pinka kampanju (vidi lib/pinka_sdk/). SEPA QR +
               // on-chain EURe (Gnosis Safe) + in-app DOMOVINA novčanik.
-              if (AppBrand.config.flags.pinka)
+              if (AppBrand.config.flags.pinka &&
+                  data.featureOn(EpisodeKey.donations))
                 PinkaSupportCard.episode(
                 youtubeId: data.youtubeId,
                 onOpen: (_) => drillDown(
@@ -2855,6 +2938,13 @@ class _EpisodeContentState extends State<_EpisodeContent>
               const SizedBox(height: 12),
               // Magisterium inline: samo kad NIJE prikazan kao stupac
               // i kad nismo u mobile-tab modu (tamo ima svoj zasebni tab).
+              // Vlasnik kanala je isključio procjenu: tekst na mjestu panela
+              // (odluka 2/504), ne prazno mjesto.
+              if (episodeMagisteriumOffByOwner(data)) ...[
+                const MagisteriumOffNotice(),
+                Divider(height: 1, color: theme.colorScheme.outlineVariant),
+                const SizedBox(height: 12),
+              ],
               if (hasMag && !showMagColumn && !isMobileWithTabs) ...[
                 if (magV2 != null)
                   MagisteriumV2View(data: magV2)
@@ -2897,13 +2987,22 @@ class _EpisodeContentState extends State<_EpisodeContent>
                         youtubeId: data.youtubeId,
                         summary: summaryForUi.summary,
                       ),
+                      if (episodeYouTubeOnly(data))
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+                          child: OwnerYouTubePlayback(data: data),
+                        ),
                       // Traka osoba — vidi standardni layout iznad.
                       PeopleRail(
                         summary: summaryForUi.summary,
                         highlightPersonSlug: widget.highlightPersonSlug,
+                        linkProfiles: data.featureOn(
+                          EpisodeKey.personsMentions,
+                        ),
                       ),
                       // "Zid podrške" za epizodu — vidi standardni layout iznad.
-                      if (AppBrand.config.flags.pinka)
+                      if (AppBrand.config.flags.pinka &&
+                          data.featureOn(EpisodeKey.donations))
                         PinkaSupportCard.episode(
                         youtubeId: data.youtubeId,
                         onOpen: (_) => drillDown(
@@ -3427,7 +3526,8 @@ class _EpisodeContentState extends State<_EpisodeContent>
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const AnonymousSignInBar(applyBottomSafeArea: false),
-                  if (AppBrand.config.flags.pinka)
+                  if (AppBrand.config.flags.pinka &&
+                      data.featureOn(EpisodeKey.donations))
                     PinkaSupportBar.episode(
                     youtubeId: data.youtubeId,
                     channelRefs: _channelSupportRefs,
@@ -3537,8 +3637,13 @@ class _EpisodeContentState extends State<_EpisodeContent>
     // Ugrađeni YouTube ima smisla samo kad kod nas NEMA što pustiti — inače bi
     // na stranici bila dva playera. Sintetički ID-evi (X, ne-YT izvori) nemaju
     // YouTube video iza sebe.
+    // Vlasnik kanala je isključio reprodukciju s CDN-a (`cdn_playback`):
+    // YouTube je jedini put i kad medija postoji.
+    final youTubeOnlyByOwner = episodeYouTubeOnly(data);
     final youTubeIsTheOnlyWay =
-        data.status.needsExternalSource && !data.info.isX && data.info.ytMatched;
+        (data.status.needsExternalSource || youTubeOnlyByOwner) &&
+        !data.info.isX &&
+        data.info.ytMatched;
     final embedYouTube = youTubeIsTheOnlyWay &&
         InAppYouTubePlayer.canEmbed(
           playableInEmbed: data.info.playableInEmbed,
@@ -3615,21 +3720,29 @@ class _EpisodeContentState extends State<_EpisodeContent>
                     // In-app YouTube player — jedina reprodukcija kad medije
                     // kod nas nema (faza `queued`/`fetched`). Facade, pa
                     // iframe krene tek na korisnikov tap.
-                    if (embedYouTube && !showEmbedPanel) ...[
+                    if (youTubeOnlyByOwner && !showEmbedPanel) ...[
+                      OwnerYouTubePlayback(data: data),
+                      const SizedBox(height: 20),
+                    ] else if (embedYouTube && !showEmbedPanel) ...[
                       InAppYouTubePlayer(
                         videoId: data.youtubeVideoId,
                         posterUrl: CdnConfig.thumbnailUrl(data.youtubeId),
                       ),
                       const SizedBox(height: 20),
                     ],
-                    EpisodeStatusCard(
-                      status: data.status,
-                      audioOnly: data.isAudioOnly,
-                    ),
-                    const SizedBox(height: 16),
+                    // Kartica faze bi za isključen članak tvrdila „u obradi”,
+                    // a obrade neće biti: vlasnik ga je isključio.
+                    if (data.featureOn(EpisodeKey.articleSummary)) ...[
+                      EpisodeStatusCard(
+                        status: data.status,
+                        audioOnly: data.isAudioOnly,
+                      ),
+                      const SizedBox(height: 16),
+                    ],
                     // Transkript postoji prije članka — pretraga radi već tada,
                     // a s njom i skok na izgovorenu riječ.
                     if (_videoReady &&
+                        data.featureOn(EpisodeKey.transcriptSubtitles) &&
                         data.status.stage.index >=
                             EpisodeStage.transcribed.index) ...[
                       FindInEpisodeSection(
@@ -3754,6 +3867,7 @@ class _EpisodeContentState extends State<_EpisodeContent>
           _YouTubeSidePanel(
             youtubeId: data.youtubeId,
             videoId: data.youtubeVideoId,
+            byOwner: youTubeOnlyByOwner,
           ),
         ],
       );
@@ -3876,7 +3990,8 @@ class _EpisodeContentState extends State<_EpisodeContent>
               mainAxisSize: MainAxisSize.min,
               children: [
                 const AnonymousSignInBar(applyBottomSafeArea: false),
-                if (AppBrand.config.flags.pinka)
+                if (AppBrand.config.flags.pinka &&
+                    data.featureOn(EpisodeKey.donations))
                   PinkaSupportBar.episode(
                   youtubeId: data.youtubeId,
                   channelRefs: _channelSupportRefs,

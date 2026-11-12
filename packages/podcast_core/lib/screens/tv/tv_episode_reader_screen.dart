@@ -14,6 +14,7 @@ import '../../services/cdn_config.dart';
 import '../../services/data_service.dart';
 import '../../services/episode_playback_session.dart';
 import '../../services/watch_progress_service.dart';
+import '../../widgets/episode_channel_owner.dart';
 import '../../theme/markdown_brand.dart';
 import '../../widgets/cached_thumbnail.dart';
 import 'widgets/tv_focus.dart';
@@ -98,6 +99,11 @@ class _TvEpisodeReaderScreenState extends State<TvEpisodeReaderScreen> {
     try {
       final data = await EpisodeData.load(youtubeId: widget.youtubeId);
       if (!mounted) return;
+      // Povučen/obrisan kanal: prikaz povučenog sadržaja, bez playera.
+      if (data.isChannelGone) {
+        setState(() => _data = data);
+        return;
+      }
       final article = data.article;
       if (article == null) {
         setState(() => _error = StateError('not-ai-processed'));
@@ -139,7 +145,13 @@ class _TvEpisodeReaderScreenState extends State<TvEpisodeReaderScreen> {
         _currentIdx = _indexForSecond(startSec);
       });
 
-      await _session.open(data, startAtSeconds: startSec > 5 ? startSec : null);
+      // Vlasnik je isključio reprodukciju s CDN-a: čitač radi bez playera.
+      if (!episodeYouTubeOnly(data)) {
+        await _session.open(
+          data,
+          startAtSeconds: startSec > 5 ? startSec : null,
+        );
+      }
       if (mounted) _contentFocus.requestFocus();
     } catch (e) {
       log('TvReader.load error: $e');
@@ -243,6 +255,10 @@ class _TvEpisodeReaderScreenState extends State<TvEpisodeReaderScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l = AppLocalizations.of(context);
+    final gone = _data;
+    if (gone != null && gone.isChannelGone) {
+      return EpisodeChannelGoneScreen(data: gone, showBack: false);
+    }
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
       body: PopScope(
@@ -831,7 +847,10 @@ class _TvEpisodeReaderScreenState extends State<TvEpisodeReaderScreen> {
                     .withValues(alpha: 0.5)),
             const SizedBox(height: 8),
             Text(
-              l.tvReaderNoCommentary,
+              // Vlasnik kanala je isključio procjenu (odluka 2/504).
+              (_data != null && episodeMagisteriumOffByOwner(_data!))
+                  ? l.magisteriumOffByOwner
+                  : l.tvReaderNoCommentary,
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,

@@ -9,6 +9,7 @@ import '../../theme/app_theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/cdn_config.dart';
 import '../../services/channel_cache.dart';
+import '../../services/channel_visibility_filters.dart';
 import '../../services/meili_client.dart';
 import '../../widgets/em_highlight_text.dart';
 import '../../widgets/episode_age.dart';
@@ -320,7 +321,12 @@ class _MeiliSearchScreenState extends State<MeiliSearchScreen> {
         icon: Icons.search,
       );
     }
-    if (res.hits.isEmpty) {
+    // Kanali kojima je vlasnik isključio pretragu (`in_app_search`).
+    final hits = [
+      for (final h in res.hits)
+        if (isSearchable(h.youtubeId, channelSlug: h.channel)) h,
+    ];
+    if (hits.isEmpty) {
       return _centered(
         theme,
         l.channelNoResultsForQuery(_controller.text.trim()),
@@ -328,10 +334,10 @@ class _MeiliSearchScreenState extends State<MeiliSearchScreen> {
     }
     return ListView.separated(
       padding: const EdgeInsets.symmetric(vertical: 8),
-      itemCount: res.hits.length,
+      itemCount: hits.length,
       separatorBuilder: (_, _) =>
           const Divider(height: 1, indent: 16, endIndent: 16),
-      itemBuilder: (context, i) => _resultCard(theme, res.hits[i]),
+      itemBuilder: (context, i) => _resultCard(theme, hits[i]),
     );
   }
 

@@ -7,6 +7,8 @@ import '../../models/channel_detail.dart';
 import '../../pinka_sdk/pinka_sdk.dart';
 import '../../services/catalog_client.dart';
 import '../../services/channel_cache.dart';
+import '../../services/channel_setting_keys.dart';
+import '../../services/channel_visibility.dart';
 import '../../services/follow_service.dart';
 import '../../services/page_meta.dart';
 import '../../services/view_mode.dart';
@@ -15,6 +17,7 @@ import '../../widgets/follow_button.dart';
 import '../../widgets/magisterium_section.dart';
 import '../../widgets/share_context_menu.dart';
 import '../../widgets/cached_thumbnail.dart';
+import '../../widgets/channel_gone_view.dart';
 import '../../router/nav.dart';
 import '../../services/share_language.dart';
 import '../../services/share_links.dart';
@@ -65,9 +68,27 @@ class _ChannelScreenState extends State<ChannelScreen> {
   bool get _catalogFallback =>
       widget.catalogSlug != null && CatalogClient.instance.enabled;
 
+  /// Stanje postavki kanala (povučen/obrisan, donacije, oglasi). Uhvaćeno
+  /// pri otvaranju, da test koji zamijeni singleton ne curi u drugi ekran.
+  late final ChannelVisibility _vis;
+
+  /// Je li [_vis] učitan ili je isteklo čekanje (`ready`, najviše 1,5 s).
+  /// Do tada se kanal ne crta, da povučen kanal ne bljesne epizodama.
+  bool _visSettled = false;
+
+  void _onVisibility() {
+    if (mounted) setState(() {});
+  }
+
   @override
   void initState() {
     super.initState();
+    _vis = ChannelVisibility.instance;
+    _visSettled = _vis.isLoaded;
+    _vis.addListener(_onVisibility);
+    _vis.ready().whenComplete(() {
+      if (mounted && !_visSettled) setState(() => _visSettled = true);
+    });
     _detailFuture = channelCache.loadChannel(widget.channelId);
     if (_catalogFallback) {
       _detailFuture.then((_) {}, onError: (Object e) {
@@ -91,7 +112,18 @@ class _ChannelScreenState extends State<ChannelScreen> {
   /// ← popa stog kad ga ima; inače ide na semantičkog roditelja (`/channels`),
   /// ne na naslovnicu. Prije 6.9.2026. je bio tvrdi `go('/')` — jedini ekran
   /// koji nije ni provjeravao `canPop()`.
+  @override
+  void dispose() {
+    _vis.removeListener(_onVisibility);
+    super.dispose();
+  }
+
   void _back() => backUp(context);
+
+  String? get _uc => _resolvedUcId ?? channelCache.ucFor(widget.channelId);
+
+  /// Povučen ili obrisan kanal (iz kataloga postavki ili listinga u cacheu).
+  bool get _gone => _vis.isGone(_uc);
 
   /// Prikaz epizode prati korisnikov pref, isto kao naslovnica.
   ///
@@ -139,7 +171,7 @@ class _ChannelScreenState extends State<ChannelScreen> {
                   ),
                   // „Prati" — lokalni popis praćenja (isti namespace kao osobe).
                   // Sam se sakrije dok je PersonChannelFlag ugašen.
-                  if (!_catalogMode)
+                  if (!_catalogMode && !_gone)
                     FollowButton(
                       followKey: channelFollowKey(widget.channelId),
                       followLabel: l.channelFollow,
@@ -148,7 +180,8 @@ class _ChannelScreenState extends State<ChannelScreen> {
                   // Izlog sponzorskih trenutaka — samo kanal s kampanjom.
                   if (!_catalogMode &&
                       AppBrand.config.flags.pinka &&
-                      SponsorCampaign.forChannel(widget.channelId) != null)
+                      SponsorCampaign.forChannel(widget.channelId) != null &&
+                      _vis.isEnabled(_uc, ChannelKey.paidSponsorMoments))
                     IconButton(
                       icon: const Icon(Icons.campaign_outlined),
                       tooltip: l.sponsorStoreEntry,
@@ -178,7 +211,8 @@ class _ChannelScreenState extends State<ChannelScreen> {
               child: FutureBuilder<ChannelDetail>(
                 future: _detailFuture,
                 builder: (context, snap) {
-                  if (snap.connectionState == ConnectionState.waiting) {
+                  if (snap.connectionState == ConnectionState.waiting ||
+                      (!_visSettled && !snap.hasError)) {
                     return const Center(child: CircularProgressIndicator());
                   }
                   if (snap.hasError && _catalogFallback) {
@@ -207,13 +241,24 @@ class _ChannelScreenState extends State<ChannelScreen> {
                       }
                     });
                   }
+                  final uc = detail.youtubeChannelId;
+                  // Povučen/obrisan kanal: nikad 404 ni „0 epizoda”, nego
+                  // prikaz s poveznicom na YouTube (tvrdi uvjet 3 plana).
+                  if (_vis.isGone(uc)) {
+                    return ChannelGoneView(
+                      ucId: uc,
+                      isDeleted: _vis.isDeleted(uc),
+                      deletedAt: _vis.deletedAt(uc),
+                    );
+                  }
                   final slug = widget.channelId.replaceAll('_', '-');
                   return Column(
                     children: [
                       // "Zid podrške" — sama se sakrije ako kanal nema aktivnu
                       // pinka kampanju (vidi lib/pinka_sdk/). Match po internom
                       // channel id-u ILI kanonskom UC… id-u.
-                      if (AppBrand.config.flags.pinka)
+                      if (AppBrand.config.flags.pinka &&
+                          _vis.isEnabled(uc, ChannelKey.donations))
                         PinkaSupportCard.channel(
                           channelId: widget.channelId,
                           youtubeChannelId: detail.youtubeChannelId,

@@ -17,6 +17,8 @@ import '../l10n/app_localizations.dart';
 import '../router/nav.dart';
 import '../services/follow_service.dart';
 import '../services/person_channel_flag.dart';
+import '../services/channel_cache.dart';
+import '../services/channel_setting_keys.dart';
 import '../services/push_topics.dart';
 
 class FollowButton extends StatefulWidget {
@@ -143,6 +145,11 @@ class _FollowButtonState extends State<FollowButton> {
     final push = PushTopics.instance;
     final channelId = channelIdFromFollowKey(widget.followKey);
     if (!push.available || channelId == null || !_following) return null;
+    // Vlasnik je isključio obavijesti (`push_notifications`): praćenje
+    // ostaje, zvonce se ne nudi.
+    if (!channelCache.channelAllows(channelId, ChannelKey.pushNotifications)) {
+      return null;
+    }
     final l = AppLocalizations.of(context);
     final on = push.allEpisodes || push.isChannelOn(channelId);
     return IconButton(

@@ -29,6 +29,23 @@ class CatalogChannelInfo {
   /// Tier 2 kanal bez registry unosa (`yt-…`, `x-…`, katalog odluka 205).
   final bool unregistered;
 
+  /// Stanje kanala iz omotnice `/channels/:slug` (`state`, odluka 309):
+  /// `withdrawn`, `deleted` ili `null` (aktivan).
+  final String? state;
+
+  /// Trenutak brisanja (`deleted_at` omotnice) uz `state: deleted`.
+  final DateTime? deletedAt;
+
+  /// Isključeni ključevi postavki (`item.settings`, samo `false` vrijednosti).
+  final Set<String> off;
+
+  bool get isWithdrawn =>
+      state == 'withdrawn' || (state == null && off.contains('channel_enabled'));
+  bool get isDeleted => state == 'deleted';
+
+  /// Povučen ili obrisan: sadržaj se ne prikazuje (nikad 404).
+  bool get isGone => isWithdrawn || isDeleted;
+
   const CatalogChannelInfo({
     required this.slug,
     required this.name,
@@ -39,6 +56,9 @@ class CatalogChannelInfo {
     this.youtubeChannelId,
     this.latestPublishedDate,
     this.unregistered = false,
+    this.state,
+    this.deletedAt,
+    this.off = const {},
   });
 
   /// Isti kanal u obliku koji nosi kartica epizode (`{slug, name, tier}`),
@@ -61,6 +81,7 @@ class CatalogChannelInfo {
     }
 
     final count = item['processed_count'];
+    final settings = item['settings'];
     return CatalogChannelInfo(
       slug: ref.slug,
       name: ref.name,
@@ -71,8 +92,30 @@ class CatalogChannelInfo {
       processedCount: count is num && count >= 0 ? count.toInt() : 0,
       latestPublishedDate: str('latest_published_date'),
       unregistered: item['unregistered'] == true,
+      off: {
+        if (settings is Map)
+          for (final e in settings.entries)
+            if (e.key is String && e.value == false) e.key as String,
+      },
     );
   }
+
+  /// Isti kanal sa stanjem iz omotnice odgovora.
+  CatalogChannelInfo withState(String? state, DateTime? deletedAt) =>
+      CatalogChannelInfo(
+        slug: slug,
+        name: name,
+        tier: tier,
+        lang: lang,
+        avatar: avatar,
+        youtubeChannelId: youtubeChannelId,
+        processedCount: processedCount,
+        latestPublishedDate: latestPublishedDate,
+        unregistered: unregistered,
+        state: state,
+        deletedAt: deletedAt,
+        off: off,
+      );
 
   /// Tijelo `GET /channels/:slug` → kanal, ili `null` kad tijelo nije JSON,
   /// verzija nije [CatalogCard.supportedVersion] ili `item` nije čitljiv.
@@ -81,7 +124,14 @@ class CatalogChannelInfo {
       final json = jsonDecode(body);
       if (json is! Map) return null;
       if (json['version'] != CatalogCard.supportedVersion) return null;
-      return fromItem(json['item']);
+      final info = fromItem(json['item']);
+      final state = json['state'];
+      if (info == null || state is! String || state == 'active') return info;
+      final deletedAt = json['deleted_at'];
+      return info.withState(
+        state,
+        deletedAt is String ? DateTime.tryParse(deletedAt) : null,
+      );
     } catch (_) {
       return null;
     }
@@ -118,7 +168,12 @@ class CatalogDirectoryPage {
       final raw = json['items'];
       if (raw is! List) return null;
       return CatalogDirectoryPage(
-        items: [for (final item in raw) ?CatalogChannelInfo.fromItem(item)],
+        // Povučen kanal (`settings.channel_enabled: false`) se ne nabraja.
+        items: [
+          for (final item in raw)
+            if (CatalogChannelInfo.fromItem(item) case final c? when !c.isGone)
+              c,
+        ],
         next: _cursor(json['next']),
         catalog: json['catalog'] is String ? json['catalog'] as String : null,
       );

@@ -22,6 +22,7 @@
 library;
 
 import 'channel_cache.dart';
+import 'channel_feature_gate.dart';
 import 'episode_language.dart';
 
 /// Jezik za share link epizode [videoId] izvan episode ekrana.
@@ -33,6 +34,19 @@ EpisodeLanguage shareLanguageForVideo(String videoId) {
     return EpisodeLanguage.hr;
   }
   final hit = channelCache.findVideo(videoId);
+  // Vlasnik kanala je isključio engleski prijevod (postavke kanala): link
+  // ostaje hrvatski i kad listing još nosi staru zastavicu.
+  if (!ChannelFeatureGate.isEnabledNow(
+        videoId,
+        EpisodeKey.englishTranslation,
+      ) ||
+      (hit != null &&
+          !channelCache.channelAllows(
+            hit.channelId,
+            EpisodeKey.englishTranslation,
+          ))) {
+    return EpisodeLanguage.hr;
+  }
   final hasEn = hit?.video.pipeline?.hasArticleEn ?? false;
   return hasEn ? EpisodeLanguage.en : EpisodeLanguage.hr;
 }

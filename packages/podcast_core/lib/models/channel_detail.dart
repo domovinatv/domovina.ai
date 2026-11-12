@@ -94,6 +94,26 @@ class ChannelDetail {
         videos: videos,
       );
 
+  /// Isti kanal bez domenske ocjene ni na kanalu ni na epizodama (vlasnik
+  /// je isključio `magisterium`, odluka 504).
+  ChannelDetail withoutDomainScore() => ChannelDetail(
+        version: version,
+        id: id,
+        name: name,
+        avatarSquare: avatarSquare,
+        avatarCover: avatarCover,
+        youtubeChannelUrl: youtubeChannelUrl,
+        youtubeChannelId: youtubeChannelId,
+        youtubePlaylistUrl: youtubePlaylistUrl,
+        description: description,
+        tags: tags,
+        followerCount: followerCount,
+        videoCount: videoCount,
+        totalDurationSeconds: totalDurationSeconds,
+        latestVideoDate: latestVideoDate,
+        videos: [for (final v in videos) v.withoutDomainScore()],
+      );
+
   factory ChannelDetail.fromJson(Map<String, dynamic> json) {
     return ChannelDetail(
       version: json['version']?.toString() ?? '1.0',
@@ -207,6 +227,34 @@ class ChannelVideo {
   }
 
   /// Display title — prefer Croatian title.
+  /// Ista epizoda bez domenske ocjene: vlasnik kanala je isključio
+  /// `magisterium` (postavke kanala, odluka 504) — kartica tada nema ni
+  /// ocjene ni značke, a sortiranje je vidi kao neocijenjenu.
+  ChannelVideo withoutDomainScore() {
+    if (magisteriumScore == null && !(pipeline?.hasMagisterium ?? false)) {
+      return this;
+    }
+    return ChannelVideo(
+      id: id,
+      title: title,
+      titleHr: titleHr,
+      date: date,
+      durationSeconds: durationSeconds,
+      durationDisplay: _durationDisplay,
+      views: views,
+      likes: likes,
+      thumbnail: thumbnail,
+      youtubeUrl: youtubeUrl,
+      abstract_: abstract_,
+      topics: topics,
+      speakers: speakers,
+      magisteriumScore: null,
+      pipeline: pipeline?.withoutMagisterium(),
+      source: source,
+      soundLink: soundLink,
+    );
+  }
+
   String get displayTitle => titleHr ?? title;
 
   /// True SAMO kad channel listing eksplicitno nosi [soundLink] (trenutno ne).
@@ -298,6 +346,17 @@ class VideoPipeline {
   /// | 6 | `has_summary_en` |
   /// | 7 | `has_article_en` |
   /// | 8 | `has_magisterium_en` |
+  /// Iste zastavice uz spuštenu `has_magisterium` (vidi
+  /// [ChannelVideo.withoutDomainScore]).
+  VideoPipeline withoutMagisterium() => VideoPipeline(
+        hasTranscript: hasTranscript,
+        hasDiarized: hasDiarized,
+        hasSummary: hasSummary,
+        hasArticle: hasArticle,
+        hasMagisterium: false,
+        hasArticleEn: hasArticleEn,
+      );
+
   factory VideoPipeline.fromBits(int bits) {
     bool bit(int i) => bits & (1 << i) != 0;
     return VideoPipeline(

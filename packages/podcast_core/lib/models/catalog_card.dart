@@ -92,6 +92,17 @@ class CatalogCard {
   /// `version` odgovora i ID zadnjeg uvoza (`catalog`) — samo za log.
   final String? catalog;
 
+  /// Stanje kanala kad nije aktivan (`withdrawn` / `deleted`, odluka 311);
+  /// `null` = aktivan.
+  final String? status;
+
+  /// Vlasnik kanala je isključio procjenu (`magisterium_off`, odluka 311):
+  /// kartica nema ni ocjene ni značke (odluka 504).
+  final bool magisteriumOff;
+
+  /// Kanal kartice je povučen ili obrisan.
+  bool get isChannelGone => status == 'withdrawn' || status == 'deleted';
+
   const CatalogCard({
     required this.id,
     required this.title,
@@ -104,6 +115,8 @@ class CatalogCard {
     this.magisteriumScore,
     this.publishedAt,
     this.catalog,
+    this.status,
+    this.magisteriumOff = false,
   });
 
   /// Naslov za prikaz — isto pravilo kao `ChannelVideo.displayTitle`.
@@ -154,6 +167,8 @@ class CatalogCard {
     final duration = item['duration_seconds'];
     final score = item['magisterium_score'];
     final publishedAt = item['published_at'];
+    final status = item['status'];
+    final magisteriumOff = item['magisterium_off'] == true;
     return CatalogCard(
       id: id,
       title: title,
@@ -164,9 +179,14 @@ class CatalogCard {
       variantOf: variantOf is String && variantOf.isNotEmpty ? variantOf : null,
       // D1 sprema trajanje kao REAL (decimalno iz `info.json`).
       durationSeconds: duration is num && duration > 0 ? duration.round() : null,
-      magisteriumScore: score is num && score >= 0 && score <= 100
+      magisteriumScore:
+          !magisteriumOff && score is num && score >= 0 && score <= 100
           ? score.round()
           : null,
+      status: status is String && status.isNotEmpty && status != 'active'
+          ? status
+          : null,
+      magisteriumOff: magisteriumOff,
       publishedAt: publishedAt is String
           ? DateTime.tryParse(publishedAt)?.toUtc()
           : null,

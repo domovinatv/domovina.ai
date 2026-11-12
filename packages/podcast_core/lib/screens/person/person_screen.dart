@@ -7,6 +7,8 @@ import '../../brand/app_brand.dart';
 import '../../l10n/app_localizations.dart';
 import '../../models/person_hub.dart';
 import '../../services/cdn_config.dart';
+import '../../services/channel_visibility.dart';
+import '../../services/channel_visibility_filters.dart';
 import '../../services/follow_service.dart';
 import '../../services/page_meta.dart';
 import '../../services/person_channel_flag.dart';
@@ -74,7 +76,11 @@ class _PersonScreenState extends State<PersonScreen> {
 
   /// Fetch + runtime <title>/og meta — isti format kao worker inject za /p/.
   Future<PersonHub?> _fetchWithMeta() async {
-    final hub = await PersonService.fetch(widget.slug);
+    final fetched = await PersonService.fetch(widget.slug);
+    // Postavke kanala (`persons_mentions`): epizode tih kanala izostaju iz
+    // nastupa i spomena. Katalog se čeka najviše 1,5 s (fail-open).
+    if (fetched != null) await ChannelVisibility.instance.ready();
+    final hub = fetched == null ? null : visiblePersonHub(fetched);
     if (hub != null && mounted) {
       setPageMeta(title: '${hub.name} — podcast profil');
     }

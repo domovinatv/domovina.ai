@@ -13,6 +13,7 @@ import '../services/share_links.dart';
 import '../src/log.dart' show log;
 import 'cached_thumbnail.dart';
 import 'reel_share_sheet.dart' show showReelShareSheet;
+import '../services/channel_feature_gate.dart';
 import 'sponsors_in_video_section.dart' show formatSponsorClock;
 
 /// Istaknuti trenuci (`reels.json`) u playeru: trake na seek baru, popis u
@@ -584,11 +585,18 @@ class _ReelViewerState extends State<_ReelViewer> {
                     spacing: 8,
                     runSpacing: 8,
                     children: [
-                      FilledButton.icon(
-                        icon: const Icon(Icons.ios_share),
-                        label: Text(l.commonShare),
-                        onPressed: () => _share(context),
-                      ),
+                      // Dijeljenje reela kao VIDEA (9:16 / 16:9) je isječak:
+                      // vlasnik kanala ga gasi s `share_clips`, a poveznica
+                      // na trenutak ostaje (postavke kanala, matrica §8).
+                      if (ChannelFeatureGate.isEnabledNow(
+                        widget.youtubeId,
+                        EpisodeKey.shareClips,
+                      ))
+                        FilledButton.icon(
+                          icon: const Icon(Icons.ios_share),
+                          label: Text(l.commonShare),
+                          onPressed: () => _share(context),
+                        ),
                       FilledButton.tonalIcon(
                         icon: const Icon(Icons.smart_display_outlined),
                         label: Text(l.reelsWatchInEpisode),

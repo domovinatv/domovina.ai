@@ -1369,10 +1369,11 @@
   "channelSettingsOpenAction": "Open settings",
   "channelGoneWithdrawn": "The owner has withdrawn this content from domovina.ai",
   "channelGoneWithdrawnBody": "The recording is still available on YouTube.",
-  "channelGoneDeleted": "This channel was permanently removed from domovina.ai on {date}.",
+  "channelGoneDeleted": "This channel was permanently removed from domovina.ai on {date}",
   "channelGoneDeletedNoDate": "This channel was permanently removed from domovina.ai.",
   "channelGoneOpenYouTube": "Open on YouTube",
   "channelGoneBackHome": "Go to the home page",
   "magisteriumOffByOwner": "The owner has turned off the assessment",
-  "channelFeatureOffByOwner": "The channel owner has turned this feature off."
+  "channelFeatureOffByOwner": "The channel owner has turned this feature off.",
+  "episodeYouTubeOnlyByOwner": "The channel owner allows playback only on YouTube."
 }

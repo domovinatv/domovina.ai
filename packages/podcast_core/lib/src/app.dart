@@ -16,6 +16,8 @@ import '../services/auth_service.dart';
 import '../services/background_audio.dart';
 import '../services/background_playback.dart';
 import '../services/boot_stage.dart';
+import '../services/channel_cache.dart';
+import '../services/channel_visibility.dart';
 import '../services/entitlement_service.dart';
 import '../services/locale_service.dart';
 import '../services/playback_speed.dart';
@@ -65,6 +67,13 @@ Future<void> runPodcastApp(
   // obicno traje ~0 ms. Bez ovoga se prvi frame crta fallback fontom pa se
   // cijela stranica prelomi kad pravi font stigne.
   AppTypography.startPreload();
+
+  // Postavke kanala (povučen kanal, isključene funkcionalnosti) — jedan
+  // dohvat kataloga po sesiji, u pozadini; ne blokira prvi frame. Dok ne
+  // stigne, sve je uključeno (fail-open). Kad stigne, popisi iz
+  // `ChannelCache` se iznova filtriraju.
+  ChannelVisibility.instance.addListener(channelCache.visibilityChanged);
+  unawaited(ChannelVisibility.instance.refresh());
 
   try { usePathUrlStrategy(); } catch (_) {}
 

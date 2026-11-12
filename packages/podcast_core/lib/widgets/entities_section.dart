@@ -83,10 +83,15 @@ class PeopleRail extends StatefulWidget {
   /// Person-highlight (dolazak s `?p=<slug>`): taj chip je bijelo-na-crveno.
   final String? highlightPersonSlug;
 
+  /// `false` kad je vlasnik kanala isključio `persons_mentions`: imena ostaju
+  /// kao tekst, bez poveznice na `/p/` (postavke kanala, odluka 505).
+  final bool linkProfiles;
+
   const PeopleRail({
     super.key,
     required this.summary,
     this.highlightPersonSlug,
+    this.linkProfiles = true,
   });
 
   @override
@@ -177,7 +182,9 @@ class _PeopleRailState extends State<PeopleRail> {
                   label: name,
                   color: _peopleColor,
                   highlighted: personSlug(name) == slug,
-                  onTap: () => drillDown(context, '/p/${personSlug(name)}'),
+                  onTap: widget.linkProfiles
+                      ? () => drillDown(context, '/p/${personSlug(name)}')
+                      : null,
                 ),
                 const SizedBox(width: 6),
               ],

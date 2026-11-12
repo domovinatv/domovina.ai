@@ -20,6 +20,9 @@ import '../brand/app_brand.dart';
 import '../models/episode_reels.dart';
 import '../models/sponsors_in_video.dart';
 import 'cdn_config.dart';
+import 'channel_feature_gate.dart';
+import 'channel_visibility.dart';
+import '../models/channel_settings.dart' show CatalogChannelSettings;
 import 'mobile_web_detect.dart' show isWebKitBrowser;
 import 'cdn_json_cache.dart';
 import 'cdn_store.dart' show StoreBucket;
@@ -268,7 +271,10 @@ class DataService {
 
   /// Samo za testove: memorija iz [_get] inače preživi između testova.
   @visibleForTesting
-  static void resetMemoryForTest() => clearMemory();
+  static void resetMemoryForTest() {
+    clearMemory();
+    ChannelFeatureGate.forgetAll();
+  }
 
   /// Zaboravi sve dohvaćeno u ovoj sesiji (skriveni gumb „Osvježi sve").
   static void clearMemory() {
@@ -303,7 +309,27 @@ class DataService {
     return response.body;
   }
 
-  Future<PodcastInfo> loadInfo() async {
+  /// `info.json`. Usput upiše UC epizode u [ChannelFeatureGate], pa svi
+  /// ostali dohvati iste epizode znaju čiji je kanal PRIJE zahtjeva (postavke
+  /// kanala, odluka 500). Bez dodatnog zahtjeva: isti odgovor.
+  Future<PodcastInfo> loadInfo() {
+    final f = _loadInfo();
+    ChannelFeatureGate.remember(youtubeId, f.then((i) => i.youtubeChannelId));
+    return f;
+  }
+
+  /// Smije li se dohvatiti artefakt pod ključem postavki [key] (i [also]).
+  /// Vlasnik kanala ga je mogao isključiti; tada se datoteka NE traži.
+  static const _article = EpisodeKey.articleSummary;
+  static const _english = EpisodeKey.englishTranslation;
+  static const _mag = EpisodeKey.magisterium;
+
+  Future<bool> _allowed(String key, [String? also]) async {
+    if (!await ChannelFeatureGate.isEnabled(youtubeId, key)) return false;
+    return also == null || await ChannelFeatureGate.isEnabled(youtubeId, also);
+  }
+
+  Future<PodcastInfo> _loadInfo() async {
     final url = CdnConfig.infoUrl(youtubeId);
     final response = await _get(url);
     if (response.statusCode == 404) throw VideoNotFoundException(youtubeId);
@@ -318,6 +344,7 @@ class DataService {
   /// Summary — vraca null ako fajl ne postoji (AI pipeline jos nije gotov).
   /// Prave HTTP greske propagira dalje.
   Future<PodcastSummary?> loadSummary() async {
+    if (!await _allowed(_article)) return null;
     final url = CdnConfig.summaryUrl(youtubeId);
     final response = await _get(url);
     if (response.statusCode == 404) return null;
@@ -332,6 +359,7 @@ class DataService {
   /// EN-overlay verzija summary.json — sadrzi HR polja + dodana `_en` polja.
   /// Vraca null ako prijevod za ovaj video jos nije producran (404).
   Future<PodcastSummary?> loadSummaryEn() async {
+    if (!await _allowed(_article, _english)) return null;
     final url = CdnConfig.summaryEnUrl(youtubeId);
     final response = await _get(url);
     if (response.statusCode == 404) return null;
@@ -345,6 +373,7 @@ class DataService {
 
   /// Outline — vraca null ako fajl ne postoji (AI pipeline jos nije gotov).
   Future<PodcastOutline?> loadOutline() async {
+    if (!await _allowed(_article)) return null;
     final url = CdnConfig.outlineUrl(youtubeId);
     final response = await _get(url);
     if (response.statusCode == 404) return null;
@@ -358,6 +387,7 @@ class DataService {
 
   /// Article — vraca null ako fajl ne postoji (AI pipeline jos nije gotov).
   Future<PodcastArticle?> loadArticle() async {
+    if (!await _allowed(_article)) return null;
     final url = CdnConfig.articleUrl(youtubeId);
     final response = await _get(url);
     if (response.statusCode == 404) return null;
@@ -371,6 +401,7 @@ class DataService {
 
   /// EN-overlay verzija article.json — vraca null ako prijevod ne postoji.
   Future<PodcastArticle?> loadArticleEn() async {
+    if (!await _allowed(_article, _english)) return null;
     final url = CdnConfig.articleEnUrl(youtubeId);
     final response = await _get(url);
     if (response.statusCode == 404) return null;
@@ -384,7 +415,7 @@ class DataService {
 
   /// Magisterium teološko obogaćivanje — opcionalno (nije obavezan asset).
   Future<MagisteriumData?> loadMagisterium() async {
-    if (!domainScoreEnabled) return null;
+    if (!domainScoreEnabled || !await _allowed(_mag)) return null;
     try {
       final raw = await _fetch(CdnConfig.magisteriumUrl(youtubeId));
       return MagisteriumData.fromJson(jsonDecode(raw) as Map<String, dynamic>);
@@ -395,7 +426,7 @@ class DataService {
 
   /// EN-overlay verzija article.magisterium.json — opcionalno.
   Future<MagisteriumData?> loadMagisteriumEn() async {
-    if (!domainScoreEnabled) return null;
+    if (!domainScoreEnabled || !await _allowed(_mag, _english)) return null;
     try {
       final raw = await _fetch(CdnConfig.magisteriumEnUrl(youtubeId));
       return MagisteriumData.fromJson(jsonDecode(raw) as Map<String, dynamic>);
@@ -406,7 +437,7 @@ class DataService {
 
   /// Magisterium batch varijanta — opcionalno.
   Future<MagisteriumData?> loadMagisteriumBatch() async {
-    if (!domainScoreEnabled) return null;
+    if (!domainScoreEnabled || !await _allowed(_mag)) return null;
     try {
       final raw = await _fetch(CdnConfig.magisteriumBatchUrl(youtubeId));
       return MagisteriumData.fromJson(jsonDecode(raw) as Map<String, dynamic>);
@@ -417,7 +448,7 @@ class DataService {
 
   /// EN-overlay verzija article.magisterium_batch.json — opcionalno.
   Future<MagisteriumData?> loadMagisteriumBatchEn() async {
-    if (!domainScoreEnabled) return null;
+    if (!domainScoreEnabled || !await _allowed(_mag, _english)) return null;
     try {
       final raw = await _fetch(CdnConfig.magisteriumBatchEnUrl(youtubeId));
       return MagisteriumData.fromJson(jsonDecode(raw) as Map<String, dynamic>);
@@ -428,7 +459,7 @@ class DataService {
 
   /// Magisterium full evaluacija (Magisterium AI API) — opcionalno.
   Future<MagisteriumFullData?> loadMagisteriumFull() async {
-    if (!domainScoreEnabled) return null;
+    if (!domainScoreEnabled || !await _allowed(_mag)) return null;
     try {
       final raw = await _fetch(CdnConfig.magisteriumFullUrl(youtubeId));
       return MagisteriumFullData.fromJson(
@@ -441,7 +472,7 @@ class DataService {
 
   /// Magisterium full prompt (markdown) — opcionalno.
   Future<String?> loadMagisteriumFullPrompt() async {
-    if (!domainScoreEnabled) return null;
+    if (!domainScoreEnabled || !await _allowed(_mag)) return null;
     try {
       return await _fetch(CdnConfig.magisteriumFullPromptUrl(youtubeId));
     } catch (_) {
@@ -451,7 +482,7 @@ class DataService {
 
   /// Magisterium full v2 evaluacija — novi format s `prompt_version`. Opcionalno.
   Future<MagisteriumFullV2Data?> loadMagisteriumFullV2() async {
-    if (!domainScoreEnabled) return null;
+    if (!domainScoreEnabled || !await _allowed(_mag)) return null;
     try {
       final raw = await _fetch(CdnConfig.magisteriumFullV2Url(youtubeId));
       return MagisteriumFullV2Data.fromJson(
@@ -464,7 +495,7 @@ class DataService {
 
   /// EN-overlay verzija article.magisterium_full_v2.json — opcionalno.
   Future<MagisteriumFullV2Data?> loadMagisteriumFullV2En() async {
-    if (!domainScoreEnabled) return null;
+    if (!domainScoreEnabled || !await _allowed(_mag, _english)) return null;
     try {
       final raw = await _fetch(CdnConfig.magisteriumFullV2EnUrl(youtubeId));
       return MagisteriumFullV2Data.fromJson(
@@ -477,7 +508,7 @@ class DataService {
 
   /// Magisterium full v2 prompt (markdown) — opcionalno.
   Future<String?> loadMagisteriumFullV2Prompt() async {
-    if (!domainScoreEnabled) return null;
+    if (!domainScoreEnabled || !await _allowed(_mag)) return null;
     try {
       return await _fetch(CdnConfig.magisteriumFullV2PromptUrl(youtubeId));
     } catch (_) {
@@ -491,6 +522,7 @@ class DataService {
   /// i purgea kad se detektor poboljša, pa je obični HTTP cache dovoljan.
   /// 404 prolazi kroz [_get] (jedan retry s cache-busterom, nikad petlja).
   Future<SponsorsInVideo?> loadSponsorsInVideo() async {
+    if (!await _allowed(EpisodeKey.sponsorsInVideo)) return null;
     try {
       final raw = await _fetch(CdnConfig.sponsorsInVideoUrl(youtubeId));
       final json = jsonDecode(raw);
@@ -513,13 +545,15 @@ class DataService {
   /// je prepisuje kad doda poster ili renderira sljedeći kandidat, pa ide
   /// kroz stale-while-revalidate ([CdnJsonCache.getMutable]), ne kroz [_get].
   Future<EpisodeReels?> loadReels() async {
+    if (!await _allowed(EpisodeKey.highlightsReels)) return null;
     try {
       final bundle = await _bundle();
       if (bundle == null || !bundle.has('reels.json')) return null;
       // EN tekst (`reels.en.json`) se vuče odmah uz HR kad ga bundle navodi:
       // ~18 KB samo za epizode s reelovima, a promjena jezika tada ne čeka
       // mrežu. Pad EN dohvata ne ruši reelove — ostaju hrvatski.
-      final enFuture = bundle.has('reels.en.json')
+      final enAllowed = await _allowed(EpisodeKey.englishTranslation);
+      final enFuture = enAllowed && bundle.has('reels.en.json')
           ? CdnJsonCache.instance
                 .getMutable(
                   CdnConfig.reelsEnUrl(youtubeId),
@@ -578,7 +612,13 @@ class DataService {
   /// jedan za drugim). Ispred svega ide fragmentirani MP4 (isti video, brži
   /// start — [fragmentedVideoUrl]); njega bira samo bundle, put s
   /// probe-ovima ostaje na `video_h264.mp4`.
+  ///
+  /// Vlasnik kanala s isključenim `cdn_playback` → [EpisodeMediaKind.none]
+  /// bez ijednog probe-a; ekran tada nudi službeni YouTube embed.
   Future<({String uri, EpisodeMediaKind kind})> resolveMedia() async {
+    if (!await _allowed(EpisodeKey.cdnPlayback)) {
+      return (uri: '', kind: EpisodeMediaKind.none);
+    }
     final bundle = await _bundle();
     if (bundle != null) {
       final fmp4 = fragmentedVideoUrl(
@@ -634,7 +674,16 @@ class DataService {
   /// [lang] učita `diarized.<lang>.srt` + `words.<lang>.json` (titl na drugom
   /// jeziku). Datoteke koje `episode.json` ne navodi `_get` ne traži, pa je
   /// izostanak besplatan.
+  ///
+  /// Vlasnik s isključenim `transcript_subtitles` (za `lang: 'en'` i
+  /// `english_translation`) → null bez zahtjeva: nema titla ni isticanja.
   Future<SpeakerTimeline?> loadSpeakerTimeline({String? lang}) async {
+    if (!await _allowed(
+      EpisodeKey.transcriptSubtitles,
+      lang == 'en' ? EpisodeKey.englishTranslation : null,
+    )) {
+      return null;
+    }
     final wordsF = _loadWordTimings(lang);
     try {
       final raw = await _fetch(CdnConfig.diarizedSrtUrl(youtubeId, lang: lang));
@@ -768,7 +817,38 @@ class EpisodeData {
     this.speakerTimeline,
     this.speakerTimelineEn,
     required this.videoUri,
+    this.channelSettings,
   });
+
+  /// Postavke kanala epizode u trenutku učitavanja (`null` = sve uključeno,
+  /// kao danas). Snimka, ne živi pogled: reprodukcija u tijeku se ne prekida
+  /// kad vlasnik nešto isključi (odluka 501), a ekran odlučuje iz istog
+  /// stanja iz kojeg je [load] birao što će dohvatiti.
+  final CatalogChannelSettings? channelSettings;
+
+  /// Vrijedi li ključ postavki kanala za ovu epizodu ([EpisodeKey]).
+  /// Povučen ili obrisan kanal gasi sve.
+  bool featureOn(String key) {
+    final s = channelSettings;
+    if (s == null) return true;
+    if (s.isWithdrawn || s.isDeleted) return false;
+    return s.isEnabled(key);
+  }
+
+  /// Vlasnik je kanal povukao ili trajno obrisao: ekran crta
+  /// `ChannelGoneView`, nikad player ni 404.
+  bool get isChannelGone =>
+      (channelSettings?.isWithdrawn ?? false) ||
+      (channelSettings?.isDeleted ?? false);
+
+  /// Snimka postavki kanala za [info] — čeka katalog najviše 1,5 s
+  /// ([ChannelVisibility.ready]), bez UC-a ne pita ništa.
+  static Future<CatalogChannelSettings?> _settingsFor(PodcastInfo info) async {
+    final uc = info.youtubeChannelId;
+    if (uc == null) return null;
+    await ChannelVisibility.instance.ready();
+    return ChannelVisibility.instance.of(uc);
+  }
 
   /// YouTube video ID za player/embed, ytimg i youtube.com linkove. Za
   /// varijantu epizode (`_variant_of` u info.json) [youtubeId] je SINTETIČKI
@@ -902,9 +982,11 @@ class EpisodeData {
     ]);
     final info = results[0] as PodcastInfo;
     final media = results[16] as ({String uri, EpisodeMediaKind kind});
+    final settings = await _settingsFor(info);
     return EpisodeData(
       youtubeId: youtubeId,
       info: info,
+      channelSettings: settings,
       mediaKind: media.kind,
       summary: results[1] as PodcastSummary?,
       outline: results[2] as PodcastOutline?,
@@ -1032,10 +1114,12 @@ class EpisodeData {
     final magBatchEn = await magBatchEnF;
     final magFullV2En = await magFullV2EnF;
     final media = await mediaF;
+    final settings = await _settingsFor(info);
 
     EpisodeData build(List<SpeakerTimeline?>? srt) => EpisodeData(
       youtubeId: youtubeId,
       info: info,
+      channelSettings: settings,
       mediaKind: media.kind,
       summary: summary,
       summaryEn: summaryEn,

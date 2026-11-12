@@ -14,6 +14,7 @@
 library;
 
 import '../brand/app_brand.dart';
+import 'channel_feature_gate.dart';
 import 'episode_language.dart';
 
 /// Kanonski origin aplikacije (`AppBrand.config.endpoints.site`). Share
@@ -40,6 +41,15 @@ String episodeShareUrl(
   String? personSlug,
   int minSeconds = 5,
 }) {
+  // Vlasnik kanala je isključio engleski prijevod: `/en` bi otvorio HR
+  // sadržaj na EN URL-u (odluka 503), pa link ostaje hrvatski.
+  if (lang == EpisodeLanguage.en &&
+      !ChannelFeatureGate.isEnabledNow(
+        youtubeId,
+        EpisodeKey.englishTranslation,
+      )) {
+    lang = EpisodeLanguage.hr;
+  }
   final buf = StringBuffer('$kShareOrigin/v/$youtubeId');
   if (seconds != null && seconds > minSeconds) {
     buf.write('/t/$seconds');

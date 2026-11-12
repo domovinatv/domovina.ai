@@ -5,6 +5,8 @@ import '../../l10n/app_localizations.dart';
 import '../../src/log.dart' show log;
 import '../../models/channel_detail.dart';
 import '../../services/channel_cache.dart';
+import '../../services/channel_visibility.dart';
+import '../../widgets/channel_gone_view.dart';
 import '../../widgets/cached_thumbnail.dart';
 import 'widgets/tv_episode_card.dart';
 import 'widgets/tv_focus.dart';
@@ -44,7 +46,12 @@ class _TvChannelScreenState extends State<TvChannelScreen> {
   void initState() {
     super.initState();
     log('TvChannelScreen.init channelId=${widget.channelId}');
-    _detailFuture = channelCache.loadChannel(widget.channelId);
+    // Postavke kanala čekaju se najviše 1,5 s (fail-open), da povučen kanal
+    // ne bljesne epizodama prije nego se zamijeni prikazom povučenog.
+    _detailFuture = channelCache.loadChannel(widget.channelId).then((d) async {
+      await ChannelVisibility.instance.ready();
+      return d;
+    });
   }
 
   @override
@@ -106,7 +113,18 @@ class _TvChannelScreenState extends State<TvChannelScreen> {
                 if (snap.hasError) {
                   return _buildError(theme, l, snap.error);
                 }
-                return _buildContent(theme, l, snap.data!);
+                final detail = snap.data!;
+                final vis = ChannelVisibility.instance;
+                final uc = detail.youtubeChannelId;
+                if (vis.isGone(uc)) {
+                  return ChannelGoneView(
+                    ucId: uc,
+                    isDeleted: vis.isDeleted(uc),
+                    deletedAt: vis.deletedAt(uc),
+                    autofocus: true,
+                  );
+                }
+                return _buildContent(theme, l, detail);
               },
             ),
           ),

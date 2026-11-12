@@ -1,5 +1,6 @@
 import '../../models/channel_detail.dart';
 import '../../services/channel_cache.dart';
+import '../../services/channel_visibility_filters.dart';
 import '../../services/favorites_service.dart';
 
 /// Spremljena epizoda spremna za prikaz — spoj lokalnog zapisa
@@ -32,6 +33,8 @@ List<ResolvedFavorite> resolveFavorites(List<FavoriteEntry> entries) {
 
   return [
     for (final e in entries)
+      // Povučen/obrisan kanal: kartica nestaje, zapis ostaje (odluka 502).
+      if (!isEpisodeChannelGone(e.episodeId, channelName: e.channelName))
       () {
         final hit = byId[e.episodeId];
         final title = hit?.video.displayTitle ?? e.title;

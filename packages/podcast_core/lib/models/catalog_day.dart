@@ -43,7 +43,9 @@ class CatalogDayPage {
       final catalogId = catalog is String ? catalog : null;
       final items = <CatalogCard>[
         for (final raw in rawItems)
-          ?CatalogCard.fromItem(raw, catalog: catalogId),
+          if (CatalogCard.fromItem(raw, catalog: catalogId) case final card?
+              when !card.isChannelGone)
+            card,
       ];
       final next = json['next'];
       return CatalogDayPage(

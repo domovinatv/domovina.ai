@@ -344,6 +344,75 @@ class PersonHub {
     return all;
   }
 
+  /// Isti profil samo s epizodama za koje [keep] vrijedi — u nastupima
+  /// (`episodes`, `cameo_episodes`) i u spomenima. Brojači se umanje za
+  /// izbačene epizode, a kanali bez ijedne preostale epizode ispadaju iz
+  /// popisa kanala. Vremenska crta po mjesecima ostaje kako ju je backend
+  /// izračunao (nema podjele po kanalu).
+  ///
+  /// Postavke kanala (S5, `persons_mentions`) — privremeni klijentski filtar
+  /// dok RAG ne preračuna profile bez kanala (matrica, redak 15). Vraća
+  /// ISTI objekt kad ništa nije izbačeno.
+  PersonHub whereEpisodes(bool Function(PersonEpisode e) keep) {
+    final ep = episodes.where(keep).toList();
+    final cameo = cameoEpisodes.where(keep).toList();
+    final ment = mentions.where(keep).toList();
+    final removedEp = episodes.length - ep.length;
+    final removedCameo = cameoEpisodes.length - cameo.length;
+    final removedMent = mentions.length - ment.length;
+    if (removedEp == 0 && removedCameo == 0 && removedMent == 0) return this;
+    final speaking = {for (final e in [...ep, ...cameo]) e.channel};
+    final mentioned = {for (final e in ment) e.channel};
+    final removedSpeaking = {
+      for (final e in [...episodes, ...cameoEpisodes])
+        if (!keep(e)) e.channel,
+    }..removeAll(speaking);
+    final removedMentioned = {
+      for (final e in mentions)
+        if (!keep(e)) e.channel,
+    }..removeAll(mentioned);
+    int clamp(int v) => v < 0 ? 0 : v;
+    final keptChannels = [
+      for (final c in channels)
+        if (!removedSpeaking.contains(c.channel)) c,
+    ];
+    return PersonHub(
+      name: name,
+      slug: slug,
+      avatarUrl: avatarUrl,
+      channelCount: clamp(channelCount - (channels.length - keptChannels.length)),
+      episodeCount: clamp(episodeCount - removedEp - removedCameo),
+      channels: keptChannels,
+      episodes: ep,
+      timeline: timeline,
+      mentions: ment,
+      mentionCount: clamp(mentionCount - removedMent),
+      mentionChannels: [
+        for (final c in mentionChannels)
+          if (!removedMentioned.contains(c.channel)) c,
+      ],
+      mentionTimeline: mentionTimeline,
+      cameoEpisodes: cameo,
+      cameoEpisodeCount: clamp(
+        cameoEpisodeCount -
+            removedCameo -
+            episodes.where((e) => e.isCameo && !keep(e)).length,
+      ),
+      totalDurationSeconds: clamp(
+        totalDurationSeconds -
+            [...episodes, ...cameoEpisodes]
+                .where((e) => !keep(e))
+                .fold<int>(0, (sum, e) => sum + (e.durationSeconds ?? 0)),
+      ),
+      avgMagisteriumScore: avgMagisteriumScore,
+      firstYear: firstYear,
+      lastYear: lastYear,
+      optout: optout,
+      ambiguous: ambiguous,
+      isVirtualChannel: _isVirtualChannel,
+    );
+  }
+
   /// "13h 39m" — hero/kartica virtualnog kanala.
   String get durationDisplay => personDurationDisplay(totalDurationSeconds);
 
