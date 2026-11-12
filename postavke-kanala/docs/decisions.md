@@ -274,3 +274,51 @@ Odluka se ne briše: zamijeni je novom koja je poziva.
      promjenu, pa prekidač vratiti.
 411. **Tekstovi novog ekrana su na „ti”**, a postojeći `ownership*` stringovi na susjednim
      ekranima još su na „Vi” („Niste…”). Nije dirano. Usklađivanje je zaseban posao, izvan lanca.
+
+## S5 (2026-11-12, aplikacija: provedba na ekranima)
+
+500. **Jedan izvor u aplikaciji je `ChannelVisibility.instance`**
+     (`lib/services/channel_visibility.dart`): katalog `GET /v1/settings` jednom po sesiji,
+     osvježen najviše svakih 5 min, bez zahtjeva po prekidaču. Fail-open: kanal bez UC-a,
+     kanal izvan mape, nepoznat ključ i nedostupan katalog znače sve uključeno; neuspjelo
+     osvježavanje zadrži zadnju poznatu mapu. Ekran epizode i kanala čeka učitavanje
+     najviše 1,5 s (`ready()`), pa nastavlja s onim što ima. Povučen ili obrisan kanal
+     gasi svaki ključ, i kad `off` ne bi bio potpun. AI ključevi se provode na mjestu
+     dohvata (matrica §B), pa tri stabla playera i TV dobivaju isto bez prop drillinga.
+501. **Reprodukcija u tijeku se ne prekida** (matrica §C 5). Provjera je pri otvaranju
+     ekrana i pri učitavanju epizode. Katalog ionako kasni do ~1,5 min, pa prekid usred
+     sesije ne bi bio ni točan ni predvidljiv.
+502. **Korisnikovi popisi** (§C 6): uz `channel_enabled` isključen kartice kanala nestaju
+     iz svih popisa i railova, uključujući „Nastavi slušati”, favorite i „Pratim”.
+     Spremljeni podaci se ne brišu, pa se kanal vrati kad ga vlasnik uključi. Izravan
+     `/v/<id>` prikazuje povučen sadržaj. Uz `home_featured` isključen korisnikovi popisi
+     ostaju, jer ih je korisnik sam napravio.
+503. **`/v/<id>/en` uz `english_translation` isključen se zamjenjuje HR rutom** (§C 7),
+     umjesto da prikazuje hrvatski sadržaj na engleskom URL-u. Canonical i `hreflang` u
+     workeru rješava S6.
+504. **Magisterium na karticama nema ni ocjenu ni značku** (§C 8). Tekst „Vlasnik je
+     isključio procjenu” stoji samo na epizodi (panel, tab, TV čitač), jer na kartici od
+     ~180 px ne stane, a tooltip ne radi na dodir. U sortiranju po ocjeni kanal se
+     ponaša kao da ocjene nema.
+505. **`PeopleRail` uz `persons_mentions` isključen** (§C 9): imena ostaju kao tekst, bez
+     poveznice na `/p/`. Imena su dio članka (`article_summary`), a ključ gasi profil i
+     nastupe, ne tekst članka.
+506. **Dva sloja provedbe.** Popisi i rute: `ChannelCache` (filtar u `index`,
+     `orderedChannels`, `allVideos`, `feedVideos`), `HomeFeed.onlyHomeAllowed`,
+     `mergeSearchResults(allow:)`, `PersonHub.whereEpisodes`, `ChannelFeatureOffGuard` na
+     `/c/:slug/doniraj|support`, `/c/:slug/oglasi`, `/v/:id/sponzoriraj`. Epizoda:
+     `DataService.loadInfo` upiše UC epizode u `ChannelFeatureGate`, a svaki dohvat
+     (članak, titl, `*.en.*`, Magisterium, reels, sponzori, `resolveMedia`, `EbookService.probe`,
+     `SponsoredMomentsService.loadLive`) ga pita prije zahtjeva. `EpisodeData` nosi snimku
+     stanja iz trenutka učitavanja. Stare epizode bez `episode.json` zato imaju jedan
+     dodatni povratni put prije AI datoteka.
+507. **Obrisan kanal nema gumb za YouTube**, povučen ga ima. Vlasnik je tražio trajno
+     uklanjanje, a povlačenje je samo odluka o domovina.ai. `findVideo`/`findVideoAsync`
+     i dalje nalaze epizode povučenog kanala, da `/v/` može prikazati povučen prikaz.
+508. **`/m/` uz `magisterium` isključen nema tab „Magisterium”**; tekst stoji u tabu Info.
+     `diarized.en.srt` se računa kao `english_translation` i za kanale na engleskom (ondje
+     je to izvorni titl), jer klijent ne zna jezik izvora; ako to zasmeta, pipeline (S7)
+     treba označiti izvorni jezik. Isječci ovise samo o `share_clips`; ovisnost o
+     `cdn_playback` računa katalog.
+509. **Ikona preuzimanja vlasništva ostaje na povučenom `/c/`**, da vlasnik dođe natrag
+     do postavki i uključi kanal.

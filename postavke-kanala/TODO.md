@@ -41,8 +41,8 @@ Legenda: `[x]` gotovo · `[ ]` otvoreno · `[~]` u radu · `(!)` traži korisnik
 - [x] `ChannelSettingsService` + model (20 ključeva, zadano sve uključeno, nepoznat ključ = uključen) → S4
 - [x] Ekran `/account/channels/:ucId/postavke`: glavni prekidač + 19 u 4 skupine, kronološki log promjena, zahtjev za trajno brisanje s potvrdom i telefonom +385 98 967 9022 → S4
 - [x] ARB HR + EN, „ti”, bez emojija, lektor → S4 (`9ed0a41`, 95 ključeva `channelSettings*`)
-- [ ] Provedba na ekranima: kanal, epizoda (oba prikaza), naslovnica, pretraga, osobe, TV; „Vlasnik je isključio procjenu” umjesto Magisterium ocjene; CDN reprodukcija isključena → `InAppYouTubePlayer` → S5
-- [ ] Ekran „Vlasnik je povukao sadržaj” (+ YouTube poveznica) i „Kanal je trajno uklonjen dd. mm. gggg.” → S5
+- [x] Provedba na ekranima: kanal, epizoda (oba prikaza), naslovnica, pretraga, osobe, TV; „Vlasnik je isključio procjenu” umjesto Magisterium ocjene; CDN reprodukcija isključena → `InAppYouTubePlayer` → S5 (`bffd406`, odluke 500–509)
+- [x] Ekran „Vlasnik je povukao sadržaj” (+ YouTube poveznica) i „Kanal je trajno uklonjen dd. mm. gggg.” → S5 (`ChannelGoneView`)
 - [ ] Worker: OG/JSON-LD za povučen i obrisan kanal, `noindex`, sitemap bez njih → S6
 
 ## F4 — ostali potrošači

@@ -36,7 +36,7 @@ Handoff se mijenja samo prema naprijed: gotovi `SN` se ne prepisuju.
 | S2 | domovina-api shema + RPC | gotovo, **vrata** | domovina-api 7d01d49 | 6 SQL testova zeleno (novi: 120 provjera) | 2026-11-11; odluke 200–208; produkcijska migracija je korisnikova |
 | S3 | katalog projekcija + API | gotovo, deployano | f39a34c | katalog 485 testova, 0 preskočenih | 2026-11-11; odluke 300–316; prod migracija S2 i deploy kataloga odobrio korisnik |
 | S4 | Ekran postavki + log + zahtjev za brisanje | gotovo, deployano | 9ed0a41 | Flutter 867/1 (baseline)/1 preskočen; +30 novih | 2026-11-12; odluke 400–411; slugovi upisani u prod |
-| S5 | Provedba na ekranima | | | | |
+| S5 | Provedba na ekranima | gotovo | bffd406 | Flutter 930/1 (baseline)/1 preskočen; +63 nova | 2026-11-12; odluke 500–509; nije provjereno u pregledniku ni na TV-u |
 | S6 | Worker OG/noindex/sitemap | | | | ‖ S7 |
 | S7 | Pipeline (fetch repo) | | | | ‖ S6 |
 | S8 | Meili, RAG, push, ugovor vijesti | | | | vrata: dogovor s lancem vijesti |
