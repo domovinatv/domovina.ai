@@ -48,7 +48,7 @@ Legenda: `[x]` gotovo · `[ ]` otvoreno · `[~]` u radu · `(!)` traži korisnik
 - [x] Produkcijska shema na `api.domovina.ai` (1–6 11.11., 007 12.11.)
 - [ ] (!) Upis elektroničke publikacije kod AEM-a, glavni urednik → S7
 - [ ] (!) Popis dopuštenih kanala (`allowlist`) → S7
-- [~] Dnevni job (launchd LaunchAgent), idempotentan, Telegram kroz `telegram-notify.rb` → S8 (kod + migracija 007 na produkciji 12.11., suhi prolaz nad produkcijom prošao; čeka prvi pravi prolaz i instalaciju LaunchAgenta, korisnik)
+- [~] Dnevni job (launchd LaunchAgent), idempotentan, Telegram kroz `telegram-notify.rb` → S8 (kod + migracija 007 na produkciji 12.11., suhi prolaz nad produkcijom prošao; pravi prolaz 12.11.: 24 poziva, 0 nacrta (max 0,48), drugi 0 poziva; čeka instalaciju LaunchAgenta, korisnik)
 - [ ] (!) 30 objavljenih članaka bez ispravka citata → S8
 
 ## F2 — priče i povezivanje
