@@ -45,10 +45,10 @@ Legenda: `[x]` gotovo · `[ ]` otvoreno · `[~]` u radu · `(!)` traži korisnik
 - [x] News sitemap (48 h), RSS, canonical, robots, `NewsArticle` JSON-LD → S7
 - [x] `/vijesti/*` kroz `web/_worker.js` (service binding) + `scripts/test-social-tags.mjs` → S7
 - [x] Impresum, stranica „Kako nastaju članci” (AI + urednik), politika ispravaka → S7
-- [ ] (!) Produkcijska shema na `api.domovina.ai` → S7 pripremio paket (`db/prod/`, odluke 730–734), primjena čeka korisnika → S8
+- [x] Produkcijska shema na `api.domovina.ai` (1–6 11.11., 007 12.11.)
 - [ ] (!) Upis elektroničke publikacije kod AEM-a, glavni urednik → S7
 - [ ] (!) Popis dopuštenih kanala (`allowlist`) → S7
-- [ ] Dnevni job (launchd LaunchAgent), idempotentan, Telegram kroz `telegram-notify.rb` → S8
+- [~] Dnevni job (launchd LaunchAgent), idempotentan, Telegram kroz `telegram-notify.rb` → S8 (kod + migracija 007 na produkciji 12.11., suhi prolaz nad produkcijom prošao; čeka prvi pravi prolaz i instalaciju LaunchAgenta, korisnik)
 - [ ] (!) 30 objavljenih članaka bez ispravka citata → S8
 
 ## F2 — priče i povezivanje
