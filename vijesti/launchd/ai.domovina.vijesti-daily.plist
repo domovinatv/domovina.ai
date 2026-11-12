@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Dnevni job portala vijesti (S8, odluke 806–809): red provjere uredničkih
+  verzija, pa nove epizode dopuštenih kanala → nacrti u adminu. Svaki dan u 06:30.
+
+  Instalacija (NE radi je agent, isto pravilo kao za nightly):
+    cp vijesti/launchd/ai.domovina.vijesti-daily.plist ~/Library/LaunchAgents/
+    launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/ai.domovina.vijesti-daily.plist
+  Ručni okidač:  launchctl kickstart -k gui/$(id -u)/ai.domovina.vijesti-daily
+  Deinstalacija: launchctl bootout gui/$(id -u)/ai.domovina.vijesti-daily
+
+  LaunchAgent, ne Daemon: backend `claude` čita pretplatu iz korisnikova
+  keychaina, a skripta čita `.env` iz korisnikove kopije repoa.
+
+  06:30: nacrti su gotovi prije jutarnjeg pregleda, a pozivi modela (Claude
+  kvota) padaju izvan sati kad korisnik radi.
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>ai.domovina.vijesti-daily</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/opt/homebrew/bin/bash</string>
+    <string>/Users/ms/git/domovinatv/domovina.ai/vijesti/scripts/daily.sh</string>
+  </array>
+
+  <!-- launchd ne nasljeđuje LANG; bez toga Ruby notifier pukne na US-ASCII. -->
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>LANG</key><string>en_US.UTF-8</string>
+    <key>LC_ALL</key><string>en_US.UTF-8</string>
+  </dict>
+
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key><integer>6</integer>
+    <key>Minute</key><integer>30</integer>
+  </dict>
+
+  <key>RunAtLoad</key>
+  <false/>
+
+  <key>ProcessType</key>
+  <string>Background</string>
+
+  <key>WorkingDirectory</key>
+  <string>/Users/ms/git/domovinatv/domovina.ai/vijesti</string>
+
+  <key>StandardOutPath</key>
+  <string>/Users/ms/git/domovinatv/domovina.ai/vijesti/.cache/daily/launchd.out.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/ms/git/domovinatv/domovina.ai/vijesti/.cache/daily/launchd.err.log</string>
+</dict>
+</plist>

@@ -1165,3 +1165,35 @@ paralelni worktreeji ne sudare. Odluka se ne briše: zamijeni je novom koja je p
      prvog uređivanja članak gubi blok „O istoj temi u drugim podcastima”. Popravak je nova
      migracija (`'related', base.content -> 'related'` kad postoji) + test, a na produkciji ide
      kroz paket `db/prod/` uz korisnikov pristanak (kao vrata a).
+
+## S8 (2026-11-12)
+
+808. **Engine piše u produkciju izravno, kao uloga `vijesti_engine`, kroz SSH tunel.** Most iz
+     odluke 804 (`export-to-prod.ts`) ne može nositi dnevni job: prijenos pada na svakom
+     postojećem ID-u, a red provjere (odluka 806) treba ČITATI produkciju. `db/pg.ts` je
+     `SqlDb` nad jednim `pg.Client` (ne pool: engine vodi `BEGIN`/`COMMIT` kroz `exec`), s
+     parserima poravnatima s PGliteom (int8 → broj, `date` → ponoć UTC; `pg` po zadanom daje
+     string i ponoć po lokalnom vremenu, pa bi u Zagrebu dan bio pomaknut za jedan).
+     Migracija 007 stvara `vijesti_engine NOLOGIN BYPASSRLS` s pravima SAMO na shemu
+     `vijesti` (+ EXECUTE na `has_role`/`current_user_id`, jer ih zove pogled
+     `versions_awaiting_verify`; to je našao test). `service_role` odbačen: ima prava na sve
+     sheme Supabasea. LOGIN i lozinku postavlja produkcijski paket, ne migracija, da tajna
+     ne uđe u git. Postgres nije javno izložen; tunel ide na IP kontejnera (čita se svaki
+     put, mijenja se pri redeployu), a `pg_hba` već pušta `10.0.0.0/8` uz scram. Na
+     Postgresu engine NE pokreće migracije: odbija rad ako baza nije na zadnjoj migraciji iz
+     repoa. Dokaz: `npm run test:pg` (privremeni Postgres 17 iz `initdb`, cijeli tok enginea
+     kao `vijesti_engine` kroz adapter; nije u `check` jer traži Postgres binarije).
+     Ista migracija popravlja bug 807 (`related` se prenosi s bazne verzije).
+809. **Dnevni job: `npm run daily` + `scripts/daily.sh` + LaunchAgent u 06:30.** Redoslijed:
+     red `versions_awaiting_verify` (odluka 806), pa epizode `allowed_channels` s datumom u
+     zadnjih 7 dana (po Zagrebu) koje imaju titl, najnovije prvo. Idempotentnost bez novog
+     knjigovodstva: `stepStates` iz `runs` (kao eval), pa gotova epizoda troši 0 poziva, a
+     korak koji je dvaput pao se ne ponavlja; ponovna obrada je ručna. Limit je DNEVNI
+     (`VIJESTI_DAILY_MAX_CALLS`, zadano 150): od njega se oduzima zbroj `runs.calls` od
+     ponoći po Zagrebu, pa ni ručno drugo pokretanje ne dobije novi limit. Epizode ulaze
+     dok njihova procjena stane u ostatak; prva koja ne stane i sve iza nje čekaju sutra
+     (izlaz 3 + obavijest). Trajno neobradiva epizoda (krivi jezik) je napomena u logu, ne
+     greška, inače bi svaki dan javljala. Telegram samo na kraju i samo kad ima što javiti
+     (nacrti, provjerene verzije, limit, greška), kroz `scripts/telegram-notify.rb`. Tajne i
+     SSH cilj su u `vijesti/.env` (repo je javan). Test: `engine/daily/run.test.ts` (dva
+     uzastopna pokretanja bez duplikata i bez ijednog poziva u drugom, limit, red provjere).

@@ -143,3 +143,25 @@ Uloge `anon`, `authenticated` i `service_role` pripadaju Supabaseu i ne diraju s
 - `GOTRUE_URI_ALLOW_LIST` već ima `https://domovina.ai/**`, pa admin redirect ne treba posebno.
 - Prvi admin: `stepanic.matija@gmail.com`. `allowed_channels`: `catholic_futurist`,
   `domovina_tv`, `iva_kraljevic`, `mreze_rijeci`.
+
+## Paket 007: uloga enginea + bug 807 (pripremljeno 2026-11-12, odluka 808)
+
+`vijesti-007.sql` (GENERIRANO, `npm run db:bundle -- --from 7`) stane ako baza nije
+točno na 1–6. Stvara `vijesti_engine NOLOGIN BYPASSRLS` s pravima samo na shemu
+`vijesti` i ponovno stvara `save_editor_version` tako da čuva `content.related`.
+
+```bash
+# 1. migracija (mora završiti s COMMIT)
+ssh <coolify-host> "docker exec -i <supabase-db-kontejner> psql -U postgres -d postgres -v ON_ERROR_STOP=1" \
+  < db/prod/vijesti-007.sql
+# 2. provjera (NOTICE … migracije {1,2,3,4,5,6,7})
+ssh <coolify-host> "docker exec -i <supabase-db-kontejner> psql -U postgres -d postgres -v ON_ERROR_STOP=1" \
+  < db/prod/verify.sql
+# 3. LOGIN i lozinka (ide kroz stdin, ne u argumentima naredbe); ista vrijednost u
+#    vijesti/.env kao VIJESTI_ENGINE_DB_PASSWORD
+PW="$(openssl rand -hex 24)"
+printf "ALTER ROLE vijesti_engine LOGIN PASSWORD '%s';\n" "$PW" | ssh <coolify-host> \
+  "docker exec -i <supabase-db-kontejner> psql -U postgres -d postgres -v ON_ERROR_STOP=1"
+```
+
+Povratak: `ALTER ROLE vijesti_engine NOLOGIN;` gasi job bez diranja sheme.

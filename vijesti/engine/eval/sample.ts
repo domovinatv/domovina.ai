@@ -67,12 +67,12 @@ export function countInflow(videos: readonly ListingVideo[], now: Date, days = I
   return videos.filter((v) => v.date != null && v.date > start && v.date <= end).length;
 }
 
-interface Probe {
+export interface Probe {
   srt: boolean;
   words: boolean;
 }
 
-async function probe(cdn: CdnClient, id: string): Promise<Probe> {
+export async function probe(cdn: CdnClient, id: string): Promise<Probe> {
   const bundle = await cdn.bundle(id);
   if (bundle) {
     return { srt: bundle.files.includes('diarized.srt'), words: bundle.files.some((f) => WORDS_RE.test(f)) };

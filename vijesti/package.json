@@ -27,13 +27,16 @@
     "portal:preview": "tsx portal/dev/preview.ts",
     "portal:release-check": "tsx portal/dev/release-check.ts",
     "e2e": "playwright test -c portal/playwright.config.ts",
-    "lighthouse": "tsx portal/dev/lighthouse.ts"
+    "lighthouse": "tsx portal/dev/lighthouse.ts",
+    "test:pg": "vitest run --config vitest.pg.config.ts",
+    "daily": "tsx engine/daily/cli.ts"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^14.4.6",
     "@electric-sql/pglite": "^0.5.15",
     "@supabase/supabase-js": "^2.119.0",
     "astro": "^7.4.7",
+    "pg": "^8.23.1",
     "zod": "^4.6.7"
   },
   "devDependencies": {
@@ -41,6 +44,7 @@
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.65.0",
     "@types/node": "^22.20.5",
+    "@types/pg": "^8.23.1",
     "chrome-launcher": "^1.2.3",
     "eslint": "^10.14.0",
     "globals": "^17.14.0",

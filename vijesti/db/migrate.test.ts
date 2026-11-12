@@ -50,11 +50,11 @@ describe('migracije na PGlite', () => {
   });
 
   it('gore → dolje → gore', async () => {
-    expect(await migrateUp(db)).toEqual([1, 2, 3, 4, 5, 6]);
+    expect(await migrateUp(db)).toEqual([1, 2, 3, 4, 5, 6, 7]);
     expect(await tables(db)).toEqual(TABLES);
     expect(await migrateUp(db)).toEqual([]);
 
-    expect(await migrateDown(db, { steps: Infinity })).toEqual([6, 5, 4, 3, 2, 1]);
+    expect(await migrateDown(db, { steps: Infinity })).toEqual([7, 6, 5, 4, 3, 2, 1]);
     expect(await tables(db)).toEqual(['schema_migrations']);
     // Odluka 108: nakon „dolje” u shemi ostaje samo knjigovodstvo runnera, bez
     // ijednog drugog objekta (sekvence, indeksi, tipovi).
@@ -73,9 +73,9 @@ describe('migracije na PGlite', () => {
     expect(types.rows).toHaveLength(0);
     expect(await appliedVersions(db)).toEqual([]);
 
-    expect(await migrateUp(db)).toEqual([1, 2, 3, 4, 5, 6]);
+    expect(await migrateUp(db)).toEqual([1, 2, 3, 4, 5, 6, 7]);
     expect(await tables(db)).toEqual(TABLES);
-    expect(await appliedVersions(db)).toEqual([1, 2, 3, 4, 5, 6]);
+    expect(await appliedVersions(db)).toEqual([1, 2, 3, 4, 5, 6, 7]);
   });
 
   it('migracija koja padne ne ostavlja ništa (transakcija)', async () => {
@@ -89,7 +89,7 @@ describe('migracije na PGlite', () => {
       },
     ];
     await expect(migrateUp(db, { migrations })).rejects.toThrow(/nepostojeci_stupac/);
-    expect(await appliedVersions(db)).toEqual([1, 2, 3, 4, 5, 6]);
+    expect(await appliedVersions(db)).toEqual([1, 2, 3, 4, 5, 6, 7]);
     expect(await tables(db)).not.toContain('privremena');
   });
 
@@ -175,7 +175,7 @@ describe('migracije na PGlite', () => {
 
     it('articles.status prima svih šest stanja iz plana', async () => {
       // CHECK iz 001; od 006 članak nastaje samo kao nacrt (odluka 522).
-      expect(await migrateDown(db, { steps: 1 })).toEqual([6]);
+      expect(await migrateDown(db, { steps: 2 })).toEqual([7, 6]);
       const s = await db.query<{ id: number }>(
         `INSERT INTO vijesti.stories (slug, title) VALUES ('st', 'St') RETURNING id`,
       );
@@ -223,7 +223,7 @@ describe('migracije na PGlite', () => {
     });
 
     it('002 dolje vraća shemu iz 001, gore je opet stavlja', async () => {
-      expect(await migrateDown(db, { steps: 4 })).toEqual([6, 5, 4, 3]);
+      expect(await migrateDown(db, { steps: 5 })).toEqual([7, 6, 5, 4, 3]);
       const cols = async () =>
         (
           await db.query<{ column_name: string }>(
@@ -248,7 +248,7 @@ describe('migracije na PGlite', () => {
     });
 
     it('002 dolje → gore s podacima: exact/fuzzy se vraćaju, failed/srt_only ruše migraciju bez traga', async () => {
-      expect(await migrateDown(db, { steps: 4 })).toEqual([6, 5, 4, 3]);
+      expect(await migrateDown(db, { steps: 5 })).toEqual([7, 6, 5, 4, 3]);
       await moment({ quote_check: 'exact', start_ms: 1, end_ms: 2 });
       await moment({ quote_check: 'fuzzy', start_ms: 3, end_ms: 4 });
       expect(await migrateDown(db)).toEqual([2]);
@@ -318,13 +318,13 @@ describe('migracije na PGlite', () => {
     it('003 dolje briše stupce i ocjene, gore ih vraća prazne; 001 score bez skale se briše', async () => {
       const id = Number((await moment({ start_ms: 1, end_ms: 2 })).rows[0]?.id);
       await setScore(id, 0.7);
-      expect(await migrateDown(db, { steps: 4 })).toEqual([6, 5, 4, 3]);
+      expect(await migrateDown(db, { steps: 5 })).toEqual([7, 6, 5, 4, 3]);
       expect(await scoreCols()).toEqual(['score']);
       const after = await db.query<{ score: number | null }>('SELECT score FROM vijesti.moments WHERE id = $1', [id]);
       expect(after.rows[0]?.score).toBeNull();
       // Bez skale (001/002) score može biti bilo što; 003 gore to briše jer nema verziju.
       await db.query('UPDATE vijesti.moments SET score = 7 WHERE id = $1', [id]);
-      expect(await migrateUp(db)).toEqual([3, 4, 5, 6]);
+      expect(await migrateUp(db)).toEqual([3, 4, 5, 6, 7]);
       const back = await db.query<{ score: number | null; score_version: string | null }>(
         'SELECT score, score_version FROM vijesti.moments WHERE id = $1',
         [id],
@@ -351,14 +351,14 @@ describe('migracije na PGlite', () => {
           `INSERT INTO vijesti.eval_channels (channel, listed, episodes_30d, window_end) VALUES ('k', 2, 3, '2026-11-06')`,
         ),
       ).rejects.toThrow(/check/i);
-      expect(await migrateDown(db, { steps: 3 })).toEqual([6, 5, 4]);
+      expect(await migrateDown(db, { steps: 4 })).toEqual([7, 6, 5, 4]);
       const col = await db.query(
         `SELECT 1 FROM information_schema.columns
          WHERE table_schema = 'vijesti' AND table_name = 'runs' AND column_name = 'tokens_estimated'`,
       );
       expect(col.rows).toHaveLength(0);
       expect((await tables(db)).filter((t) => t.startsWith('eval_'))).toEqual([]);
-      expect(await migrateUp(db)).toEqual([4, 5, 6]);
+      expect(await migrateUp(db)).toEqual([4, 5, 6, 7]);
       expect((await tables(db)).filter((t) => t.startsWith('eval_'))).toEqual(['eval_channels', 'eval_sample']);
     });
 
@@ -394,13 +394,13 @@ describe('migracije na PGlite', () => {
           [art],
         ),
       ).rejects.toThrow(/check/i);
-      expect(await migrateDown(db, { steps: 2 })).toEqual([6, 5]);
+      expect(await migrateDown(db, { steps: 3 })).toEqual([7, 6, 5]);
       const cols = await db.query(
         `SELECT 1 FROM information_schema.columns
          WHERE table_schema = 'vijesti' AND table_name = 'article_versions' AND column_name IN ('content', 'verify', 'lead')`,
       );
       expect(cols.rows).toHaveLength(0);
-      expect(await migrateUp(db)).toEqual([5, 6]);
+      expect(await migrateUp(db)).toEqual([5, 6, 7]);
       const back = await db.query<{ n: number }>(
         `SELECT count(*)::int AS n FROM vijesti.article_versions WHERE content IS NULL AND verify IS NULL`,
       );
@@ -441,6 +441,7 @@ describe('migracije na PGlite', () => {
       );
       expect(ev.rows.map((r) => r.to_status)).toEqual(['draft', 'review', 'approved', 'published', 'retracted']);
       expect(ev.rows[0]?.actor_label).toBe('engine:write');
+      expect(await migrateDown(db)).toEqual([7]);
       // Povučen članak ima obavijest vrste `retraction`, pa prvi pada CHECK ispravka.
       await expect(migrateDown(db)).rejects.toThrow(/corrections_kind_check/);
       expect(await appliedVersions(db)).toEqual([1, 2, 3, 4, 5, 6]);
@@ -460,7 +461,7 @@ describe('migracije na PGlite', () => {
         db.query(`INSERT INTO vijesti.articles (story_id, format, slug, status) VALUES ($1, 'v', 'x', 'retracted')`, [s.rows[0]?.id]),
       ).rejects.toThrow(/articles_status_check/);
       // Uloge već postoje: gore ih ne stvara ponovno.
-      expect(await migrateUp(db)).toEqual([6]);
+      expect(await migrateUp(db)).toEqual([6, 7]);
     });
 
     it('006: broj riječi i vrijeme u bazi isti su kao u engine/write/text.ts', async () => {

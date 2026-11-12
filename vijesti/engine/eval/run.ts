@@ -87,6 +87,11 @@ export interface EvalOptions {
   /** Novi uzorak umjesto spremljenog. */
   resample: boolean;
   now: Date;
+  /**
+   * Gotov popis epizoda umjesto uzorka (dnevni job, odluka 809): `channels`,
+   * `limit` i `resample` se tada ne čitaju i ništa se ne sprema u `eval_sample`.
+   */
+  episodes?: SampledEpisode[];
 }
 
 export interface EvalDeps {
@@ -397,8 +402,8 @@ async function loadSample(deps: EvalDeps, opts: EvalOptions): Promise<{ samples:
 
 export async function runEval(deps: EvalDeps, opts: EvalOptions): Promise<EvalResult> {
   const clock = deps.clock ?? Date.now;
-  const { samples, notes } = await loadSample(deps, opts);
-  const episodes = processingOrder(samples.flatMap((s) => s.episodes));
+  const { samples, notes } = opts.episodes ? { samples: [], notes: [] } : await loadSample(deps, opts);
+  const episodes = opts.episodes ?? processingOrder(samples.flatMap((s) => s.episodes));
   const rejected = samples.flatMap((s) => s.rejected);
   const plans: EpisodePlan[] = [];
   for (const ep of episodes) plans.push(await planEpisode(deps, ep, opts.attempts));
