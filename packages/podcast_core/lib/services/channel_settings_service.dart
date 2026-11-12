@@ -224,15 +224,27 @@ class ChannelSettingsCatalog {
     http.Client? client,
     String? baseUrl,
     this.timeout = const Duration(seconds: 4),
+    DateTime Function()? now,
   }) : _client = client,
-       _baseUrl = baseUrl;
+       _baseUrl = baseUrl,
+       _now = now ?? DateTime.now;
 
   final http.Client? _client;
   final String? _baseUrl;
   final Duration timeout;
+  final DateTime Function() _now;
 
   String get baseUrl => _baseUrl ?? AppBrand.config.endpoints.catalog;
   String get settingsUrl => '$baseUrl/settings';
+
+  /// [settingsUrl] s minutnim cache-busterom `t`. Odgovor nosi
+  /// `max-age=60, stale-while-revalidate=600`, pa je preglednik bez njega
+  /// iz svog HTTP cachea posluživao stari odgovor do 11 min nakon što ga je
+  /// rub već imao novog (izmjereno 12. 11. 2026., odluka 510). Katalog
+  /// nepoznate parametre izbacuje iz ključa rubnog cachea (`cacheKey` u
+  /// `katalog/src/api/v1.ts`), pa `t` ne razbija rubni cache.
+  String get requestUrl =>
+      '$settingsUrl?t=${_now().millisecondsSinceEpoch ~/ 60000}';
 
   /// Mapa UC → stanje. Kanal kojeg nema u mapi ima sve uključeno. `null` =
   /// katalog nije dostupan (nema endpointa, mreža, timeout, ne-200,
@@ -240,7 +252,7 @@ class ChannelSettingsCatalog {
   Future<Map<String, CatalogChannelSettings>?> fetch() async {
     if (baseUrl.isEmpty) return null;
     try {
-      final uri = Uri.parse(settingsUrl);
+      final uri = Uri.parse(requestUrl);
       final c = _client;
       final res = await (c == null ? http.get(uri) : c.get(uri)).timeout(
         timeout,

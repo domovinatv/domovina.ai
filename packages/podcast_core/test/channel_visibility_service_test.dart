@@ -26,7 +26,8 @@ class _Catalog {
   ChannelSettingsCatalog get catalog => ChannelSettingsCatalog(
     baseUrl: 'https://katalog.test/v1',
     client: MockClient((req) async {
-      expect(req.url.toString(), 'https://katalog.test/v1/settings');
+      expect(req.url.replace(query: '').toString(), 'https://katalog.test/v1/settings?');
+      expect(req.url.queryParameters['t'], isNotEmpty);
       final body = bodies[calls < bodies.length ? calls : bodies.length - 1];
       calls++;
       if (body == null) return http.Response('down', 503);

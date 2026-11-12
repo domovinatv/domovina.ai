@@ -239,8 +239,8 @@ void main() {
       );
       final m = await ok.fetch();
       expect(
-        asked.single.toString(),
-        'https://example.test/api/katalog/v1/settings',
+        asked.single.replace(query: '').toString(),
+        'https://example.test/api/katalog/v1/settings?',
       );
       expect(m!['UCaaaaaaaaaaaaaaaaaaaaaa']!.off, {'donations'});
 
