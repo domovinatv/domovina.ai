@@ -323,5 +323,21 @@ javi iOS ui „nije provjereno”, to je prvi osumnjičenik.
   Configurator, briše uređaj); postavlja se ručno. Bez šifre Power tipka ne smeta:
   smoke ga probudi, a `devicectl … lockState` javlja `passcodeRequired`.
 
+### Trajanje smokea (12. 11. 2026.)
+
+Prvi nightly u kojem je smoke prošao na svim uređajima (build 254, ručni
+`--force` u 11:57): **16 min 50 s** za 2 uređaja (edge 30 ultra + 12 mini, obje
+razine), uz ukupno 33 min 24 s (iOS 4 min 09 s, Android 3 min 18 s, upload
+2 min 14 s, testovi 1 min 46 s). Smoke je dakle polovica nightlyja.
+
+Zamka u mjerenju: `nightly-build.sh` trajanje smokea upisuje u izvještaj
+SAMO kad prođe (grana `0)`); „PAO" i „nije potpuno provjeren" ga nemaju, a
+`nightly-smoke.sh` ne bilježi vrijeme po uređaju ni po razini. Do 12. 11.
+smoke u nightlyju nije prošao nijednom, pa jedine ranije brojke su ostatak
+„ukupno − izmjereni koraci" u `.nightly/reports/` (uključuje i čekanje
+TestFlight VALID): 5–8 min kad su uređaji bili zaključani (test se ne
+pokrene), 21–47 min kad se stvarno testiralo. Otvoreno: bilježiti trajanje
+uvijek, i po uređaju/razini u `.nightly/smoke/builds/<build>.txt`.
+
 Vezani dokumenti: `docs/plans/2026-10-13-smoke-testovi-na-uredajima.md`, `docs/plans/2026-11-09-store-build-na-github-actions.md`
 (skripte, mjerenja, zamke uređaja).
