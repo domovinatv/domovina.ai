@@ -38,7 +38,8 @@
         "additionalProperties": false,
         "required": [
           "status",
-          "off"
+          "off",
+          "slugs"
         ],
         "properties": {
           "status": {
@@ -55,6 +56,15 @@
           },
           "deleted_at": {
             "$ref": "channel-settings.schema.json#/$defs/deleted_at"
+          },
+          "slugs": {
+            "description": "Svi slugovi tog UC-a u katalogu (svi brendovi) i, za obrisan kanal, slugovi iz tombstonea; abecedno, bez ponavljanja. Prazno kad UC nema kanala u katalogu. Aditivno (S8 lanca postavke-kanala).",
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
           }
         },
         "if": {

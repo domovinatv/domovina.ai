@@ -370,6 +370,22 @@ interface SettingsRow {
   readonly youtube_channel_id: string;
   readonly effective: string | null;
   readonly deleted_at: string | null;
+  /** JSON polje slugova iz tombstonea; NULL za redak postavki. */
+  readonly tombstone_slugs: string | null;
+  /** JSON polje slugova kanala tog UC-a u katalogu (svi brendovi). */
+  readonly slugs: string | null;
+}
+
+/** Slugovi iz JSON polja; nečitljivo ili ne-string se preskače (projekcija, ne izvor). */
+function jsonSlugs(raw: string | null): string[] {
+  if (raw === null) return [];
+  let v: unknown;
+  try {
+    v = JSON.parse(raw);
+  } catch {
+    return [];
+  }
+  return Array.isArray(v) ? v.filter((s): s is string => typeof s === "string" && s.length > 0) : [];
 }
 
 /**
@@ -377,25 +393,35 @@ interface SettingsRow {
  * isključenim poznatim ključem ili tombstoneom. `off` preslikava `effective`;
  * obrisan kanal ima sve ključeve isključene (od kanala ništa ne ostaje), bez
  * obzira na zadnji redak postavki.
+ *
+ * `slugs` (S8 lanca postavke-kanala, aditivno): svi slugovi tog UC-a u katalogu
+ * (+ slugovi tombstonea), abecedno, bez ponavljanja. Potrošači (RAG, Meili,
+ * push, vijesti) kanal znaju po slugu, a povučen kanal izostaje iz
+ * `/v1/channels`, pa mapu slug ↔ UC ne mogu složiti drugdje.
  */
 export function settingsMap(rows: readonly SettingsRow[]): Record<string, Record<string, unknown>> {
   const effective = new Map<string, string | null>();
   const deleted = new Map<string, string>();
+  const slugs = new Map<string, Set<string>>();
   for (const r of rows) {
     if (r.deleted_at !== null) deleted.set(r.youtube_channel_id, r.deleted_at);
     else effective.set(r.youtube_channel_id, r.effective);
+    let set = slugs.get(r.youtube_channel_id);
+    if (set === undefined) slugs.set(r.youtube_channel_id, (set = new Set()));
+    for (const s of [...jsonSlugs(r.slugs), ...jsonSlugs(r.tombstone_slugs)]) set.add(s);
   }
+  const slugsOf = (uc: string) => [...(slugs.get(uc) ?? [])].sort();
   const out: Record<string, Record<string, unknown>> = {};
   const ucs = [...new Set([...effective.keys(), ...deleted.keys()])].sort();
   for (const uc of ucs) {
     const deletedAt = deleted.get(uc);
     if (deletedAt !== undefined) {
-      out[uc] = { status: "deleted", off: [...SETTING_KEYS].sort(), deleted_at: deletedAt };
+      out[uc] = { status: "deleted", off: [...SETTING_KEYS].sort(), deleted_at: deletedAt, slugs: slugsOf(uc) };
       continue;
     }
     const off = offKeys(effective.get(uc) ?? null);
     if (off.length === 0) continue;
-    out[uc] = { status: off.includes("channel_enabled") ? "withdrawn" : "active", off };
+    out[uc] = { status: off.includes("channel_enabled") ? "withdrawn" : "active", off, slugs: slugsOf(uc) };
   }
   return out;
 }

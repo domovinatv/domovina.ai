@@ -9,6 +9,7 @@ import { env, exports } from "cloudflare:workers";
 import { beforeAll, describe, expect, it } from "vitest";
 import { SETTING_KEYS } from "../../src/api/v1.ts";
 import {
+  allChannelSettings,
   allChannels,
   channelBySlug,
   channelDirectory,
@@ -322,7 +323,7 @@ describe("GET /episodes/:id/card: status i maskirana ocjena", () => {
 interface SettingsBody {
   readonly version: string;
   readonly catalog: string | null;
-  readonly settings: Record<string, { status: string; off: string[]; deleted_at?: string }>;
+  readonly settings: Record<string, { status: string; off: string[]; deleted_at?: string; slugs: string[] }>;
   readonly meta: { readonly rows_read: number };
 }
 
@@ -333,11 +334,19 @@ describe("GET /settings", () => {
     expect(res.headers.get("cache-control")).toBe("public, max-age=60, stale-while-revalidate=600");
     expect(Object.keys(body).sort()).toEqual(["catalog", "meta", "settings", "version"]);
     const s = body.settings;
-    expect(s.UCs3set_povucen).toEqual({ status: "withdrawn", off: ALL_SORTED });
-    expect(s.UCs3set_povucen_min).toEqual({ status: "withdrawn", off: ["channel_enabled"] });
-    expect(s.UCs3set_bez_hera).toEqual({ status: "active", off: ["home_featured", "magisterium"] });
-    expect(s.UCs3set_obrisan).toEqual({ status: "deleted", off: ALL_SORTED, deleted_at: DELETED_AT });
-    expect(s.UCs3set_nestao).toEqual({ status: "deleted", off: ALL_SORTED, deleted_at: DELETED_AT });
+    // Više slugova po UC-u (kanal + playlista): oba, abecedno.
+    expect(s.UCs3set_povucen).toEqual({ status: "withdrawn", off: ALL_SORTED, slugs: ["povucen", "povucen_playlist"] });
+    expect(s.UCs3set_povucen_min).toEqual({ status: "withdrawn", off: ["channel_enabled"], slugs: ["povucen_min"] });
+    expect(s.UCs3set_bez_hera).toEqual({ status: "active", off: ["home_featured", "magisterium"], slugs: ["bez_hera"] });
+    // Tombstone: slug je i u tablici kanala i u tombstoneu, bez ponavljanja.
+    expect(s.UCs3set_obrisan).toEqual({ status: "deleted", off: ALL_SORTED, deleted_at: DELETED_AT, slugs: ["obrisan"] });
+    // Kanala više nema u katalogu: slugovi samo iz tombstonea.
+    expect(s.UCs3set_nestao).toEqual({
+      status: "deleted",
+      off: ALL_SORTED,
+      deleted_at: DELETED_AT,
+      slugs: ["nestao", "nestao-alias"],
+    });
     // Sve uključeno (i nepoznat ključ false) i kanal bez retka: nema ih.
     expect(s).not.toHaveProperty("UCs3set_sve");
     expect(s).not.toHaveProperty("UCs3set_aktivan");
@@ -345,18 +354,62 @@ describe("GET /settings", () => {
     expect(Object.keys(s)).toEqual(Object.keys(s).sort());
   });
 
-  it("nije po brendu: isti sadržaj na drugom brendu; rows_read = retci postavki + tombstonei", async () => {
+  it("nije po brendu: isti sadržaj na drugom brendu; rows_read = postavke + tombstonei + njihovi kanali", async () => {
+    // R = retci postavki + tombstonei; M = retci kanala koje podupit `slugs`
+    // nađe po retku (UC s retkom postavki i tombstoneom broji se dvaput).
     const counts = await env.DB.prepare(
-      "SELECT (SELECT count(*) FROM channel_settings) + (SELECT count(*) FROM channel_tombstones) AS n",
-    ).first<{ n: number }>();
+      `SELECT (SELECT count(*) FROM channel_settings) + (SELECT count(*) FROM channel_tombstones) AS r,
+         (SELECT count(*) FROM channels c JOIN
+           (SELECT youtube_channel_id FROM channel_settings
+            UNION ALL SELECT youtube_channel_id FROM channel_tombstones) u
+           ON c.youtube_channel_id = u.youtube_channel_id) AS m`,
+    ).first<{ r: number; m: number }>();
+    const r = counts?.r ?? 0;
+    const m = counts?.m ?? 0;
     const own = await api<SettingsBody>(HOST, "settings", "settings");
     // Drugi brend nema nijedan od ovih kanala; postavke su vlasnikove, po UC-u.
     const rows = await measure(OTHER_HOST, "settings", "settings");
     const other = await api<SettingsBody>(OTHER_HOST, "settings", "settings");
     expect(other.body.settings).toEqual(own.body.settings);
-    // Upit brenda i verzije (≤ 3) + jedan sken obje tablice.
-    expect(rows).toBeLessThanOrEqual((counts?.n ?? 0) + 3);
-    expect(rows).toBeGreaterThanOrEqual(counts?.n ?? 0);
+    // Upit brenda i verzije (≤ 3) + jedan sken obje tablice + po retku jedno
+    // traženje u `channels_by_uc` (pogoci + jedno čitanje kraja raspona).
+    // Izmjereno 13. 11. 2026.: r = 7, m = 7, rows = 21 = r + m + r.
+    expect(rows).toBeLessThanOrEqual(r + m + r + 3);
+    expect(rows).toBeGreaterThanOrEqual(r + m);
+  });
+});
+
+describe("GET /settings: slugs", () => {
+  it("slugovi preko brendova i iz tombstonea, spojeni i sortirani; bez N+1 (plan po channels_by_uc)", async () => {
+    await env.DB.batch([
+      // Isti UC pod drugim brendom i drugim slugom (crtica umjesto podvlake).
+      env.DB.prepare(
+        `INSERT INTO channels (brand, slug, youtube_channel_id, name, tier, lang, avatar,
+           processed_count, latest_published_date)
+         VALUES ('s3-settings-drugi', 'bez-hera', 'UCs3set_bez_hera', 'Kanal bez-hera', 2, 'hr', 'https://cdn.test/b.jpg', 1, ?1)`,
+      ).bind(DAY),
+      // Tombstone čiji su stari slugovi nestali iz kataloga, a novi je još tamo
+      // (drugi brend, da popisi glavnog brenda i izmjereni rows_read ostanu isti).
+      env.DB.prepare(
+        `INSERT INTO channels (brand, slug, youtube_channel_id, name, tier, lang, avatar,
+           processed_count, latest_published_date)
+         VALUES ('s3-settings-drugi', 'z_nestao_novi', 'UCs3set_nestao', 'Nestali novi', 2, 'hr', 'https://cdn.test/n.jpg', 1, ?1)`,
+      ).bind(DAY),
+    ]);
+    // Novi ok uvoz mijenja ključ cachea (kao u testu cachea niže).
+    await okRun();
+    const { body } = await api<SettingsBody>(OTHER_HOST, "settings", "settings");
+    expect(body.settings.UCs3set_bez_hera?.slugs).toEqual(["bez-hera", "bez_hera"]);
+    expect(body.settings.UCs3set_nestao?.slugs).toEqual(["nestao", "nestao-alias", "z_nestao_novi"]);
+    for (const [uc, v] of Object.entries(body.settings)) {
+      expect(v.slugs, uc).toEqual([...new Set(v.slugs)].sort());
+    }
+    const q = allChannelSettings();
+    const plan = (await env.DB.prepare(`EXPLAIN QUERY PLAN ${q.sql}`).all<{ detail: string }>()).results
+      .map((r) => r.detail)
+      .join("\n");
+    expect(plan).toMatch(/SEARCH c USING COVERING INDEX channels_by_uc \(youtube_channel_id=\?\)/);
+    expect(plan).not.toMatch(/SCAN c\b/);
   });
 });
 

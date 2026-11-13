@@ -322,17 +322,27 @@ export function tombstoneBySlug(slug: string): SqlQuery {
 
 /**
  * Sve postavke i svi tombstonei (`GET /v1/settings`, odluka 105), po UC-u.
- * Nije po brendu. `rows_read` = broj redaka postavki + broj tombstonea: retke
- * imaju samo kanali s vlasnikom (stotine, ne tisuće), pa sken je namjeran.
- * Filtar „barem jedan isključen ključ” radi API nad poznatim ključevima.
+ * Nije po brendu. `rows_read` = broj redaka postavki + broj tombstonea + broj
+ * redaka kanala tih UC-ova: retke imaju samo kanali s vlasnikom (stotine, ne
+ * tisuće), pa sken je namjeran. Filtar „barem jedan isključen ključ” radi API
+ * nad poznatim ključevima.
+ *
+ * `slugs` (JSON polje) su slugovi kanala tog UC-a u katalogu, preko svih
+ * brendova; korelirani podupit ide po `channels_by_uc` u istom odlasku do baze
+ * (bez N+1). Tombstone nosi i svoje slugove (`tombstone_slugs`), jer redaka
+ * kanala obrisanog kanala može više ne biti. Spajanje i sortiranje radi API.
  */
 export function allChannelSettings(): SqlQuery {
   return {
-    sql: `SELECT youtube_channel_id, effective, NULL AS deleted_at
-        FROM channel_settings
+    sql: `SELECT s.youtube_channel_id, s.effective, NULL AS deleted_at, NULL AS tombstone_slugs,
+          (SELECT json_group_array(c.slug) FROM channels c
+            WHERE c.youtube_channel_id = s.youtube_channel_id) AS slugs
+        FROM channel_settings s
       UNION ALL
-      SELECT youtube_channel_id, NULL AS effective, deleted_at
-        FROM channel_tombstones`,
+      SELECT t.youtube_channel_id, NULL AS effective, t.deleted_at, t.slugs AS tombstone_slugs,
+          (SELECT json_group_array(c.slug) FROM channels c
+            WHERE c.youtube_channel_id = t.youtube_channel_id) AS slugs
+        FROM channel_tombstones t`,
     params: [],
   };
 }
