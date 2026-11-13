@@ -508,3 +508,14 @@ Kod: `domovina-rag` `aa48d28`, `08ca056`, `817c0d4`; `domovina-push` `78016b0`;
      `deploy.sh` (novi kod živ tek ~1–2 min nakon što skripta javi „živo”: `/health` odgovara
      stari kontejner dok se novi gradi, pa je provjera `purpose=xyz` → 400, ne `/health`), push
      `622840a6` (`DRY_RUN=1` ostaje; ciklus 9:50 „nema novih epizoda”, dohvat postavki bez greške — push nije u zoni), cutter `17eb5410`.
+815. **Operater povlači kanal bez vlasnika izravnim upisom, ne kroz RPC** (13. 11., korisnik
+     zatražio za `ora_et_labora`, UC `UCcZw_KjJf_GhCpL3EVkAPSg`). `set_channel_setting` traži
+     `auth.uid()` vlasnika i service_role ga nema, pa operater u jednoj transakciji (uz isti
+     `pg_advisory_xact_lock` kao RPC) upisuje `channel_settings` `{"channel_enabled": false}` i
+     događaj u `channel_settings_events` sa `source='system'`, `account_id null` i `note` s
+     razlogom. Dovoljan je samo master ključ: efektivno stanje gasi svih 20 (provjereno:
+     `channel_setting_enabled(uc,'processing')` = f). Katalog je projekciju povukao za < 1 min
+     (`/v1/settings` → `status: withdrawn`), `/c/ora-et-labora` → „Vlasnik je povukao…” +
+     `noindex`, kanal nestao iz `/v1/channels`. Povratno: isti upis s `true`. Sadržaj (R2,
+     Meili, RAG) ostaje do eventualnog brisanja kroz S9. Revizija: ako se ovo ponovi, S9/S10
+     dobiva `scripts/channel-withdraw.sh <UC> --note "…"` umjesto ručnog SQL-a.
