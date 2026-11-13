@@ -499,3 +499,12 @@ Kod: `domovina-rag` `aa48d28`, `08ca056`, `817c0d4`; `domovina-push` `78016b0`;
 812. **Kašnjenje se zbraja**: katalog poller + MCP snimka 60 s + `Cache-Control` odgovora
      (`/api/search` i `/api/person` 300 s, `/api/persons` 900 s); indeksi do sljedećeg 04:00.
      Klijentski filtar iz S5 pokriva aplikaciju u međuvremenu.
+813. **Cutter čita katalog kroz service binding `KATALOG`** (zamjenjuje rizik iz odluke 810;
+     `domovina-cutter` `6345f95`). Izmjereno 13. 11. nakon prvog deploya: fetch na
+     `domovina.ai/api/katalog/v1/settings` iz Workera u istoj zoni vratio je HTML (`Unexpected
+     token '<'`) i gate je bio fail-open; nakon bindinga `wrangler tail` je čist. Svaki budući
+     Worker u zoni `domovina.ai` koji čita katalog ide kroz binding, ne fetchom.
+814. **Deploy S8 13. 11. (korisnik odobrio):** katalog `4c623f0c` (`slugs`), MCP preko
+     `deploy.sh` (novi kod živ tek ~1–2 min nakon što skripta javi „živo”: `/health` odgovara
+     stari kontejner dok se novi gradi, pa je provjera `purpose=xyz` → 400, ne `/health`), push
+     `622840a6` (`DRY_RUN=1` ostaje; ciklus 9:50 „nema novih epizoda”, dohvat postavki bez greške — push nije u zoni), cutter `17eb5410`.

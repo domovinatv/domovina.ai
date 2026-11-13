@@ -51,8 +51,8 @@ Legenda: `[x]` gotovo · `[ ]` otvoreno · `[~]` u radu · `(!)` traži korisnik
 - [x] Meili (`episodes`, `segments`) i semantika/RAG (`domovina-rag`): filtar po postavkama → S8 (`aa48d28`, `08ca056`, odluke 802–807)
 - [x] Push (`domovina-push`): ne šalje za isključen kanal → S8 (`78016b0`, odluke 801, 808)
 - [x] `domovina-cutter` i `/api/search` `purpose` → S8 (cutter `835d7af`, odluke 802, 809); KORAK 13, Vertex, WhatsApp skripta, glasački bazen → S7 gotovo (odluke 706, 708); `og:video`, Cast receiver → S6 gotovo (odluke 603, 605)
-- [~] (!) Vijesti (`vijesti/`, drugi lanac): ugovor napisan (`research/2026-11-13-ugovor-vijesti.md`); čeka korisnikovu potvrdu da je ušao u TODO lanca vijesti → S8 vrata
-- [ ] (!) Deploy: katalog (`slugs`), MCP (`services/mcp/deploy.sh`), push i cutter (`wrangler deploy`) → vrata nakon S8
+- [x] (!) Vijesti (`vijesti/`, drugi lanac): ugovor `research/2026-11-13-ugovor-vijesti.md`, stavka u `vijesti/TODO.md` (`272cd85`, korisnik odobrio 13. 11.); izvedba je u lancu vijesti
+- [x] (!) Deploy: katalog (`slugs`), MCP (`services/mcp/deploy.sh`), push i cutter (`wrangler deploy`) → 13. 11., odluke 813–814
 
 ## F5 — trajno brisanje i objava
 
