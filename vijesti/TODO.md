@@ -50,6 +50,7 @@ Legenda: `[x]` gotovo · `[ ]` otvoreno · `[~]` u radu · `(!)` traži korisnik
 - [ ] (!) Popis dopuštenih kanala (`allowlist`) → S7
 - [~] Dnevni job (launchd LaunchAgent), idempotentan, Telegram kroz `telegram-notify.rb` → S8 (kod + migracija 007 na produkciji 12.11., suhi prolaz nad produkcijom prošao; pravi prolaz 12.11.: 24 poziva, 0 nacrta (max 0,48), drugi 0 poziva; čeka instalaciju LaunchAgenta, korisnik)
 - [ ] (!) 30 objavljenih članaka bez ispravka citata → S8
+- [ ] Postavke kanala za vlasnika: `news_portal`/`cdn_playback` filtar u engineu i portalu, `purpose=news` u `engine/rag/related.ts`, nedostupan katalog = korak „nove epizode” preskočen; odluka o `article_sources … ON DELETE RESTRICT` za trajno obrisan kanal. Ugovor: `postavke-kanala/docs/research/2026-11-13-ugovor-vijesti.md` (unio lanac postavke kanala S8, 13. 11., uz korisnikov pristanak)
 
 ## F2 — priče i povezivanje
 
