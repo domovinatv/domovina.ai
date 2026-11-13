@@ -39,7 +39,7 @@ Handoff se mijenja samo prema naprijed: gotovi `SN` se ne prepisuju.
 | S5 | Provedba na ekranima | gotovo, deployano v2.0.235 | f50499d | Flutter 933/1 (baseline)/1 preskočen; +66 novih | 2026-11-12; odluke 500–511; zastoj izmjeren; ekran postavki u stupcima; živa provjera samo `ebook` na webu, TV nije |
 | S6 | Worker OG/noindex/sitemap | gotovo, deployano v2.0.236 | 591d48d | worker 134/134 + katalog-kanal 60/60; social-tags 234/244 (10 starih: glasanje skriveno, /vijesti) | 2026-11-12; odluke 600–607; Cast vrata nisu isprobana na televizoru |
 | S7 | Pipeline (fetch repo) | gotovo (bez deploya; nightly ga vozi sam) | fetch.domovina.tv 1de73cad | fetch `node --test` 338: 337 pass, 0 fail, 1 skip (stari Vertex) | 2026-11-12; odluke 700–709; fail-closed obrada, čitači sa zadnjom snimkom |
-| S8 | Meili, RAG, push, ugovor vijesti | | | | vrata: dogovor s lancem vijesti |
+| S8 | Meili, RAG, push, cutter, ugovor vijesti | gotovo, **vrata** (deploy + vijesti) | rag 817c0d4, push 78016b0, cutter 835d7af, katalog 1b8a2f7 | rag mcp 43/0/0 + py 16/0/0; push 19/0/0; cutter 9/0/0; katalog 486/0/0 | 2026-11-13; odluke 800–812; ništa nije deployano |
 | S9 | Skripta trajnog brisanja | | | | vrata: prvo stvarno brisanje |
 | S10 | Pravni tekstovi + release | | | | vrata: release |
 

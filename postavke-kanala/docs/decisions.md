@@ -441,3 +441,61 @@ Kod: `fetch.domovina.tv` `9b96aa5d` (modul) + `1de73cad` (integracija). Opis za 
      izvorni jezik za `diarized.en.srt` (odluka 508) nije označen jer nijedan kanal na
      engleskom nije prijavio problem. Revizija: prvi vlasnik koji isključi ključ, ili prvi
      kanal na engleskom koji ga isključi.
+
+## S8 (2026-11-13, Meili, RAG, push, cutter, ugovor vijesti)
+
+Kod: `domovina-rag` `aa48d28`, `08ca056`, `817c0d4`; `domovina-push` `78016b0`;
+`domovina-cutter` `835d7af`; katalog `1b8a2f7`. Ugovor za vijesti:
+[research/2026-11-13-ugovor-vijesti.md](research/2026-11-13-ugovor-vijesti.md). Opis za RAG:
+`domovina-rag/docs/2026-11-13-postavke-kanala.md`.
+
+800. **`GET /v1/settings` nosi `slugs` po UC-u** (katalog, aditivno, `version` ostaje "1"):
+     unija slugova iz tablice `channels` i, za tombstone, iz tombstonea. Razlog: RAG, Meili,
+     push i vijesti kanal znaju po slugu, a povučen kanal izostaje iz `/v1/channels`, pa mapu
+     slug↔UC nemaju odakle složiti. Usporedba sluga svugdje normalizirana (lowercase, `_` = `-`).
+     Bez `slugs` (stari katalog) RAG ne filtrira i upozori; push i cutter rade po UC-u.
+801. **Čitači koriste zadnju dobru snimku, pošiljatelji su fail-closed.** MCP, Meili sync i
+     cutter: greška → zadnja uspješna snimka, bez nje bez filtra uz glasan log (kao odluka 701).
+     Push je pošiljatelj: greška dohvata → ciklus ne šalje ništa i ne upisuje `sent:`. Engine
+     vijesti je pisac: fail-closed (ugovor §5).
+802. **`/api/search?purpose=search|assistant|news`** → ključ `in_app_search` | `ai_assistants` |
+     `news_portal`. Bez parametra = `search` (stari buildovi aplikacije). Nepoznat ili ponovljen
+     parametar = 400, da tipfeler pozivatelja ne zaobiđe ključ. MCP alati uvijek `ai_assistants`;
+     `mode=map` poštuje `purpose`.
+803. **Filtar je u upitu, prije `LIMIT`** (`channel NOT IN` nad svim varijantama sluga u
+     ClickHouseu, `channel NOT IN [...]` u Meiliju), da `limit` ostane točan.
+804. **`rag_chunks` se prekidačem ne brišu.** ETL i `sync-incremental` nedirnuti: `rag_chunks`
+     hrani i Meili i person hub, a ponovno uključivanje bi tražilo re-embed. Fizičko uklanjanje
+     radi samo skripta trajnog brisanja (S9). Zamjenjuje rečenicu matrice §17 „sljedeći sync ih
+     briše iz `rag_chunks`”.
+805. **Meili `episodes` se filtrira pri buildu** (noćni puni rebuild + swap, pa se uključivanje
+     samo vraća); **`segments` je inkrementalan**, pa se skrivene epizode brišu zajedno sa
+     stanjem synca i sljedeći sync ih nakon uključivanja vidi kao nove. Postavke u jednom runu ne
+     smiju izbaciti više od 50 % dokumenata; snimka `logs/channel_settings.last_ok.json`.
+806. **Osobe**: kanal s `persons_mentions` off izostaje iz `episodes[]`, `cameo_episodes[]`,
+     `mentions[]` i iz pravila virtualnog kanala (računa se bez njega; `is_virtual_channel` se ne
+     predračunava, provjereno grepom). Osoba poznata samo iz isključenog kanala dobiva prazan
+     profil (200, ne 404), kao kod opt-outa. Cache `/api/persons` vezan je uz skup skrivenih
+     kanala. `count_mentions` gleda ključ samo uz `group_by=speaker`.
+807. **`get_episode` za isključen kanal vraća `EPISODE_NOT_FOUND`**, isto kao za nepostojeću
+     epizodu: alat ne otkriva što je vlasnik isključio. `server_info` brojke filtrira po
+     `ai_assistants`.
+808. **Push: isključena epizoda dobiva `sent:<id>` = `skipped:push_notifications`.** Inače bi
+     uključivanje poslalo zastarjele obavijesti (prozor 4 dana) koje je vlasnik namjerno utišao.
+     Epizoda u više listinga je utišana ako je utišava ijedan; preskočene ne troše `MAX_PER_RUN`.
+     UC dolazi iz `youtube_channel_url` u `index.json` (52/52 kanala ga imaju) i iz `slugs`;
+     `info.json` po epizodi se ne čita (≈ 84 KB). Tema kanala ostaje.
+809. **Cutter: 403 `setting_off:<ključ>` / `channel_withdrawn`, 410 `channel_deleted`**, `no-store`,
+     na obje `/clip` rute i `/chapters` (prije cache-gatea, pa i 302 na već izrezan isječak).
+     UC iz `info.json` kroz R2 binding (ne CDN, zbog cachiranog 404). Već izrezani isječci na
+     `cdn.domovina.ai/clips/…` ostaju dostupni izravnim URL-om (sakriti ≠ obrisati).
+810. **Rizik: cutter je u zoni `domovina.ai`.** Fetch iz Workera prema
+     `domovina.ai/api/katalog/…` iste zone može ne proći; tada je cutter tiho fail-open. Provjera
+     nakon deploya: `wrangler tail` bez „postavke kanala nedostupne”; ako se pojavi → service
+     binding na katalog Worker.
+811. **Objavljeni članci vijesti ostaju kad je kanal povučen** (prijedlog, ugovor §4); za trajno
+     obrisan kanal urednik bira ispravak ili povlačenje. `article_sources … ON DELETE RESTRICT`
+     je otvoreno pitanje lanca vijesti i blokira dio S9 za `vijesti.*`.
+812. **Kašnjenje se zbraja**: katalog poller + MCP snimka 60 s + `Cache-Control` odgovora
+     (`/api/search` i `/api/person` 300 s, `/api/persons` 900 s); indeksi do sljedećeg 04:00.
+     Klijentski filtar iz S5 pokriva aplikaciju u međuvremenu.
