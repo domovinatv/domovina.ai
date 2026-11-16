@@ -678,6 +678,11 @@ postaje mjesto gledanja), nakon 8 s se skupi u chip i nestaje tek kad se
 korisnik vrati, smiri (2 min) ili izabere. Crta se ispod playera gdje i titl.
 Ugovor: `services/seek_undo.dart`, `test/seek_undo_test.dart`.
 
+**Rule (adresna traka miruje dok je korisnik u njoj)**: `url_sync` na webu
+ne zove `replaceState` dok `document.hasFocus()` vraća false (fokus u adresnoj
+traci ili drugoj aplikaciji); zadnji URL upiše na `focus`. Inače se URL ne da
+označiti ni kopirati. `docs/2026-11-16-player-povratak-scrub-i-adresna-traka.md`.
+
 **Rule (`?autoplay=0|false` i `?t=`)**: epizoda zadano kreće odmah (uz web
 fallback na utišani autoplay). `?autoplay=0|false|no|off` otvori i seekne, ali
 ne pokreće. `?t=` prima sekunde i YouTube oblike (`1h23m45s`, `83m`) te
