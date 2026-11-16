@@ -4561,7 +4561,7 @@
   "@mediaBackgroundPlaybackToastOff": {
     "description": "Potvrda (SnackBar) nakon što korisnik isključi pozadinsku reprodukciju iz playera."
   },
-  "mediaSeekUndo": "Nastavi od {time}",
+  "mediaSeekUndo": "Natrag na {time}",
   "@mediaSeekUndo": {
     "description": "Tekst pilule koja nudi povratak na mjesto gledanja nakon skakanja po timelineu ili poglavljima; {time} je vrijeme u obliku 1:12:03.",
     "placeholders": {
@@ -4571,9 +4571,9 @@
     }
   },
   "mediaSeekUndoTooltip": "Vrati se na mjesto gledanja",
-  "mediaSeekUndoDismiss": "Ne vraćaj me",
-  "@mediaSeekUndoDismiss": {
-    "description": "Tooltip na ✕ u malom chipu povratka: korisnik odbacuje ponudu i ostaje gdje jest."
+  "mediaSeekStayHere": "Nastavi odavde",
+  "@mediaSeekStayHere": {
+    "description": "Drugi gumb uz „Natrag na {time}”: korisnik ostaje na trenutnom mjestu i ono postaje novo mjesto gledanja."
   },
   "@mediaSeekUndoTooltip": {
     "description": "Tooltip/semantika na piluli koja poništava ručni skok po timelineu."

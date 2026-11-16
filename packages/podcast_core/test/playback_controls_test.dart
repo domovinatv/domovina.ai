@@ -163,7 +163,7 @@ void main() {
 
       expect(find.text(l.mediaSeekUndo('1:12:03')), findsOneWidget);
 
-      await tester.tap(find.byType(InkWell));
+      await tester.tap(find.text(l.mediaSeekUndo('1:12:03')));
       // pumpAndSettle jer AnimatedSwitcher stari child drži do kraja fadea.
       await tester.pumpAndSettle();
 
@@ -176,7 +176,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 1500));
     });
 
-    testWidgets('nakon svježeg dijela postane chip s ✕ koji odbacuje ponudu',
+    testWidgets('nakon svježeg dijela postane chip; „Nastavi odavde” gasi ponudu',
         (tester) async {
       final l = await AppLocalizations.delegate.load(const Locale('hr'));
       final positions = StreamController<Duration>.broadcast();
@@ -198,7 +198,7 @@ void main() {
       expect(find.text(l.mediaSeekUndo('1:23:45')), findsNothing);
       expect(find.text('1:23:45'), findsOneWidget);
 
-      await tester.tap(find.byIcon(Icons.close));
+      await tester.tap(find.text(l.mediaSeekStayHere));
       await tester.pumpAndSettle();
       expect(undo.undoTarget.value, isNull);
       expect(find.text('1:23:45'), findsNothing);

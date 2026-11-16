@@ -38,6 +38,7 @@ import '../services/sponsored_moments_service.dart' show SponsorCampaign;
 import '../widgets/channel_feature_off_guard.dart';
 import '../services/episode_language.dart';
 import '../services/tv_mode.dart';
+import 'url_params.dart';
 
 /// App router — go_router s NoTransitionPage za instant navigaciju.
 /// Svaka ruta ima ValueKey da go_router zna rebuildat kad se mijenja path.
@@ -273,7 +274,7 @@ GoRouter createRouter() {
         pageBuilder: (context, state) {
           final videoId = state.pathParameters['videoId']!;
           final t = state.uri.queryParameters['t'];
-          final startAt = t != null ? int.tryParse(t) : null;
+          final startAt = parseStartTime(t);
           // `?p=<person-slug>` — person-highlight marker (dolazak s /p/
           // profila govornika); vidi EpisodeScreen.highlightPersonSlug.
           final person = state.uri.queryParameters['p'];
@@ -295,6 +296,7 @@ GoRouter createRouter() {
                     startAtSeconds: startAt,
                     highlightPersonSlug: person,
                     openVideo: _openVideo(state),
+                    autoplay: _autoplay(state),
                   ),
           );
         },
@@ -350,7 +352,7 @@ GoRouter createRouter() {
         pageBuilder: (context, state) {
           final videoId = state.pathParameters['videoId']!;
           final t = state.uri.queryParameters['t'];
-          final startAt = t != null ? int.tryParse(t) : null;
+          final startAt = parseStartTime(t);
           return NoTransitionPage(
             key: ValueKey('reader-$videoId'),
             child: TvMode.isTv
@@ -374,7 +376,7 @@ GoRouter createRouter() {
         pageBuilder: (context, state) {
           final videoId = state.pathParameters['videoId']!;
           final t = state.uri.queryParameters['t'];
-          final startAt = t != null ? int.tryParse(t) : null;
+          final startAt = parseStartTime(t);
           final person = state.uri.queryParameters['p'];
           return NoTransitionPage(
             // `?video=0|1` je zaseban ekran (vidi EpisodeScreen.openVideo);
@@ -392,6 +394,7 @@ GoRouter createRouter() {
                     initialLanguageEn: true,
                     highlightPersonSlug: person,
                     openVideo: _openVideo(state),
+                    autoplay: _autoplay(state),
                   ),
           );
         },
@@ -420,6 +423,7 @@ GoRouter createRouter() {
                     startAtSeconds: startAt,
                     highlightPersonSlug: person,
                     openVideo: _openVideo(state),
+                    autoplay: _autoplay(state),
                   ),
           );
         },
@@ -447,6 +451,7 @@ GoRouter createRouter() {
                     initialLanguageEn: true,
                     highlightPersonSlug: person,
                     openVideo: _openVideo(state),
+                    autoplay: _autoplay(state),
                   ),
           );
         },
@@ -458,7 +463,10 @@ GoRouter createRouter() {
           final videoId = state.pathParameters['videoId']!;
           return NoTransitionPage(
             key: ValueKey('mobile-$videoId-hr'),
-            child: EpisodeSimpleScreen(youtubeId: videoId),
+            child: EpisodeSimpleScreen(
+              youtubeId: videoId,
+              autoplay: _autoplay(state),
+            ),
           );
         },
       ),
@@ -471,6 +479,7 @@ GoRouter createRouter() {
             child: EpisodeSimpleScreen(
               youtubeId: videoId,
               initialLanguageEn: true,
+              autoplay: _autoplay(state),
             ),
           );
         },
@@ -488,6 +497,7 @@ GoRouter createRouter() {
             child: EpisodeSimpleScreen(
               youtubeId: videoId,
               startAtSeconds: startAt,
+              autoplay: _autoplay(state),
             ),
           );
         },
@@ -502,6 +512,7 @@ GoRouter createRouter() {
             child: EpisodeSimpleScreen(
               youtubeId: videoId,
               startAtSeconds: startAt,
+              autoplay: _autoplay(state),
               initialLanguageEn: true,
             ),
           );
@@ -716,6 +727,11 @@ bool? _openVideo(GoRouterState state) =>
       '1' => true,
       _ => null,
     };
+
+/// `?autoplay=0|false|no` (kao YouTube embed) — epizoda se otvori i seekne na
+/// `t`, ali ne krene sama. Bez parametra (ili bilo što drugo) kreće odmah.
+bool _autoplay(GoRouterState state) =>
+    parseAutoplay(state.uri.queryParameters['autoplay']);
 
 String _videoKeySuffix(GoRouterState state) => switch (_openVideo(state)) {
       false => '-novideo',

@@ -71,11 +71,15 @@ class EpisodeSimpleScreen extends StatefulWidget {
   /// nad saved watch progress-om. null → resume na zadnju poziciju.
   final int? startAtSeconds;
 
+  /// `false` uz `?autoplay=0|false`: otvori i seekni, ali ne kreni sam.
+  final bool autoplay;
+
   const EpisodeSimpleScreen({
     super.key,
     required this.youtubeId,
     this.initialLanguageEn = false,
     this.startAtSeconds,
+    this.autoplay = true,
   });
 
   @override
@@ -140,6 +144,7 @@ class _EpisodeSimpleScreenState extends State<EpisodeSimpleScreen> {
         data: _data!,
         initialLanguageEn: widget.initialLanguageEn,
         startAtSeconds: widget.startAtSeconds,
+        autoplay: widget.autoplay,
       );
     }
 
@@ -198,11 +203,13 @@ class _SimpleEpisodeContent extends StatefulWidget {
   final EpisodeData data;
   final bool initialLanguageEn;
   final int? startAtSeconds;
+  final bool autoplay;
 
   const _SimpleEpisodeContent({
     required this.data,
     this.initialLanguageEn = false,
     this.startAtSeconds,
+    this.autoplay = true,
   });
 
   @override
@@ -524,6 +531,7 @@ class _SimpleEpisodeContentState extends State<_SimpleEpisodeContent>
         player,
         uri: widget.data.videoUri,
         startAtSeconds: startAt,
+        autoplay: widget.autoplay,
       );
 
       if (mounted) {

@@ -27,7 +27,8 @@
 ///    [SeekOffer.fresh]) — ne nestaje sama dok korisnik razgledava;
 ///  - gasi se kad se korisnik smiri na novom mjestu ([exploreSettle]
 ///    neprekidne reprodukcije), kad se sam vrati blizu sidra, kad dođe do
-///    sidra prirodnim tijekom, kad je prihvati ili odbaci.
+///    sidra prirodnim tijekom, kad je prihvati ili kad izabere „Nastavi
+///    odavde" ([stayHere]).
 ///
 /// Odluka D2 („tap na poglavlje ne nudi Undo") je time napuštena: upravo
 /// skakanje po poglavljima je slučaj u kojem povratak najviše treba.
@@ -143,11 +144,12 @@ class SeekUndo {
     suppress();
   }
 
-  /// Korisnik je odbacio ponudu (✕): ostaje gdje jest. Mjesto gledanja se
-  /// gradi iznova od trenutne pozicije.
-  void dismiss() {
+  /// „Nastavi odavde": korisnik ostaje gdje jest i to je odmah novo mjesto
+  /// gledanja (sljedeći skok nudi povratak OVAMO, bez čekanja [settleMin]).
+  void stayHere() {
     _clearOffer();
-    _watchPoint = null;
+    _watchPoint = _lastPosition;
+    _trustedRun = true;
   }
 
   void _onPosition(Duration position) {

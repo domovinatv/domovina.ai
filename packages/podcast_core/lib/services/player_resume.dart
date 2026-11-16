@@ -25,6 +25,7 @@ Future<bool> openAndResume(
   Player player, {
   required String uri,
   int? startAtSeconds,
+  bool autoplay = true,
 }) async {
   PlayerMute.instance.attach(player);
   RemotePlayback.instance.attach(player);
@@ -41,6 +42,10 @@ Future<bool> openAndResume(
     }
     await player.seek(Duration(seconds: startAtSeconds));
   }
+
+  // `?autoplay=0` u URL-u: otvori i seekni, ali NE pokreći — korisnik sam
+  // klikne play (pa nema ni utišanog autoplaya ni „Uključi zvuk").
+  if (!autoplay) return true;
 
   // Pokušaj unmuted autoplay. Browser ga smije odbiti — Chromium traži da je
   // korisnik već kliknuo/tapnuo po domeni u toj sesiji (ili MEI prag na

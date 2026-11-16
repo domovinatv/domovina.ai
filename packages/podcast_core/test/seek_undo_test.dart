@@ -202,26 +202,26 @@ void main() {
     expect(u.undoTarget.value, isNull);
   });
 
-  test('16 — dismiss() gasi ponudu; kratko razgledavanje poslije ne nudi '
-      'povratak na odbačeno mjesto', () async {
+  test('16 — stayHere() gasi ponudu i trenutno mjesto odmah postaje mjesto '
+      'gledanja', () async {
     final u = build();
     await emit(m5);
     await emit(const Duration(minutes: 42));
-    u.dismiss();
+    final here = await emitNatural(const Duration(minutes: 42), steps: 5);
+    u.stayHere();
     expect(u.undoTarget.value, isNull);
-    await emitNatural(const Duration(minutes: 42), steps: 5); // 1 s
+    // Bez čekanja settleMin: idući skok nudi povratak OVAMO, ne na 5:00.
     await emit(const Duration(minutes: 20));
-    expect(u.undoTarget.value, isNull);
+    expect(u.undoTarget.value, here);
   });
 
-  test('17 — bez mjesta gledanja (odbačeno, kratko razgledavanje) skok ništa '
-      'ne nudi', () async {
+  test('17 — bez mjesta gledanja skok ništa ne nudi', () async {
     final u = build();
     await emit(m5);
-    await emit(const Duration(minutes: 42));
-    u.dismiss();
-    await emitNatural(const Duration(minutes: 42), steps: 5);
-    await emit(const Duration(minutes: 50));
+    u.suppress(window: window);
+    await emit(const Duration(minutes: 42)); // deep link: trusted
+    await Future<void>.delayed(afterWindow);
+    // Svježe otvaranje bez ičega: nema prve pozicije → nema sidra.
     expect(u.undoTarget.value, isNull);
   });
 

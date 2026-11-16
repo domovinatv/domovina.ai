@@ -449,12 +449,13 @@ class RemotePlaybackButton extends StatelessWidget {
 // Undo skoka
 // ---------------------------------------------------------------------------
 
-/// `↺ Nastavi od 1:23:45` — povratak na mjesto gledanja nakon skakanja po
-/// timelineu ili poglavljima (vidi `SeekUndo`, „pametni povratak").
+/// `[↺ Natrag na 1:23:45] [Nastavi odavde]` — povratak na mjesto gledanja
+/// nakon skakanja po timelineu ili poglavljima, ili izričit ostanak (vidi
+/// `SeekUndo`, „pametni povratak").
 ///
-/// Prvih par sekundi nakon skoka je velika pilula; dok korisnik razgledava,
-/// skupi se u mali chip (`↺ 1:23:45 ✕`) koji ostaje dok se ne vrati, ne
-/// smiri na novom mjestu ili ga ne odbaci ✕-om.
+/// Prvih par sekundi nakon skoka su to puni gumbi; dok korisnik razgledava,
+/// skupe se u mali chip (`↺ 1:23:45 · Nastavi odavde`) koji ostaje dok se ne
+/// vrati, ne smiri na novom mjestu ili ne izabere jedno od dvoje.
 class SeekUndoPill extends StatelessWidget {
   const SeekUndoPill({
     super.key,
@@ -478,6 +479,7 @@ class SeekUndoPill extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l = AppLocalizations.of(context);
+    final bg = theme.colorScheme.inverseSurface;
     final fg = theme.colorScheme.onInverseSurface;
 
     return ValueListenableBuilder<SeekOffer?>(
@@ -488,6 +490,19 @@ class SeekUndoPill extends StatelessWidget {
           child = const SizedBox.shrink();
         } else {
           final time = formatPlaybackTime(offer.target);
+          final big = offer.fresh;
+          final textStyle =
+              (big ? theme.textTheme.bodyMedium : theme.textTheme.bodySmall)
+                  ?.copyWith(
+                    color: fg,
+                    fontWeight: FontWeight.w600,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  );
+          final pad = EdgeInsets.symmetric(
+            horizontal: big ? 16 : 12,
+            vertical: big ? 8 : 6,
+          );
+
           void accept() {
             // Ponuda se gasi odmah, prije seeka — inače bi drugi tap stigao
             // na već potrošenu ponudu.
@@ -497,66 +512,47 @@ class SeekUndoPill extends StatelessWidget {
 
           child = Material(
             key: ValueKey<SeekOffer>(offer),
-            elevation: offer.fresh ? 4 : 2,
+            elevation: big ? 4 : 2,
             borderRadius: BorderRadius.circular(24),
-            color: offer.fresh
-                ? theme.colorScheme.inverseSurface
-                : theme.colorScheme.inverseSurface.withAlpha(215),
+            color: big ? bg : bg.withAlpha(215),
+            clipBehavior: Clip.antiAlias,
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 InkWell(
-                  borderRadius: BorderRadius.circular(24),
                   onTap: accept,
                   child: Tooltip(
                     message: l.mediaSeekUndoTooltip,
                     child: Padding(
-                      padding: EdgeInsets.fromLTRB(
-                        offer.fresh ? 16 : 12,
-                        offer.fresh ? 8 : 6,
-                        offer.fresh ? 16 : 6,
-                        offer.fresh ? 8 : 6,
-                      ),
+                      padding: pad,
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(
-                            Icons.undo,
-                            size: offer.fresh ? 18 : 16,
-                            color: fg,
-                          ),
+                          Icon(Icons.undo, size: big ? 18 : 16, color: fg),
                           const SizedBox(width: 8),
                           Text(
-                            offer.fresh ? l.mediaSeekUndo(time) : time,
-                            style:
-                                (offer.fresh
-                                        ? theme.textTheme.bodyMedium
-                                        : theme.textTheme.bodySmall)
-                                    ?.copyWith(
-                                      color: fg,
-                                      fontWeight: FontWeight.w600,
-                                      fontFeatures: const [
-                                        FontFeature.tabularFigures(),
-                                      ],
-                                    ),
+                            big ? l.mediaSeekUndo(time) : time,
+                            style: textStyle,
                           ),
                         ],
                       ),
                     ),
                   ),
                 ),
-                if (!offer.fresh)
-                  InkWell(
-                    customBorder: const CircleBorder(),
-                    onTap: undo.dismiss,
-                    child: Tooltip(
-                      message: l.mediaSeekUndoDismiss,
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(2, 6, 10, 6),
-                        child: Icon(Icons.close, size: 16, color: fg),
+                Container(width: 1, height: big ? 20 : 16, color: fg.withAlpha(70)),
+                InkWell(
+                  onTap: undo.stayHere,
+                  child: Padding(
+                    padding: pad,
+                    child: Text(
+                      l.mediaSeekStayHere,
+                      style: textStyle?.copyWith(
+                        fontWeight: FontWeight.w500,
+                        color: fg.withAlpha(215),
                       ),
                     ),
                   ),
+                ),
               ],
             ),
           );

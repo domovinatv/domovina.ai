@@ -672,9 +672,17 @@ lažne skokove. `SeekUndo.suppress()` ide SAMO uz skok koji nije razgledavanje
 **Rule (pametni povratak, od 16.11.2026.)**: tap na poglavlje i sponzorski
 gumb NE zovu `suppress()` — skakanje po poglavljima je upravo slučaj u kojem
 korisniku treba „Nastavi od 1:23:45". Sidro je mjesto GLEDANJA (≥ 15 s
-neprekidno ili resume), drži se kroz sve skokove, pilula se nakon 8 s skupi u
-chip s ✕ i nestaje tek kad se korisnik vrati, smiri (2 min) ili je odbaci.
+neprekidno ili resume), drži se kroz sve skokove. Pilula ima dva gumba
+(„Natrag na 1:23:45" | „Nastavi odavde" = `stayHere()`, trenutno mjesto odmah
+postaje mjesto gledanja), nakon 8 s se skupi u chip i nestaje tek kad se
+korisnik vrati, smiri (2 min) ili izabere. Crta se ispod playera gdje i titl.
 Ugovor: `services/seek_undo.dart`, `test/seek_undo_test.dart`.
+
+**Rule (`?autoplay=0|false` i `?t=`)**: epizoda zadano kreće odmah (uz web
+fallback na utišani autoplay). `?autoplay=0|false|no|off` otvori i seekne, ali
+ne pokreće. `?t=` prima sekunde i YouTube oblike (`1h23m45s`, `83m`) te
+`1:23:45`. Parsiranje: `lib/router/url_params.dart`; svaka nova ruta epizode
+prosljeđuje `autoplay: _autoplay(state)`.
 
 **Rule**: fullscreen su **tri** putanje, ne jedna — pravi landscape na nativeu
 (`SystemChrome`, probija sistemsku bravu rotacije), `screen.orientation.lock`

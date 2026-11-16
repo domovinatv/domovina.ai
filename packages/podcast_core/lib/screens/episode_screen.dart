@@ -100,6 +100,10 @@ class EpisodeScreen extends StatefulWidget {
   /// (`scripts/store-screenshots.sh` u Podcasterium shellu).
   final bool? openVideo;
 
+  /// `false` uz `?autoplay=0|false` u URL-u: video se otvori (i seekne na
+  /// `t`), ali ne krene sam. Zadano kreće odmah, kao YouTube.
+  final bool autoplay;
+
   const EpisodeScreen({
     super.key,
     required this.youtubeId,
@@ -107,6 +111,7 @@ class EpisodeScreen extends StatefulWidget {
     this.initialLanguageEn = false,
     this.highlightPersonSlug,
     this.openVideo,
+    this.autoplay = true,
   });
 
   @override
@@ -191,6 +196,7 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
             ? widget.highlightPersonSlug
             : null,
         openVideo: widget.openVideo,
+        autoplay: widget.autoplay,
       );
     }
 
@@ -815,6 +821,7 @@ class _EpisodeContent extends StatefulWidget {
   final bool initialLanguageEn;
   final String? highlightPersonSlug;
   final bool? openVideo;
+  final bool autoplay;
 
   const _EpisodeContent({
     required this.data,
@@ -822,6 +829,7 @@ class _EpisodeContent extends StatefulWidget {
     this.initialLanguageEn = false,
     this.highlightPersonSlug,
     this.openVideo,
+    this.autoplay = true,
   });
 
   @override
@@ -1783,7 +1791,12 @@ class _EpisodeContentState extends State<_EpisodeContent>
             .catchError((Object _) => DeferredScreenshots.instance.release()),
       );
 
-      await openAndResume(player, uri: videoUri, startAtSeconds: startAt);
+      await openAndResume(
+        player,
+        uri: videoUri,
+        startAtSeconds: startAt,
+        autoplay: widget.autoplay,
+      );
       if (mounted) {
         // Otvaranje je gotovo → skrati prozor natrag na normalnu duljinu.
         _seekUndo?.suppress();

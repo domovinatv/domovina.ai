@@ -3578,14 +3578,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String mediaSeekUndo(String time) {
-    return 'Resume at $time';
+    return 'Back to $time';
   }
 
   @override
   String get mediaSeekUndoTooltip => 'Back to where you were watching';
 
   @override
-  String get mediaSeekUndoDismiss => 'Don\'t take me back';
+  String get mediaSeekStayHere => 'Continue from here';
 
   @override
   String personCardMeta(int count, String duration) {
