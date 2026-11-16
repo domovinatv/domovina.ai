@@ -38,6 +38,7 @@ import '../services/sponsored_moments_service.dart';
 import '../services/url_sync.dart';
 import '../services/view_mode.dart';
 import '../services/watch_progress_service.dart';
+import '../widgets/scrub_preview.dart';
 import '../widgets/ebook_sheet.dart';
 import '../widgets/episode_channel_owner.dart';
 import '../widgets/episode_status_card.dart';
@@ -722,6 +723,7 @@ class _SimpleEpisodeContentState extends State<_SimpleEpisodeContent>
           }
         },
         onSeek: (d) => _player?.seek(d),
+        chapters: _chapters,
       ),
       _ChaptersTab(
         chapters: _chapters,
@@ -1102,6 +1104,9 @@ class _PlayerTab extends StatelessWidget {
   final VoidCallback onPlayPause;
   final void Function(Duration) onSeek;
 
+  /// Poglavlja za oblačić iznad seek bara (ime poglavlja uz vrijeme).
+  final List<({String timestamp, String topic, int totalSeconds})> chapters;
+
   const _PlayerTab({
     required this.data,
     required this.player,
@@ -1124,6 +1129,7 @@ class _PlayerTab extends StatelessWidget {
     required this.onExitYtMode,
     required this.onPlayPause,
     required this.onSeek,
+    this.chapters = const [],
   });
 
   String _formatDuration(Duration d) {
@@ -1294,16 +1300,11 @@ class _PlayerTab extends StatelessWidget {
                     inactiveTrackColor: theme.colorScheme.primary.withAlpha(40),
                     thumbColor: theme.colorScheme.primary,
                   ),
-                  child: Slider(
-                    value: duration.inMilliseconds > 0
-                        ? position.inMilliseconds
-                              .clamp(0, duration.inMilliseconds)
-                              .toDouble()
-                        : 0,
-                    max: duration.inMilliseconds > 0
-                        ? duration.inMilliseconds.toDouble()
-                        : 1,
-                    onChanged: (v) => onSeek(Duration(milliseconds: v.toInt())),
+                  child: _ScrubSlider(
+                    position: position,
+                    duration: duration,
+                    chapters: chapters,
+                    onSeek: onSeek,
                   ),
                 ),
               ],
@@ -1479,6 +1480,71 @@ class _PlayerTab extends StatelessWidget {
 // ---------------------------------------------------------------------------
 // Tab 2: Chapters
 // ---------------------------------------------------------------------------
+
+/// Seek bar jednostavnog prikaza s oblačićem vremena ([ScrubPreview]).
+///
+/// Dok se vuče, palac prati prst/miš lokalno, a skok ide JEDNOM, na kraju i
+/// na cijelu sekundu iz oblačića. Do 16. 11. 2026. je svaki pomak bio novi
+/// `seek` — niz skokova je na Chromiumu zna srušiti dekoder (vidi CLAUDE.md,
+/// „web NIKAD ne pušta interleavani fmp4").
+class _ScrubSlider extends StatefulWidget {
+  final Duration position;
+  final Duration duration;
+  final List<({String timestamp, String topic, int totalSeconds})> chapters;
+  final void Function(Duration) onSeek;
+
+  const _ScrubSlider({
+    required this.position,
+    required this.duration,
+    required this.chapters,
+    required this.onSeek,
+  });
+
+  @override
+  State<_ScrubSlider> createState() => _ScrubSliderState();
+}
+
+class _ScrubSliderState extends State<_ScrubSlider> {
+  double? _drag;
+
+  String? _labelAt(Duration t) {
+    String? label;
+    var best = -1;
+    for (final c in widget.chapters) {
+      if (c.totalSeconds <= t.inSeconds && c.totalSeconds >= best) {
+        best = c.totalSeconds;
+        label = c.topic;
+      }
+    }
+    return label;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final totalMs = widget.duration.inMilliseconds;
+    final max = totalMs > 0 ? totalMs.toDouble() : 1.0;
+    final value =
+        _drag ??
+        (totalMs > 0
+            ? widget.position.inMilliseconds.clamp(0, totalMs).toDouble()
+            : 0.0);
+    return ScrubPreview(
+      total: widget.duration,
+      // = overlayRadius Slidera iz SliderTheme iznad.
+      inset: 16,
+      labelAt: _labelAt,
+      child: Slider(
+        value: value.clamp(0.0, max),
+        max: max,
+        onChanged: (v) => setState(() => _drag = v),
+        onChangeEnd: (v) {
+          setState(() => _drag = null);
+          widget.onSeek(Duration(seconds: (v / 1000).round()));
+        },
+      ),
+    );
+  }
+}
 
 class _ChaptersTab extends StatelessWidget {
   final List<({String timestamp, String topic, int totalSeconds})> chapters;

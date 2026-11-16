@@ -17,6 +17,7 @@ import '../theme/app_theme.dart';
 import 'audio_poster.dart';
 import 'episode_reels.dart';
 import 'episode_video.dart';
+import 'scrub_preview.dart';
 import 'subtitle_caption.dart';
 import 'playback_controls.dart';
 import 'sponsored_moment_widgets.dart';
@@ -340,6 +341,8 @@ class _VideoPanelState extends State<VideoPanel> {
                                   speakers: widget.speakers,
                                   seekUndo: widget.seekUndo,
                                   sponsoredMoments: widget.sponsoredMoments,
+                                  scrubLabelAt: (t) =>
+                                      chapterLabelAt(widget.chapters, t),
                                   onYouTubeMode:
                                       youTubeEmbedSupported &&
                                           widget.youtubeId != null
@@ -438,7 +441,9 @@ class _VideoPanelState extends State<VideoPanel> {
                           onChangeStart: (_) => setState(() => _seeking = true),
                           onChanged: (v) => setState(() => _sliderValue = v),
                           onChangeEnd: (v) async {
-                            final ms = (v * totalMs).round();
+                            // Na cijelu sekundu — onu koju je pokazao oblačić
+                            // iznad trake (`ScrubPreview`).
+                            final ms = ((v * totalMs) / 1000).round() * 1000;
                             final dur = Duration(milliseconds: ms);
                             await widget.player.seek(dur);
                             widget.onSeek?.call(dur);
@@ -618,7 +623,11 @@ class _SeekBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Stack(
+    return ScrubPreview(
+      total: Duration(milliseconds: totalMs),
+      inset: _kSeekOverlayRadius,
+      labelAt: (t) => chapterLabelAt(chapters, t),
+      child: Stack(
       alignment: Alignment.center,
       children: [
         // Chapter markers (renderiraju se ispod Slidera)
@@ -660,8 +669,20 @@ class _SeekBar extends StatelessWidget {
           ),
         ),
       ],
+      ),
     );
   }
+}
+
+/// Naslov poglavlja u kojem je [t] (zadnje koje je počelo do [t]).
+String? chapterLabelAt(List<VideoChapterMark> chapters, Duration t) {
+  VideoChapterMark? best;
+  for (final c in chapters) {
+    if (c.position <= t && (best == null || c.position >= best.position)) {
+      best = c;
+    }
+  }
+  return best?.label;
 }
 
 class _ChapterMarkerPainter extends CustomPainter {

@@ -42,6 +42,7 @@ import 'playback_controls.dart';
 import 'sponsored_moment_widgets.dart';
 import 'subtitle_caption.dart';
 import 'rotated_fullscreen.dart';
+import 'scrub_preview.dart';
 
 /// Boje govornika po redoslijedu iz speakers liste — dijeli se s
 /// VideoPanel speaker barom da fullscreen badge i bar budu konzistentni.
@@ -89,6 +90,10 @@ class EpisodeVideo extends StatefulWidget {
   /// fullscreenu, gdje panela i trake ispod slike nema.
   final SponsoredMomentsController? sponsoredMoments;
 
+  /// Ime poglavlja za oblačić iznad media_kitove trake (desktop) — vidi
+  /// [ScrubPreview]. Bez njega oblačić pokazuje samo vrijeme.
+  final String? Function(Duration at)? scrubLabelAt;
+
   const EpisodeVideo({
     super.key,
     required this.player,
@@ -99,6 +104,7 @@ class EpisodeVideo extends StatefulWidget {
     this.seekUndo,
     this.onExitRotatedFullscreen,
     this.sponsoredMoments,
+    this.scrubLabelAt,
   });
 
   @override
@@ -630,6 +636,32 @@ class _EpisodeVideoState extends State<EpisodeVideo> {
                     ),
                   ),
                 ),
+              // Oblačić s vremenom iznad media_kitove DESKTOP trake (i u
+              // fullscreenu, gdje je to jedina traka). Geometrija prati
+              // `MaterialDesktopVideoControlsThemeData` defaulte: traka je
+              // spremnik od 36 px, pomaknut 16 px dolje, odmah iznad donje
+              // trake gumba od 56 px, s marginom 16 px lijevo i desno.
+              // Sloj sluša prozirno, pa media_kit i dalje dobiva hover i klik.
+              // Mobilna media_kit traka nema stabilnu geometriju (dva
+              // layouta) — ondje oblačić crta naša traka ispod playera.
+              if (_desktopControls(context))
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 56 - 16,
+                  height: 36,
+                  child: StreamBuilder<Duration>(
+                    stream: widget.player.stream.duration,
+                    initialData: widget.player.state.duration,
+                    builder: (context, snap) => ScrubPreview(
+                      total: snap.data ?? Duration.zero,
+                      inset: 16,
+                      gap: 10,
+                      labelAt: widget.scrubLabelAt,
+                      child: const SizedBox.expand(),
+                    ),
+                  ),
+                ),
               ],
             );
           }),
@@ -637,6 +669,15 @@ class _EpisodeVideoState extends State<EpisodeVideo> {
       ),
     );
   }
+}
+
+/// Isti izbor kao media_kitov `AdaptiveVideoControls`: desktop kontrole za
+/// sve osim iOS-a i Androida (i na webu, po platformi teme).
+bool _desktopControls(BuildContext context) {
+  final p = Theme.of(context).platform;
+  return p != TargetPlatform.iOS &&
+      p != TargetPlatform.android &&
+      p != TargetPlatform.fuchsia;
 }
 
 // ---------------------------------------------------------------------------
