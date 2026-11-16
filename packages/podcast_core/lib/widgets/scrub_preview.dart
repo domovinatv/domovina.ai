@@ -242,11 +242,11 @@ class _Bubble extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          // Cijeli naslov poglavlja, u više redaka (do 260 px širine) — bez
+          // ellipsisa, kao i titl: skraćeni naslov ne govori kamo skačeš.
           if (label != null && label.isNotEmpty)
             Text(
               label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
               style: base.copyWith(
                 color: Colors.white.withAlpha(200),
