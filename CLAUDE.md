@@ -666,8 +666,15 @@ osmi slot bi joj probio 328 dp (`test/playback_bar_layout_test.dart`).
 
 **Rule**: prag detekcije skoka ne spuštati ispod 1 s — `position` stream fira
 ~5×/s, pa je pri brzini 2,0× prirodni pomak ~0,4 s i niži prag bi generirao
-lažne skokove. Programski seek (resume, tap na poglavlje, sam Undo) mora ići uz
-`SeekUndo.suppress()`.
+lažne skokove. `SeekUndo.suppress()` ide SAMO uz skok koji nije razgledavanje
+(resume, nova sekunda iz URL-a, sam povratak).
+
+**Rule (pametni povratak, od 16.11.2026.)**: tap na poglavlje i sponzorski
+gumb NE zovu `suppress()` — skakanje po poglavljima je upravo slučaj u kojem
+korisniku treba „Nastavi od 1:23:45". Sidro je mjesto GLEDANJA (≥ 15 s
+neprekidno ili resume), drži se kroz sve skokove, pilula se nakon 8 s skupi u
+chip s ✕ i nestaje tek kad se korisnik vrati, smiri (2 min) ili je odbaci.
+Ugovor: `services/seek_undo.dart`, `test/seek_undo_test.dart`.
 
 **Rule**: fullscreen su **tri** putanje, ne jedna — pravi landscape na nativeu
 (`SystemChrome`, probija sistemsku bravu rotacije), `screen.orientation.lock`

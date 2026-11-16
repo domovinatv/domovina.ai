@@ -175,5 +175,33 @@ void main() {
       // inače test padne na „Timer is still pending".
       await tester.pump(const Duration(milliseconds: 1500));
     });
+
+    testWidgets('nakon svježeg dijela postane chip s ✕ koji odbacuje ponudu',
+        (tester) async {
+      final l = await AppLocalizations.delegate.load(const Locale('hr'));
+      final positions = StreamController<Duration>.broadcast();
+      addTearDown(positions.close);
+      final undo = SeekUndo(positionStream: positions.stream);
+      addTearDown(undo.dispose);
+
+      await tester.pumpWidget(_wrap(SeekUndoPill(undo: undo, onUndo: (_) {})));
+      positions.add(const Duration(hours: 1, minutes: 23, seconds: 45));
+      await tester.pump();
+      positions.add(const Duration(hours: 2));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 200));
+      expect(find.text(l.mediaSeekUndo('1:23:45')), findsOneWidget);
+
+      // Razgledavanje: velika pilula se skupi u chip, ali ne nestane.
+      await tester.pump(const Duration(seconds: 9));
+      await tester.pumpAndSettle();
+      expect(find.text(l.mediaSeekUndo('1:23:45')), findsNothing);
+      expect(find.text('1:23:45'), findsOneWidget);
+
+      await tester.tap(find.byIcon(Icons.close));
+      await tester.pumpAndSettle();
+      expect(undo.undoTarget.value, isNull);
+      expect(find.text('1:23:45'), findsNothing);
+    });
   });
 }

@@ -899,7 +899,7 @@ class _EpisodeContentState extends State<_EpisodeContent>
   PlaybackIntent? _playbackIntent;
 
   /// „Vrati me gdje sam bio" nakon ručnog skoka po timelineu. Programske
-  /// skokove (resume pri otvaranju, tap na poglavlje — odluka D2) najavljujemo
+  /// skokove koji nisu razgledavanje (resume pri otvaranju, sekunda iz URL-a) najavljujemo
   /// kroz `suppress()`. Vidi `services/seek_undo.dart`.
   SeekUndo? _seekUndo;
   PlaybackAnalytics? _playbackAnalytics;
@@ -2417,9 +2417,9 @@ class _EpisodeContentState extends State<_EpisodeContent>
   /// [preroll]: ako true, seekaj 2s prije za kontekst (samo video chapter lista).
   Future<void> _seekAndPlay(String timestamp, {bool preroll = false}) async {
     _seekLock = DateTime.now();
-    // Tap na poglavlje je namjerna navigacija — Undo se NE nudi (odluka D2).
-    // Prozor je 2 s jer na webu `play()` prethodi seeku pa skok može kasniti.
-    _seekUndo?.suppress(window: const Duration(seconds: 2));
+    // Tap na poglavlje je razgledavanje: BEZ suppress(), pa `SeekUndo` nudi
+    // povratak na mjesto gledanja (D2 napuštena 16.11.2026., vidi
+    // services/seek_undo.dart).
     // Odmah postavi oba pointera i scrollaj — ne cekaj async seek
     setState(() {
       _activeTimestamp = timestamp;
@@ -2445,8 +2445,7 @@ class _EpisodeContentState extends State<_EpisodeContent>
   /// Seek na sekundu + play, bez scrolla teksta (sponzorski gumbi).
   Future<void> _seekToAndPlay(Duration to) async {
     _seekLock = DateTime.now();
-    // Namjeran skok s gumba — kao tap na poglavlje, Undo se ne nudi.
-    _seekUndo?.suppress(window: const Duration(seconds: 2));
+    // Kao tap na poglavlje: razgledavanje, povratak se nudi (bez suppress()).
     if (kIsWeb) {
       await _player?.play();
       await _player?.seek(to);

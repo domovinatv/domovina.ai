@@ -3602,11 +3602,14 @@ class AppLocalizationsHr extends AppLocalizations {
 
   @override
   String mediaSeekUndo(String time) {
-    return 'Natrag na $time';
+    return 'Nastavi od $time';
   }
 
   @override
-  String get mediaSeekUndoTooltip => 'Poništi skok';
+  String get mediaSeekUndoTooltip => 'Vrati se na mjesto gledanja';
+
+  @override
+  String get mediaSeekUndoDismiss => 'Ne vraćaj me';
 
   @override
   String personCardMeta(int count, String duration) {

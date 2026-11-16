@@ -5774,17 +5774,23 @@ abstract class AppLocalizations {
   /// **'Reprodukcija će stati kad izađeš iz aplikacije'**
   String get mediaBackgroundPlaybackToastOff;
 
-  /// Tekst pilule koja nudi povratak na poziciju prije ručnog skoka po timelineu; {time} je vrijeme u obliku 1:12:03.
+  /// Tekst pilule koja nudi povratak na mjesto gledanja nakon skakanja po timelineu ili poglavljima; {time} je vrijeme u obliku 1:12:03.
   ///
   /// In hr, this message translates to:
-  /// **'Natrag na {time}'**
+  /// **'Nastavi od {time}'**
   String mediaSeekUndo(String time);
 
   /// Tooltip/semantika na piluli koja poništava ručni skok po timelineu.
   ///
   /// In hr, this message translates to:
-  /// **'Poništi skok'**
+  /// **'Vrati se na mjesto gledanja'**
   String get mediaSeekUndoTooltip;
+
+  /// Tooltip na ✕ u malom chipu povratka: korisnik odbacuje ponudu i ostaje gdje jest.
+  ///
+  /// In hr, this message translates to:
+  /// **'Ne vraćaj me'**
+  String get mediaSeekUndoDismiss;
 
   /// Eyebrow na kartici osobe kao virtualnog kanala (u UI-ju se prikazuje velikim slovima): oznaka, broj epizoda, ukupno trajanje. Pandan ključu homeChannelCardMeta.
   ///

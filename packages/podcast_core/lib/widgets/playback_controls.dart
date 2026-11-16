@@ -449,13 +449,12 @@ class RemotePlaybackButton extends StatelessWidget {
 // Undo skoka
 // ---------------------------------------------------------------------------
 
-/// `↺ Natrag na 1:12:03` — ponuda povratka nakon ručnog skoka po timelineu
-/// (scrub/swipe ili dvoklik ±10 s). Tap na poglavlje je namjerna navigacija i
-/// pilulu NE pali — to rješava `SeekUndo.suppress()` na strani ekrana (D2).
+/// `↺ Nastavi od 1:23:45` — povratak na mjesto gledanja nakon skakanja po
+/// timelineu ili poglavljima (vidi `SeekUndo`, „pametni povratak").
 ///
-/// Ponuda dolazi i nestaje sama (TTL u [SeekUndo]); ovdje je samo fade.
-/// Stil je posuđen od `ResumeHintBanner` da dvije pilule u istom ekranu
-/// izgledaju kao ista obitelj — razlika je što je ova interaktivna.
+/// Prvih par sekundi nakon skoka je velika pilula; dok korisnik razgledava,
+/// skupi se u mali chip (`↺ 1:23:45 ✕`) koji ostaje dok se ne vrati, ne
+/// smiri na novom mjestu ili ga ne odbaci ✕-om.
 class SeekUndoPill extends StatelessWidget {
   const SeekUndoPill({
     super.key,
@@ -463,7 +462,7 @@ class SeekUndoPill extends StatelessWidget {
     required this.onUndo,
   });
 
-  /// Izvor ponude; pilula sluša [SeekUndo.undoTarget].
+  /// Izvor ponude; pilula sluša [SeekUndo.offer].
   final SeekUndo undo;
 
   /// Sam seek radi pozivatelj (on drži `Player`). Prozor tolerancije oko tog
@@ -474,56 +473,94 @@ class SeekUndoPill extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l = AppLocalizations.of(context);
+    final fg = theme.colorScheme.onInverseSurface;
 
-    return ValueListenableBuilder<Duration?>(
-      valueListenable: undo.undoTarget,
-      builder: (context, target, _) => AnimatedSwitcher(
-        duration: const Duration(milliseconds: 180),
-        child: target == null
-            ? const SizedBox.shrink()
-            : Material(
-                key: ValueKey<Duration>(target),
-                elevation: 4,
-                borderRadius: BorderRadius.circular(24),
-                color: theme.colorScheme.inverseSurface,
-                child: InkWell(
+    return ValueListenableBuilder<SeekOffer?>(
+      valueListenable: undo.offer,
+      builder: (context, offer, _) {
+        Widget child;
+        if (offer == null) {
+          child = const SizedBox.shrink();
+        } else {
+          final time = formatPlaybackTime(offer.target);
+          void accept() {
+            // Ponuda se gasi odmah, prije seeka — inače bi drugi tap stigao
+            // na već potrošenu ponudu.
+            undo.consume();
+            onUndo(offer.target);
+          }
+
+          child = Material(
+            key: ValueKey<SeekOffer>(offer),
+            elevation: offer.fresh ? 4 : 2,
+            borderRadius: BorderRadius.circular(24),
+            color: offer.fresh
+                ? theme.colorScheme.inverseSurface
+                : theme.colorScheme.inverseSurface.withAlpha(215),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                InkWell(
                   borderRadius: BorderRadius.circular(24),
-                  onTap: () {
-                    // Ponuda se gasi odmah, prije seeka — inače bi drugi tap
-                    // stigao na već potrošenu ponudu.
-                    undo.consume();
-                    onUndo(target);
-                  },
+                  onTap: accept,
                   child: Tooltip(
                     message: l.mediaSeekUndoTooltip,
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
+                      padding: EdgeInsets.fromLTRB(
+                        offer.fresh ? 16 : 12,
+                        offer.fresh ? 8 : 6,
+                        offer.fresh ? 16 : 6,
+                        offer.fresh ? 8 : 6,
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
                             Icons.undo,
-                            size: 18,
-                            color: theme.colorScheme.onInverseSurface,
+                            size: offer.fresh ? 18 : 16,
+                            color: fg,
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            l.mediaSeekUndo(formatPlaybackTime(target)),
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: theme.colorScheme.onInverseSurface,
-                              fontWeight: FontWeight.w600,
-                            ),
+                            offer.fresh ? l.mediaSeekUndo(time) : time,
+                            style:
+                                (offer.fresh
+                                        ? theme.textTheme.bodyMedium
+                                        : theme.textTheme.bodySmall)
+                                    ?.copyWith(
+                                      color: fg,
+                                      fontWeight: FontWeight.w600,
+                                      fontFeatures: const [
+                                        FontFeature.tabularFigures(),
+                                      ],
+                                    ),
                           ),
                         ],
                       ),
                     ),
                   ),
                 ),
-              ),
-      ),
+                if (!offer.fresh)
+                  InkWell(
+                    customBorder: const CircleBorder(),
+                    onTap: undo.dismiss,
+                    child: Tooltip(
+                      message: l.mediaSeekUndoDismiss,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(2, 6, 10, 6),
+                        child: Icon(Icons.close, size: 16, color: fg),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          );
+        }
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 180),
+          child: child,
+        );
+      },
     );
   }
 }

@@ -228,7 +228,7 @@ class _SimpleEpisodeContentState extends State<_SimpleEpisodeContent>
   PlaybackIntent? _intent;
 
   /// „Vrati me gdje sam bio" nakon ručnog skoka po timelineu. Programske
-  /// skokove (resume pri otvaranju, tap na poglavlje — odluka D2) najavljujemo
+  /// skokove koji nisu razgledavanje (resume pri otvaranju, sekunda iz URL-a) najavljujemo
   /// kroz `suppress()`. Vidi services/seek_undo.dart.
   SeekUndo? _seekUndo;
   PlaybackAnalytics? _playbackAnalytics;
@@ -612,8 +612,8 @@ class _SimpleEpisodeContentState extends State<_SimpleEpisodeContent>
   }
 
   Future<void> _seekTo(int seconds) async {
-    // Tap na poglavlje je namjerna navigacija — Undo se NE nudi (odluka D2).
-    _seekUndo?.suppress(window: const Duration(seconds: 2));
+    // Tap na poglavlje je razgledavanje: BEZ suppress(), pa `SeekUndo` nudi
+    // povratak na mjesto gledanja (vidi services/seek_undo.dart).
     await _player?.seek(Duration(seconds: seconds));
     if (!(_player?.state.playing ?? false)) {
       await _player?.play();
