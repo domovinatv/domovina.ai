@@ -31,3 +31,20 @@ Izvori rašireni po defaultu; kartica bez praznog citata, čitljiva referenca
    Frontend: sheet pokazuje HR prijevod + izvornik ispod.
 3. **Službeni HR prijevodi** — registar naslov → vatican.va `/hr/` URL za
    enciklike i pobudnice; gumb „Pročitaj na hrvatskom" uz Magisterium link.
+
+## `?lang=hr|en` na izvoru (16.11.2026., v2.0.237–238)
+
+- Svaki izvor na magisterium.com otvara se s `?lang=` po jeziku sadržaja
+  epizode (`EpisodeLanguageScope`), izvan epizode po jeziku sučelja
+  (`withMagisteriumLang` / `openCitationSource` u `citation_helpers.dart`,
+  test `test/magisterium_lang_test.dart`). Pokriva tap na citat, gumb u sheetu
+  i `MagisteriumV2View`.
+- Korisnik provjerio u pregledniku: `?lang=hr` daje hrvatski **samo
+  prijavljenom** korisniku Magisteriuma; anonimni dobije engleski. Oznaka je
+  zato „Magisterium.com · na hrvatskom uz prijavu”. Iz terminala i iz
+  automatiziranog preglednika ovo se ne da provjeriti (Vercel checkpoint, 429).
+- Webview/iframe za Magisterium nikad nije postojao. Do 20.10. tap je otvarao
+  in-app sheet s `cited_text` (od `551a610`, 30.3.2026.); od `8f16164` tap ide
+  ravno na izvor jer je tekst prazan. Na webu je to oduvijek bio novi tab, na
+  nativeu Safari View Controller / Chrome Custom Tab. Iframe ne ide: COEP
+  (`credentialless` samo u Chromiumu) i Vercel checkpoint.
