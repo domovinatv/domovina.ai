@@ -225,6 +225,23 @@ void main() {
     expect(u.undoTarget.value, isNull);
   });
 
+  test('19 — otvaranje na 0 pa zakašnjeli skok na ?t= ne nudi „Natrag na '
+      '0:00"', () async {
+    final u = build();
+    await emit(Duration.zero);
+    await Future<void>.delayed(afterWindow); // prozor je istekao
+    await emit(const Duration(hours: 1, seconds: 5));
+    expect(u.undoTarget.value, isNull);
+  });
+
+  test('20 — od 0 odgledano dovoljno → mjesto gledanja postoji', () async {
+    final u = build();
+    await emit(Duration.zero);
+    final watched = await emitNatural(Duration.zero, steps: 20); // 4 s
+    await emit(const Duration(minutes: 30));
+    expect(u.undoTarget.value, watched);
+  });
+
   test('18 — dispose prestaje slušati stream', () async {
     final u = build();
     await emit(m5);

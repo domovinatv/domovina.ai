@@ -156,10 +156,13 @@ class SeekUndo {
     final last = _lastPosition;
     _lastPosition = position;
     if (last == null) {
-      // Prvo što stigne nakon otvaranja je već resume pozicija.
+      // Prvo što stigne nakon otvaranja je već resume pozicija — ili 0, ako
+      // player javlja prije seeka. 0 bez ijedne odgledane sekunde nije mjesto
+      // gledanja: pauziran player (`?autoplay=0`) skok na `t` javi tek kad
+      // prozor tolerancije istekne, pa bi inače iskočilo „Natrag na 0:00".
       _run = Duration.zero;
-      _trustedRun = true;
-      _watchPoint = position;
+      _trustedRun = position > Duration.zero;
+      _watchPoint = _trustedRun ? position : null;
       return;
     }
 
