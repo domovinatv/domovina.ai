@@ -2221,11 +2221,11 @@
       }
     }
   },
-  "magisteriumSourceNotCroatian": "Magisterium.com · nije na hrvatskom",
+  "magisteriumSourceNotCroatian": "Magisterium.com · na hrvatskom uz prijavu",
   "@magisteriumSourceNotCroatian": {
-    "description": "Oznaka na kartici izvora: tap otvara Magisterium.com, koji nema hrvatsko izdanje dokumenta. 'Magisterium.com' ostaje doslovno."
+    "description": "Oznaka na kartici izvora: tap otvara Magisterium.com, koji dokument prikazuje na hrvatskom samo prijavljenom korisniku (?lang=hr), inače na engleskom. 'Magisterium.com' ostaje doslovno."
   },
-  "magisteriumNoQuotedText": "Doslovni odlomak nije preuzet. Magisterium.com nema hrvatsko izdanje, pa se dokument otvara na jeziku izvornika ili u engleskom prijevodu.",
+  "magisteriumNoQuotedText": "Doslovni odlomak nije preuzet. Magisterium.com dokument prikazuje na hrvatskom ako si ondje prijavljen, inače na engleskom.",
   "@magisteriumNoQuotedText": {
     "description": "Napomena u sheetu izvora kad pipeline nije spremio citirani tekst."
   },

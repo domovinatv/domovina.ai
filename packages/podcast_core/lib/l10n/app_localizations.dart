@@ -2822,16 +2822,16 @@ abstract class AppLocalizations {
   /// **'str. {ref}'**
   String magisteriumRefPage(String ref);
 
-  /// Oznaka na kartici izvora: tap otvara Magisterium.com, koji nema hrvatsko izdanje dokumenta. 'Magisterium.com' ostaje doslovno.
+  /// Oznaka na kartici izvora: tap otvara Magisterium.com, koji dokument prikazuje na hrvatskom samo prijavljenom korisniku (?lang=hr), inače na engleskom. 'Magisterium.com' ostaje doslovno.
   ///
   /// In hr, this message translates to:
-  /// **'Magisterium.com · nije na hrvatskom'**
+  /// **'Magisterium.com · na hrvatskom uz prijavu'**
   String get magisteriumSourceNotCroatian;
 
   /// Napomena u sheetu izvora kad pipeline nije spremio citirani tekst.
   ///
   /// In hr, this message translates to:
-  /// **'Doslovni odlomak nije preuzet. Magisterium.com nema hrvatsko izdanje, pa se dokument otvara na jeziku izvornika ili u engleskom prijevodu.'**
+  /// **'Doslovni odlomak nije preuzet. Magisterium.com dokument prikazuje na hrvatskom ako si ondje prijavljen, inače na engleskom.'**
   String get magisteriumNoQuotedText;
 
   /// Tooltip na gumbu koji prebacuje s ugrađenog playera na YouTube embed radi veće kvalitete.

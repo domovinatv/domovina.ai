@@ -1729,11 +1729,11 @@ class AppLocalizationsHr extends AppLocalizations {
 
   @override
   String get magisteriumSourceNotCroatian =>
-      'Magisterium.com · nije na hrvatskom';
+      'Magisterium.com · na hrvatskom uz prijavu';
 
   @override
   String get magisteriumNoQuotedText =>
-      'Doslovni odlomak nije preuzet. Magisterium.com nema hrvatsko izdanje, pa se dokument otvara na jeziku izvornika ili u engleskom prijevodu.';
+      'Doslovni odlomak nije preuzet. Magisterium.com dokument prikazuje na hrvatskom ako si ondje prijavljen, inače na engleskom.';
 
   @override
   String get mediaYouTubeHigherQuality => 'YouTube player (viša kvaliteta)';
