@@ -624,17 +624,28 @@ class _EpisodeVideoState extends State<EpisodeVideo> {
               // Iznad kontrola u Z-osi jer mora primiti tap — media_kitov
               // control layer inače proguta klik (playAndPauseOnTap).
               // Kroz `controls:` builder pa pilula postoji i u fullscreen ruti.
+              // Gdje je titl ispod slike, ondje je i pilula (crta je
+              // VideoPanel / jednostavni prikaz) — preko slike samo u
+              // fullscreenu i na mobitelu u landscapeu, kao titl.
               if (undo != null)
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: 72,
-                  child: Center(
-                    child: SeekUndoPill(
-                      undo: undo,
-                      onUndo: widget.player.seek,
-                    ),
-                  ),
+                Builder(
+                  builder: (context) {
+                    final below = subtitlesBelowPlayer(context) &&
+                        !inRotated &&
+                        !isFullscreen(context);
+                    if (below) return const SizedBox.shrink();
+                    return Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: 72,
+                      child: Center(
+                        child: SeekUndoPill(
+                          undo: undo,
+                          onUndo: widget.player.seek,
+                        ),
+                      ),
+                    );
+                  },
                 ),
               // Oblačić s vremenom iznad media_kitove DESKTOP trake (i u
               // fullscreenu, gdje je to jedina traka). Geometrija prati

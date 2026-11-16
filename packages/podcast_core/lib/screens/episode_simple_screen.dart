@@ -1270,14 +1270,15 @@ class _PlayerTab extends StatelessWidget {
 
           // Seek bar
           if (videoReady && !ytMode) ...[
-            // Undo skoka — samo na audio-only putanji. Kod videa istu pilulu
-            // već crta EpisodeVideo preko slike (i u fullscreenu), pa bi je
-            // ovdje dobili dvaput.
-            if (seekUndo != null && audioOnly)
-              Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Center(
-                  child: SeekUndoPill(undo: seekUndo!, onUndo: onSeek),
+            // „Nastavi od …" ispod slike — audio-only, i kod videa svugdje
+            // gdje je i titl ispod slike (vidi `VideoPanel`).
+            if (seekUndo != null &&
+                (audioOnly || subtitlesBelowPlayer(context)))
+              Center(
+                child: SeekUndoPill(
+                  undo: seekUndo!,
+                  onUndo: onSeek,
+                  margin: const EdgeInsets.only(top: 8),
                 ),
               ),
             // Istaknuti trenuci iznad tracka; uvlaka = radijus overlaya (16),

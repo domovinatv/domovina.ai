@@ -414,17 +414,17 @@ class _VideoPanelState extends State<VideoPanel> {
                             ),
                           ),
 
-                        // Undo skoka — samo na audio-only putanji. Kod videa istu
-                        // pilulu već crta EpisodeVideo preko slike (i u fullscreenu),
-                        // pa bi je ovdje dobili dvaput.
-                        if (widget.seekUndo != null && widget.audioOnly)
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 4),
-                            child: Center(
-                              child: SeekUndoPill(
-                                undo: widget.seekUndo!,
-                                onUndo: widget.player.seek,
-                              ),
+                        // „Nastavi od …" ispod slike — audio-only, i kod videa
+                        // svugdje gdje je i titl ispod slike. Inače (fullscreen,
+                        // mobitel u landscapeu) je crta EpisodeVideo preko slike.
+                        if (widget.seekUndo != null &&
+                            (widget.audioOnly ||
+                                (!_ytMode && subtitlesBelowPlayer(context))))
+                          Center(
+                            child: SeekUndoPill(
+                              undo: widget.seekUndo!,
+                              onUndo: widget.player.seek,
+                              margin: const EdgeInsets.only(bottom: 4, top: 4),
                             ),
                           ),
 

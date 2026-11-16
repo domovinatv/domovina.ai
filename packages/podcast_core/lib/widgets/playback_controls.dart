@@ -460,7 +460,12 @@ class SeekUndoPill extends StatelessWidget {
     super.key,
     required this.undo,
     required this.onUndo,
+    this.margin = EdgeInsets.zero,
   });
+
+  /// Razmak oko pilule SAMO dok je vidljiva — ispod playera bez ponude ne
+  /// smije ostati prazna rupa. Pojava i nestanak animiraju visinu.
+  final EdgeInsets margin;
 
   /// Izvor ponude; pilula sluša [SeekUndo.offer].
   final SeekUndo undo;
@@ -556,9 +561,17 @@ class SeekUndoPill extends StatelessWidget {
             ),
           );
         }
-        return AnimatedSwitcher(
+        final switcher = AnimatedSwitcher(
           duration: const Duration(milliseconds: 180),
           child: child,
+        );
+        if (margin == EdgeInsets.zero) return switcher;
+        return AnimatedSize(
+          duration: const Duration(milliseconds: 180),
+          alignment: Alignment.topCenter,
+          child: offer == null
+              ? switcher
+              : Padding(padding: margin, child: switcher),
         );
       },
     );
