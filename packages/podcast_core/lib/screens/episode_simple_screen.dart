@@ -1253,7 +1253,7 @@ class _PlayerTab extends StatelessWidget {
           // službeni YouTube embed, a ovdje rečenica zašto (`cdn_playback`).
           if (episodeYouTubeOnly(data)) const OwnerYouTubeCaption(),
 
-          // Mobitel u portraitu: titl ispod slike (isto kao u `VideoPanel`).
+          // Titl ispod slike (isto kao u `VideoPanel`).
           if (videoReady &&
               !ytMode &&
               !audioOnly &&

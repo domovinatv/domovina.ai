@@ -5,10 +5,13 @@
 /// datoteke titl izgleda kao i prije: cijeli cue, bez isticanja.
 ///
 /// Gdje se titl crta:
-///  - preko slike (`EpisodeVideo` overlay) — desktop, tablet, mobitel u
-///    landscapeu i svaki fullscreen;
-///  - ISPOD slike ([SubtitleStrip]) — samo mobitel u portraitu, da tekst ne
-///    prekriva ionako malen video.
+///  - ISPOD slike ([SubtitleStrip]) — desktop, tablet i mobitel u portraitu,
+///    da titl nikad ne prekriva sliku (od 16. 11. 2026.);
+///  - preko slike (`EpisodeVideo` overlay) — svaki fullscreen i mobitel u
+///    landscapeu, gdje ispod slike nema mjesta.
+///
+/// Obje površine crtaju ISTI izgled: bijeli tekst na poluprozirnoj crnoj
+/// podlozi zaobljenih rubova ([captionBoxDecoration], [captionTextStyle]).
 library;
 
 import 'dart:async';
@@ -20,17 +23,44 @@ import 'package:media_kit/media_kit.dart';
 import '../models/speaker_timeline.dart';
 import '../services/subtitle_prefs.dart';
 
-/// Mobitel u portraitu → titl ide ispod playera. Ista definicija „mobitela"
-/// kao `_isPhoneLandscape` u `episode_screen.dart` (platforma I dimenzije),
-/// samo za drugu orijentaciju — nizak desktop prozor ne smije dobiti traku.
+/// Titl ide ispod playera svugdje OSIM na mobitelu u landscapeu (ondje je
+/// player nizak bočni panel i traka bi pojela pola slike). Ista definicija
+/// „mobitela" kao `_isPhoneLandscape` u `episode_screen.dart` (platforma I
+/// dimenzije). Fullscreen ovdje nije uključen — `EpisodeVideo` ga provjerava
+/// sam, jer `isFullscreen` čita kontekst ispod media_kitove rute.
 bool subtitlesBelowPlayer(BuildContext context) {
   final platform = Theme.of(context).platform;
   if (platform != TargetPlatform.iOS && platform != TargetPlatform.android) {
-    return false;
+    return true;
   }
   final size = MediaQuery.sizeOf(context);
-  return size.height > size.width && size.shortestSide < 600;
+  final phoneLandscape = size.width > size.height && size.shortestSide < 600;
+  return !phoneLandscape;
 }
+
+/// Stil teksta titla — dijele ga overlay preko slike i traka ispod nje.
+TextStyle captionTextStyle(double fontSize) =>
+    TextStyle(fontSize: fontSize, height: 1.3, fontWeight: FontWeight.w500);
+
+/// Podloga titla: poluprozirna crna, zaobljena — YouTube stil.
+final BoxDecoration captionBoxDecoration = BoxDecoration(
+  color: Colors.black.withAlpha(190),
+  borderRadius: BorderRadius.circular(4),
+);
+
+/// Unutarnji razmak podloge titla.
+const EdgeInsets captionBoxPadding = EdgeInsets.symmetric(
+  horizontal: 10,
+  vertical: 5,
+);
+
+/// Boje titla na crnoj podlozi (isto u overlayu i u traci).
+CaptionColors captionColorsOnDark(BuildContext context) => CaptionColors(
+  spoken: Colors.white,
+  upcoming: Colors.white.withAlpha(170),
+  activeText: Colors.white,
+  activeFill: Theme.of(context).colorScheme.tertiary,
+);
 
 // ---------------------------------------------------------------------------
 // Sat reprodukcije
@@ -288,11 +318,13 @@ int _tokenAt(List<int> starts, int ms) {
   return idx;
 }
 
-/// Traka titla ispod playera — mobitel u portraitu ([subtitlesBelowPlayer]).
+/// Traka titla ispod playera ([subtitlesBelowPlayer]).
 ///
-/// Prati isti CC prekidač kao overlay ([SubtitlesEnabled]); kad je CC
-/// isključen, traka ne zauzima mjesto. Kad je uključen, visina je fiksna i u
-/// stankama između cue-ova ostaje prazna — layout ispod se ne pomiče.
+/// Izgleda kao titl preko slike (crna poluprozirna podloga, bijeli tekst),
+/// samo stoji ispod nje. Prati isti CC prekidač kao overlay
+/// ([SubtitlesEnabled]); kad je CC isključen, traka ne zauzima mjesto. Kad je
+/// uključen, visina je fiksna i u stankama između cue-ova ostaje prazna —
+/// layout ispod se ne pomiče.
 class SubtitleStrip extends StatelessWidget {
   final Player player;
   final SpeakerTimeline timeline;
@@ -304,12 +336,14 @@ class SubtitleStrip extends StatelessWidget {
   });
 
   static const int _lines = 3;
-  static const double _fontSize = 15;
-  static const double _lineHeight = 1.35;
   static const EdgeInsets _padding = EdgeInsets.symmetric(
-    horizontal: 16,
+    horizontal: 12,
     vertical: 8,
   );
+
+  /// Font raste sa širinom playera (kao overlay), ali ne ispod 15 px —
+  /// traka ima svoje mjesto pa ne mora štedjeti na slici.
+  static double fontSizeFor(double width) => (width * 0.026).clamp(15.0, 20.0);
 
   @override
   Widget build(BuildContext context) {
@@ -317,40 +351,34 @@ class SubtitleStrip extends StatelessWidget {
       valueListenable: SubtitlesEnabled.instance,
       builder: (context, on, _) {
         if (!on) return const SizedBox.shrink();
-        final theme = Theme.of(context);
-        final cs = theme.colorScheme;
-        final scaler = MediaQuery.textScalerOf(context);
-        final style = DefaultTextStyle.of(context).style.merge(
-          const TextStyle(
-            fontSize: _fontSize,
-            height: _lineHeight,
-            fontWeight: FontWeight.w500,
-          ),
-        );
-        final height =
-            scaler.scale(_fontSize) * _lineHeight * _lines + _padding.vertical;
-        final colors = CaptionColors(
-          spoken: cs.onSurface,
-          upcoming: cs.onSurfaceVariant.withAlpha(150),
-          activeText: Colors.white,
-          activeFill: cs.tertiary,
-        );
-        return Container(
-          height: height,
-          padding: _padding,
-          color: cs.surfaceContainerHighest,
-          alignment: Alignment.center,
-          child: LayoutBuilder(
-            builder: (context, c) => _StripText(
-              player: player,
-              timeline: timeline,
-              maxWidth: c.maxWidth,
-              maxHeight: c.maxHeight,
-              style: style,
-              scaler: scaler,
-              colors: colors,
-            ),
-          ),
+        return LayoutBuilder(
+          builder: (context, c) {
+            final scaler = MediaQuery.textScalerOf(context);
+            final fontSize = fontSizeFor(c.maxWidth);
+            final style = DefaultTextStyle.of(
+              context,
+            ).style.merge(captionTextStyle(fontSize));
+            final textHeight = scaler.scale(fontSize) * 1.3 * _lines;
+            final height =
+                textHeight + captionBoxPadding.vertical + _padding.vertical;
+            // Podloga obuhvaća tekst kao u overlayu: 88 % širine najviše.
+            final maxTextWidth =
+                c.maxWidth * 0.88 - captionBoxPadding.horizontal;
+            return Container(
+              height: height,
+              padding: _padding,
+              alignment: Alignment.center,
+              child: _StripText(
+                player: player,
+                timeline: timeline,
+                maxWidth: maxTextWidth,
+                maxHeight: textHeight,
+                style: style,
+                scaler: scaler,
+                colors: captionColorsOnDark(context),
+              ),
+            );
+          },
         );
       },
     );
@@ -460,17 +488,21 @@ class _StripTextState extends State<_StripText> {
         if (s == null) return const SizedBox.shrink();
         final (cue, page, active) = s;
         final (from, to) = _pages[page];
-        return Text.rich(
-          captionSpan(
-            cue.tokens,
-            from: from,
-            to: to,
-            active: active,
-            style: widget.style,
-            colors: widget.colors,
+        return Container(
+          padding: captionBoxPadding,
+          decoration: captionBoxDecoration,
+          child: Text.rich(
+            captionSpan(
+              cue.tokens,
+              from: from,
+              to: to,
+              active: active,
+              style: widget.style,
+              colors: widget.colors,
+            ),
+            textAlign: TextAlign.center,
+            textScaler: widget.scaler,
           ),
-          textAlign: TextAlign.center,
-          textScaler: widget.scaler,
         );
       },
     );

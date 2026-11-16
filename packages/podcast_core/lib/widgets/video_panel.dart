@@ -369,8 +369,9 @@ class _VideoPanelState extends State<VideoPanel> {
 
                   if (_ytMode) YouTubeModeBar(onExit: _exitYtMode),
 
-                  // Mobitel u portraitu: titl ispod slike umjesto preko nje (overlay
-                  // se tada sam skloni, osim u fullscreenu — vidi `EpisodeVideo`).
+                  // Titl ispod slike umjesto preko nje (svugdje osim mobitela u
+                  // landscapeu); overlay se tada sam skloni, osim u fullscreenu
+                  // — vidi `EpisodeVideo`.
                   if (!_ytMode &&
                       !widget.audioOnly &&
                       widget.speakerTimeline != null &&

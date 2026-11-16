@@ -565,9 +565,9 @@ class _EpisodeVideoState extends State<EpisodeVideo> {
               }
               return Stack(
                 children: [
-              // Na mobitelu u portraitu titl crta `SubtitleStrip` ISPOD slike
-              // (VideoPanel / jednostavni prikaz) — osim u fullscreenu, gdje
-              // ispod slike nema ničega. `isFullscreen` mora čitati kontekst
+              // Titl crta `SubtitleStrip` ISPOD slike (VideoPanel /
+              // jednostavni prikaz) svugdje osim na mobitelu u landscapeu i u
+              // fullscreenu, gdje ispod slike nema ničega. `isFullscreen` mora čitati kontekst
               // ispod media_kitove rute, zato `Builder`.
               if (timeline != null)
                 Positioned.fill(
@@ -706,8 +706,7 @@ class _SubtitleToggleButton extends StatelessWidget {
 // Renderira se kroz `controls` builder pa postoji i u fullscreen ruti.
 // ---------------------------------------------------------------------------
 
-TextStyle _subtitleStyle(double fontSize) =>
-    TextStyle(fontSize: fontSize, height: 1.3, fontWeight: FontWeight.w500);
+TextStyle _subtitleStyle(double fontSize) => captionTextStyle(fontSize);
 
 /// Najveći font ≤ [base] uz koji cijeli [text] stane u [maxWidth]×[maxHeight].
 /// Donja granica 9 px: ispod toga titl ionako nije čitljiv, pa radije pusti da
@@ -854,14 +853,8 @@ class _SubtitleOverlay extends StatelessWidget {
                     child: ConstrainedBox(
                       constraints: BoxConstraints(maxWidth: boxWidth),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 5,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withAlpha(190),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
+                        padding: captionBoxPadding,
+                        decoration: captionBoxDecoration,
                         // Isticanje mijenja samo boju, pa izračun fonta nad
                         // golim tekstom vrijedi i za obojeni.
                         child: Text.rich(
@@ -871,14 +864,7 @@ class _SubtitleOverlay extends StatelessWidget {
                             to: cue.tokens.length,
                             active: cue.activeWordAt(ms),
                             style: _subtitleStyle(fontSize),
-                            colors: CaptionColors(
-                              spoken: Colors.white,
-                              upcoming: Colors.white.withAlpha(170),
-                              activeText: Colors.white,
-                              activeFill: Theme.of(
-                                context,
-                              ).colorScheme.tertiary,
-                            ),
+                            colors: captionColorsOnDark(context),
                           ),
                           textAlign: TextAlign.center,
                         ),
