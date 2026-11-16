@@ -6,6 +6,7 @@ import '../l10n/app_localizations.dart';
 import '../models/magisterium_full_v2_data.dart';
 import '../services/episode_language.dart';
 import '../theme/markdown_brand.dart';
+import 'citation_helpers.dart' show magisteriumLang, withMagisteriumLang;
 
 /// Renders MagisteriumFullV2Data: score badge + evaluation markdown + lista
 /// citata s expansion tiles.
@@ -168,8 +169,8 @@ class _CitationCard extends StatelessWidget {
 
   const _CitationCard({required this.index, required this.citation});
 
-  Future<void> _openUrl(String url) async {
-    final uri = Uri.tryParse(url);
+  Future<void> _openUrl(BuildContext context, String url) async {
+    final uri = Uri.tryParse(withMagisteriumLang(url, magisteriumLang(context)));
     if (uri == null) return;
     // Prvo probaj deep-link app (npr. Magisterium AI ima intent filter na
     // magisterium.com URL-ove — otvori se tamo umjesto browsera).
@@ -262,7 +263,7 @@ class _CitationCard extends StatelessWidget {
                       citation.sourceUrl!.isNotEmpty) ...[
                     const SizedBox(height: 12),
                     OutlinedButton.icon(
-                      onPressed: () => _openUrl(citation.sourceUrl!),
+                      onPressed: () => _openUrl(context, citation.sourceUrl!),
                       icon: const Icon(Icons.open_in_new, size: 14),
                       label: Text(l.commonOpenSource),
                       style: OutlinedButton.styleFrom(

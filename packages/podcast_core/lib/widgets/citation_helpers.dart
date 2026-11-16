@@ -3,6 +3,7 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import '../l10n/app_localizations.dart';
 import '../models/magisterium_data.dart';
 import '../models/magisterium_full_data.dart';
+import '../services/episode_language.dart';
 import '../services/open_url.dart';
 import '../theme/markdown_brand.dart';
 
@@ -28,6 +29,37 @@ String citationRefLabel(String ref, AppLocalizations l) {
   return r;
 }
 
+/// Jezik u kojem magisterium.com prikazuje dokument (`?lang=hr|en`).
+///
+/// Bez parametra stranica je uvijek engleska, pa bi korisnik koji epizodu
+/// čita na hrvatskom s citata završio na engleskom. Jezik prati jezik
+/// SADRŽAJA kad je citat unutar epizode (`/v/<id>/en` uz hrvatsko sučelje
+/// čita engleski članak), inače jezik sučelja.
+String magisteriumLang(BuildContext context) {
+  // `get`, ne `depend`: zove se iz tap handlera, ne iz builda.
+  final scope = context.getInheritedWidgetOfExactType<EpisodeLanguageScope>();
+  if (scope != null) return scope.language.name;
+  return Localizations.localeOf(context).languageCode == 'en' ? 'en' : 'hr';
+}
+
+/// `url` s `lang` parametrom ako vodi na magisterium.com; ostali hostovi i
+/// neispravni URL-ovi prolaze nepromijenjeni. Postojeći `lang` se prepisuje.
+String withMagisteriumLang(String url, String lang) {
+  final uri = Uri.tryParse(url);
+  if (uri == null || !uri.hasScheme) return url;
+  final host = uri.host.toLowerCase();
+  if (host != 'magisterium.com' && !host.endsWith('.magisterium.com')) {
+    return url;
+  }
+  return uri.replace(
+    queryParameters: {...uri.queryParameters, 'lang': lang},
+  ).toString();
+}
+
+/// Otvara izvor citata na jeziku koji korisnik čita.
+void openCitationSource(BuildContext context, String url) =>
+    openUrl(withMagisteriumLang(url, magisteriumLang(context)));
+
 /// Tap na citat: sheet samo kad ima što pokazati. MCP pipeline citate sprema
 /// BEZ `cited_text` (izmjereno 19.10.2026.: 394 od 394 u 6 epizoda), pa bi
 /// sheet bio prazan naslov s gumbom — tada odmah otvaramo izvor.
@@ -35,7 +67,7 @@ void openCitation(BuildContext context, MagisteriumCitation citation) {
   if (cleanCitedText(citation.citedText).isNotEmpty) {
     showCitationSheet(context, citation);
   } else if (citation.sourceUrl.isNotEmpty) {
-    openUrl(citation.sourceUrl);
+    openCitationSource(context, citation.sourceUrl);
   }
 }
 
@@ -188,7 +220,8 @@ void showCitationSheet(BuildContext context, MagisteriumCitation citation) {
               if (citation.sourceUrl.isNotEmpty) ...[
                 const SizedBox(height: 16),
                 FilledButton.tonalIcon(
-                  onPressed: () => openUrl(citation.sourceUrl),
+                  onPressed: () =>
+                      openCitationSource(context, citation.sourceUrl),
                   icon: const Icon(Icons.open_in_new, size: 18),
                   label: Text(l.magisteriumOpenOnMagisterium),
                 ),
