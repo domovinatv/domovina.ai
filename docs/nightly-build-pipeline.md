@@ -235,6 +235,17 @@ obriše svoj DerivedData prije builda.
 
 ## Poznate zamke
 
+- **Build čeka fetch pipeline (od 18.11.2026.).** `tv.domovina.fetch.nightly`
+  kreće također u 03:00 i noćima traje 1–2,5 h (ASR, pyannote, Opus za reelove).
+  Paralelno s njim build puzi: 17. i 18.11. iOS je trajao 50–60 min umjesto 15,
+  a AAB je watchdog ubio nakon 30 min usred `flutter assemble`, bez ikakve
+  greške u logu. Isti AAB nakon toga, bez fetcha i uz jednako pun swap
+  (12,9/13,3 GB), trajao je 1 min 30 s. Zato korak 1b (nakon provjere commitova)
+  pričeka 90 s, pa dok god `pgrep -f fetch.domovina.tv/automatic/nightly_pipeline.sh`
+  nešto nađe, čeka, najviše 180 min, nakon čega ipak gradi i javi ⚠️ u izvještaju.
+  Podešava se s `NIGHTLY_FETCH_WAIT_MAX_MIN` (`0` gasi čekanje) i
+  `NIGHTLY_FETCH_GRACE_S`. Dijagnoza: korak „Android/iOS build” traje višestruko
+  dulje → usporedi s `fetch.domovina.tv/automatic/logs/nightly_<datum>.log`.
 - **Prvi run mora biti nadziran.** `Apple Distribution: ITalk d.o.o. (6SCK58757K)`
   je u keychainu kao certifikat, ali ga `security find-identity` ne izlistava —
   privatni ključ nije lokalan, pa potpisivanje ovisi o `-allowProvisioningUpdates`

@@ -166,6 +166,35 @@ if [[ "$SHA" == "$LAST_SHA" && $FORCE -eq 0 ]]; then
   exit 0
 fi
 
+# ── 1b. čekaj fetch.domovina.tv nightly ──────────────────────────────────────
+# `tv.domovina.fetch.nightly` kreće u istu minutu (03:00) i noćima traje 1–2,5 h
+# (ASR, pyannote, Opus za reelove). Paralelno s njim build puzi: 17. i 18.11.2026.
+# iOS je trajao 50–60 min umjesto 15, a AAB je watchdog ubio nakon 30 min usred
+# `flutter assemble`. Isti AAB bez fetcha, uz jednako pun swap: 1 min 30 s.
+# Zato čekamo da pipeline završi (gornja granica, pa ipak gradimo).
+FETCH_PATTERN="fetch.domovina.tv/automatic/nightly_pipeline.sh"
+FETCH_WAIT_MAX_MIN="${NIGHTLY_FETCH_WAIT_MAX_MIN:-180}"
+FETCH_GRACE_S="${NIGHTLY_FETCH_GRACE_S:-90}"  # oba joba kreću u 03:00 — pusti fetch da se digne
+if [[ "$FETCH_WAIT_MAX_MIN" -gt 0 ]]; then
+  sleep "$FETCH_GRACE_S"
+  fw0=$SECONDS
+  if pgrep -f "$FETCH_PATTERN" >/dev/null; then
+    echo "==> fetch nightly radi — čekam da završi (najviše ${FETCH_WAIT_MAX_MIN} min)"
+    while pgrep -f "$FETCH_PATTERN" >/dev/null; do
+      if (( SECONDS - fw0 >= FETCH_WAIT_MAX_MIN * 60 )); then
+        echo "!! fetch nightly i dalje radi nakon ${FETCH_WAIT_MAX_MIN} min — gradim usprkos tome"
+        REPORT+=("⚠️ fetch nightly još radi nakon ${FETCH_WAIT_MAX_MIN} min — build ide paralelno")
+        break
+      fi
+      sleep 60
+    done
+    if ! pgrep -f "$FETCH_PATTERN" >/dev/null; then
+      echo "==> fetch nightly gotov nakon $(dur $((SECONDS - fw0)))"
+      REPORT+=("⏳ čekao fetch nightly $(dur $((SECONDS - fw0)))")
+    fi
+  fi
+fi
+
 # ── 2. tvrdi preduvjeti (da build ne ode tiho degradiran) ────────────────────
 [[ -f "$ROOT/.env" ]] || { echo "GRESKA: nema .env"; finish_fail "preduvjeti" 1; }
 set -a; source "$ROOT/.env"; set +a
