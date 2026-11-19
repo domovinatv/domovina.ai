@@ -18,7 +18,7 @@ Cilj je retencija: korisnik koji se pridruži kanalu vraća se na domovina.ai.
 |---|---|
 | T1 | Kanal + povezana grupa za raspravu (`channels.SetDiscussionGroup`), ime „<Podcast> · domovina.ai”. |
 | T2 | **Samo uz pristanak podcasta.** Kanal se stvara ručno kad podcast pristane; postojanje kanala je zapis pristanka. |
-| T3 | Vlasnik kanala i grupa je **zaseban Domovina Telegram račun**, ne osobni; poruke šalje **vlastiti bot domovina.ai** (ne ms-social-poster). |
+| T3 | Vlasnik kanala i grupa je **zaseban Domovina Telegram račun**, ne osobni; poruke šalje **@domovina_push_bot** (ne ms-social-poster ni @domovina_bot, koji ostaje za interne alerte). |
 | T4 | Tier 1 i Tier 2: sve što `domovina-push` vidi kao novu epizodu. |
 | T5 | **`domovina-push` ostaje glavni usmjerivač** svih obavijesti i zadržava ime. Telegram je dostavljač u zasebnom javnom repou `domovinatv/telegram.domovina.ai`, jer tamo živi sve što je samo Telegramovo (MTProto, račun, bot, mapiranje). |
 | T6 | Kanal dobiva samo epizode objavljene od dana kad je nastao (pravilo „samo nove epizode”). |
@@ -83,8 +83,10 @@ kad kanal postoji.
 
 ## 6. Puštanje u rad
 
-1. BotFather: novi bot domovina.ai. Token → `npx wrangler secret put TELEGRAM_BOT_TOKEN`
-   u `telegram.domovina.ai`, plus `API_TOKEN` (već u lokalnom `.dev.vars`).
+1. BotFather: novi bot **@domovina_push_bot** (prikazno ime „domovina.ai”). Token →
+   `npx wrangler secret put TELEGRAM_BOT_TOKEN` u `telegram.domovina.ai` (samo tamo).
+   Postojeći **@domovina_bot** ostaje za interne alerte (noćni build, backup `dom-001`,
+   grupa „DOMOVINA.ai releases”) i ne dira se. Objave u kanalu potpisuje kanal, ne bot.
 2. ~~Deploy `telegram-domovina-ai`, pa tek onda `domovina-push` (service binding).~~
    Gotovo 19. 11.; `API_TOKEN` postavljen.
 3. Domovina Telegram račun → `scripts/provision`: `npm run login`, u `.env` `TG_SESSION`
