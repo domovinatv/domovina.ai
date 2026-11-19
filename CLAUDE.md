@@ -487,6 +487,8 @@ prvi frame na Slow 4G stizao za 15,9 s. Pipeline (KORAK 12.5) za NOVE epizode
 uploada i iste struje kao fragmentirani MP4 + `sidx` (zaglavlje ~11 KB → 2,6 s).
 `resolveMedia` ga bira SAMO kad ga `episode.json` navodi; stari katalog se ne
 backfilla. Mjerenja i reprodukcija: `docs/2026-10-11-brzi-start-videa-fmp4.md`.
+Od 19.11. format više nije usko grlo: prvi frame čeka na `EpisodeData` (svi artefakti +
+parsing), ne na video — `docs/2026-11-19-prvi-frame-videa-kriticni-put.md`.
 
 **Rule (WebKit ograđen)**: `isWebKitBrowser()` (Safari, svi iOS preglednici)
 ostaje na `video_h264.mp4` dok se fmp4 ne isproba na iPhoneu. Native (libmpv) i
