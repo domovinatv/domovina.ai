@@ -1,7 +1,9 @@
 # Telegram kanal po podcastu — plan
 
-Datum: 19. 11. 2026. Status: **kod gotov, testovi prolaze; deploy i prvi kanal čekaju bota
-i Domovina Telegram račun** (§6). Nastavlja
+Datum: 19. 11. 2026. Status: **oba Workera deployana 19. 11.** (`telegram-domovina-ai`
+6e67e22b, `domovina-push` d6500eb0); bot, `TELEGRAM_BOT_TOKEN` i Domovina Telegram račun još
+ne postoje, nijedan kanal nije stvoren (§6). Dok kanala nema, svaka epizoda dobiva
+`sent:tg:<id>` = `no_channel`. Nastavlja
 [`2026-10-15-push-nove-epizode.md`](2026-10-15-push-nove-epizode.md): Telegram je drugi
 dostavljač istog toka obavijesti.
 
@@ -83,7 +85,8 @@ kad kanal postoji.
 
 1. BotFather: novi bot domovina.ai. Token → `npx wrangler secret put TELEGRAM_BOT_TOKEN`
    u `telegram.domovina.ai`, plus `API_TOKEN` (već u lokalnom `.dev.vars`).
-2. Deploy `telegram-domovina-ai`, **pa tek onda** `domovina-push` (service binding).
+2. ~~Deploy `telegram-domovina-ai`, pa tek onda `domovina-push` (service binding).~~
+   Gotovo 19. 11.; `API_TOKEN` postavljen.
 3. Domovina Telegram račun → `scripts/provision`: `npm run login`, u `.env` `TG_SESSION`
    i `TG_BOT_USERNAME`.
 4. Prvi podcast koji pristane: `npm run create-channel -- <UC> --title "… · domovina.ai"
