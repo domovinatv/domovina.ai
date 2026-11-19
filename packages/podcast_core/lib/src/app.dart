@@ -18,6 +18,7 @@ import '../services/background_playback.dart';
 import '../services/boot_stage.dart';
 import '../services/channel_cache.dart';
 import '../services/channel_visibility.dart';
+import '../services/data_service.dart';
 import '../services/entitlement_service.dart';
 import '../services/locale_service.dart';
 import '../services/playback_speed.dart';
@@ -74,6 +75,10 @@ Future<void> runPodcastApp(
   // `ChannelCache` se iznova filtriraju.
   ChannelVisibility.instance.addListener(channelCache.visibilityChanged);
   unawaited(ChannelVisibility.instance.refresh());
+
+  // Hladni start na ekranu epizode: `episode.json` kreće sad, paralelno s
+  // pokretanjem, a ne tek kad router izgradi ekran (~1 s kasnije na mobitelu).
+  if (kIsWeb) DataService.prewarmForLocation(Uri.base);
 
   try { usePathUrlStrategy(); } catch (_) {}
 

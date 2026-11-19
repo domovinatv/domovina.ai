@@ -37,6 +37,7 @@ import '../services/channel_visibility.dart';
 import '../services/ebook_service.dart';
 import '../services/notification_art.dart';
 import '../services/open_url.dart';
+import '../services/player_preload.dart';
 import '../services/player_resume.dart';
 import '../services/page_meta.dart';
 import '../services/person_service.dart';
@@ -123,10 +124,39 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
   Object? _error;
   final Map<String, (bool done, bool ok)> _assetStatus = {};
 
+  /// Player otvoren čim je URL medije poznat, prije ostatka [EpisodeData].
+  /// Preuzima ga `_EpisodeContent._initVideo`; dotad je naš (vidi [dispose]).
+  PlayerPreload? _preload;
+
   @override
   void initState() {
     super.initState();
     _load();
+  }
+
+  @override
+  void dispose() {
+    _preload?.dispose();
+    super.dispose();
+  }
+
+  /// URL medije traži samo postavke kanala i `episode.json` (bez probe-ova
+  /// kad bundle postoji), pa video kreće ~2,6 s prije nego stignu i
+  /// isparsiraju se ostali artefakti (mjereno na mobitelu, 19.11.2026.).
+  /// `cdn_playback` isključen ili kanal povučen → `none` → nema playera ni
+  /// zahtjeva za video (fail-closed, isto kao `resolveMedia` u loaderu).
+  Future<void> _preloadMedia(String youtubeId) async {
+    try {
+      final media = await DataService(youtubeId: youtubeId).resolveMedia();
+      if (!mounted || widget.youtubeId != youtubeId) return;
+      if (media.kind == EpisodeMediaKind.none || media.uri.isEmpty) return;
+      // Sadržaj se već izgradio i otvorio svoj player — preload ne treba.
+      if (_data != null) return;
+      _preload?.dispose();
+      _preload = PlayerPreload.open(media.uri);
+    } catch (e) {
+      log('EpisodeScreen: preload medije nije uspio ($e)');
+    }
   }
 
   /// Ruta više ne nosi `startAt`/`person` u `ValueKey`-u (vidi app_router.dart),
@@ -141,11 +171,14 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
       _data = null;
       _error = null;
       _assetStatus.clear();
+      _preload?.dispose();
+      _preload = null;
       _load();
     }
   }
 
   Future<void> _load() async {
+    unawaited(_preloadMedia(widget.youtubeId));
     try {
       final data = await EpisodeData.loadWithProgress(
         youtubeId: widget.youtubeId,
@@ -162,7 +195,10 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
       );
       if (mounted) {
         setState(() => _data = data);
-        if (data.isChannelGone) return;
+        if (data.isChannelGone) {
+          _preload?.dispose();
+          return;
+        }
         // Vlasnik je isključio engleski prijevod: `/en` URL se zamijeni HR
         // rutom umjesto da nosi hrvatski sadržaj (postavke kanala, odluka 503).
         if (widget.initialLanguageEn &&
@@ -177,6 +213,7 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
         );
       }
     } catch (e) {
+      _preload?.dispose();
       if (mounted) setState(() => _error = e);
     }
   }
@@ -197,6 +234,7 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
             : null,
         openVideo: widget.openVideo,
         autoplay: widget.autoplay,
+        preload: _preload,
       );
     }
 
@@ -823,6 +861,10 @@ class _EpisodeContent extends StatefulWidget {
   final bool? openVideo;
   final bool autoplay;
 
+  /// Player koji je ekran otvorio prije nego su stigli podaci; `_initVideo`
+  /// ga preuzme ako je otvoren za isti URL (vidi [PlayerPreload]).
+  final PlayerPreload? preload;
+
   const _EpisodeContent({
     required this.data,
     this.startAtSeconds,
@@ -830,6 +872,7 @@ class _EpisodeContent extends StatefulWidget {
     this.highlightPersonSlug,
     this.openVideo,
     this.autoplay = true,
+    this.preload,
   });
 
   @override
@@ -1721,6 +1764,7 @@ class _EpisodeContentState extends State<_EpisodeContent>
     // Nema playabilne medije (sva 3 probe-a 404) — ne pokušavaj otvoriti player
     // (izbjegava beskonačni spinner / open na prazan URI). UI ostaje graceful.
     if (!widget.data.hasMedia || videoUri.isEmpty) {
+      widget.preload?.dispose();
       debugPrint(
         'Video: no media for ${widget.data.youtubeId} — skipping player',
       );
@@ -1748,8 +1792,12 @@ class _EpisodeContentState extends State<_EpisodeContent>
     );
 
     try {
-      final player = Player();
-      final controller = VideoController(player);
+      // Player otvoren unaprijed (odmah nakon `episode.json`) — isti URL, pa
+      // je `open` već u tijeku ili gotov. Inače stari put.
+      final pre = widget.preload?.take(videoUri);
+      final player = pre?.player ?? Player();
+      final controller = pre?.controller ?? VideoController(player);
+      if (pre != null) debugPrint('Video: preuzet preloadani player');
 
       // Detekcija skoka mora slušati poziciju PRIJE open/seeka — media_kit
       // streamovi su broadcast (ne replay), pa kasnija pretplata izgubi rane
@@ -1796,6 +1844,7 @@ class _EpisodeContentState extends State<_EpisodeContent>
         uri: videoUri,
         startAtSeconds: startAt,
         autoplay: widget.autoplay,
+        opened: pre?.opened,
       );
       if (mounted) {
         // Otvaranje je gotovo → skrati prozor natrag na normalnu duljinu.

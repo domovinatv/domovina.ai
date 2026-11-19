@@ -107,6 +107,18 @@
     try {
       if (localStorage.getItem('app_locale') === 'en') document.documentElement.lang = 'en';
     } catch (_) {}
+    // Ekran epizode: media_kit na webu prije PRVOG `player.open` ubaci i
+    // izvrši hls.js (375 KB, br 112 KB), iako HLS ne koristimo. Bez ovoga se
+    // skripta tek tada skida i `video.src` čeka na nju (izmjereno 19.11.2026.,
+    // docs/2026-11-19-prvi-frame-videa-kriticni-put.md). URL mora biti točno
+    // `HLS.kHLSAsset` (media_kit 1.2.6), inače preload promaši cache.
+    if (/^\/v\/[^/]+/.test(location.pathname)) {
+      var hls = document.createElement('link');
+      hls.rel = 'preload';
+      hls.as = 'script';
+      hls.href = 'assets/packages/media_kit/assets/web/hls1.4.10.js';
+      document.head.appendChild(hls);
+    }
   </script>
   <style>
     :root{--boot-bg:#111318;--boot-fg:#e2e2e9;--boot-mark:#fff;--boot-dim:rgba(226,226,233,.62);--boot-track:rgba(255,255,255,.12);}

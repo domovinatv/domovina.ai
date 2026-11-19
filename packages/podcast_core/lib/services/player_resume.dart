@@ -26,10 +26,18 @@ Future<bool> openAndResume(
   required String uri,
   int? startAtSeconds,
   bool autoplay = true,
+  Future<void>? opened,
 }) async {
   PlayerMute.instance.attach(player);
   RemotePlayback.instance.attach(player);
-  await player.open(Media(uri), play: false);
+  // [opened]: player je već otvoren za [uri] s `play: false` (`PlayerPreload`)
+  // — samo pričekaj da `open` završi, bez drugog `open` (on bi resetirao
+  // element i ponovio zahtjev).
+  if (opened != null) {
+    await opened;
+  } else {
+    await player.open(Media(uri), play: false);
+  }
 
   if (startAtSeconds != null && startAtSeconds > 0) {
     // Seek mora pričekati da demuxer javi duration, inače ga libmpv odbaci.

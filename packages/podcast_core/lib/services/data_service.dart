@@ -283,6 +283,35 @@ class DataService {
     _bundles.clear();
   }
 
+  /// Hladni start na `/v/<id>…` (web): pokreni `episode.json` i `info.json`
+  /// odmah iz `runPodcastApp`, dok teku ostali `await`-ovi prije `runApp`
+  /// (Supabase, auth, entitlement…). Ekran epizode kasnije dobije isti
+  /// future iz [_bundles] / [_inflight], pa nema duplog zahtjeva.
+  ///
+  /// Izmjereno 19.11.2026. (Fast 4G, CPU 4×): bez ovoga je `episode.json`
+  /// kretao ~1 s nakon postavki kanala, samo zato što ekran epizode nastaje
+  /// tek nakon cijelog pokretanja. Vidi
+  /// `docs/2026-11-19-prvi-frame-videa-kriticni-put.md`.
+  ///
+  /// Vraća prepoznati ID (za test), inače `null`.
+  static String? prewarmForLocation(Uri location) {
+    final id = episodeIdFromPath(location.path);
+    if (id == null) return null;
+    final svc = DataService(youtubeId: id);
+    unawaited(svc._bundle());
+    unawaited(svc.loadInfo().then((_) {}, onError: (Object _) {}));
+    return id;
+  }
+
+  /// ID epizode iz putanje ekrana epizode (`/v/<id>`, `/v/<id>/en`,
+  /// `/v/<id>/t/<sec>[/en]`), inače `null`.
+  @visibleForTesting
+  static String? episodeIdFromPath(String path) {
+    final m = RegExp(r'^/v/([A-Za-z0-9_-]{6,64})(?:/(?:en|t/[^/]+(?:/en)?))?/?$')
+        .firstMatch(path);
+    return m?.group(1);
+  }
+
   /// Predučitava datoteke koje ekran epizode treba za PRVI prikaz (info,
   /// sažetak, poglavlja, članak). Titlovi, vrijeme po riječi i Magisterium
   /// varijante namjerno ne — oni su 2/3 bajtova, a trebaju tek kasnije.
