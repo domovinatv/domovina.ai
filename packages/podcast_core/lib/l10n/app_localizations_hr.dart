@@ -5309,4 +5309,16 @@ class AppLocalizationsHr extends AppLocalizations {
   @override
   String get episodeYouTubeOnlyByOwner =>
       'Vlasnik kanala reprodukciju dopušta samo preko YouTubea.';
+
+  @override
+  String get telegramJoin => 'Pridruži se na Telegramu';
+
+  @override
+  String get telegramEpisodeLink => 'Poglavlja i rasprava na Telegramu';
+
+  @override
+  String get telegramInEnglish => 'na engleskom';
+
+  @override
+  String get telegramInCroatian => 'na hrvatskom';
 }

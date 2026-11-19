@@ -74,6 +74,7 @@ import '../widgets/episode_status_card.dart';
 import '../widgets/youtube_embed.dart';
 import '../widgets/resume_hint_banner.dart';
 import '../widgets/table_of_contents.dart';
+import '../widgets/telegram_join_button.dart';
 import '../widgets/episode_panel_canvas.dart';
 import '../widgets/video_panel.dart';
 import '../widgets/view_mode_toggle_button.dart';
@@ -2694,6 +2695,16 @@ class _EpisodeContentState extends State<_EpisodeContent>
             : null,
       );
 
+  /// „Poglavlja i rasprava na Telegramu” uz poglavlja: kanal podcasta, gdje
+  /// je epizoda objava a poglavlja komentari s linkom na trenutak. Jezik
+  /// kanala prati jezik sadržaja (`/en` → engleski par). Bez kanala prazno.
+  Widget _telegramLink() => TelegramJoinButton(
+    uc: widget.data.info.youtubeChannelId,
+    english: _language == EpisodeLanguage.en,
+    style: TelegramJoinStyle.episodeLink,
+    padding: const EdgeInsets.only(bottom: 8),
+  );
+
   void _drawerTap(String timestamp) {
     _panelKey.currentState?.close();
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -2965,6 +2976,7 @@ class _EpisodeContentState extends State<_EpisodeContent>
                 outline: data.outline!,
                 videoId: data.isAudioOnly ? null : data.youtubeId,
               ),
+              _telegramLink(),
               Divider(height: 1, color: theme.colorScheme.outlineVariant),
               const SizedBox(height: 12),
               _findInEpisodeSection(),
@@ -3119,6 +3131,7 @@ class _EpisodeContentState extends State<_EpisodeContent>
                         outline: data.outline!,
                         videoId: data.isAudioOnly ? null : data.youtubeId,
                       ),
+                      _telegramLink(),
                       Divider(
                         height: 1,
                         color: theme.colorScheme.outlineVariant,

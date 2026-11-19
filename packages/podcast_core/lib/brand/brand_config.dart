@@ -172,6 +172,7 @@ class FeatureFlags {
     this.plusInHeader = false,
     this.homeSnapshot = false,
     this.youtubeWatch = false,
+    this.telegramChannels = false,
   });
 
   /// Glasanje za podcaste (`/glasanje*`, rail na naslovnici).
@@ -216,4 +217,9 @@ class FeatureFlags {
   /// nocookie embed). Eksperimentalno; brend ga pali tek kad to odluči
   /// (App Review 5.2.3 — mediji treće strane).
   final bool youtubeWatch;
+
+  /// „Pridruži se na Telegramu” na stranici kanala i epizode, kad podcast
+  /// ima kanal na `telegram.domovina.ai` (`TelegramChannelService`). Servis
+  /// i kanali su DOMOVINA-ini, pa drugi brend gumb ne prikazuje.
+  final bool telegramChannels;
 }

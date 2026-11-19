@@ -5262,4 +5262,16 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get episodeYouTubeOnlyByOwner =>
       'The channel owner allows playback only on YouTube.';
+
+  @override
+  String get telegramJoin => 'Join on Telegram';
+
+  @override
+  String get telegramEpisodeLink => 'Chapters and discussion on Telegram';
+
+  @override
+  String get telegramInEnglish => 'in English';
+
+  @override
+  String get telegramInCroatian => 'in Croatian';
 }

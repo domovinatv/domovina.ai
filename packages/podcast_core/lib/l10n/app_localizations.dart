@@ -8368,6 +8368,30 @@ abstract class AppLocalizations {
   /// In hr, this message translates to:
   /// **'Vlasnik kanala reprodukciju dopušta samo preko YouTubea.'**
   String get episodeYouTubeOnlyByOwner;
+
+  /// Gumb na stranici kanala: otvara Telegram kanal podcasta (svaka epizoda je objava, poglavlja su u komentarima).
+  ///
+  /// In hr, this message translates to:
+  /// **'Pridruži se na Telegramu'**
+  String get telegramJoin;
+
+  /// Poveznica uz poglavlja na stranici epizode: otvara Telegram kanal podcasta.
+  ///
+  /// In hr, this message translates to:
+  /// **'Poglavlja i rasprava na Telegramu'**
+  String get telegramEpisodeLink;
+
+  /// Oznaka uz Telegram gumb kad podcast ima samo engleski kanal, a korisnik čita hrvatski. Prikazuje se u zagradi.
+  ///
+  /// In hr, this message translates to:
+  /// **'na engleskom'**
+  String get telegramInEnglish;
+
+  /// Oznaka uz Telegram gumb kad podcast ima samo hrvatski kanal, a korisnik čita engleski. Prikazuje se u zagradi.
+  ///
+  /// In hr, this message translates to:
+  /// **'na hrvatskom'**
+  String get telegramInCroatian;
 }
 
 class _AppLocalizationsDelegate

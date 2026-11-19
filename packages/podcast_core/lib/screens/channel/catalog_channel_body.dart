@@ -13,6 +13,7 @@ import '../../src/log.dart' show log;
 import '../../widgets/cached_thumbnail.dart';
 import '../../widgets/channel_gone_view.dart';
 import '../../widgets/person_monogram.dart';
+import '../../widgets/telegram_join_button.dart';
 import '../catalog_day/catalog_card_meta.dart';
 import '../catalog_day/catalog_day_format.dart';
 
@@ -226,6 +227,12 @@ class _CatalogChannelBodyState extends State<CatalogChannelBody> {
     final hasYouTube = info.youtubeChannelId != null;
     final children = <Widget>[
       _header(theme, l, info),
+      // Telegram kanal podcasta; prazan dok se ne zna da postoji.
+      TelegramJoinButton(
+        uc: info.youtubeChannelId,
+        style: TelegramJoinStyle.button,
+        padding: const EdgeInsets.only(top: 8),
+      ),
       const SizedBox(height: 20),
       Text(
         l.channelCatalogEpisodesHeading,

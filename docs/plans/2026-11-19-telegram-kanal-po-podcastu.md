@@ -71,7 +71,7 @@ flowchart LR
   veliki pregled (og:image je kadar tog trenutka).
 - Nijedan link ne vodi na YouTube.
 
-## 4. Gumb na domovina.ai (sljedeći korak, nije izgrađeno)
+## 4. Gumb na domovina.ai (izgrađeno 19. 11., čeka deploy)
 
 **Ideja (19. 11.):** korisnik na domovina.ai jednim dodirom uđe u Telegram kanal podcasta i
 tamo već ima sve pripremljeno: svaka epizoda je jedna objava, a ispod nje su poglavlja
@@ -102,6 +102,17 @@ Gdje i kako (prijedlog):
 - UC kanala dolazi iz kataloga (isti ključ kao mapiranje); podcast bez UC-a nema gumb.
 - Nijedan poziv ne blokira stranicu: greška ili 404 = gumba nema.
 - `t.me/+…` je privatni invite link (bez javnog `@imena`); otvara Telegram aplikaciju ili web.
+
+**Izvedba (19. 11.):** `TelegramChannelService` (`lib/services/telegram_channels.dart`,
+cache po UC-u za sesiju, dedup, timeout 4 s, sve osim valjanog 200 = nema kanala;
+prihvaća samo `https://t.me/` linkove) i `TelegramJoinButton`
+(`lib/widgets/telegram_join_button.dart`, ikona `Icons.send_outlined`, `title` iz API-ja
+se ne prikazuje zbog emoji zastave). Mjesta: zaglavlje `/c/<slug>` uz „Prati” (ispod
+600 px samo ikona s tooltipom), tijelo Tier 2 kanala iz kataloga, poveznica ispod
+poglavlja na `/v/<id>` u oba rasporeda. Jezik: na kanalu jezik sučelja, na epizodi jezik
+sadržaja (`/en` → `en.link`); kad željenog nema, drugi jezik s oznakom „(na engleskom)” /
+„(in Croatian)”. Zastavica `FeatureFlags.telegramChannels`, uključena samo za DOMOVINA.
+Testovi: `test/telegram_channels_test.dart`.
 
 ## 5. Repoi i commiti
 
@@ -135,7 +146,8 @@ Gdje i kako (prijedlog):
 - [ ] Podcasti bez YouTubea (Beamly/RSS samo audio, npr. `launched`) nemaju UC u `info.json`,
       pa dobivaju `sent:tg:<id>` = `no_uc` (prvi ciklus 19. 11.: 8× `no_channel`, 1× `no_uc`).
       Ako takav podcast pristane, mapiranje treba drugi ključ (slug kataloga).
-- [ ] Gumb „Pridruži se na Telegramu” u aplikaciji/webu (§4).
+- [x] Gumb „Pridruži se na Telegramu” u aplikaciji/webu (§4), izgrađen 19. 11.; deploy i
+      provjera na `/c/domovina-tv` i `/v/QkcpHsj43rE` (+ `/en`) čekaju potvrdu.
 - [ ] Opt-in ključ u postavkama kanala (samoposluga vlasnika) umjesto ručnog stvaranja,
       kad bude više od nekoliko podcasta.
 - [ ] Rizik: `teleproto` i njegov nativni `cifrante` imaju jednog održavatelja, a dobivaju

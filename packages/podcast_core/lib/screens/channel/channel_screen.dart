@@ -16,6 +16,7 @@ import '../../services/scroll_memory.dart';
 import '../../widgets/follow_button.dart';
 import '../../widgets/magisterium_section.dart';
 import '../../widgets/share_context_menu.dart';
+import '../../widgets/telegram_join_button.dart';
 import '../../widgets/cached_thumbnail.dart';
 import '../../widgets/channel_gone_view.dart';
 import '../../router/nav.dart';
@@ -176,6 +177,13 @@ class _ChannelScreenState extends State<ChannelScreen> {
                       followKey: channelFollowKey(widget.channelId),
                       followLabel: l.channelFollow,
                       followingLabel: l.channelFollowing,
+                    ),
+                  // Telegram kanal podcasta (epizode + poglavlja u
+                  // komentarima). Sam se sakrije kad kanala nema.
+                  if (!_catalogMode && !_gone)
+                    TelegramJoinButton(
+                      uc: _uc,
+                      style: TelegramJoinStyle.header,
                     ),
                   // Izlog sponzorskih trenutaka — samo kanal s kampanjom.
                   if (!_catalogMode &&

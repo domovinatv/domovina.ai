@@ -48,5 +48,6 @@ const BrandConfig domovinaBrand = BrandConfig(
     passkeys: true,
     homeSnapshot: true,
     youtubeWatch: true,
+    telegramChannels: true,
   ),
 );

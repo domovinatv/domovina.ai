@@ -1376,5 +1376,9 @@
   "channelGoneBackHome": "Go to the home page",
   "magisteriumOffByOwner": "The owner has turned off the assessment",
   "channelFeatureOffByOwner": "The channel owner has turned this feature off.",
-  "episodeYouTubeOnlyByOwner": "The channel owner allows playback only on YouTube."
+  "episodeYouTubeOnlyByOwner": "The channel owner allows playback only on YouTube.",
+  "telegramJoin": "Join on Telegram",
+  "telegramEpisodeLink": "Chapters and discussion on Telegram",
+  "telegramInEnglish": "in English",
+  "telegramInCroatian": "in Croatian"
 }
