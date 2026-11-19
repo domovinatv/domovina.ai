@@ -73,9 +73,35 @@ flowchart LR
 
 ## 4. Gumb na domovina.ai (sljedeći korak, nije izgrađeno)
 
-`GET https://telegram.domovina.ai/public/podcasts/<UC>` vraća `{title, link}` (CORS, 5 min
-cache) ili 404. Stranica kanala i epizode može pokazati „Pridruži se na Telegramu” samo
-kad kanal postoji.
+**Ideja (19. 11.):** korisnik na domovina.ai jednim dodirom uđe u Telegram kanal podcasta i
+tamo već ima sve pripremljeno: svaka epizoda je jedna objava, a ispod nje su poglavlja
+kronološki, svako s linkom točno na taj trenutak (`domovina.ai/v/<id>/t/<sec>`, veliki
+pregled s kadrom). Ta poglavlja su gotov materijal za dalje istraživanje i dijeljenje na
+društvenim mrežama: link poglavlja se kopira ili proslijedi bez ikakve obrade, a komentari
+ispod objave su mjesto za razgovor o epizodi.
+
+Izvor podataka, javno, CORS, 5 min cache:
+
+```
+GET https://telegram.domovina.ai/public/podcasts/<UC>
+→ 200 {"title": "DOMOVINA 🇭🇷", "link": "https://t.me/+…",
+       "en": {"title": "DOMOVINA 🇬🇧", "link": "https://t.me/+…"} | null}
+→ 404 kad podcast nema nijedan kanal
+```
+
+Gornja razina je hrvatski kanal (`null` ako ga nema), `en` je engleski par (zaseban
+pristanak podcasta, može postojati samo jedan od dva).
+
+Gdje i kako (prijedlog):
+
+- **Stranica kanala** (`/c/<slug>`): gumb „Pridruži se na Telegramu” uz pretplatu/obavijesti,
+  samo kad kanal postoji. Engleska verzija stranice (`…/en`) nudi `en.link`, a hrvatska
+  `link`; ako postoji samo drugi jezik, ponuditi njega s oznakom jezika.
+- **Stranica epizode** (`/v/<id>`): manji link „Poglavlja i rasprava na Telegramu” uz popis
+  poglavlja, isti kanal.
+- UC kanala dolazi iz kataloga (isti ključ kao mapiranje); podcast bez UC-a nema gumb.
+- Nijedan poziv ne blokira stranicu: greška ili 404 = gumba nema.
+- `t.me/+…` je privatni invite link (bez javnog `@imena`); otvara Telegram aplikaciju ili web.
 
 ## 5. Repoi i commiti
 
@@ -97,13 +123,15 @@ kad kanal postoji.
 3. Domovina Telegram račun → `scripts/provision`: `npm run login`, u `.env` `TG_SESSION`
    i `TG_BOT_USERNAME`.
 4. Prvi podcast: **DOMOVINA** (`UCXXhnehl2pss0uYdfLRDtyw`, avatar
-   `channels/images/domovina_tv/avatar_square.jpg`). `npm run create-channel -- <UC> --title "… · domovina.ai"
+   `channels/images/domovina_tv/avatar_square.jpg`). `npm run create-channel -- <UC> --name "…"
    --avatar https://cdn.domovina.ai/registry/avatars/<slug>.jpg`, pa ručni test
    `POST /podcasts/<UC>/episodes/<videoId>`. Provjeriti stvarne limite računa i `FLOOD_WAIT`.
 
 ## 7. Otvoreno
 
-- [ ] Koraci §6.
+- [x] Koraci §6 (19. 11.): HR kanal „DOMOVINA 🇭🇷” i EN par „DOMOVINA 🇬🇧” rade, testirani na
+      `QkcpHsj43rE`. Nazivi po pravilu u `telegram.domovina.ai/scripts/provision/src/naming.ts`,
+      detalji u `telegram.domovina.ai/docs/2026-11-19-poglavlja-u-komentarima-i-prvi-kanal.md`.
 - [ ] Podcasti bez YouTubea (Beamly/RSS samo audio, npr. `launched`) nemaju UC u `info.json`,
       pa dobivaju `sent:tg:<id>` = `no_uc` (prvi ciklus 19. 11.: 8× `no_channel`, 1× `no_uc`).
       Ako takav podcast pristane, mapiranje treba drugi ključ (slug kataloga).
