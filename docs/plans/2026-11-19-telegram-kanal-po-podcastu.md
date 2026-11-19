@@ -61,9 +61,13 @@ flowchart LR
 
 ## 3. Poruke
 
-- Epizoda: `🎙 <b>naslov</b>`, sažetak (do 600 znakova), „N poglavlja slijedi u nastavku.
-  Cijela epizoda: https://domovina.ai/v/<id>”, veliki pregled stranice epizode.
-- Poglavlje (tiho): `⏱ <b>M:SS</b> · podnaslov` + `https://domovina.ai/v/<id>/t/<sec>`,
+- Epizoda: `🎙 <b>naslov</b>`, sažetak (do 600 znakova), „N poglavlja u komentarima ispod
+  objave. Cijela epizoda: https://domovina.ai/v/<id>”, veliki pregled stranice epizode.
+- **Poglavlja su komentari ispod objave epizode** (odluka 19. 11. navečer): kanal ostaje jedna
+  objava po epizodi, nit u grupi za raspravu nosi poglavlja i razgovor. Webhook bota hvata
+  objavu proslijeđenu u grupu (`is_automatic_forward`), Workflow na koraku „nit” čeka njen id.
+  Detalji: `telegram.domovina.ai/docs/2026-11-19-poglavlja-u-komentarima-i-prvi-kanal.md`.
+- Poglavlje (tiho, kao komentar): `⏱ <b>M:SS</b> · podnaslov` + `https://domovina.ai/v/<id>/t/<sec>`,
   veliki pregled (og:image je kadar tog trenutka).
 - Nijedan link ne vodi na YouTube.
 
@@ -85,13 +89,15 @@ kad kanal postoji.
 
 1. BotFather: novi bot **@domovina_push_bot** (prikazno ime „domovina.ai”). Token →
    `npx wrangler secret put TELEGRAM_BOT_TOKEN` u `telegram.domovina.ai` (samo tamo).
+   Gotovo 19. 11.: token u Workeru, webhook postavljen (`/telegram/setup`).
    Postojeći **@domovina_bot** ostaje za interne alerte (noćni build, backup `dom-001`,
    grupa „DOMOVINA.ai releases”) i ne dira se. Objave u kanalu potpisuje kanal, ne bot.
 2. ~~Deploy `telegram-domovina-ai`, pa tek onda `domovina-push` (service binding).~~
    Gotovo 19. 11.; `API_TOKEN` postavljen.
 3. Domovina Telegram račun → `scripts/provision`: `npm run login`, u `.env` `TG_SESSION`
    i `TG_BOT_USERNAME`.
-4. Prvi podcast koji pristane: `npm run create-channel -- <UC> --title "… · domovina.ai"
+4. Prvi podcast: **DOMOVINA** (`UCXXhnehl2pss0uYdfLRDtyw`, avatar
+   `channels/images/domovina_tv/avatar_square.jpg`). `npm run create-channel -- <UC> --title "… · domovina.ai"
    --avatar https://cdn.domovina.ai/registry/avatars/<slug>.jpg`, pa ručni test
    `POST /podcasts/<UC>/episodes/<videoId>`. Provjeriti stvarne limite računa i `FLOOD_WAIT`.
 
