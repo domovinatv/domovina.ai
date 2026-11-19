@@ -96,6 +96,9 @@ kad kanal postoji.
 ## 7. Otvoreno
 
 - [ ] Koraci §6.
+- [ ] Podcasti bez YouTubea (Beamly/RSS samo audio, npr. `launched`) nemaju UC u `info.json`,
+      pa dobivaju `sent:tg:<id>` = `no_uc` (prvi ciklus 19. 11.: 8× `no_channel`, 1× `no_uc`).
+      Ako takav podcast pristane, mapiranje treba drugi ključ (slug kataloga).
 - [ ] Gumb „Pridruži se na Telegramu” u aplikaciji/webu (§4).
 - [ ] Opt-in ključ u postavkama kanala (samoposluga vlasnika) umjesto ručnog stvaranja,
       kad bude više od nekoliko podcasta.
