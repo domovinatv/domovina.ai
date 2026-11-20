@@ -18,6 +18,7 @@ import 'audio_poster.dart';
 import 'episode_reels.dart';
 import 'episode_video.dart';
 import 'scrub_preview.dart';
+import 'thumb_drag_slider.dart';
 import 'subtitle_caption.dart';
 import 'playback_controls.dart';
 import 'sponsored_moment_widgets.dart';
@@ -627,6 +628,12 @@ class _SeekBar extends StatelessWidget {
       total: Duration(milliseconds: totalMs),
       inset: _kSeekOverlayRadius,
       labelAt: (t) => chapterLabelAt(chapters, t),
+      touchGate: (dx, width) => isOnThumb(
+        dx: dx,
+        width: width,
+        inset: _kSeekOverlayRadius,
+        fraction: value,
+      ),
       child: Stack(
       alignment: Alignment.center,
       children: [
@@ -661,8 +668,11 @@ class _SeekBar extends StatelessWidget {
               overlayRadius: _kSeekOverlayRadius,
             ),
           ),
-          child: Slider(
+          // Prstom vuče samo kružić: swipe preko trake zatvara panel i
+          // ne smije pomaknuti reprodukciju.
+          child: ThumbDragSlider(
             value: value.clamp(0.0, 1.0),
+            inset: _kSeekOverlayRadius,
             onChangeStart: onChangeStart,
             onChanged: onChanged,
             onChangeEnd: onChangeEnd,

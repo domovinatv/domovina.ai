@@ -62,6 +62,12 @@ class ScrubPreview extends StatefulWidget {
   /// koje same ne znaju točnu sekundu (ovdje je zaokruženo na sekundu).
   final ValueChanged<Duration>? onScrubEnd;
 
+  /// Smije li dodir (ne miš) na [dx] pokazati oblačić. Traka koja prstom
+  /// vuče samo kružić (`ThumbDragSlider`) ovdje daje istu provjeru — inače
+  /// bi swipe preko trake koji zatvara panel pokazao vrijeme skoka koji se
+  /// neće dogoditi. `null` = svaki dodir.
+  final bool Function(double dx, double width)? touchGate;
+
   const ScrubPreview({
     super.key,
     required this.child,
@@ -70,6 +76,7 @@ class ScrubPreview extends StatefulWidget {
     this.labelAt,
     this.gap = 6,
     this.onScrubEnd,
+    this.touchGate,
   });
 
   @override
@@ -112,8 +119,14 @@ class _ScrubPreviewState extends State<ScrubPreview> {
     }
   }
 
-  void _down(PointerDownEvent e) {
+  void _down(PointerDownEvent e, double width) {
     if (e.kind == PointerDeviceKind.mouse && e.buttons != kPrimaryButton) {
+      return;
+    }
+    final gate = widget.touchGate;
+    if (e.kind != PointerDeviceKind.mouse &&
+        gate != null &&
+        !gate(e.localPosition.dx, width)) {
       return;
     }
     _pointer = e.pointer;
@@ -159,7 +172,7 @@ class _ScrubPreviewState extends State<ScrubPreview> {
               },
               child: Listener(
                 behavior: HitTestBehavior.translucent,
-                onPointerDown: _down,
+                onPointerDown: (e) => _down(e, width),
                 onPointerMove: (e) {
                   if (e.pointer == _pointer) _show(e.localPosition.dx);
                 },

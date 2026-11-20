@@ -39,6 +39,7 @@ import '../services/url_sync.dart';
 import '../services/view_mode.dart';
 import '../services/watch_progress_service.dart';
 import '../widgets/scrub_preview.dart';
+import '../widgets/thumb_drag_slider.dart';
 import '../widgets/ebook_sheet.dart';
 import '../widgets/episode_channel_owner.dart';
 import '../widgets/episode_status_card.dart';
@@ -1542,9 +1543,13 @@ class _ScrubSliderState extends State<_ScrubSlider> {
       // = overlayRadius Slidera iz SliderTheme iznad.
       inset: 16,
       labelAt: _labelAt,
-      child: Slider(
+      touchGate: (dx, width) =>
+          isOnThumb(dx: dx, width: width, inset: 16, fraction: value / max),
+      // Prstom vuče samo kružić (vidi `ThumbDragSlider`).
+      child: ThumbDragSlider(
         value: value.clamp(0.0, max),
         max: max,
+        inset: 16,
         onChanged: (v) => setState(() => _drag = v),
         onChangeEnd: (v) {
           setState(() => _drag = null);
