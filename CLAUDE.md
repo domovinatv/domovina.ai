@@ -680,6 +680,12 @@ postaje mjesto gledanja), nakon 8 s se skupi u chip i nestaje tek kad se
 korisnik vrati, smiri (2 min) ili izabere. Crta se ispod playera gdje i titl.
 Ugovor: `services/seek_undo.dart`, `test/seek_undo_test.dart`.
 
+**Rule (seek bar prstom vuče samo kružić, od v2.0.247)**: naše trake idu kroz
+`widgets/thumb_drag_slider.dart`, nikad goli `Slider`. Goli `Slider` hvata
+swipe s bilo kojeg mjesta trake, pa je swipe koji zatvara panel playera
+umjesto toga premjestio reprodukciju i izgubio mjesto gledanja. Dodir na traku
+i dalje skače, a miš vuče odasvud. Čuva `test/thumb_drag_slider_test.dart`.
+
 **Rule (adresna traka miruje dok je korisnik u njoj)**: `url_sync` na webu
 ne zove `replaceState` dok `document.hasFocus()` vraća false (fokus u adresnoj
 traci ili drugoj aplikaciji); zadnji URL upiše na `focus`. Inače se URL ne da
