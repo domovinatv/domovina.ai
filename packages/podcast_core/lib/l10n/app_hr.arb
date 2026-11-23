@@ -6079,6 +6079,33 @@
   "@catalogDayLoadMoreFailed": {
     "description": "Poruka na dnu popisa kad sljedeća stranica nije stigla."
   },
+  "catalogDaySummaryEpisodes": "{count, plural, one{{count} nova epizoda} few{{count} nove epizode} other{{count} novih epizoda}}",
+  "@catalogDaySummaryEpisodes": {
+    "description": "Brojač na vrhu /dani/:datum, prvi dio („30 novih epizoda”). Isti oblik kao podcast.domovina.ai/dani/.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "catalogDaySummaryChannels": "{count, plural, one{iz {count} kanala} few{iz {count} kanala} other{iz {count} kanala}}",
+  "@catalogDaySummaryChannels": {
+    "description": "Brojač na vrhu /dani/:datum, drugi dio („iz 28 kanala”).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "catalogDaySummaryListening": "{duration} slušanja",
+  "@catalogDaySummaryListening": {
+    "description": "Brojač na vrhu /dani/:datum, treći dio („30 h slušanja”). duration je „30 h” ili „45 min”.",
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
   "catalogMetaPublished": "Objavljeno na YouTubeu u {time}",
   "@catalogMetaPublished": {
     "description": "Tooltip uz sat objave epizode u popisu dana / kanala iz kataloga.",

@@ -4844,6 +4844,35 @@ class AppLocalizationsHr extends AppLocalizations {
   String get catalogDayLoadMoreFailed => 'Nismo uspjeli učitati još epizoda.';
 
   @override
+  String catalogDaySummaryEpisodes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count novih epizoda',
+      few: '$count nove epizode',
+      one: '$count nova epizoda',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String catalogDaySummaryChannels(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'iz $count kanala',
+      few: 'iz $count kanala',
+      one: 'iz $count kanala',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String catalogDaySummaryListening(String duration) {
+    return '$duration slušanja';
+  }
+
+  @override
   String catalogMetaPublished(String time) {
     return 'Objavljeno na YouTubeu u $time';
   }

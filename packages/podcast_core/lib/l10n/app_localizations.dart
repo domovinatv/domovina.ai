@@ -7619,6 +7619,24 @@ abstract class AppLocalizations {
   /// **'Nismo uspjeli učitati još epizoda.'**
   String get catalogDayLoadMoreFailed;
 
+  /// Brojač na vrhu /dani/:datum, prvi dio („30 novih epizoda”). Isti oblik kao podcast.domovina.ai/dani/.
+  ///
+  /// In hr, this message translates to:
+  /// **'{count, plural, one{{count} nova epizoda} few{{count} nove epizode} other{{count} novih epizoda}}'**
+  String catalogDaySummaryEpisodes(int count);
+
+  /// Brojač na vrhu /dani/:datum, drugi dio („iz 28 kanala”).
+  ///
+  /// In hr, this message translates to:
+  /// **'{count, plural, one{iz {count} kanala} few{iz {count} kanala} other{iz {count} kanala}}'**
+  String catalogDaySummaryChannels(int count);
+
+  /// Brojač na vrhu /dani/:datum, treći dio („30 h slušanja”). duration je „30 h” ili „45 min”.
+  ///
+  /// In hr, this message translates to:
+  /// **'{duration} slušanja'**
+  String catalogDaySummaryListening(String duration);
+
   /// Tooltip uz sat objave epizode u popisu dana / kanala iz kataloga.
   ///
   /// In hr, this message translates to:

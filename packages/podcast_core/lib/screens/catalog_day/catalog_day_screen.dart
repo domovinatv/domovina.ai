@@ -12,6 +12,7 @@ import '../../theme/typography.dart';
 import '../../widgets/cached_thumbnail.dart';
 import 'catalog_card_meta.dart';
 import 'catalog_day_format.dart';
+import 'catalog_day_summary.dart';
 
 /// `/dani/:datum` — sve epizode jednog dana iz kataloga (`GET /days/:date`,
 /// oba tiera), stranica po stranica po `next` kursoru.
@@ -32,8 +33,10 @@ class CatalogDayScreen extends StatefulWidget {
 
   const CatalogDayScreen({super.key, required this.date, this.clock});
 
-  /// Veličina stranice.
-  static const int pageSize = 30;
+  /// Veličina stranice: najveća koju API prima, da jedna stranica nosi cijeli
+  /// dan i brojač na vrhu odmah broji sve (najveći dan od 9. 10. do 23. 11.
+  /// 2026. imao je 38 epizoda). Paginacija ostaje za dan iznad toga.
+  static const int pageSize = CatalogClient.maxDayLimit;
 
   @override
   State<CatalogDayScreen> createState() => _CatalogDayScreenState();
@@ -50,6 +53,9 @@ class _CatalogDayScreenState extends State<CatalogDayScreen> {
   String? _next;
   bool _loadingMore = false;
   bool _moreFailed = false;
+
+  /// Učitana je barem jedna stranica iza prve (korisnik je listao dalje).
+  bool _listedFurther = false;
 
   DateTime get _today => catalogToday(widget.clock?.call());
 
@@ -93,6 +99,7 @@ class _CatalogDayScreenState extends State<CatalogDayScreen> {
             ..clear()
             ..addAll(found.items);
           _next = found.next;
+          _listedFurther = false;
           _phase = found.isEmpty ? _Phase.empty : _Phase.list;
         case CatalogDayBadDate():
           _phase = _Phase.badDate;
@@ -115,7 +122,7 @@ class _CatalogDayScreenState extends State<CatalogDayScreen> {
       '${fresh.items.length} epizoda${fresh.hasMore ? ', ima dalje' : ''}',
     );
     setState(() {
-      if (_items.length <= CatalogDayScreen.pageSize) {
+      if (!_listedFurther) {
         _items
           ..clear()
           ..addAll(fresh.items);
@@ -154,6 +161,7 @@ class _CatalogDayScreenState extends State<CatalogDayScreen> {
       final seen = {for (final c in _items) c.id};
       _items.addAll(page.items.where((c) => seen.add(c.id)));
       _next = page.next;
+      _listedFurther = true;
     });
   }
 
@@ -336,6 +344,9 @@ class _CatalogDayScreenState extends State<CatalogDayScreen> {
 
   Widget _list(ThemeData theme, AppLocalizations l) {
     final hasFooter = _next != null || _loadingMore || _moreFailed;
+    // Brojač tek kad je dan učitan do kraja: djelomičan zbroj bi se mijenjao
+    // pod korisnikom i ne bi se poklapao s podcast.domovina.ai.
+    final summary = _next == null ? _summary(theme, l) : null;
     // Popis koji ne puni ekran (desktop mreža: 30 stavki je par redova) ne
     // može okinuti scroll, pa se nakon layouta provjeri isto što i pri
     // listanju. `_onScroll` sam pazi na `_next`/`_loadingMore`/`_moreFailed`.
@@ -347,13 +358,16 @@ class _CatalogDayScreenState extends State<CatalogDayScreen> {
       builder: (context, constraints) {
         final width = constraints.maxWidth;
         if (width < _gridMinWidth) {
+          final head = summary == null ? 0 : 1;
           return ListView.separated(
             controller: _scroll,
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
-            itemCount: _items.length + (hasFooter ? 1 : 0),
+            itemCount: head + _items.length + (hasFooter ? 1 : 0),
             separatorBuilder: (_, _) => const SizedBox(height: 12),
             itemBuilder: (context, i) {
-              if (i < _items.length) return _row(theme, _items[i]);
+              if (i < head) return summary!;
+              final j = i - head;
+              if (j < _items.length) return _row(theme, _items[j]);
               return _footer(theme, l);
             },
           );
@@ -369,6 +383,7 @@ class _CatalogDayScreenState extends State<CatalogDayScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              if (summary != null) ...[summary, const SizedBox(height: 12)],
               Wrap(
                 spacing: 12,
                 runSpacing: 12,
@@ -390,6 +405,14 @@ class _CatalogDayScreenState extends State<CatalogDayScreen> {
       },
     );
   }
+
+  Widget _summary(ThemeData theme, AppLocalizations l) => Text(
+    CatalogDaySummary.of(_items).label(l),
+    key: const ValueKey('catalog-day-summary'),
+    style: theme.textTheme.bodyMedium?.copyWith(
+      color: theme.colorScheme.onSurfaceVariant,
+    ),
+  );
 
   /// Kartica mreže: slika 16:9 preko pune širine, ispod kanal i naslov.
   Widget _gridCard(ThemeData theme, CatalogCard card, double width) {

@@ -4798,6 +4798,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get catalogDayLoadMoreFailed => 'We couldn\'t load more episodes.';
 
   @override
+  String catalogDaySummaryEpisodes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count new episodes',
+      one: '$count new episode',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String catalogDaySummaryChannels(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'from $count channels',
+      one: 'from $count channel',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String catalogDaySummaryListening(String duration) {
+    return '$duration of listening';
+  }
+
+  @override
   String catalogMetaPublished(String time) {
     return 'Published on YouTube at $time';
   }

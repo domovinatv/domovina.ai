@@ -100,6 +100,7 @@ void main() {
     expect(find.text('Prva'), findsOneWidget);
     expect(find.text('TRIBINA'), findsOneWidget);
     expect(find.text('Učitaj još'), findsNothing, reason: 'next je null');
+    expect(find.text('2 nove epizode iz 2 kanala'), findsOneWidget);
 
     await tester.tap(find.text('Prva'));
     await tester.pumpAndSettle();
