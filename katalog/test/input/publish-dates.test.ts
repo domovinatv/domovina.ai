@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parsePublishDates, parsePublishTimes, zagrebDay } from "../../src/input/index.ts";
+import { parsePodcastSlugs, parsePublishDates, parsePublishTimes, zagrebDay } from "../../src/input/index.ts";
 
 describe("parsePublishDates (backfill.json)", () => {
   it("skuplja originals svih kanala, preskače neispravne zapise", () => {
@@ -66,6 +66,23 @@ describe("parsePublishTimes (backfill.json)", () => {
       ["kO2ILIGJiIU", "2026-11-09T20:27:27Z"],
       ["ms_________", "2026-11-09T20:27:27Z"],
     ]);
+  });
+});
+
+describe("parsePodcastSlugs (backfill.json)", () => {
+  it("ID → ključ kanala (slug podcasta); original pobjeđuje extras, neispravan zapis se preskače", () => {
+    const m = parsePodcastSlugs({
+      channels: {
+        "hrt-otvoreno": { originals: { a1: { date: "2026-11-09" } } },
+        "hrt-globalna": { originals: { b1: { date: "2026-11-09" }, x: 5 }, extras: { a1: { date: "2026-11-09" } } },
+        prazan: null,
+      },
+    });
+    expect([...m.entries()].sort()).toEqual([
+      ["a1", "hrt-otvoreno"],
+      ["b1", "hrt-globalna"],
+    ]);
+    expect(parsePodcastSlugs({}).size).toBe(0);
   });
 });
 

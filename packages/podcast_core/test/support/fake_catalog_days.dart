@@ -57,6 +57,7 @@ CatalogCard fakeDayCard(
   int? durationSeconds,
   int? magisteriumScore,
   DateTime? publishedAt,
+  String? podcast,
 }) => CatalogCard(
   id: id,
   title: title ?? 'Epizoda $id',
@@ -65,6 +66,7 @@ CatalogCard fakeDayCard(
   durationSeconds: durationSeconds,
   magisteriumScore: magisteriumScore,
   publishedAt: publishedAt,
+  podcast: podcast,
   channel: channel == null
       ? null
       : CatalogChannel(slug: channel.toLowerCase(), name: channel, tier: tier),

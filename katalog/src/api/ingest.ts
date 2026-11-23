@@ -85,11 +85,11 @@ function fail(path: string): never {
 type Json = Record<string, unknown>;
 
 /** Objekt s točno zadanim ključevima (ni manje ni više). */
-function object(value: unknown, path: string, keys: readonly string[]): Json {
+function object(value: unknown, path: string, keys: readonly string[], optional: readonly string[] = []): Json {
   if (typeof value !== "object" || value === null || Array.isArray(value)) fail(path === "" ? "body" : path);
   const o = value as Json;
   const prefix = path === "" ? "" : `${path}.`;
-  for (const k of Object.keys(o)) if (!keys.includes(k)) fail(`${prefix}${k}`);
+  for (const k of Object.keys(o)) if (!keys.includes(k) && !optional.includes(k)) fail(`${prefix}${k}`);
   for (const k of keys) if (!Object.hasOwn(o, k)) fail(`${prefix}${k}`);
   return o;
 }
@@ -183,7 +183,8 @@ function instantOrNull(value: unknown, path: string): string | null {
 
 /** Epizoda prema CHECK ograničenjima `episodes` (0001, 0003, 0004). */
 function episodeRow(value: unknown, path: string): EpisodeRow {
-  const o = object(value, path, EPISODE_KEYS);
+  // `podcast` (0006) smije izostati: stariji klijent `ingest-episode.ts` ga ne šalje.
+  const o = object(value, path, EPISODE_KEYS, ["podcast"]);
   const d = o.durationSeconds;
   if (d !== null && (typeof d !== "number" || !Number.isFinite(d) || d < 0)) fail(`${path}.durationSeconds`);
   return {
@@ -199,6 +200,7 @@ function episodeRow(value: unknown, path: string): EpisodeRow {
     flags: integer(o.flags, `${path}.flags`, 0, 511),
     variantOf: textOrNull(o.variantOf, `${path}.variantOf`),
     publishedAt: instantOrNull(o.publishedAt, `${path}.publishedAt`),
+    podcast: o.podcast === undefined ? null : textOrNull(o.podcast, `${path}.podcast`),
   };
 }
 

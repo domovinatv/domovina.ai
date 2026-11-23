@@ -55,7 +55,7 @@ export type ErrorStatus = 400 | 401 | 404 | 409 | 413 | 500 | 503;
 const CACHE_LIST = "public, max-age=60, stale-while-revalidate=600";
 const CACHE_CARD = "public, max-age=300, stale-while-revalidate=3600";
 const CACHE_DAY_RECENT = "public, max-age=60, stale-while-revalidate=300";
-// Prošli dan nije nepromjenjiv: uvoz mu mijenja ocjene, sat i dan objave (odluka 1207).
+// Prošli dan nije nepromjenjiv: uvoz mu mijenja ocjene, sat i dan objave (odluka 1208).
 // Rubni cache je po verziji kataloga, pa je browser cache jedino mjesto zastarijevanja.
 const CACHE_DAY_PAST = "public, max-age=60, stale-while-revalidate=600";
 export const NO_STORE = "no-store";
@@ -219,6 +219,7 @@ interface CardRow {
   readonly lang: string | null;
   readonly variant_of: string | null;
   readonly published_at: string | null;
+  readonly podcast: string | null;
   readonly channel_slug: string | null;
   readonly channel_name: string | null;
   readonly channel_tier: number | null;
@@ -277,6 +278,7 @@ function card(r: CardRow): Record<string, unknown> {
     lang: r.lang,
     variant_of: r.variant_of,
     published_at: r.published_at,
+    podcast: r.podcast,
     channel:
       r.channel_slug === null || r.channel_name === null || r.channel_tier === null
         ? null

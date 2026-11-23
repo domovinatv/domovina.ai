@@ -8,6 +8,7 @@ import {
   parseEpisodeInfo,
   parseEpisodeSummary,
   parsePublishDates,
+  parsePodcastSlugs,
   parsePublishTimes,
   parseRegistry,
 } from "../../src/input/index.ts";
@@ -105,8 +106,12 @@ export async function buildImportPlan(input: BuildImportPlanInput): Promise<{ pl
     input.publishDatesText === undefined || input.publishDatesText === null
       ? undefined
       : parseWith(parsePublishTimes, input.publishDatesText, input.publishDatesPath ?? "backfill.json");
+  const podcastSlugs =
+    input.publishDatesText === undefined || input.publishDatesText === null
+      ? undefined
+      : parseWith(parsePodcastSlugs, input.publishDatesText, input.publishDatesPath ?? "backfill.json");
   input.log?.(
-    `točni dani objave (backfill.json): ${publishDates?.size ?? "nema datoteke"}, s trenutkom: ${publishTimes?.size ?? 0}`,
+    `točni dani objave (backfill.json): ${publishDates?.size ?? "nema datoteke"}, s trenutkom: ${publishTimes?.size ?? 0}, s podcastom: ${podcastSlugs?.size ?? 0}`,
   );
   const plan = buildPlan({
     index,
@@ -115,6 +120,7 @@ export async function buildImportPlan(input: BuildImportPlanInput): Promise<{ pl
     tier2,
     ...(publishDates === undefined ? {} : { publishDates }),
     ...(publishTimes === undefined ? {} : { publishTimes }),
+    ...(podcastSlugs === undefined ? {} : { podcastSlugs }),
   });
   const report: ImportReport = {
     ...plan.report,

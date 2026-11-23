@@ -8,10 +8,12 @@ import '../../models/catalog_card.dart';
 /// epizode i ne nosi kanale koje je vlasnik povukao ili maknuo s naslovnice
 /// (`FEATURED` u `katalog/src/db/queries.ts`).
 ///
-/// Kanal se broji po `channel.slug`. Epizoda bez kanala u katalogu (emisije
-/// HRT-a, „Reci!”, „Bibliobus”; 4 od 30 na 20. 11. 2026.) broji se kao
-/// zaseban kanal: na podcast.domovina.ai svaka od njih ima svoj podcast iz
-/// registra (izmjereno 20. 11.: 24 sluga + 4 = 28, isto kao ondje).
+/// Kanal se broji po podcastu iz registra (`CatalogCard.podcast`), kao na
+/// podcast.domovina.ai: jedan YouTube kanal nosi više podcasta (HRT ih je
+/// 19. 11. 2026. imao četiri). Bez podcasta (epizoda još nije u backfillu,
+/// stari odgovor) pada se na `channel.slug`, a bez kanala epizoda je zaseban
+/// kanal. Izmjereno 23. 11. za 16.–22. 11.: po podcastu svih 7 dana isti broj
+/// kao ondje; po kanalu 13 umjesto 17 (18. 11.).
 ///
 /// Trajanje: minute po epizodi zaokružene pa zbrojene; od 90 min naviše sati
 /// zaokruženi na cijeli broj (`hoursLabel`).
@@ -32,7 +34,13 @@ class CatalogDaySummary {
     var minutes = 0;
     for (final c in cards) {
       episodes++;
-      channelKeys.add(c.channel?.slug ?? 'episode:${c.id}');
+      channelKeys.add(
+        c.podcast != null
+            ? 'podcast:${c.podcast}'
+            : c.channel != null
+            ? 'channel:${c.channel!.slug}'
+            : 'episode:${c.id}',
+      );
       final s = c.durationSeconds;
       if (s != null && s > 0) minutes += (s / 60).round();
     }

@@ -243,6 +243,7 @@ export class Korpus {
         flags: 1 + Math.floor(rnd() * 511),
         variantOf,
         publishedAt: date === null ? null : `${date}T12:00:00Z`,
+        podcast: null,
       };
       tally.add(row);
       total++;

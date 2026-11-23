@@ -67,6 +67,7 @@ function episode(id: string, channelSlug: string | null = "kanal"): EpisodeRow {
     flags: 0,
     variantOf: null,
     publishedAt: null,
+    podcast: null,
   };
 }
 

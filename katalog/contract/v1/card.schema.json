@@ -17,6 +17,7 @@
     "lang",
     "variant_of",
     "published_at",
+    "podcast",
     "channel"
   ],
   "properties": {
@@ -89,6 +90,11 @@
         "string",
         "null"
       ],
+      "minLength": 1
+    },
+    "podcast": {
+      "description": "Slug podcasta iz registra (backfill.json, odluka 1208); jedan kanal može nositi više podcasta. null kad epizode još nema u backfillu",
+      "type": ["string", "null"],
       "minLength": 1
     },
     "published_at": {

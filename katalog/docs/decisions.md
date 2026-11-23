@@ -1142,6 +1142,22 @@ poklapao s podcast.domovina.ai/dani/<d>. Izmjereno 10. 11. za 9. 11.: katalog 33
       u HTTP cacheu, a revalidacija `CdnJsonCache` čita isti cache. Rubni cache je po
       verziji kataloga (`_cv`), pa kraći `max-age` košta samo pogodak u Workeru.
 
+1208. **Epizoda nosi podcast iz registra** (migracija 0006, 23. 11.). Stupac
+      `episodes.podcast` = ključ `channels.<slug>` u `backfill.json` (`parsePodcastSlugs`;
+      original pobjeđuje extras), kartica ga vraća kao `podcast` (aditivno u
+      `card.schema.json`). Povod: brojač na `/dani/:datum` („N novih epizoda iz K
+      kanala · H h slušanja”) mora davati isto što i podcast.domovina.ai/dani/, a ta
+      stranica kanale broji po podcastu iz registra, ne po YouTube kanalu: HRT, Laudato TV,
+      Tribina i Podcast Inkubator nose po 2–4 podcasta. Izmjereno 23. 11. za 16.–22. 11.:
+      po `channel.slug` 13 umjesto 17 (18. 11.), 25 umjesto 30 (19. 11.); po ovom stupcu
+      na zajedničkim epizodama svih 7 dana isti broj. `/ingest` prima `podcast` kao
+      NEOBAVEZAN ključ (izostao = NULL), jer `run_pipeline.sh` KORAK 13.5 zove
+      `ingest-episode.ts` iz radne kopije koja može biti starija od Workera. NULL dok
+      epizoda nije u backfillu (nightly ga piše tek nakon obrade); jutarnji `--all`
+      (1201) ga popuni, a klijent do tada broji po kanalu. Epizoda u više unosa registra
+      (`AJgfQAu8LW8`: zavidavanje i vida-podcast) može pasti pod drugi podcast nego na
+      podcast.domovina.ai; broj kanala se izmjereno nije razlikovao.
+
 Otvoreno (10. 11.): jutarnji `ingest-episode --all` u `drift-check-launchd.sh` još nije
 prošao kroz pravi launchd run (prvi 11. 11. u 08:45). Redoslijed unutar dana je
 `id DESC` (praktično nasumičan); stupac `published_at` postoji od odluke 1205, a

@@ -30,6 +30,17 @@ void main() {
     expect(s.label(en), '5 new episodes from 4 channels · 3 h of listening');
   });
 
+  test('jedan kanal s više podcasta broji se po podcastu (HRT, 19. 11.)', () {
+    final s = CatalogDaySummary.of([
+      fakeDayCard('a', channel: 'hrt', podcast: 'hrt-na-rubu-znanosti'),
+      fakeDayCard('b', channel: 'hrt', podcast: 'occamova-britva'),
+      fakeDayCard('c', channel: 'hrt', podcast: 'occamova-britva'),
+      fakeDayCard('d', channel: 'hrt', podcast: 'viza'),
+      fakeDayCard('e', channel: 'tribina'),
+    ]);
+    expect(s.channels, 4);
+  });
+
   test('ispod 90 min minute; plural; bez trajanja nema dijela o slušanju', () {
     expect(
       CatalogDaySummary.of([

@@ -206,6 +206,8 @@ describe("ingest: tijelo", () => {
     ["publishedAt samo dan", withEpisode({ publishedAt: "2026-02-03" }), "episodes[3].publishedAt"],
     ["publishedAt s milisekundama", withEpisode({ publishedAt: "2026-02-03T10:00:00.000Z" }), "episodes[3].publishedAt"],
     ["publishedAt nepostojeći", withEpisode({ publishedAt: "2026-02-30T10:00:00Z" }), "episodes[3].publishedAt"],
+    ["prazan podcast", withEpisode({ podcast: "" }), "episodes[3].podcast"],
+    ["podcast kao broj", withEpisode({ podcast: 7 }), "episodes[3].podcast"],
     ["prazan naslov", withEpisode({ title: "" }), "episodes[3].title"],
     ["naslov null", withEpisode({ title: null }), "episodes[3].title"],
     ["prazan titleHr", withEpisode({ titleHr: "" }), "episodes[3].titleHr"],
@@ -225,6 +227,20 @@ describe("ingest: tijelo", () => {
     ["dupli slug", { ...batch, channels: [ch, ch] }, "channels[1].slug"],
   ])("%s → 400 bad_body %s", async (_name, body, detail) => {
     await expectError(post(body), 400, "bad_body", detail);
+  });
+
+  it("podcast: smije izostati (stariji klijent) i upisuje se kad je poslan (odluka 1208)", async () => {
+    const old: Record<string, unknown> = { ...ep, id: "ep_bez_podcasta", channelSlug: null };
+    delete old.podcast;
+    const a = await post({ ...batch, channels: [], episodes: [old, { ...ep, id: "ep_s_podcastom", channelSlug: null, podcast: "hrt-otvoreno" }] });
+    expect(a.res.status).toBe(200);
+    const rows = await env.DB.prepare("SELECT id, podcast FROM episodes WHERE id IN ('ep_bez_podcasta', 'ep_s_podcastom') ORDER BY id").all();
+    expect(rows.results).toEqual([
+      { id: "ep_bez_podcasta", podcast: null },
+      { id: "ep_s_podcastom", podcast: "hrt-otvoreno" },
+    ]);
+    // Ostali testovi broje epizode brenda (ingest/ids).
+    await env.DB.prepare("DELETE FROM episodes WHERE id IN ('ep_bez_podcasta', 'ep_s_podcastom')").run();
   });
 
   it("prevelik batch → 400 batch_too_large; prevelik zahtjev → 413 body_too_large", async () => {

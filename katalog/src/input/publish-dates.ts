@@ -54,6 +54,26 @@ export function parsePublishDates(raw: unknown): ReadonlyMap<string, string> {
   return out;
 }
 
+/**
+ * `channels.<slug>.{extras,originals}.<id>` → mapa ID → `<slug>` (podcast iz
+ * registra, odluka 1208). Original pobjeđuje extras kao u [backfillRecords].
+ */
+export function parsePodcastSlugs(raw: unknown): ReadonlyMap<string, string> {
+  const root = asObject(raw, ROOT);
+  const out = new Map<string, string>();
+  const channels = objectOrNull(root.channels);
+  if (channels === null) return out;
+  for (const key of ["extras", "originals"] as const) {
+    for (const [slug, ch] of Object.entries(channels)) {
+      if (slug.length === 0) continue;
+      const records = objectOrNull(objectOrNull(ch)?.[key]);
+      if (records === null) continue;
+      for (const [id, o] of Object.entries(records)) if (objectOrNull(o) !== null) out.set(id, slug);
+    }
+  }
+  return out;
+}
+
 const ISO_INSTANT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/;
 
 /** Trenutak u obliku koji traži CHECK u 0004: `YYYY-MM-DDTHH:MM:SSZ`, bez milisekundi. */

@@ -71,11 +71,13 @@ void main() {
         'duration_seconds': 3961.4,
         'magisterium_score': 79,
         'published_at': '2026-11-10T17:00:35Z',
+        'podcast': 'hrt-otvoreno',
       });
       expect(full.durationSeconds, 3961);
       expect(full.durationDisplay, '1:06:01');
       expect(full.magisteriumScore, 79);
       expect(full.publishedAt, DateTime.utc(2026, 11, 10, 17, 0, 35));
+      expect(full.podcast, 'hrt-otvoreno');
       expect(card({'duration_seconds': 808}).durationDisplay, '13:28');
 
       final none = card({
@@ -85,15 +87,18 @@ void main() {
       expect(none.durationDisplay, isNull);
       expect(none.magisteriumScore, isNull);
       expect(none.publishedAt, isNull, reason: 'stari odgovor nema polje');
+      expect(none.podcast, isNull);
 
       final bad = card({
         'duration_seconds': '3961',
         'magisterium_score': 140,
         'published_at': 'jučer',
+        'podcast': 7,
       });
       expect(bad.durationSeconds, isNull);
       expect(bad.magisteriumScore, isNull);
       expect(bad.publishedAt, isNull);
+      expect(bad.podcast, isNull);
     });
 
     test('prazan dan je stranica, ne greška', () {

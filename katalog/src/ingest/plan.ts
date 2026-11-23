@@ -41,6 +41,8 @@ export interface EpisodeRow {
   readonly variantOf: string | null;
   /** Trenutak objave u UTC-u (`YYYY-MM-DDTHH:MM:SSZ`, odluka 1205), `null` kad nije poznat. */
   readonly publishedAt: string | null;
+  /** Podcast iz registra (`backfill.json` ključ, odluka 1208), `null` kad epizode nema u backfillu. */
+  readonly podcast: string | null;
 }
 
 /** Tier 2 epizoda kako je uvoznik dohvatio: `null` = datoteka nema ni nakon retryja. */
@@ -67,6 +69,8 @@ export interface PlanInput {
   readonly publishDates?: ReadonlyMap<string, string>;
   /** Trenuci objave iz istog `backfill.json` (`parsePublishTimes`, odluka 1205). */
   readonly publishTimes?: ReadonlyMap<string, string>;
+  /** Podcast po ID-u iz istog `backfill.json` (`parsePodcastSlugs`, odluka 1208). */
+  readonly podcastSlugs?: ReadonlyMap<string, string>;
 }
 
 export interface PlanReport {
@@ -155,6 +159,7 @@ export function buildPlan(input: PlanInput): ImportPlan {
   const tier1Ids = new Set<string>();
   const publishDates = input.publishDates ?? new Map<string, string>();
   const publishTimes = input.publishTimes ?? new Map<string, string>();
+  const podcastSlugs = input.podcastSlugs ?? new Map<string, string>();
   const dates = { backfill: 0, timestamp: 0, source: 0, changedByBackfill: [] as string[] };
   /** Dan epizode: backfill → `fallback` (već izračunat iz izvora epizode). */
   const dayOf = (id: string, fallback: string | null, viaTimestamp: boolean): string | null => {
@@ -201,6 +206,7 @@ export function buildPlan(input: PlanInput): ImportPlan {
         flags: v.flags,
         variantOf: null,
         publishedAt: publishTimes.get(v.id) ?? null,
+        podcast: podcastSlugs.get(v.id) ?? null,
       });
     }
   }
@@ -275,6 +281,7 @@ export function buildPlan(input: PlanInput): ImportPlan {
       flags: flagsFromFiles(t.files),
       variantOf: null,
       publishedAt: publishTimes.get(t.id) ?? (ts === null ? null : isoInstant(ts * 1000)),
+      podcast: podcastSlugs.get(t.id) ?? null,
     });
   }
 

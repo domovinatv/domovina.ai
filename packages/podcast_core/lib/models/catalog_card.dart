@@ -89,6 +89,11 @@ class CatalogCard {
   /// kataloga: stari odgovori ga nemaju, pa je `null` = sat nije poznat.
   final DateTime? publishedAt;
 
+  /// Podcast iz registra (`podcast`, odluka 1208 u `katalog/docs/decisions.md`).
+  /// Jedan kanal (HRT, Laudato TV…) nosi više podcasta. Aditivno: `null` u
+  /// starim odgovorima i dok epizoda nije u backfillu.
+  final String? podcast;
+
   /// `version` odgovora i ID zadnjeg uvoza (`catalog`) — samo za log.
   final String? catalog;
 
@@ -114,6 +119,7 @@ class CatalogCard {
     this.durationSeconds,
     this.magisteriumScore,
     this.publishedAt,
+    this.podcast,
     this.catalog,
     this.status,
     this.magisteriumOff = false,
@@ -167,6 +173,7 @@ class CatalogCard {
     final duration = item['duration_seconds'];
     final score = item['magisterium_score'];
     final publishedAt = item['published_at'];
+    final podcast = item['podcast'];
     final status = item['status'];
     final magisteriumOff = item['magisterium_off'] == true;
     return CatalogCard(
@@ -190,6 +197,7 @@ class CatalogCard {
       publishedAt: publishedAt is String
           ? DateTime.tryParse(publishedAt)?.toUtc()
           : null,
+      podcast: podcast is String && podcast.isNotEmpty ? podcast : null,
       catalog: catalog,
     );
   }

@@ -104,6 +104,7 @@ export function synthesizeS3(opts: S3Options): Synthetic {
       flags: 0,
       variantOf,
       publishedAt: null,
+      podcast: null,
     });
   };
   for (const c of channelSpecs) {

@@ -79,6 +79,7 @@ describe("buildPlan nad fixtureima", () => {
       variantOf: null,
       // yt-dlp `timestamp` iz info.json (odluka 1205).
       publishedAt: "2026-07-16T15:47:10Z",
+      podcast: null,
     });
     expect(episode("hmM9f_3Mqm4")).toMatchObject({ durationSeconds: null, flags: 15 });
     expect(episode("0sxT3NF8yFg")).toMatchObject({ channelSlug: null, publishedDate: "2026-11-03", flags: 511 });
@@ -98,6 +99,7 @@ describe("buildPlan nad fixtureima", () => {
       flags: 15,
       variantOf: null,
       publishedAt: null,
+      podcast: null,
     });
   });
 
@@ -180,6 +182,18 @@ describe("buildPlan nad fixtureima", () => {
     expect(at("KLPD-Meu4e8")).toBe("2020-02-09T19:00:00Z");
     expect(at("CUJmOc91C64")).toBe("2026-07-16T15:00:00Z");
     expect(plan.episodes.filter((e) => e.tier === 1).every((e) => e.publishedAt === null)).toBe(true);
+  });
+
+  it("podcast iz backfilla za oba tiera; bez zapisa null (odluka 1208)", () => {
+    const podcastSlugs = new Map([
+      ["KLPD-Meu4e8", "hrt-otvoreno"],
+      ["CUJmOc91C64", "hobba-podcast"],
+    ]);
+    const p = buildPlan({ ...input, podcastSlugs });
+    const pod = (id: string) => p.episodes.find((e) => e.id === id)?.podcast;
+    expect(pod("KLPD-Meu4e8")).toBe("hrt-otvoreno");
+    expect(pod("CUJmOc91C64")).toBe("hobba-podcast");
+    expect(plan.episodes.every((e) => e.podcast === null)).toBe(true);
   });
 
   it("bez backfilla: Tier 2 s timestampom broji se kao timestamp, ostalo kao izvor", () => {

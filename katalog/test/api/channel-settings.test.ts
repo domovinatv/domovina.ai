@@ -279,6 +279,7 @@ describe("GET /episodes/:id/card: status i maskirana ocjena", () => {
       lang: "hr",
       variant_of: null,
       published_at: null,
+      podcast: null,
       channel: { slug: "aktivan", name: "Kanal aktivan", tier: 1 },
     });
   });
